@@ -83,3 +83,20 @@ python main.py
 ## License
 
 This project uses Apache 2.0 and MIT licensed dependencies. See `requirements.txt` for details.
+
+## RunPod Persistence
+
+**Important:** On RunPod, `/workspace/` is typically mounted as a **persistent volume**. This means:
+
+✅ **PERSISTS** (saved when you pause/restart):
+- All files in `/workspace/` (detections, models, processed videos)
+- Any data saved to mounted persistent volumes
+
+❌ **DOES NOT PERSIST** (ephemeral storage):
+- Files in `/root/` or `/tmp/` (unless on persistent volume)
+- System packages installed without volume mounting
+- Temporary files outside `/workspace/`
+
+**Best Practice:** Always save outputs to `/workspace/` subfolders to ensure data persistence across pod restarts.
+
+**Note:** Verify your RunPod volume configuration to confirm `/workspace/` is mounted as a persistent volume.

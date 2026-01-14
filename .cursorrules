@@ -55,3 +55,8 @@ Check your work at every step to validate before moving on
 - Any temporary or intermediate files → `/workspace/temp/`
 
 **IMPORTANT:** Always use `/workspace/` as the base path for all saved outputs. Never save to project root or relative paths for production data.
+
+## RunPod Persistence Reminder
+- `/workspace/` is persistent - data survives pod pause/restart
+- `/root/` and `/tmp/` are ephemeral - data is lost on restart
+- Always save outputs to `/workspace/` subfolders for persistence
