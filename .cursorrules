@@ -46,3 +46,12 @@ Check your work at every step to validate before moving on
 
 ## Functions - Keep Them Small!
 **RULE: Functions should do ONE thing at ONE level of abstraction**
+
+## Workspace Path Configuration (CRITICAL)
+**ALL output files must be saved to /workspace subfolder:**
+- Detections (JSON, CSV, etc.) → `/workspace/detections/`
+- Models (.pt, .engine files) → `/workspace/models/`
+- Processed videos (with boxes/annotations) → `/workspace/videos/`
+- Any temporary or intermediate files → `/workspace/temp/`
+
+**IMPORTANT:** Always use `/workspace/` as the base path for all saved outputs. Never save to project root or relative paths for production data.

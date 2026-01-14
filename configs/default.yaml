@@ -1,0 +1,25 @@
+# Default Configuration for Soccer Coach AI
+
+# Workspace Paths (CRITICAL - All outputs go here)
+workspace:
+  base_path: "/workspace"
+  detections: "/workspace/detections"
+  models: "/workspace/models"
+  videos: "/workspace/videos"
+  temp: "/workspace/temp"
+
+# Detection Settings
+detection:
+  confidence_threshold: 0.5
+  iou_threshold: 0.45
+
+# Tracking Settings
+tracking:
+  min_track_length: 5
+  max_disappeared: 30
+
+# Visualization
+visualization:
+  show_boxes: true
+  show_tracks: true
+  show_labels: true
