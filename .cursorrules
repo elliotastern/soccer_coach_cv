@@ -1,0 +1,48 @@
+# Core Principles
+
+## Testing & Validation (Priority 1)
+- Use diverse test scripts to validate everything
+- Cross-check data from multiple sources
+- Use computer vision to validate charts/dashboards
+
+## Real Data Only (CRITICAL)
+- NEVER use mock/placeholder/dummy data
+- NEVER use Lorem ipsum, example.jpg, or test values
+- Only exception: when explicitly asked to "use mock data"
+
+## Code Style
+- Maximize readability
+- Use least amount of code possible
+- Break problems into smaller steps
+
+## Naming Conventions
+- Variables: `lowercase_with_underscores`
+
+## Workflow
+- No classes or functional programming
+- Data science style: linear execution flow
+- Follow steps in order, don't skip ahead
+- Create test scripts with debugging for everything
+- Validate at every step before moving on
+
+## Functions
+- Max 20 lines (prefer 5-10)
+- Max 3 parameters
+- Single responsibility only
+- One level of abstraction
+
+## Error Handling
+- Fail fast with clear error messages
+- Provide context in exceptions
+
+## Break Problems Down
+If stuck, break the problem into smaller steps and solve each smaller step
+
+### Key Naming Rules:
+- Names reveal intent: `days_since_modification` not `d`
+
+## Validate at Every Step
+Check your work at every step to validate before moving on
+
+## Functions - Keep Them Small!
+**RULE: Functions should do ONE thing at ONE level of abstraction**
