@@ -26,6 +26,17 @@ soccer-ai/
 └── tests/                 # Benchmark scripts
 ```
 
+## Workspace Configuration
+
+**CRITICAL:** All output files (detections, models, processed videos) must be saved to `/workspace/` subfolders:
+
+- **Detections** → `/workspace/detections/` (JSON, CSV detection results)
+- **Models** → `/workspace/models/` (.pt, .engine model files)
+- **Processed Videos** → `/workspace/videos/` (annotated output videos)
+- **Temporary Files** → `/workspace/temp/` (intermediate processing files)
+
+The project structure directories (`data/`, `models/`) are for development/testing. Production outputs go to `/workspace/`.
+
 ## Directory Descriptions
 
 ### Core Files
