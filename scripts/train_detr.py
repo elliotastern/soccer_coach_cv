@@ -108,7 +108,7 @@ def main():
     
     # Setup TensorBoard
     writer = None
-    if config['logging']['tensorboard']:
+    if False and config['logging']['tensorboard']:
         writer = SummaryWriter(log_dir=config['logging']['log_dir'])
     
     # Create datasets
@@ -174,6 +174,18 @@ def main():
             mlflow.log_params({
                 'train_samples': len(train_dataset),
                 'val_samples': len(val_dataset),
+            })
+            
+            # Log performance goals
+            mlflow.log_params({
+                'goal_player_recall_05': 0.95,
+                'goal_player_precision_05': 0.80,
+                'goal_player_map_05': 0.85,
+                'goal_player_map_75': 0.70,
+                'goal_ball_recall_05': 0.80,
+                'goal_ball_precision_05': 0.70,
+                'goal_ball_map_05': 0.70,
+                'goal_ball_avg_predictions_per_image': 1.0,
             })
             
             print(f"MLflow tracking enabled. Run ID: {mlflow_run.info.run_id}")
