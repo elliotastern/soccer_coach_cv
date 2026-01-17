@@ -1,5 +1,7 @@
 # Soccer Analysis Pipeline
 
+**GitHub Repository**: https://github.com/elliotastern/soccer_coach_cv
+
 Automated football analysis pipeline using RF-DETR detection, ByteTrack tracking, and heuristic event detection.
 
 ## Architecture

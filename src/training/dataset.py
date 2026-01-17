@@ -7,8 +7,11 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import torch
 from torch.utils.data import Dataset
-from PIL import Image
+from PIL import Image, ImageFile
 import numpy as np
+
+# Enable loading truncated images
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class CocoDataset(Dataset):
@@ -70,9 +73,39 @@ class CocoDataset(Dataset):
         image_id = self.image_ids[idx]
         image_info = self.images[image_id]
         
-        # Load image
+        # Load image with error handling for corrupted files
         image_path = self.dataset_dir / "images" / image_info['file_name']
-        image = Image.open(image_path).convert('RGB')
+        try:
+            image = Image.open(image_path)
+            # Try to load and convert
+            try:
+                image.load()
+                image = image.convert('RGB')
+            except (OSError, IOError):
+                # If image is corrupted, create a black placeholder
+                print(f"Warning: Corrupted image {image_path.name}, using placeholder")
+                image = Image.new('RGB', (1920, 1080), (0, 0, 0))
+        except Exception as e:
+            # Skip corrupted images - return a black image with no annotations
+            print(f"Warning: Skipping corrupted image {image_path}: {e}")
+            image = Image.new('RGB', (1920, 1080), (0, 0, 0))
+            boxes = torch.zeros((0, 4), dtype=torch.float32)
+            labels = torch.zeros((0,), dtype=torch.int64)
+            areas = torch.zeros((0,), dtype=torch.float32)
+            iscrowd = torch.zeros((0,), dtype=torch.int64)
+            
+            target = {
+                'boxes': boxes,
+                'labels': labels,
+                'image_id': torch.tensor([image_id], dtype=torch.int64),
+                'area': areas,
+                'iscrowd': iscrowd
+            }
+            
+            if self.transforms:
+                image, target = self.transforms(image, target)
+            
+            return image, target
         
         # Get annotations for this image
         annotations = self.image_annotations.get(image_id, [])

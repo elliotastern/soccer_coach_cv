@@ -29,10 +29,22 @@ def load_config(config_path: str) -> dict:
 
 
 def setup_device() -> torch.device:
-    """Setup GPU/CPU device"""
+    """Setup GPU/CPU device with optimizations"""
     if torch.cuda.is_available():
         device = torch.device('cuda')
         print(f"Using GPU: {torch.cuda.get_device_name(0)}")
+        
+        # Enable CUDA optimizations
+        torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
+        torch.backends.cudnn.deterministic = False  # Faster, but non-deterministic
+        
+        # Enable TF32 on Ampere GPUs (A40) for faster matmul operations
+        if torch.cuda.get_device_capability()[0] >= 8:  # Ampere or newer
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
+            print("TF32 enabled for Ampere GPU (faster matmul operations)")
+        
+        print("CUDA optimizations enabled")
     else:
         device = torch.device('cpu')
         print("Using CPU")
@@ -105,14 +117,16 @@ def main():
     print(f"Training samples: {len(train_dataset)}")
     print(f"Validation samples: {len(val_dataset)}")
     
-    # Create data loaders
+    # Create data loaders with optimizations
     train_loader = DataLoader(
         train_dataset,
         batch_size=config['training']['batch_size'],
         shuffle=True,
         num_workers=config['dataset']['num_workers'],
         pin_memory=config['dataset']['pin_memory'],
-        collate_fn=collate_fn
+        collate_fn=collate_fn,
+        prefetch_factor=config['dataset'].get('prefetch_factor', 2),
+        persistent_workers=config['dataset'].get('persistent_workers', False) if config['dataset']['num_workers'] > 0 else False
     )
     
     val_loader = DataLoader(
@@ -121,13 +135,35 @@ def main():
         shuffle=False,
         num_workers=config['dataset']['num_workers'],
         pin_memory=config['dataset']['pin_memory'],
-        collate_fn=collate_fn
+        collate_fn=collate_fn,
+        prefetch_factor=config['dataset'].get('prefetch_factor', 2),
+        persistent_workers=config['dataset'].get('persistent_workers', False) if config['dataset']['num_workers'] > 0 else False
     )
     
     # Create model
     print("Initializing model...")
     model = get_detr_model(config['model'])
     model = model.to(device)
+    
+    # Convert to channels-last memory format for faster convolutions
+    if config['training'].get('channels_last', False) and device.type == 'cuda':
+        try:
+            print("Converting model to channels-last memory format...")
+            model = model.to(memory_format=torch.channels_last)
+            print("Model converted to channels-last format")
+        except Exception as e:
+            print(f"Warning: Channels-last conversion failed: {e}")
+            print("Continuing with default memory format...")
+    
+    # Compile model for optimization (PyTorch 2.0+)
+    if config['training'].get('compile_model', False):
+        try:
+            print("Compiling model with torch.compile...")
+            model = torch.compile(model, mode='reduce-overhead')
+            print("Model compiled successfully!")
+        except Exception as e:
+            print(f"Warning: Model compilation failed: {e}")
+            print("Continuing without compilation...")
     
     # Create trainer
     trainer = Trainer(
