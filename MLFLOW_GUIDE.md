@@ -94,6 +94,16 @@ Open http://localhost:5000 in your browser.
 - `num_workers`: DataLoader workers
 - `prefetch_factor`: DataLoader prefetch factor
 
+**Performance Goals:**
+- `goal_player_recall_05`: Target player recall at IoU 0.5 (0.95)
+- `goal_player_precision_05`: Target player precision at IoU 0.5 (0.80)
+- `goal_player_map_05`: Target player mAP at IoU 0.5 (0.85)
+- `goal_player_map_75`: Target player mAP at IoU 0.75 (0.70)
+- `goal_ball_recall_05`: Target ball recall at IoU 0.5 (0.80)
+- `goal_ball_precision_05`: Target ball precision at IoU 0.5 (0.70)
+- `goal_ball_map_05`: Target ball mAP at IoU 0.5 (0.70)
+- `goal_ball_avg_predictions_per_image`: Target average ball predictions per image (1.0)
+
 ### Metrics
 
 **Training Metrics:**
@@ -113,16 +123,82 @@ Open http://localhost:5000 in your browser.
 - `val_f1`: Overall validation F1 score
 
 **Per-Class Validation Metrics (logged every 10 epochs):**
-- `val_player_map`: Player class mAP
-- `val_player_precision`: Player class precision
-- `val_player_recall`: Player class recall
+
+**Player Metrics (IoU 0.5):**
+- `val_player_map_05`: Player class mAP at IoU 0.5
+- `val_player_precision_05`: Player class precision at IoU 0.5
+- `val_player_recall_05`: Player class recall at IoU 0.5
 - `val_player_f1`: Player class F1 score
-- `val_ball_map`: Ball class mAP
-- `val_ball_precision`: Ball class precision
-- `val_ball_recall`: Ball class recall
+
+**Player Metrics (IoU 0.75):**
+- `val_player_map_75`: Player class mAP at IoU 0.75 (stricter localization)
+
+**Ball Metrics (IoU 0.5):**
+- `val_ball_map_05`: Ball class mAP at IoU 0.5
+- `val_ball_precision_05`: Ball class precision at IoU 0.5
+- `val_ball_recall_05`: Ball class recall at IoU 0.5
 - `val_ball_f1`: Ball class F1 score
 
-These per-class metrics allow you to track performance separately for players and balls, helping identify if one class is learning better than the other.
+**Ball Metrics (IoU 0.75):**
+- `val_ball_map_75`: Ball class mAP at IoU 0.75 (stricter localization)
+
+**Ball Detection Count:**
+- `val_ball_avg_predictions_per_image`: Average number of ball predictions per image that contains balls
+- `val_images_with_balls`: Number of validation images containing balls
+
+**Goal Tracking Metrics:**
+- `goal_player_recall_05_achieved`: 1.0 if player recall ≥ 95%, else 0.0
+- `goal_player_precision_05_achieved`: 1.0 if player precision ≥ 80%, else 0.0
+- `goal_player_map_05_achieved`: 1.0 if player mAP@0.5 ≥ 85%, else 0.0
+- `goal_player_map_75_achieved`: 1.0 if player mAP@0.75 ≥ 70%, else 0.0
+- `goal_ball_recall_05_achieved`: 1.0 if ball recall ≥ 80%, else 0.0
+- `goal_ball_precision_05_achieved`: 1.0 if ball precision ≥ 70%, else 0.0
+- `goal_ball_map_05_achieved`: 1.0 if ball mAP@0.5 ≥ 70%, else 0.0
+- `goal_ball_avg_predictions_achieved`: 1.0 if avg ball predictions ≥ 1.0 per image, else 0.0
+
+**Goal Progress Metrics:**
+- `goal_player_recall_05_progress`: Percentage progress toward 95% recall goal
+- `goal_player_precision_05_progress`: Percentage progress toward 80% precision goal
+- `goal_player_map_05_progress`: Percentage progress toward 85% mAP@0.5 goal
+- `goal_player_map_75_progress`: Percentage progress toward 70% mAP@0.75 goal
+- `goal_ball_recall_05_progress`: Percentage progress toward 80% recall goal
+- `goal_ball_precision_05_progress`: Percentage progress toward 70% precision goal
+- `goal_ball_map_05_progress`: Percentage progress toward 70% mAP@0.5 goal
+- `goal_ball_avg_predictions_progress`: Percentage progress toward 1.0 predictions per image goal
+
+These metrics allow you to track performance separately for players and balls at different IoU thresholds, and monitor progress toward your performance goals.
+
+## Understanding Training Metrics
+
+This section explains what each metric measures.
+
+### Learning Rate (`learning_rate`)
+
+**What it is:** The current learning rate used by the optimizer during training. Controls how large steps the model takes when updating weights.
+
+### Total Training Loss (`train_loss`)
+
+**What it is:** The overall training loss, which is the sum of all loss components (classification + bounding box + GIoU). Measures how well the model is performing on training data.
+
+### Classification Loss (`train_loss_ce`)
+
+**What it is:** The cross-entropy loss for object classification. Measures how accurately the model predicts whether an object is a player, ball, or background.
+
+### Bounding Box Regression Loss (`train_loss_bbox`)
+
+**What it is:** The L1 loss for bounding box coordinates. Measures how accurately the model predicts the x, y, width, and height of bounding boxes around objects.
+
+### Generalized IoU Loss (`train_loss_giou`)
+
+**What it is:** The Generalized Intersection over Union (GIoU) loss. Measures how well predicted bounding boxes overlap with ground-truth boxes.
+
+### Validation Metrics
+
+**Mean Average Precision (`val_map`):**
+- **What it is:** Overall detection accuracy combining both classification and localization performance across all classes.
+
+**Per-Class Metrics (`val_player_map`, `val_ball_map`, etc.):**
+- **What it is:** Detection accuracy for each class separately (players and balls). Helps identify if one class is learning better than another.
 
 ### Artifacts
 
@@ -272,6 +348,7 @@ mlflow.pytorch.save_model(
     registered_model_name="detr_player_ball_detector"
 )
 ```
+
 
 ## Additional Resources
 

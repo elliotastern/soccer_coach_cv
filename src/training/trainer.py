@@ -409,9 +409,16 @@ class Trainer:
         print(f"Validation Precision: {eval_metrics['precision']:.4f}")
         print(f"Validation Recall: {eval_metrics['recall']:.4f}")
         print(f"Validation F1: {eval_metrics['f1']:.4f}")
-        print(f"\nPer-Class Metrics:")
-        print(f"  Player - mAP: {eval_metrics['player_map']:.4f}, Precision: {eval_metrics['player_precision']:.4f}, Recall: {eval_metrics['player_recall']:.4f}, F1: {eval_metrics['player_f1']:.4f}")
-        print(f"  Ball   - mAP: {eval_metrics['ball_map']:.4f}, Precision: {eval_metrics['ball_precision']:.4f}, Recall: {eval_metrics['ball_recall']:.4f}, F1: {eval_metrics['ball_f1']:.4f}")
+        print(f"\nPer-Class Metrics (IoU 0.5):")
+        print(f"  Player - mAP@0.5: {eval_metrics.get('player_map_05', eval_metrics.get('player_map', 0.0)):.4f}, Precision: {eval_metrics.get('player_precision_05', eval_metrics.get('player_precision', 0.0)):.4f}, Recall: {eval_metrics.get('player_recall_05', eval_metrics.get('player_recall', 0.0)):.4f}, F1: {eval_metrics.get('player_f1', 0.0):.4f}")
+        print(f"  Ball   - mAP@0.5: {eval_metrics.get('ball_map_05', eval_metrics.get('ball_map', 0.0)):.4f}, Precision: {eval_metrics.get('ball_precision_05', eval_metrics.get('ball_precision', 0.0)):.4f}, Recall: {eval_metrics.get('ball_recall_05', eval_metrics.get('ball_recall', 0.0)):.4f}, F1: {eval_metrics.get('ball_f1', 0.0):.4f}")
+        print(f"\nPer-Class Metrics (IoU 0.75):")
+        print(f"  Player - mAP@0.75: {eval_metrics.get('player_map_75', 0.0):.4f}")
+        print(f"  Ball   - mAP@0.75: {eval_metrics.get('ball_map_75', 0.0):.4f}")
+        if 'ball_avg_predictions_per_image' in eval_metrics:
+            print(f"\nBall Detection:")
+            print(f"  Avg predictions per image with balls: {eval_metrics['ball_avg_predictions_per_image']:.2f}")
+            print(f"  Images with balls: {eval_metrics.get('images_with_balls', 0)}")
         
         if self.writer:
             self.writer.add_scalar('Val/mAP', map_score, epoch)
@@ -430,19 +437,44 @@ class Trainer:
         
         # MLflow logging for validation
         if self.use_mlflow:
+            # Overall metrics
             mlflow.log_metric('val_map', map_score, step=epoch)
             mlflow.log_metric('val_precision', eval_metrics['precision'], step=epoch)
             mlflow.log_metric('val_recall', eval_metrics['recall'], step=epoch)
             mlflow.log_metric('val_f1', eval_metrics['f1'], step=epoch)
-            # Per-class metrics for visualization
-            mlflow.log_metric('val_player_map', eval_metrics['player_map'], step=epoch)
-            mlflow.log_metric('val_player_precision', eval_metrics['player_precision'], step=epoch)
-            mlflow.log_metric('val_player_recall', eval_metrics['player_recall'], step=epoch)
+            
+            # Player metrics at IoU 0.5
+            mlflow.log_metric('val_player_map_05', eval_metrics['player_map_05'], step=epoch)
+            mlflow.log_metric('val_player_precision_05', eval_metrics['player_precision_05'], step=epoch)
+            mlflow.log_metric('val_player_recall_05', eval_metrics['player_recall_05'], step=epoch)
             mlflow.log_metric('val_player_f1', eval_metrics['player_f1'], step=epoch)
-            mlflow.log_metric('val_ball_map', eval_metrics['ball_map'], step=epoch)
-            mlflow.log_metric('val_ball_precision', eval_metrics['ball_precision'], step=epoch)
-            mlflow.log_metric('val_ball_recall', eval_metrics['ball_recall'], step=epoch)
+            
+            # Player metrics at IoU 0.75
+            mlflow.log_metric('val_player_map_75', eval_metrics['player_map_75'], step=epoch)
+            
+            # Ball metrics at IoU 0.5
+            mlflow.log_metric('val_ball_map_05', eval_metrics['ball_map_05'], step=epoch)
+            mlflow.log_metric('val_ball_precision_05', eval_metrics['ball_precision_05'], step=epoch)
+            mlflow.log_metric('val_ball_recall_05', eval_metrics['ball_recall_05'], step=epoch)
             mlflow.log_metric('val_ball_f1', eval_metrics['ball_f1'], step=epoch)
+            
+            # Ball metrics at IoU 0.75
+            mlflow.log_metric('val_ball_map_75', eval_metrics['ball_map_75'], step=epoch)
+            
+            # Ball count metric
+            mlflow.log_metric('val_ball_avg_predictions_per_image', eval_metrics['ball_avg_predictions_per_image'], step=epoch)
+            mlflow.log_metric('val_images_with_balls', eval_metrics['images_with_balls'], step=epoch)
+            
+            # Legacy metrics (for backward compatibility)
+            mlflow.log_metric('val_player_map', eval_metrics.get('player_map', eval_metrics['player_map_05']), step=epoch)
+            mlflow.log_metric('val_player_precision', eval_metrics.get('player_precision', eval_metrics['player_precision_05']), step=epoch)
+            mlflow.log_metric('val_player_recall', eval_metrics.get('player_recall', eval_metrics['player_recall_05']), step=epoch)
+            mlflow.log_metric('val_ball_map', eval_metrics.get('ball_map', eval_metrics['ball_map_05']), step=epoch)
+            mlflow.log_metric('val_ball_precision', eval_metrics.get('ball_precision', eval_metrics['ball_precision_05']), step=epoch)
+            mlflow.log_metric('val_ball_recall', eval_metrics.get('ball_recall', eval_metrics['ball_recall_05']), step=epoch)
+            
+            # Goal tracking - log goal achievement status
+            self._log_goals_to_mlflow(eval_metrics, epoch)
         
         # Final cleanup after validation
         del all_predictions, all_targets
@@ -451,6 +483,76 @@ class Trainer:
         gc.collect()
         
         return map_score
+    
+    def _log_goals_to_mlflow(self, eval_metrics: Dict[str, float], epoch: int):
+        """
+        Log goal tracking metrics to MLflow
+        
+        Args:
+            eval_metrics: Dictionary of evaluation metrics
+            epoch: Current epoch number
+        """
+        if not self.use_mlflow:
+            return
+        
+        # Define goals
+        goals = {
+            # Player goals
+            'goal_player_recall_05': 0.95,
+            'goal_player_precision_05': 0.80,
+            'goal_player_map_05': 0.85,
+            'goal_player_map_75': 0.70,
+            
+            # Ball goals
+            'goal_ball_recall_05': 0.80,
+            'goal_ball_precision_05': 0.70,
+            'goal_ball_map_05': 0.70,
+            'goal_ball_avg_predictions_per_image': 1.0,  # At least 1 prediction per image with balls
+        }
+        
+        # Log goal achievement status (1.0 = achieved, 0.0 = not achieved)
+        goal_achievements = {}
+        
+        # Player goals
+        player_recall_05 = eval_metrics.get('player_recall_05', 0.0)
+        player_precision_05 = eval_metrics.get('player_precision_05', 0.0)
+        player_map_05 = eval_metrics.get('player_map_05', 0.0)
+        player_map_75 = eval_metrics.get('player_map_75', 0.0)
+        
+        goal_achievements['goal_player_recall_05_achieved'] = 1.0 if player_recall_05 >= goals['goal_player_recall_05'] else 0.0
+        goal_achievements['goal_player_precision_05_achieved'] = 1.0 if player_precision_05 >= goals['goal_player_precision_05'] else 0.0
+        goal_achievements['goal_player_map_05_achieved'] = 1.0 if player_map_05 >= goals['goal_player_map_05'] else 0.0
+        goal_achievements['goal_player_map_75_achieved'] = 1.0 if player_map_75 >= goals['goal_player_map_75'] else 0.0
+        
+        # Ball goals
+        ball_recall_05 = eval_metrics.get('ball_recall_05', 0.0)
+        ball_precision_05 = eval_metrics.get('ball_precision_05', 0.0)
+        ball_map_05 = eval_metrics.get('ball_map_05', 0.0)
+        ball_avg_preds = eval_metrics.get('ball_avg_predictions_per_image', 0.0)
+        
+        goal_achievements['goal_ball_recall_05_achieved'] = 1.0 if ball_recall_05 >= goals['goal_ball_recall_05'] else 0.0
+        goal_achievements['goal_ball_precision_05_achieved'] = 1.0 if ball_precision_05 >= goals['goal_ball_precision_05'] else 0.0
+        goal_achievements['goal_ball_map_05_achieved'] = 1.0 if ball_map_05 >= goals['goal_ball_map_05'] else 0.0
+        goal_achievements['goal_ball_avg_predictions_achieved'] = 1.0 if ball_avg_preds >= goals['goal_ball_avg_predictions_per_image'] else 0.0
+        
+        # Log goal achievement metrics
+        for goal_name, achieved in goal_achievements.items():
+            mlflow.log_metric(goal_name, achieved, step=epoch)
+        
+        # Log goal vs actual comparison (as percentage of goal)
+        goal_progress = {
+            'goal_player_recall_05_progress': (player_recall_05 / goals['goal_player_recall_05']) * 100 if goals['goal_player_recall_05'] > 0 else 0.0,
+            'goal_player_precision_05_progress': (player_precision_05 / goals['goal_player_precision_05']) * 100 if goals['goal_player_precision_05'] > 0 else 0.0,
+            'goal_player_map_05_progress': (player_map_05 / goals['goal_player_map_05']) * 100 if goals['goal_player_map_05'] > 0 else 0.0,
+            'goal_player_map_75_progress': (player_map_75 / goals['goal_player_map_75']) * 100 if goals['goal_player_map_75'] > 0 else 0.0,
+            'goal_ball_recall_05_progress': (ball_recall_05 / goals['goal_ball_recall_05']) * 100 if goals['goal_ball_recall_05'] > 0 else 0.0,
+            'goal_ball_precision_05_progress': (ball_precision_05 / goals['goal_ball_precision_05']) * 100 if goals['goal_ball_precision_05'] > 0 else 0.0,
+            'goal_ball_map_05_progress': (ball_map_05 / goals['goal_ball_map_05']) * 100 if goals['goal_ball_map_05'] > 0 else 0.0,
+            'goal_ball_avg_predictions_progress': (ball_avg_preds / goals['goal_ball_avg_predictions_per_image']) * 100 if goals['goal_ball_avg_predictions_per_image'] > 0 else 0.0,
+        }
+        
+        for progress_name, progress_value in goal_progress.items():
+            mlflow.log_metric(progress_name, min(progress_value, 100.0), step=epoch)  # Cap at 100%
     
     def save_checkpoint(self, epoch: int, map_score: float, is_best: bool = False, 
                        is_interrupt: bool = False, lightweight: bool = False):
@@ -589,6 +691,19 @@ class Trainer:
                 if save_every_epoch:
                     # Save lightweight checkpoint every epoch
                     self.save_checkpoint(epoch, 0.0, is_best=False, is_interrupt=False, lightweight=True)
+                    
+                    # Keep only last N lightweight checkpoints to save space (keep last 20)
+                    # This balances frequent saves with disk space
+                    keep_last_n = self.config['checkpoint'].get('keep_last_lightweight', 20)
+                    if epoch >= keep_last_n:
+                        import os
+                        checkpoint_dir = Path(self.config['checkpoint']['save_dir'])
+                        old_lightweight = checkpoint_dir / f"checkpoint_epoch_{epoch - keep_last_n}_lightweight.pth"
+                        if old_lightweight.exists():
+                            try:
+                                old_lightweight.unlink()
+                            except:
+                                pass  # Ignore deletion errors
                 
                 # Validate less frequently for speed (every 10 epochs instead of 5)
                 validate_frequency = 10

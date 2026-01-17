@@ -14,7 +14,7 @@ model:
 # Hyperparameters
 training:
   batch_size: 24  # Aggressively optimized for A40 (48GB VRAM) - can go higher if needed
-  num_epochs: 50
+  num_epochs: 100  # Increased to continue training from checkpoint
   learning_rate: 0.0001  # 1e-4 as float
   weight_decay: 0.0001  # 1e-4 as float
   warmup_epochs: 5
@@ -78,6 +78,7 @@ checkpoint:
   save_dir: "models/checkpoints"
   save_frequency: 10  # Save full checkpoint every N epochs (reduced frequency for speed)
   save_every_epoch: true  # Save lightweight checkpoint every epoch (ensures no progress loss)
+  keep_last_lightweight: 20  # Keep last N lightweight checkpoints (deletes older ones to save space)
   save_best: true
   metric: "mAP"  # Mean Average Precision
 

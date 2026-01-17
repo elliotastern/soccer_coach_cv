@@ -38,6 +38,8 @@ class DETRWrapper(nn.Module):
             return self._forward_inference(images)
     
     def _forward_train(self, images: List[torch.Tensor], targets: List[Dict]):
+        # Store captured loss_dict (will be populated by patched loss function)
+        captured_loss_dict = {}
         """Training forward pass"""
         # Prepare inputs for transformers DETR
         # Convert images to PIL and process
@@ -113,6 +115,9 @@ class DETRWrapper(nn.Module):
         # Patch the loss_function to use correct num_labels
         original_loss_fn = self.detr_model.loss_function
         
+        # Store loss_dict from loss function call
+        captured_loss_dict = {}
+        
         def patched_loss_function(logits, labels, device, pred_boxes, config, outputs_class=None, outputs_coord=None, **kwargs):
             """Patched loss function with class weighting for imbalanced dataset"""
             # CRITICAL: Set num_labels to number of object classes (not including background)
@@ -122,6 +127,11 @@ class DETRWrapper(nn.Module):
             loss, loss_dict, auxiliary_outputs = original_loss_fn(
                 logits, labels, device, pred_boxes, config, outputs_class, outputs_coord, **kwargs
             )
+            
+            # Capture loss_dict for later use (keep tensors in computation graph)
+            captured_loss_dict.clear()
+            for key, value in loss_dict.items():
+                captured_loss_dict[key] = value
             
             # Apply class weighting by scaling loss based on class distribution in batch
             # This approximates proper class weighting
@@ -171,12 +181,24 @@ class DETRWrapper(nn.Module):
             # Restore original loss function
             self.detr_model.loss_function = original_loss_fn
         
-        # Convert loss to torchvision format
-        loss_dict = {
-            'loss_ce': outputs.loss,
-            'loss_bbox': torch.tensor(0.0, device=outputs.loss.device, dtype=outputs.loss.dtype),  # Combined in loss
-            'loss_giou': torch.tensor(0.0, device=outputs.loss.device, dtype=outputs.loss.dtype),  # Combined in loss
-        }
+        # Extract actual loss components from captured loss_dict
+        # DETR loss_dict typically contains: loss_ce, loss_bbox, loss_giou, loss_cardinality
+        # Map to torchvision format
+        if not captured_loss_dict:
+            # Fallback if loss_dict wasn't captured (shouldn't happen, but be safe)
+            loss_dict = {
+                'loss_ce': outputs.loss,
+                'loss_bbox': torch.tensor(0.0, device=outputs.loss.device, dtype=outputs.loss.dtype),
+                'loss_giou': torch.tensor(0.0, device=outputs.loss.device, dtype=outputs.loss.dtype),
+            }
+        else:
+            # Use actual loss components from DETR
+            # DETR uses these keys: 'loss_ce', 'loss_bbox', 'loss_giou', 'loss_cardinality'
+            loss_dict = {
+                'loss_ce': captured_loss_dict.get('loss_ce', outputs.loss),
+                'loss_bbox': captured_loss_dict.get('loss_bbox', torch.tensor(0.0, device=outputs.loss.device, dtype=outputs.loss.dtype)),
+                'loss_giou': captured_loss_dict.get('loss_giou', torch.tensor(0.0, device=outputs.loss.device, dtype=outputs.loss.dtype)),
+            }
         
         # Clean up intermediate tensors
         del pixel_values, pixel_mask, labels, outputs
