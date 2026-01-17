@@ -119,6 +119,12 @@ Open http://localhost:5000 in your browser.
   - Best model checkpoint
   - Accessible via MLflow UI or API
 
+- **Models**: Models saved in MLflow's native PyTorch format
+  - **Every epoch**: Model saved at `models/epoch_{N}/` for each epoch
+  - **Best model**: Also saved at `model/` path for easy access
+  - Can be loaded directly with `mlflow.pytorch.load_model()`
+  - Includes model metadata (epoch, mAP, is_best flag, config)
+
 ## Configuration
 
 Edit `configs/training.yaml` to configure MLflow:
@@ -172,9 +178,17 @@ best_runs = runs.sort_values('metrics.val_map', ascending=False)
 ```python
 import mlflow.pytorch
 
-# Load best model
+# Load best model (saved at standard "model" path)
 best_run_id = best_runs.iloc[0]['run_id']
 model = mlflow.pytorch.load_model(f"runs:/{best_run_id}/model")
+
+# Or load model from specific epoch
+model = mlflow.pytorch.load_model(f"runs:/{run_id}/models/epoch_10")
+
+# Get all available models for a run
+import mlflow
+run = mlflow.get_run(run_id)
+# Check artifacts to see all saved models
 ```
 
 ### Get Run Metrics
