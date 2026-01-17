@@ -13,25 +13,32 @@ model:
 
 # Hyperparameters
 training:
-  batch_size: 4  # Adjust based on GPU memory
+  batch_size: 24  # Aggressively optimized for A40 (48GB VRAM) - can go higher if needed
   num_epochs: 50
-  learning_rate: 1e-4
-  weight_decay: 1e-4
+  learning_rate: 0.0001  # 1e-4 as float
+  weight_decay: 0.0001  # 1e-4 as float
   warmup_epochs: 5
   gradient_clip: 0.1
+  gradient_accumulation_steps: 2  # Accumulate gradients over N batches to reduce memory
+  memory_cleanup_frequency: 10  # Cleanup memory every N batches
+  mixed_precision: true  # Enable AMP for faster training
+  compile_model: true  # Enable torch.compile optimization
+  channels_last: true  # Use channels-last memory format for faster convolutions
+  cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
+  tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
 
 # Optimizer
 optimizer:
   type: "AdamW"
-  lr: 1e-4
+  lr: 0.0001  # 1e-4 as float
   betas: [0.9, 0.999]
-  weight_decay: 1e-4
+  weight_decay: 0.0001  # 1e-4 as float
 
 # Learning Rate Schedule
 lr_schedule:
   type: "cosine"  # cosine annealing
   warmup_epochs: 5
-  min_lr: 1e-6
+  min_lr: 0.000001  # 1e-6 as float
 
 # Data Augmentation
 augmentation:
@@ -49,15 +56,18 @@ augmentation:
 
 # Dataset
 dataset:
-  train_path: "datasets/train"
-  val_path: "datasets/val"
-  num_workers: 4
+  train_path: "/workspace/datasets/train"
+  val_path: "/workspace/datasets/val"
+  num_workers: 6  # Reduced from 12 to prevent RAM overflow (12 workers × 4 prefetch = 48 batches in memory)
   pin_memory: true
+  prefetch_factor: 2  # Reduced from 4 to prevent RAM overflow
+  persistent_workers: true  # Keep workers alive between epochs for speed
 
 # Checkpoint Settings
 checkpoint:
   save_dir: "models/checkpoints"
-  save_frequency: 5  # Save every N epochs
+  save_frequency: 10  # Save full checkpoint every N epochs (reduced frequency for speed)
+  save_every_epoch: true  # Save lightweight checkpoint every epoch (ensures no progress loss)
   save_best: true
   metric: "mAP"  # Mean Average Precision
 
@@ -70,4 +80,5 @@ evaluation:
 logging:
   log_dir: "logs"
   tensorboard: true
-  print_frequency: 10  # Print every N iterations
+  print_frequency: 20  # Print every N iterations (reduced for less I/O overhead)
+  log_every_n_steps: 50  # Log to TensorBoard less frequently
