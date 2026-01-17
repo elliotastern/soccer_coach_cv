@@ -487,11 +487,58 @@ class Trainer:
         torch.save(checkpoint, latest_path)
         
         # Log checkpoint to MLflow
-        if self.use_mlflow and not lightweight:
+        if self.use_mlflow:
             try:
-                mlflow.log_artifact(str(checkpoint_path), artifact_path="checkpoints")
-                if is_best:
-                    mlflow.log_artifact(str(best_path), artifact_path="checkpoints")
+                if not lightweight:
+                    mlflow.log_artifact(str(checkpoint_path), artifact_path="checkpoints")
+                    if is_best:
+                        mlflow.log_artifact(str(best_path), artifact_path="checkpoints")
+                
+                # Save model in MLflow's native format every epoch
+                # Set model to eval mode for inference
+                self.model.eval()
+                try:
+                    # Use different artifact paths for different epochs
+                    model_artifact_path = f"models/epoch_{epoch}"
+                    
+                    # Log model in MLflow's native PyTorch format
+                    mlflow.pytorch.log_model(
+                        pytorch_model=self.model,
+                        artifact_path=model_artifact_path,
+                        registered_model_name=None,  # Can be set to register model
+                        metadata={
+                            "epoch": epoch,
+                            "map": map_score,
+                            "is_best": is_best,
+                            "model_config": self.config.get('model', {}),
+                            "training_config": self.config.get('training', {})
+                        }
+                    )
+                    
+                    if is_best:
+                        # Also save best model at standard "model" path for easy access
+                        mlflow.pytorch.log_model(
+                            pytorch_model=self.model,
+                            artifact_path="model",
+                            registered_model_name=None,
+                            metadata={
+                                "epoch": epoch,
+                                "map": map_score,
+                                "is_best": True,
+                                "model_config": self.config.get('model', {}),
+                                "training_config": self.config.get('training', {})
+                            }
+                        )
+                        print(f"Saved model in MLflow native format - epoch {epoch} (mAP: {map_score:.4f}, BEST)")
+                    else:
+                        print(f"Saved model in MLflow native format - epoch {epoch} (mAP: {map_score:.4f})")
+                        
+                except Exception as model_log_error:
+                    print(f"Warning: Failed to log model in MLflow native format: {model_log_error}")
+                finally:
+                    # Restore training mode
+                    self.model.train()
+                        
             except Exception as e:
                 print(f"Warning: Failed to log checkpoint to MLflow: {e}")
     
