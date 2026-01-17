@@ -15,6 +15,7 @@ from pathlib import Path
 import time
 import gc
 from src.training.evaluator import Evaluator
+from src.training.adaptive_optimizer import AdaptiveOptimizer
 
 # Mixed precision training
 from torch.amp import autocast, GradScaler
@@ -26,13 +27,22 @@ try:
 except ImportError:
     PSUTIL_AVAILABLE = False
 
+# MLflow tracking
+try:
+    import mlflow
+    import mlflow.pytorch
+    MLFLOW_AVAILABLE = True
+except ImportError:
+    MLFLOW_AVAILABLE = False
+    mlflow = None
+
 
 class Trainer:
     """DETR Trainer"""
     
     def __init__(self, model: nn.Module, train_loader: DataLoader,
                  val_loader: DataLoader, config: Dict, device: torch.device,
-                 writer: Optional[SummaryWriter] = None):
+                 writer: Optional[SummaryWriter] = None, mlflow_run=None):
         """
         Initialize trainer
         
@@ -43,6 +53,7 @@ class Trainer:
             config: Training configuration
             device: Device to train on
             writer: TensorBoard writer (optional)
+            mlflow_run: MLflow run object (optional)
         """
         self.model = model
         self.train_loader = train_loader
@@ -50,6 +61,8 @@ class Trainer:
         self.config = config
         self.device = device
         self.writer = writer
+        self.mlflow_run = mlflow_run
+        self.use_mlflow = mlflow_run is not None and MLFLOW_AVAILABLE
         
         # Setup mixed precision training (AMP)
         self.use_amp = config['training'].get('mixed_precision', False)
@@ -64,6 +77,18 @@ class Trainer:
         
         # Memory cleanup frequency
         self.memory_cleanup_frequency = config['training'].get('memory_cleanup_frequency', 10)
+        
+        # Setup adaptive optimizer (if enabled)
+        self.adaptive_optimizer = None
+        if config['training'].get('adaptive_optimization', False):
+            self.adaptive_optimizer = AdaptiveOptimizer(
+                initial_num_workers=config['dataset']['num_workers'],
+                initial_prefetch_factor=config['dataset'].get('prefetch_factor', 2),
+                target_gpu_utilization=config['training'].get('target_gpu_utilization', 0.85),
+                max_ram_usage=config['training'].get('max_ram_usage', 0.80),
+                adjustment_interval=config['training'].get('adaptive_adjustment_interval', 50)
+            )
+            print("Adaptive optimization enabled - monitoring resource usage")
         
         # Setup optimizer
         self.optimizer = AdamW(
@@ -139,12 +164,16 @@ class Trainer:
         
         # Initialize gradient accumulation
         accumulation_loss = 0.0
+        accumulation_loss_components = {}  # Track individual loss components
         accumulation_count = 0
         
         # Zero gradients at start
         self.optimizer.zero_grad()
         
         for batch_idx, (images, targets) in enumerate(self.train_loader):
+            # Track data loading time (approximate)
+            data_load_start = time.time()
+            
             # Move to device
             # DETR expects list of images, not batched tensor
             if isinstance(images, torch.Tensor):
@@ -155,10 +184,15 @@ class Trainer:
             targets = [{k: v.to(self.device) if isinstance(v, torch.Tensor) else v 
                        for k, v in t.items()} for t in targets]
             
+            data_load_time = time.time() - data_load_start
+            
             # Convert images to channels-last if enabled
             if hasattr(self.model, 'memory_format') and self.model.memory_format == torch.channels_last:
                 images = [img.to(memory_format=torch.channels_last) if isinstance(img, torch.Tensor) else img 
                          for img in images]
+            
+            # Track GPU processing time
+            gpu_start = time.time()
             
             # Forward pass with mixed precision
             if self.use_amp:
@@ -182,8 +216,18 @@ class Trainer:
                 # Backward pass
                 scaled_loss.backward()
             
-            # Accumulate loss
+            gpu_processing_time = time.time() - gpu_start
+            
+            # Record timing for adaptive optimizer
+            if self.adaptive_optimizer:
+                self.adaptive_optimizer.record_batch_timing(data_load_time, gpu_processing_time)
+            
+            # Accumulate loss and individual components
             accumulation_loss += losses.item()
+            for loss_name, loss_value in loss_dict.items():
+                if loss_name not in accumulation_loss_components:
+                    accumulation_loss_components[loss_name] = 0.0
+                accumulation_loss_components[loss_name] += loss_value.item()
             accumulation_count += 1
             
             # Only step optimizer after accumulation steps
@@ -209,6 +253,25 @@ class Trainer:
             
             # Scheduler step (every batch, not every accumulation step)
             self.scheduler.step()
+            
+            # Adaptive optimization check
+            if self.adaptive_optimizer:
+                adjustment = self.adaptive_optimizer.adjust_parameters(batch_idx)
+                if adjustment:
+                    print(f"\n🔧 Adaptive Optimization Adjustment (batch {batch_idx}):")
+                    for key, value in adjustment.items():
+                        if key != 'metrics':
+                            print(f"   {key}: {value}")
+                    if 'metrics' in adjustment:
+                        m = adjustment['metrics']
+                        print(f"   GPU util: {m['avg_gpu_utilization']:.1%}, RAM: {m['avg_ram_usage']:.1%}")
+                        print(f"   Data load: {m['avg_data_loading_time']:.3f}s, GPU process: {m['avg_gpu_processing_time']:.3f}s")
+                    
+                    # Log to MLflow
+                    if self.use_mlflow:
+                        for key, value in adjustment.items():
+                            if key != 'metrics':
+                                mlflow.log_metric(f'adaptive_{key}', value, step=self.global_step)
             
             # Memory cleanup
             del images, targets, loss_dict, losses
@@ -249,8 +312,25 @@ class Trainer:
                         for key, value in memory_info.items():
                             self.writer.add_scalar(f'Memory/{key}', value, self.global_step)
                 
+                # MLflow logging
+                if self.use_mlflow and self.global_step % log_every_n_steps == 0:
+                    current_lr = self.optimizer.param_groups[0]['lr']
+                    mlflow.log_metric('train_loss', avg_loss, step=self.global_step)
+                    mlflow.log_metric('learning_rate', current_lr, step=self.global_step)
+                    
+                    # Log individual loss components
+                    if accumulation_loss_components:
+                        for loss_name, loss_sum in accumulation_loss_components.items():
+                            avg_component_loss = loss_sum / accumulation_count if accumulation_count > 0 else 0.0
+                            mlflow.log_metric(f'train_{loss_name}', avg_component_loss, step=self.global_step)
+                    
+                    if memory_info:
+                        for key, value in memory_info.items():
+                            mlflow.log_metric(f'memory_{key}', value, step=self.global_step)
+                
                 # Reset accumulation
                 accumulation_loss = 0.0
+                accumulation_loss_components = {}
                 accumulation_count = 0
         
         # Handle remaining gradients if last batch didn't complete accumulation cycle
@@ -279,6 +359,9 @@ class Trainer:
             total_loss += avg_loss * accumulation_count
             num_batches += accumulation_count
             self.global_step += 1
+            
+            # Reset accumulation components for next epoch
+            accumulation_loss_components = {}
         
         avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
         return avg_loss
@@ -319,12 +402,26 @@ class Trainer:
                     gc.collect()
         
         # Evaluate
-        map_score = self.evaluator.evaluate(all_predictions, all_targets)
+        eval_metrics = self.evaluator.evaluate(all_predictions, all_targets)
+        map_score = eval_metrics['map']
         
         print(f"Validation mAP: {map_score:.4f}")
+        print(f"Validation Precision: {eval_metrics['precision']:.4f}")
+        print(f"Validation Recall: {eval_metrics['recall']:.4f}")
+        print(f"Validation F1: {eval_metrics['f1']:.4f}")
         
         if self.writer:
             self.writer.add_scalar('Val/mAP', map_score, epoch)
+            self.writer.add_scalar('Val/Precision', eval_metrics['precision'], epoch)
+            self.writer.add_scalar('Val/Recall', eval_metrics['recall'], epoch)
+            self.writer.add_scalar('Val/F1', eval_metrics['f1'], epoch)
+        
+        # MLflow logging for validation
+        if self.use_mlflow:
+            mlflow.log_metric('val_map', map_score, step=epoch)
+            mlflow.log_metric('val_precision', eval_metrics['precision'], step=epoch)
+            mlflow.log_metric('val_recall', eval_metrics['recall'], step=epoch)
+            mlflow.log_metric('val_f1', eval_metrics['f1'], step=epoch)
         
         # Final cleanup after validation
         del all_predictions, all_targets
@@ -388,6 +485,15 @@ class Trainer:
         # Save latest checkpoint (always overwrite)
         latest_path = checkpoint_dir / "latest_checkpoint.pth"
         torch.save(checkpoint, latest_path)
+        
+        # Log checkpoint to MLflow
+        if self.use_mlflow and not lightweight:
+            try:
+                mlflow.log_artifact(str(checkpoint_path), artifact_path="checkpoints")
+                if is_best:
+                    mlflow.log_artifact(str(best_path), artifact_path="checkpoints")
+            except Exception as e:
+                print(f"Warning: Failed to log checkpoint to MLflow: {e}")
     
     def train(self, start_epoch: int = 0, num_epochs: int = 50):
         """Main training loop"""
@@ -428,6 +534,14 @@ class Trainer:
                     
                     if (epoch + 1) % self.config['checkpoint']['save_frequency'] == 0:
                         self.save_checkpoint(epoch, map_score, is_best, is_interrupt=False, lightweight=False)
+                
+                # Print adaptive optimization stats at end of epoch
+                if self.adaptive_optimizer:
+                    stats = self.adaptive_optimizer.get_statistics()
+                    print(f"\n📊 Adaptive Optimization Stats:")
+                    print(f"   Adjustments made: {stats['adjustment_count']}")
+                    print(f"   Current workers: {stats['current_workers']}, prefetch: {stats['current_prefetch']}")
+                    print(f"   Avg GPU util: {stats['avg_gpu_utilization']:.1%}, Avg RAM: {stats['avg_ram_usage']:.1%}")
                 
                 print(f"{'='*50}\n")
         

@@ -22,7 +22,7 @@ class Evaluator:
         self.iou_thresholds = eval_config.get('iou_thresholds', [0.5, 0.75])
         self.max_detections = eval_config.get('max_detections', 100)
     
-    def evaluate(self, predictions: List[Dict], targets: List[Dict]) -> float:
+    def evaluate(self, predictions: List[Dict], targets: List[Dict]) -> Dict[str, float]:
         """
         Evaluate predictions against targets
         
@@ -31,12 +31,12 @@ class Evaluator:
             targets: List of target dictionaries
         
         Returns:
-            Mean Average Precision (mAP) score
+            Dictionary with metrics: {'map', 'precision', 'recall', 'f1'}
         """
-        # For simplicity, compute average IoU-based metric
-        # Full COCO evaluation would require converting to COCO format
-        
-        total_map = 0.0
+        # Track metrics across all images
+        total_tp = 0
+        total_predictions = 0
+        total_targets = 0
         num_images = 0
         
         for pred, target in zip(predictions, targets):
@@ -83,20 +83,32 @@ class Evaluator:
                         matched[best_target_idx] = True
                         tp += 1
                 
-                # Compute precision and recall
+                # Accumulate metrics
                 num_targets = len(target_boxes)
-                num_predictions = min(len(pred_boxes), self.max_detections)
+                num_predictions = min(len([p for p in pred_labels if p > 0]), self.max_detections)
                 
-                if num_predictions > 0:
-                    precision = tp / num_predictions
-                    recall = tp / num_targets if num_targets > 0 else 0.0
-                    
-                    if precision + recall > 0:
-                        f1 = 2 * (precision * recall) / (precision + recall)
-                        total_map += f1  # Use F1 as approximation of mAP
-                        num_images += 1
+                total_tp += tp
+                total_predictions += num_predictions
+                total_targets += num_targets
+                num_images += 1
         
-        return total_map / num_images if num_images > 0 else 0.0
+        # Compute overall metrics
+        if num_images == 0:
+            return {'map': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0}
+        
+        precision = total_tp / total_predictions if total_predictions > 0 else 0.0
+        recall = total_tp / total_targets if total_targets > 0 else 0.0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        
+        # Use F1 as approximation of mAP
+        map_score = f1
+        
+        return {
+            'map': map_score,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1
+        }
     
     def _compute_ious(self, boxes1: np.ndarray, boxes2: np.ndarray) -> np.ndarray:
         """

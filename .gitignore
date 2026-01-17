@@ -61,3 +61,6 @@ Thumbs.db
 # Cache
 .cache/
 *.cache
+
+# MLflow
+mlruns/
