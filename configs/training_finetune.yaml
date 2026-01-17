@@ -1,0 +1,97 @@
+# Fine-tuning Configuration for RF-DETR
+# Use this config when resuming training with class weighting fixes
+
+# Model Architecture
+model:
+  architecture: "detr"
+  backbone: "resnet50"
+  num_classes: 2  # player, ball
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+
+# Hyperparameters - LOWER LEARNING RATE for fine-tuning
+training:
+  batch_size: 24
+  num_epochs: 100  # Continue to 100 total epochs (50 more)
+  learning_rate: 0.00001  # 1e-5 (10x lower for fine-tuning)
+  weight_decay: 0.0001
+  warmup_epochs: 0  # No warmup when resuming
+  gradient_clip: 0.1
+  gradient_accumulation_steps: 2
+  memory_cleanup_frequency: 10
+  adaptive_optimization: true
+  target_gpu_utilization: 0.85
+  max_ram_usage: 0.80
+  adaptive_adjustment_interval: 50
+  mixed_precision: true
+  compile_model: false
+  channels_last: true
+  cudnn_benchmark: true
+  tf32: true
+  # Class weights for imbalanced dataset (player:ball ratio ~25:1)
+  class_weights:
+    enabled: true
+    player: 1.0
+    ball: 25.0  # 25x weight for ball class
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  lr: 0.00001  # 1e-5 for fine-tuning
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Learning Rate Schedule
+lr_schedule:
+  type: "cosine"
+  warmup_epochs: 0  # No warmup when resuming
+  min_lr: 0.000001  # 1e-6
+
+# Data Augmentation (same as before)
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_crop: false
+    resize_range: [800, 1333]
+  val:
+    resize: 1333
+
+# Dataset
+dataset:
+  train_path: "/workspace/datasets/train"
+  val_path: "/workspace/datasets/val"
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 3
+  persistent_workers: true
+
+# Checkpoint Settings
+checkpoint:
+  save_dir: "models/checkpoints"
+  save_frequency: 10
+  save_every_epoch: true
+  save_best: true
+  metric: "mAP"
+
+# Evaluation
+evaluation:
+  iou_thresholds: [0.5, 0.75]
+  max_detections: 100
+
+# Logging
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  mlflow: true
+  mlflow_tracking_uri: "file:./mlruns"
+  mlflow_experiment_name: "detr_training"
+  print_frequency: 20
+  log_every_n_steps: 50

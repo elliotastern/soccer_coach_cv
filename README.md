@@ -20,6 +20,13 @@ The pipeline follows a modular architecture:
 pip install -r requirements.txt
 ```
 
+**Key Dependencies:**
+- PyTorch & Torchvision (training)
+- Transformers (DETR model)
+- MLflow (experiment tracking)
+- TensorBoard (metrics visualization)
+- Streamlit (dashboard)
+
 ### 2. Configure Environment
 
 Create a `.env` file with your Roboflow API key:

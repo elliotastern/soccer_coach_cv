@@ -31,12 +31,18 @@ class Evaluator:
             targets: List of target dictionaries
         
         Returns:
-            Dictionary with metrics: {'map', 'precision', 'recall', 'f1'}
+            Dictionary with metrics including per-class metrics
         """
-        # Track metrics across all images
+        # Track overall metrics
         total_tp = 0
         total_predictions = 0
         total_targets = 0
+        
+        # Track per-class metrics (0=player, 1=ball)
+        class_tp = {0: 0, 1: 0}  # True positives per class
+        class_predictions = {0: 0, 1: 0}  # Total predictions per class
+        class_targets = {0: 0, 1: 0}  # Total targets per class
+        
         num_images = 0
         
         for pred, target in zip(predictions, targets):
@@ -64,8 +70,12 @@ class Evaluator:
                 sorted_indices = np.argsort(pred_scores)[::-1]
                 
                 for pred_idx in sorted_indices[:self.max_detections]:
-                    if pred_labels[pred_idx] == 0:  # Background class
+                    # Background is already filtered in model inference
+                    if pred_labels[pred_idx] < 0 or pred_labels[pred_idx] > 1:
                         continue
+                    
+                    pred_class = int(pred_labels[pred_idx])
+                    class_predictions[pred_class] += 1
                     
                     # Find best matching target
                     best_iou = 0.0
@@ -82,33 +92,69 @@ class Evaluator:
                     if best_iou >= 0.5:  # IoU threshold
                         matched[best_target_idx] = True
                         tp += 1
+                        class_tp[pred_class] += 1
                 
-                # Accumulate metrics
+                # Accumulate overall metrics
                 num_targets = len(target_boxes)
-                num_predictions = min(len([p for p in pred_labels if p > 0]), self.max_detections)
+                num_predictions = min(len([p for p in pred_labels if 0 <= p <= 1]), self.max_detections)
                 
                 total_tp += tp
                 total_predictions += num_predictions
                 total_targets += num_targets
+                
+                # Accumulate per-class targets
+                for target_label in target_labels:
+                    if 0 <= target_label <= 1:
+                        class_targets[int(target_label)] += 1
+                
                 num_images += 1
         
         # Compute overall metrics
         if num_images == 0:
-            return {'map': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0}
+            return {
+                'map': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0,
+                'player_map': 0.0, 'player_precision': 0.0, 'player_recall': 0.0, 'player_f1': 0.0,
+                'ball_map': 0.0, 'ball_precision': 0.0, 'ball_recall': 0.0, 'ball_f1': 0.0
+            }
         
         precision = total_tp / total_predictions if total_predictions > 0 else 0.0
         recall = total_tp / total_targets if total_targets > 0 else 0.0
         f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
-        
-        # Use F1 as approximation of mAP
         map_score = f1
         
-        return {
+        # Compute per-class metrics
+        metrics = {
             'map': map_score,
             'precision': precision,
             'recall': recall,
             'f1': f1
         }
+        
+        # Player metrics (class 0)
+        player_precision = class_tp[0] / class_predictions[0] if class_predictions[0] > 0 else 0.0
+        player_recall = class_tp[0] / class_targets[0] if class_targets[0] > 0 else 0.0
+        player_f1 = 2 * (player_precision * player_recall) / (player_precision + player_recall) if (player_precision + player_recall) > 0 else 0.0
+        
+        metrics.update({
+            'player_map': player_f1,
+            'player_precision': player_precision,
+            'player_recall': player_recall,
+            'player_f1': player_f1
+        })
+        
+        # Ball metrics (class 1)
+        ball_precision = class_tp[1] / class_predictions[1] if class_predictions[1] > 0 else 0.0
+        ball_recall = class_tp[1] / class_targets[1] if class_targets[1] > 0 else 0.0
+        ball_f1 = 2 * (ball_precision * ball_recall) / (ball_precision + ball_recall) if (ball_precision + ball_recall) > 0 else 0.0
+        
+        metrics.update({
+            'ball_map': ball_f1,
+            'ball_precision': ball_precision,
+            'ball_recall': ball_recall,
+            'ball_f1': ball_f1
+        })
+        
+        return metrics
     
     def _compute_ious(self, boxes1: np.ndarray, boxes2: np.ndarray) -> np.ndarray:
         """

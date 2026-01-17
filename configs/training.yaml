@@ -21,11 +21,21 @@ training:
   gradient_clip: 0.1
   gradient_accumulation_steps: 2  # Accumulate gradients over N batches to reduce memory
   memory_cleanup_frequency: 10  # Cleanup memory every N batches
+  adaptive_optimization: true  # Enable adaptive resource optimization based on usage
+  target_gpu_utilization: 0.85  # Target GPU utilization for adaptive optimization
+  max_ram_usage: 0.80  # Maximum RAM usage threshold
+  adaptive_adjustment_interval: 50  # Check and adjust every N batches
   mixed_precision: true  # Enable AMP for faster training
-  compile_model: true  # Enable torch.compile optimization
+  compile_model: false  # Disabled: causes recompilation overhead with variable-sized DETR inputs
   channels_last: true  # Use channels-last memory format for faster convolutions
   cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
   tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
+  # Class weights for imbalanced dataset (player:ball ratio ~25:1)
+  # Weight ball class more heavily to balance training
+  class_weights:
+    enabled: true
+    player: 1.0  # Base weight for player class
+    ball: 25.0  # 25x weight for ball class to balance 25:1 ratio
 
 # Optimizer
 optimizer:
@@ -58,9 +68,9 @@ augmentation:
 dataset:
   train_path: "/workspace/datasets/train"
   val_path: "/workspace/datasets/val"
-  num_workers: 6  # Reduced from 12 to prevent RAM overflow (12 workers × 4 prefetch = 48 batches in memory)
+  num_workers: 8  # Increased for better GPU utilization (RAM is healthy at 22%)
   pin_memory: true
-  prefetch_factor: 2  # Reduced from 4 to prevent RAM overflow
+  prefetch_factor: 3  # Increased for better GPU utilization
   persistent_workers: true  # Keep workers alive between epochs for speed
 
 # Checkpoint Settings
@@ -80,5 +90,8 @@ evaluation:
 logging:
   log_dir: "logs"
   tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking (or use SQLite/remote server)
+  mlflow_experiment_name: "detr_training"  # MLflow experiment name
   print_frequency: 20  # Print every N iterations (reduced for less I/O overhead)
   log_every_n_steps: 50  # Log to TensorBoard less frequently

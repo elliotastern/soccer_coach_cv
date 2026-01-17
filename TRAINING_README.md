@@ -56,13 +56,44 @@ python scripts/train_detr.py \
 
 ### 4. Monitor Training
 
-- TensorBoard logs: `logs/`
-  ```bash
-  tensorboard --logdir logs
-  ```
-- Checkpoints: `models/checkpoints/`
-  - `checkpoint_epoch_N.pth`: Regular checkpoints
-  - `best_model.pth`: Best model based on validation mAP
+#### TensorBoard
+TensorBoard logs are saved to `logs/`:
+```bash
+tensorboard --logdir logs
+```
+
+#### MLflow (Recommended)
+MLflow provides comprehensive experiment tracking with a web UI. It's enabled by default in `configs/training.yaml`.
+
+**View MLflow UI:**
+```bash
+# Using helper script
+./scripts/start_mlflow_ui.sh
+
+# Or manually
+mlflow ui --backend-store-uri file:./mlruns
+```
+
+Then open http://localhost:5000 in your browser.
+
+**What MLflow Tracks:**
+- **Parameters**: All hyperparameters (batch size, learning rate, model architecture, etc.)
+- **Metrics**: Training loss, validation mAP, learning rate, memory usage
+- **Artifacts**: Model checkpoints (automatically saved)
+- **Experiments**: Compare multiple training runs side-by-side
+
+**MLflow Features:**
+- Compare different runs and hyperparameter combinations
+- Filter and search runs by parameters/metrics
+- Download model checkpoints from the UI
+- Track experiment history automatically
+
+#### Checkpoints
+Checkpoints are saved to `models/checkpoints/`:
+- `checkpoint_epoch_N.pth`: Full checkpoints (every 10 epochs)
+- `checkpoint_epoch_N_lightweight.pth`: Lightweight checkpoints (every epoch)
+- `best_model.pth`: Best model based on validation mAP
+- `latest_checkpoint.pth`: Most recent checkpoint
 
 ### 5. Resume Training
 
@@ -131,19 +162,31 @@ detector = LocalDetector(
 ### Evaluation
 - **Metric**: Mean Average Precision (mAP)
 - **IoU Thresholds**: 0.5, 0.75
-- Validation every 5 epochs
+- Validation every 10 epochs (configurable)
+
+### Experiment Tracking
+- **TensorBoard**: Real-time metrics visualization (`logs/`)
+- **MLflow**: Comprehensive experiment tracking (`mlruns/`)
+  - Automatic parameter and metric logging
+  - Model checkpoint artifact storage
+  - Experiment comparison and filtering
+  - Web UI for visualization
 
 ## Troubleshooting
 
 ### Out of Memory
 - Reduce `batch_size` in `configs/training.yaml`
 - Reduce image size in augmentation config
-- Use gradient accumulation (not implemented, but can be added)
+- Gradient accumulation is already implemented (default: 2 steps)
+- Reduce `num_workers` and `prefetch_factor` in dataset config
+- Memory cleanup runs automatically every N batches
 
 ### Slow Training
 - Ensure GPU is being used (check CUDA availability)
-- Increase `num_workers` in dataset config (if CPU allows)
-- Use mixed precision training (can be added)
+- Mixed precision training is enabled by default (AMP)
+- Model compilation is enabled by default (torch.compile)
+- Adjust `num_workers` based on CPU cores (default: 6)
+- Check memory usage - if RAM is high, reduce DataLoader workers
 
 ### Poor Performance
 - Increase training epochs
@@ -157,10 +200,51 @@ detector = LocalDetector(
 - **GPU (RTX 2080)**: ~4-5 hours for 50 epochs
 - **CPU**: Not recommended (very slow)
 
+## MLflow Configuration
+
+MLflow is configured in `configs/training.yaml`:
+
+```yaml
+logging:
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file storage
+  mlflow_experiment_name: "detr_training"  # Experiment name
+```
+
+**Tracked Parameters:**
+- Training hyperparameters (batch size, learning rate, epochs, etc.)
+- Model architecture (backbone, layers, dimensions)
+- Dataset information (sample counts)
+- Optimization settings (gradient accumulation, mixed precision, etc.)
+
+**Tracked Metrics:**
+- `train_loss`: Training loss over steps
+- `learning_rate`: Learning rate schedule
+- `val_map`: Validation mAP per epoch
+- `memory_*`: RAM and GPU memory usage
+
+**Artifacts:**
+- Model checkpoints are automatically logged to MLflow
+- Access via MLflow UI or programmatically
+
+**Using MLflow Programmatically:**
+```python
+import mlflow
+
+# Search runs
+runs = mlflow.search_runs(experiment_names=["detr_training"])
+best_run = runs.loc[runs['metrics.val_map'].idxmax()]
+
+# Load model from MLflow
+model = mlflow.pytorch.load_model(f"runs:/{best_run.run_id}/model")
+```
+
 ## Next Steps
 
 After training:
-1. Evaluate model on test set
-2. Fine-tune hyperparameters if needed
-3. Export model for production use
-4. Update inference pipeline to use local model
+1. View results in MLflow UI: `./scripts/start_mlflow_ui.sh`
+2. Compare different runs and hyperparameter combinations
+3. Evaluate model on test set
+4. Fine-tune hyperparameters based on MLflow insights
+5. Export best model for production use
+6. Update inference pipeline to use local model

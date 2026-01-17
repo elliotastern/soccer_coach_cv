@@ -11,11 +11,12 @@ import torch.nn.functional as F
 class DETRWrapper(nn.Module):
     """Wrapper to make transformers DETR compatible with torchvision API"""
     
-    def __init__(self, detr_model, num_classes: int):
+    def __init__(self, detr_model, num_classes: int, class_weights: Dict = None):
         super().__init__()
         self.detr_model = detr_model
         self.num_classes = num_classes
         self.processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
+        self.class_weights = class_weights  # Store class weights for loss function
     
     def forward(self, images: List[torch.Tensor], targets: List[Dict] = None):
         """
@@ -113,16 +114,47 @@ class DETRWrapper(nn.Module):
         original_loss_fn = self.detr_model.loss_function
         
         def patched_loss_function(logits, labels, device, pred_boxes, config, outputs_class=None, outputs_coord=None, **kwargs):
-            """Patched loss function that ensures correct num_labels"""
+            """Patched loss function with class weighting for imbalanced dataset"""
             # CRITICAL: Set num_labels to number of object classes (not including background)
-            # The criterion will create empty_weight of size num_classes + 1
             config.num_labels = self.num_classes
             
-            # Call original loss function - it creates a new criterion each time
-            # The criterion's empty_weight is created based on config.num_labels
+            # Call original loss function first
             loss, loss_dict, auxiliary_outputs = original_loss_fn(
                 logits, labels, device, pred_boxes, config, outputs_class, outputs_coord, **kwargs
             )
+            
+            # Apply class weighting by scaling loss based on class distribution in batch
+            # This approximates proper class weighting
+            if hasattr(self, 'class_weights') and self.class_weights is not None:
+                # Count objects per class in this batch
+                player_count = 0
+                ball_count = 0
+                
+                for label_dict in labels:
+                    if 'class_labels' in label_dict and len(label_dict['class_labels']) > 0:
+                        class_labels = label_dict['class_labels']
+                        # DETR labels: 1=player, 2=ball (after +1 offset in training)
+                        player_count += (class_labels == 1).sum().item()
+                        ball_count += (class_labels == 2).sum().item()
+                
+                total_objects = player_count + ball_count
+                
+                if total_objects > 0:
+                    # Compute weighted loss scale based on class distribution
+                    # Weight the loss to emphasize underrepresented class (ball)
+                    ball_weight = self.class_weights.get('ball', 1.0)
+                    player_weight = self.class_weights.get('player', 1.0)
+                    
+                    # Compute expected weight based on class distribution
+                    # If batch has more players, scale up to balance
+                    expected_player_ratio = player_count / total_objects
+                    expected_ball_ratio = ball_count / total_objects
+                    
+                    # Weight loss: emphasize ball class more when it appears
+                    if ball_count > 0:
+                        # Scale loss to give more importance to ball examples
+                        loss_scale = 1.0 + (ball_weight - 1.0) * expected_ball_ratio
+                        loss = loss * loss_scale
             
             return loss, loss_dict, auxiliary_outputs
         
@@ -183,7 +215,21 @@ class DETRWrapper(nn.Module):
             # Convert to torchvision format
             boxes = results['boxes']
             scores = results['scores']
-            labels = results['labels'] - 1  # Remove background offset
+            raw_labels = results['labels']
+            
+            # Filter out background (label 0) and convert to 0-indexed (0=player, 1=ball)
+            # DETR outputs: 0=background, 1=player, 2=ball
+            # We want: 0=player, 1=ball (no background)
+            mask = raw_labels > 0  # Keep only non-background predictions
+            if mask.any():
+                boxes = boxes[mask]
+                scores = scores[mask]
+                labels = raw_labels[mask] - 1  # Convert: 1→0 (player), 2→1 (ball)
+            else:
+                # No valid predictions
+                boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
+                scores = torch.zeros((0,), dtype=scores.dtype, device=scores.device)
+                labels = torch.zeros((0,), dtype=raw_labels.dtype, device=raw_labels.device)
             
             predictions.append({
                 'boxes': boxes,
@@ -197,12 +243,13 @@ class DETRWrapper(nn.Module):
         return predictions
 
 
-def get_detr_model(config: Dict) -> nn.Module:
+def get_detr_model(config: Dict, training_config: Dict = None) -> nn.Module:
     """
     Get DETR model with specified configuration
     
     Args:
         config: Model configuration dictionary
+        training_config: Optional training configuration for class weights
     
     Returns:
         DETR model wrapped for torchvision API compatibility
@@ -234,7 +281,18 @@ def get_detr_model(config: Dict) -> nn.Module:
     # Create a dummy forward pass to trigger loss creation, then patch it
     # Actually, we'll patch it in the forward pass instead
     
+    # Get class weights from training config if enabled
+    class_weights = None
+    if training_config is not None:
+        class_weights_config = training_config.get('class_weights', {})
+        if class_weights_config.get('enabled', False):
+            class_weights = {
+                'player': class_weights_config.get('player', 1.0),
+                'ball': class_weights_config.get('ball', 1.0)
+            }
+            print(f"Class weighting enabled: player={class_weights['player']}, ball={class_weights['ball']}")
+    
     # Wrap model for torchvision API compatibility
-    wrapped_model = DETRWrapper(detr_model, num_classes)
+    wrapped_model = DETRWrapper(detr_model, num_classes, class_weights=class_weights)
     
     return wrapped_model

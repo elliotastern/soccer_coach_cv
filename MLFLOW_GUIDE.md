@@ -107,10 +107,22 @@ Open http://localhost:5000 in your browser.
 - `memory_gpu_reserved_gb`: GPU reserved memory (logged periodically)
 
 **Validation Metrics (logged every 10 epochs):**
-- `val_map`: Validation Mean Average Precision (mAP)
-- `val_precision`: Validation precision score
-- `val_recall`: Validation recall score
-- `val_f1`: Validation F1 score
+- `val_map`: Overall validation Mean Average Precision (mAP)
+- `val_precision`: Overall validation precision score
+- `val_recall`: Overall validation recall score
+- `val_f1`: Overall validation F1 score
+
+**Per-Class Validation Metrics (logged every 10 epochs):**
+- `val_player_map`: Player class mAP
+- `val_player_precision`: Player class precision
+- `val_player_recall`: Player class recall
+- `val_player_f1`: Player class F1 score
+- `val_ball_map`: Ball class mAP
+- `val_ball_precision`: Ball class precision
+- `val_ball_recall`: Ball class recall
+- `val_ball_f1`: Ball class F1 score
+
+These per-class metrics allow you to track performance separately for players and balls, helping identify if one class is learning better than the other.
 
 ### Artifacts
 

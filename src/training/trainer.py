@@ -409,12 +409,24 @@ class Trainer:
         print(f"Validation Precision: {eval_metrics['precision']:.4f}")
         print(f"Validation Recall: {eval_metrics['recall']:.4f}")
         print(f"Validation F1: {eval_metrics['f1']:.4f}")
+        print(f"\nPer-Class Metrics:")
+        print(f"  Player - mAP: {eval_metrics['player_map']:.4f}, Precision: {eval_metrics['player_precision']:.4f}, Recall: {eval_metrics['player_recall']:.4f}, F1: {eval_metrics['player_f1']:.4f}")
+        print(f"  Ball   - mAP: {eval_metrics['ball_map']:.4f}, Precision: {eval_metrics['ball_precision']:.4f}, Recall: {eval_metrics['ball_recall']:.4f}, F1: {eval_metrics['ball_f1']:.4f}")
         
         if self.writer:
             self.writer.add_scalar('Val/mAP', map_score, epoch)
             self.writer.add_scalar('Val/Precision', eval_metrics['precision'], epoch)
             self.writer.add_scalar('Val/Recall', eval_metrics['recall'], epoch)
             self.writer.add_scalar('Val/F1', eval_metrics['f1'], epoch)
+            # Per-class metrics
+            self.writer.add_scalar('Val/Player_mAP', eval_metrics['player_map'], epoch)
+            self.writer.add_scalar('Val/Player_Precision', eval_metrics['player_precision'], epoch)
+            self.writer.add_scalar('Val/Player_Recall', eval_metrics['player_recall'], epoch)
+            self.writer.add_scalar('Val/Player_F1', eval_metrics['player_f1'], epoch)
+            self.writer.add_scalar('Val/Ball_mAP', eval_metrics['ball_map'], epoch)
+            self.writer.add_scalar('Val/Ball_Precision', eval_metrics['ball_precision'], epoch)
+            self.writer.add_scalar('Val/Ball_Recall', eval_metrics['ball_recall'], epoch)
+            self.writer.add_scalar('Val/Ball_F1', eval_metrics['ball_f1'], epoch)
         
         # MLflow logging for validation
         if self.use_mlflow:
@@ -422,6 +434,15 @@ class Trainer:
             mlflow.log_metric('val_precision', eval_metrics['precision'], step=epoch)
             mlflow.log_metric('val_recall', eval_metrics['recall'], step=epoch)
             mlflow.log_metric('val_f1', eval_metrics['f1'], step=epoch)
+            # Per-class metrics for visualization
+            mlflow.log_metric('val_player_map', eval_metrics['player_map'], step=epoch)
+            mlflow.log_metric('val_player_precision', eval_metrics['player_precision'], step=epoch)
+            mlflow.log_metric('val_player_recall', eval_metrics['player_recall'], step=epoch)
+            mlflow.log_metric('val_player_f1', eval_metrics['player_f1'], step=epoch)
+            mlflow.log_metric('val_ball_map', eval_metrics['ball_map'], step=epoch)
+            mlflow.log_metric('val_ball_precision', eval_metrics['ball_precision'], step=epoch)
+            mlflow.log_metric('val_ball_recall', eval_metrics['ball_recall'], step=epoch)
+            mlflow.log_metric('val_ball_f1', eval_metrics['ball_f1'], step=epoch)
         
         # Final cleanup after validation
         del all_predictions, all_targets
