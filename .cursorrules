@@ -1,62 +1,18 @@
-# Core Principles
+# Legal & Technical Guardrails
 
-## Testing & Validation (Priority 1)
-- Use diverse test scripts to validate everything
-- Cross-check data from multiple sources
-- Use computer vision to validate charts/dashboards
+## Data Usage
+- NEVER use licensed/proprietary match footage
+- ONLY use synthetic data (e.g., SoccerSynth-Detection dataset)
+- Do not download or process real match videos without explicit permission
 
-## Real Data Only (CRITICAL)
-- NEVER use mock/placeholder/dummy data
-- NEVER use Lorem ipsum, example.jpg, or test values
-- Only exception: when explicitly asked to "use mock data"
+## Technical Standards
+- Use RF-DETR (Roboflow DETR) for detection, not YOLO
+- All detections must be in COCO JSON format
+- Use ByteTrack for multi-object tracking
+- Follow modular architecture: perception -> analysis -> visualization
 
-## Code Style
-- Maximize readability
-- Use least amount of code possible
-- Break problems into smaller steps
-
-## Naming Conventions
-- Variables: `lowercase_with_underscores`
-
-## Workflow
-- No classes or functional programming
-- Data science style: linear execution flow
-- Follow steps in order, don't skip ahead
-- Create test scripts with debugging for everything
-- Validate at every step before moving on
-
-## Functions
-- Max 20 lines (prefer 5-10)
-- Max 3 parameters
-- Single responsibility only
-- One level of abstraction
-
-## Error Handling
+## Code Quality
+- Functions max 20 lines (prefer 5-10)
+- Max 3 parameters per function
+- Single responsibility principle
 - Fail fast with clear error messages
-- Provide context in exceptions
-
-## Break Problems Down
-If stuck, break the problem into smaller steps and solve each smaller step
-
-### Key Naming Rules:
-- Names reveal intent: `days_since_modification` not `d`
-
-## Validate at Every Step
-Check your work at every step to validate before moving on
-
-## Functions - Keep Them Small!
-**RULE: Functions should do ONE thing at ONE level of abstraction**
-
-## Workspace Path Configuration (CRITICAL)
-**ALL output files must be saved to /workspace subfolder:**
-- Detections (JSON, CSV, etc.) → `/workspace/detections/`
-- Models (.pt, .engine files) → `/workspace/models/`
-- Processed videos (with boxes/annotations) → `/workspace/videos/`
-- Any temporary or intermediate files → `/workspace/temp/`
-
-**IMPORTANT:** Always use `/workspace/` as the base path for all saved outputs. Never save to project root or relative paths for production data.
-
-## RunPod Persistence Reminder
-- `/workspace/` is persistent - data survives pod pause/restart
-- `/root/` and `/tmp/` are ephemeral - data is lost on restart
-- Always save outputs to `/workspace/` subfolders for persistence

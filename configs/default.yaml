@@ -1,25 +1,47 @@
-# Default Configuration for Soccer Coach AI
-
-# Workspace Paths (CRITICAL - All outputs go here)
-workspace:
-  base_path: "/workspace"
-  detections: "/workspace/detections"
-  models: "/workspace/models"
-  videos: "/workspace/videos"
-  temp: "/workspace/temp"
+# Roboflow Model Configuration
+roboflow:
+  model_id: ""  # Set your RF-DETR model ID here
+  api_key_env: "ROBOFLOW_API_KEY"
 
 # Detection Settings
 detection:
   confidence_threshold: 0.5
-  iou_threshold: 0.45
+  player_class_id: 0
+  ball_class_id: 1
 
-# Tracking Settings
-tracking:
-  min_track_length: 5
-  max_disappeared: 30
+# Tracker Settings (ByteTrack)
+tracker:
+  track_thresh: 0.5
+  high_thresh: 0.6
+  track_buffer: 30
+  match_thresh: 0.8
+  frame_rate: 30
 
-# Visualization
-visualization:
-  show_boxes: true
-  show_tracks: true
-  show_labels: true
+# Team Assignment
+team_assignment:
+  kmeans_clusters: 2
+  color_space: "RGB"
+
+# Coordinate Mapping
+mapping:
+  pitch_length: 105.0  # meters
+  pitch_width: 68.0    # meters
+  homography_method: "manual"  # or "auto"
+
+# Event Detection
+events:
+  pass_velocity_threshold: 5.0  # m/s
+  dribble_distance_threshold: 2.0  # meters
+  shot_velocity_threshold: 15.0  # m/s
+  recovery_proximity: 1.0  # meters
+
+# Checkpoint Settings
+checkpoint:
+  interval_frames: 300  # Save every N frames
+  output_dir: "data/output/checkpoints"
+
+# Output Settings
+output:
+  csv_path: "data/output/events.csv"
+  json_path: "data/output/events.json"
+  frame_data_path: "data/output/frame_data.csv"

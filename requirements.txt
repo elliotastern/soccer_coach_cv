@@ -1,29 +1,22 @@
-# --- Core AI Stack (Apache 2.0) ---
-# SOTA Transformer-based detector (Replaces YOLOv11)
-rfdetr==1.3.0
+# Core dependencies
+roboflow
+supervision
+opencv-python-headless
+streamlit
+scipy
+scikit-learn
+polars
+pandas
+numpy
+pyyaml
+python-dotenv
+plotly
 
-# --- Computer Vision Glue (MIT) ---
-# Unified API for tracking, annotating, and video processing
-supervision==0.27.0
-
-# --- Scientific Computing & Vision ---
-# Standard image processing (Headless is better for Cloud/RunPod)
-opencv-python-headless==4.11.0.86
-# Numerical operations (Locked to 1.26.x to avoid NumPy 2.0 breaking changes)
-numpy>=1.24.0,<2.0.0
-# Image handling for DETR transformers
-Pillow==12.1.0
-# Scientific computing for K-Means Clustering
-scipy==1.15.0
-scikit-learn==1.6.0
-
-# --- Hardware Optimization ---
-# TensorRT for RTX 4090/5090 acceleration
-# Ensure you have the matching NVIDIA driver (535+) on RunPod
-tensorrt==10.7.0
-pycuda==2024.1
-
-# --- Utilities ---
-tqdm==4.67.1
-PyYAML==6.0.2
-pandas==2.2.3
+# Training dependencies
+torch
+torchvision
+transformers
+timm
+pycocotools
+tensorboard
+pillow

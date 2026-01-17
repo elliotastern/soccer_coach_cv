@@ -1,0 +1,73 @@
+# Training Configuration for RF-DETR
+
+# Model Architecture
+model:
+  architecture: "detr"  # DETR model
+  backbone: "resnet50"  # ResNet backbone
+  num_classes: 2  # player, ball
+  pretrained: true  # Use pre-trained weights
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+
+# Hyperparameters
+training:
+  batch_size: 4  # Adjust based on GPU memory
+  num_epochs: 50
+  learning_rate: 1e-4
+  weight_decay: 1e-4
+  warmup_epochs: 5
+  gradient_clip: 0.1
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  lr: 1e-4
+  betas: [0.9, 0.999]
+  weight_decay: 1e-4
+
+# Learning Rate Schedule
+lr_schedule:
+  type: "cosine"  # cosine annealing
+  warmup_epochs: 5
+  min_lr: 1e-6
+
+# Data Augmentation
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_crop: false
+    resize_range: [800, 1333]  # DETR standard
+  val:
+    resize: 1333  # Fixed size for validation
+
+# Dataset
+dataset:
+  train_path: "datasets/train"
+  val_path: "datasets/val"
+  num_workers: 4
+  pin_memory: true
+
+# Checkpoint Settings
+checkpoint:
+  save_dir: "models/checkpoints"
+  save_frequency: 5  # Save every N epochs
+  save_best: true
+  metric: "mAP"  # Mean Average Precision
+
+# Evaluation
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP
+  max_detections: 100
+
+# Logging
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  print_frequency: 10  # Print every N iterations

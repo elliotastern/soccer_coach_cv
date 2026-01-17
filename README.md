@@ -1,102 +1,122 @@
-# Soccer Coach AI
+# Soccer Analysis Pipeline
 
-Modular Production Architecture for soccer video analysis using RF-DETR and computer vision.
+Automated football analysis pipeline using RF-DETR detection, ByteTrack tracking, and heuristic event detection.
 
-## Project Structure
+## Architecture
 
-```
-soccer-ai/
-├── .cursorrules           # Your legal & tech guardrails
-├── requirements.txt       # The business-safe libraries
-├── main.py                # Entry point: The video loop
-├── configs/               # Hyperparameters (thresholds, colors)
-│   └── default.yaml
-├── data/
-│   ├── raw/               # Original mp4 files
-│   └── output/            # Videos with boxes/JSON results
-├── src/                   # Proprietary Source Code
-│   ├── __init__.py
-│   ├── detector.py        # RF-DETR wrapper
-│   ├── tracker.py         # ByteTrack & Supervision logic
-│   ├── logic/             # THE BUSINESS BRAIN
-│   │   ├── team_id.py     # K-Means clustering code
-│   │   └── mapping.py     # Pitch homography math
-│   └── utils/             # Visualization & video helpers
-├── models/                # Where .pt or .engine files live
-└── tests/                 # Benchmark scripts
-```
+The pipeline follows a modular architecture:
 
-## Workspace Configuration
-
-**CRITICAL:** All output files (detections, models, processed videos) must be saved to `/workspace/` subfolders:
-
-- **Detections** → `/workspace/detections/` (JSON, CSV detection results)
-- **Models** → `/workspace/models/` (.pt, .engine model files)
-- **Processed Videos** → `/workspace/videos/` (annotated output videos)
-- **Temporary Files** → `/workspace/temp/` (intermediate processing files)
-
-The project structure directories (`data/`, `models/`) are for development/testing. Production outputs go to `/workspace/`.
-
-## Directory Descriptions
-
-### Core Files
-- **main.py**: Main entry point that processes video files through the detection and tracking pipeline
-- **requirements.txt**: Python dependencies (Apache 2.0 / MIT licensed packages)
-- **.cursorrules**: Development guidelines and coding standards
-
-### Configuration
-- **configs/**: YAML configuration files for hyperparameters, detection thresholds, color schemes, and other settings
-
-### Data Management
-- **data/raw/**: Input video files (MP4 format)
-- **data/output/**: Processed videos with bounding boxes and JSON results containing detection/tracking data
-
-### Source Code (`src/`)
-- **detector.py**: RF-DETR model wrapper for object detection
-- **tracker.py**: ByteTrack and Supervision integration for multi-object tracking
-- **logic/team_id.py**: K-Means clustering algorithm for team identification
-- **logic/mapping.py**: Pitch homography transformations for coordinate mapping
-- **utils/**: Helper functions for visualization, video processing, and utilities
-
-### Models
-- **models/**: Directory for trained model files (`.pt` PyTorch models or `.engine` TensorRT optimized models)
-
-### Testing
-- **tests/**: Benchmark scripts and test cases for validation
+- **Perception Layer**: Frame filtering, detection, tracking, team assignment
+- **Analysis Layer**: Coordinate mapping, event detection, event aggregation
+- **Visualization Layer**: Review dashboard, annotation tools
 
 ## Setup
 
-1. Install dependencies:
+### 1. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Place your model files in the `models/` directory
+### 2. Configure Environment
 
-3. Add raw video files to `data/raw/`
+Create a `.env` file with your Roboflow API key:
 
-4. Run the main script:
 ```bash
-python main.py
+ROBOFLOW_API_KEY=your_api_key_here
 ```
 
-## License
+### 3. Configure Model
 
-This project uses Apache 2.0 and MIT licensed dependencies. See `requirements.txt` for details.
+Edit `configs/default.yaml` and set your RF-DETR model ID:
 
-## RunPod Persistence
+```yaml
+roboflow:
+  model_id: "your-model-id"
+```
 
-**Important:** On RunPod, `/workspace/` is typically mounted as a **persistent volume**. This means:
+## Usage
 
-✅ **PERSISTS** (saved when you pause/restart):
-- All files in `/workspace/` (detections, models, processed videos)
-- Any data saved to mounted persistent volumes
+### Process Video
 
-❌ **DOES NOT PERSIST** (ephemeral storage):
-- Files in `/root/` or `/tmp/` (unless on persistent volume)
-- System packages installed without volume mounting
-- Temporary files outside `/workspace/`
+```bash
+python main.py --video path/to/video.mp4 --config configs/default.yaml --output data/output
+```
 
-**Best Practice:** Always save outputs to `/workspace/` subfolders to ensure data persistence across pod restarts.
+### Review Dashboard
 
-**Note:** Verify your RunPod volume configuration to confirm `/workspace/` is mounted as a persistent volume.
+```bash
+streamlit run src/visualization/app.py
+```
+
+Or use the RunPod script:
+
+```bash
+./runpod.sh
+```
+
+## Output
+
+The pipeline generates:
+
+- `events.json`: Event-centric JSON output
+- `events.csv`: Frame-by-frame CSV data
+- `frame_data.csv`: Detailed frame data
+- `checkpoints/`: Periodic checkpoint files
+
+## Configuration
+
+### Default Config (`configs/default.yaml`)
+
+- Detection thresholds
+- Tracker parameters (ByteTrack)
+- Event detection thresholds
+- Checkpoint intervals
+
+### Zones Config (`configs/zones.yaml`)
+
+Defines tactical zones (Zone 14, Half-Spaces, Goal Area, etc.)
+
+## Docker
+
+Build and run:
+
+```bash
+docker build -t soccer-analysis .
+docker run -p 8501:8501 soccer-analysis
+```
+
+## Project Structure
+
+```
+soccer_coach_cv/
+├── main.py                 # Main orchestrator
+├── configs/               # Configuration files
+├── src/
+│   ├── perception/        # Detection, tracking, team assignment
+│   ├── analysis/         # Mapping, event detection
+│   ├── visualization/    # Streamlit dashboard
+│   ├── types.py          # Data classes
+│   └── schema.py        # Output schemas
+├── data/
+│   ├── raw/              # Input videos
+│   └── output/           # Generated outputs
+└── models/               # Model files
+
+```
+
+## Event Types
+
+- **Pass**: Ball movement with velocity > threshold
+- **Dribble**: Player maintains close control of ball
+- **Shot**: High-velocity ball movement toward goal
+- **Recovery**: Player gains possession of ball
+- **Movement**: General player movement
+
+## Legal & Technical Guardrails
+
+- Only synthetic data (SoccerSynth-Detection dataset)
+- No licensed/proprietary match footage
+- RF-DETR for detection (not YOLO)
+- COCO JSON format for detections
+- ByteTrack for multi-object tracking
