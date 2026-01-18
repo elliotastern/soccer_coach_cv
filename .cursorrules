@@ -1,0 +1,18 @@
+# Legal & Technical Guardrails
+
+## Data Usage
+- NEVER use licensed/proprietary match footage
+- ONLY use synthetic data (e.g., SoccerSynth-Detection dataset)
+- Do not download or process real match videos without explicit permission
+
+## Technical Standards
+- Use RF-DETR (Roboflow DETR) for detection, not YOLO
+- All detections must be in COCO JSON format
+- Use ByteTrack for multi-object tracking
+- Follow modular architecture: perception -> analysis -> visualization
+
+## Code Quality
+- Functions max 20 lines (prefer 5-10)
+- Max 3 parameters per function
+- Single responsibility principle
+- Fail fast with clear error messages
