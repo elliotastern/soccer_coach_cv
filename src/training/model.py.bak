@@ -81,39 +81,16 @@ class DETRWrapper(nn.Module):
             # Convert boxes from [x_min, y_min, x_max, y_max] to center_x, center_y, width, height
             boxes = target['boxes']
             if len(boxes) > 0:
-                # Clip boxes to valid image bounds first (assuming 1333x1333 after resize)
-                img_size = 1333.0
-                boxes = boxes.clone()
-                boxes[:, 0] = torch.clamp(boxes[:, 0], 0, img_size)  # x_min
-                boxes[:, 1] = torch.clamp(boxes[:, 1], 0, img_size)  # y_min
-                boxes[:, 2] = torch.clamp(boxes[:, 2], 0, img_size)  # x_max
-                boxes[:, 3] = torch.clamp(boxes[:, 3], 0, img_size)  # y_max
-                
-                # Ensure x_max > x_min and y_max > y_min (fix invalid boxes)
-                boxes[:, 2] = torch.max(boxes[:, 2], boxes[:, 0] + 1.0)  # x_max >= x_min + 1
-                boxes[:, 3] = torch.max(boxes[:, 3], boxes[:, 1] + 1.0)  # y_max >= y_min + 1
-                
                 # Convert to center format
                 center_x = (boxes[:, 0] + boxes[:, 2]) / 2
                 center_y = (boxes[:, 1] + boxes[:, 3]) / 2
                 width = boxes[:, 2] - boxes[:, 0]
                 height = boxes[:, 3] - boxes[:, 1]
-                
-                # Ensure minimum width and height to avoid numerical issues
-                width = torch.clamp(width, min=1.0)
-                height = torch.clamp(height, min=1.0)
-                
                 boxes_center = torch.stack([center_x, center_y, width, height], dim=1)
                 
-                # Normalize by image size
+                # Normalize by image size (assuming 1333x1333 after resize)
+                img_size = 1333.0
                 boxes_center = boxes_center / img_size
-                
-                # Clip normalized boxes to [0, 1] to ensure valid values
-                boxes_center = torch.clamp(boxes_center, 0.0, 1.0)
-                
-                # Ensure width and height are positive after normalization (minimum 1e-6)
-                boxes_center[:, 2] = torch.clamp(boxes_center[:, 2], min=1e-6)  # width
-                boxes_center[:, 3] = torch.clamp(boxes_center[:, 3], min=1e-6)  # height
                 
                 labels.append({
                     'class_labels': target['labels'] + 1,  # Add 1 for background class
