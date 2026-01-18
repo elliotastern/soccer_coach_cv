@@ -64,3 +64,7 @@ Thumbs.db
 
 # MLflow
 mlruns/
+
+# Datasets (too large for git)
+datasets/
+coco_annotations_only/
