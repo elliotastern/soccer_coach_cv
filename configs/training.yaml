@@ -1,0 +1,100 @@
+# Training Configuration for RF-DETR
+
+# Model Architecture
+model:
+  architecture: "detr"  # DETR model
+  backbone: "resnet50"  # ResNet backbone
+  num_classes: 2  # player, ball
+  pretrained: true  # Use pre-trained weights
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+
+# Hyperparameters
+training:
+  batch_size: 24  # Aggressively optimized for A40 (48GB VRAM) - can go higher if needed
+  num_epochs: 100  # Increased to continue training from checkpoint
+  learning_rate: 0.0001  # 1e-4 as float
+  weight_decay: 0.0001  # 1e-4 as float
+  warmup_epochs: 5
+  gradient_clip: 0.1
+  gradient_accumulation_steps: 2  # Accumulate gradients over N batches to reduce memory
+  memory_cleanup_frequency: 10  # Cleanup memory every N batches
+  adaptive_optimization: true  # Enable adaptive resource optimization based on usage
+  target_gpu_utilization: 0.85  # Target GPU utilization for adaptive optimization
+  max_ram_usage: 0.80  # Maximum RAM usage threshold
+  adaptive_adjustment_interval: 50  # Check and adjust every N batches
+  mixed_precision: true  # Enable AMP for faster training
+  compile_model: false  # Disabled: causes recompilation overhead with variable-sized DETR inputs
+  channels_last: true  # Use channels-last memory format for faster convolutions
+  cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
+  tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
+  # Class weights for imbalanced dataset (player:ball ratio ~25:1)
+  # Weight ball class more heavily to balance training
+  class_weights:
+    enabled: true
+    player: 1.0  # Base weight for player class
+    ball: 25.0  # 25x weight for ball class to balance 25:1 ratio
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  lr: 0.0001  # 1e-4 as float
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001  # 1e-4 as float
+
+# Learning Rate Schedule
+lr_schedule:
+  type: "cosine"  # cosine annealing
+  warmup_epochs: 5
+  min_lr: 0.000001  # 1e-6 as float
+
+# Data Augmentation
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_crop: false
+    resize_range: [800, 1333]  # DETR standard
+  val:
+    resize: 1333  # Fixed size for validation
+
+# Dataset
+dataset:
+  train_path: "/workspace/datasets/train"
+  val_path: "/workspace/datasets/val"
+  num_workers: 4  # Reduced from 8 to lower crash risk from worker kills
+  pin_memory: true
+  prefetch_factor: 2  # Reduced from 3 for stability
+  persistent_workers: false  # Disabled: fewer worker-related crashes when process is interrupted
+
+# Checkpoint Settings
+checkpoint:
+  save_dir: "models/checkpoints"
+  save_frequency: 999  # Disabled: use lightweight checkpoints only to avoid disk quota issues
+  save_every_epoch: true  # Save lightweight checkpoint every epoch (ensures no progress loss)
+  keep_last_lightweight: 20  # Keep last N lightweight checkpoints (deletes older ones to save space)
+  save_best: false  # Disabled: use lightweight checkpoints only to avoid disk quota issues
+  metric: "mAP"  # Mean Average Precision
+  use_lightweight_only: true  # Only save lightweight checkpoints to avoid disk quota issues
+
+# Evaluation
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP
+  max_detections: 100
+
+# Logging
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking (or use SQLite/remote server)
+  mlflow_experiment_name: "detr_training"  # MLflow experiment name
+  mlflow_log_models: true  # Enable model artifact logging (with error handling)
+  print_frequency: 20  # Print every N iterations (reduced for less I/O overhead)
+  log_every_n_steps: 50  # Log to TensorBoard less frequently

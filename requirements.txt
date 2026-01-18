@@ -1,0 +1,23 @@
+# Core dependencies
+roboflow
+supervision
+opencv-python-headless
+streamlit
+scipy
+scikit-learn
+polars
+pandas
+numpy
+pyyaml
+python-dotenv
+plotly
+
+# Training dependencies
+torch
+torchvision
+transformers
+timm
+pycocotools
+tensorboard
+pillow
+mlflow
