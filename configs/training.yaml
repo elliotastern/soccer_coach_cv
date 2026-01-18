@@ -68,19 +68,20 @@ augmentation:
 dataset:
   train_path: "/workspace/datasets/train"
   val_path: "/workspace/datasets/val"
-  num_workers: 8  # Increased for better GPU utilization (RAM is healthy at 22%)
+  num_workers: 4  # Reduced from 8 to lower crash risk from worker kills
   pin_memory: true
-  prefetch_factor: 3  # Increased for better GPU utilization
-  persistent_workers: true  # Keep workers alive between epochs for speed
+  prefetch_factor: 2  # Reduced from 3 for stability
+  persistent_workers: false  # Disabled: fewer worker-related crashes when process is interrupted
 
 # Checkpoint Settings
 checkpoint:
   save_dir: "models/checkpoints"
-  save_frequency: 10  # Save full checkpoint every N epochs (reduced frequency for speed)
+  save_frequency: 999  # Disabled: use lightweight checkpoints only to avoid disk quota issues
   save_every_epoch: true  # Save lightweight checkpoint every epoch (ensures no progress loss)
   keep_last_lightweight: 20  # Keep last N lightweight checkpoints (deletes older ones to save space)
-  save_best: true
+  save_best: false  # Disabled: use lightweight checkpoints only to avoid disk quota issues
   metric: "mAP"  # Mean Average Precision
+  use_lightweight_only: true  # Only save lightweight checkpoints to avoid disk quota issues
 
 # Evaluation
 evaluation:
@@ -94,5 +95,6 @@ logging:
   mlflow: true  # Enable MLflow tracking
   mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking (or use SQLite/remote server)
   mlflow_experiment_name: "detr_training"  # MLflow experiment name
+  mlflow_log_models: true  # Enable model artifact logging (with error handling)
   print_frequency: 20  # Print every N iterations (reduced for less I/O overhead)
   log_every_n_steps: 50  # Log to TensorBoard less frequently

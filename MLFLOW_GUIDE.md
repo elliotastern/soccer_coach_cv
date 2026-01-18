@@ -2,6 +2,8 @@
 
 This guide explains how to use MLflow for tracking and managing training experiments.
 
+**⚠️ Troubleshooting:** If you encounter `INTERNAL_ERROR` in MLflow UI, see [MLFLOW_TROUBLESHOOTING.md](MLFLOW_TROUBLESHOOTING.md) for solutions.
+
 ## Overview
 
 MLflow is integrated into the training pipeline to automatically track:
