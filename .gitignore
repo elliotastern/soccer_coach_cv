@@ -68,3 +68,6 @@ mlruns/
 # Datasets (too large for git)
 datasets/
 coco_annotations_only/
+*.tar.gz
+*.tar
+*.zip
