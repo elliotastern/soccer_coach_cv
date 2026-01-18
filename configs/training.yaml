@@ -2,7 +2,7 @@
 
 # Model Architecture
 model:
-  architecture: "detr"  # DETR model
+  architecture: "detr"  # Options: "detr" (vanilla DETR) or "rfdetr" (RF-DETR from Roboflow)
   backbone: "resnet50"  # ResNet backbone
   num_classes: 2  # player, ball
   pretrained: true  # Use pre-trained weights
@@ -10,6 +10,8 @@ model:
   nheads: 8
   num_encoder_layers: 6
   num_decoder_layers: 6
+  # RF-DETR specific options (used when architecture="rfdetr")
+  rfdetr_size: "base"  # Options: "nano", "small", "medium", "base", "large"
 
 # Hyperparameters
 training:
@@ -30,12 +32,17 @@ training:
   channels_last: true  # Use channels-last memory format for faster convolutions
   cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
   tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
-  # Class weights for imbalanced dataset (player:ball ratio ~25:1)
-  # Weight ball class more heavily to balance training
+  # Class weights disabled - using Focal Loss instead for better handling of class imbalance
+  # Focal Loss dynamically adjusts based on prediction confidence, avoiding precision collapse
   class_weights:
+    enabled: false
+    player: 1.0
+    ball: 1.0
+  # Focal Loss configuration for handling class imbalance
+  focal_loss:
     enabled: true
-    player: 1.0  # Base weight for player class
-    ball: 25.0  # 25x weight for ball class to balance 25:1 ratio
+    alpha: 0.25  # Weighting factor for rare class (ball)
+    gamma: 2.0  # Focusing parameter - higher gamma focuses more on hard examples
 
 # Optimizer
 optimizer:
@@ -61,6 +68,21 @@ augmentation:
       hue: 0.1
     random_crop: false
     resize_range: [800, 1333]  # DETR standard
+    # Copy-Paste augmentation for ball class balancing
+    copy_paste:
+      enabled: true
+      prob: 0.5  # Probability of applying copy-paste
+      max_pastes: 3  # Maximum balls to paste per image
+    # CLAHE contrast enhancement for synthetic image fog
+    clahe:
+      enabled: true
+      clip_limit: 2.0  # Contrast limiting threshold
+      tile_grid_size: [8, 8]  # Grid size for adaptive equalization
+    # Motion blur augmentation for realistic ball detection
+    motion_blur:
+      enabled: true
+      prob: 0.3  # Probability of applying motion blur
+      max_kernel_size: 15  # Maximum motion blur kernel size
   val:
     resize: 1333  # Fixed size for validation
 

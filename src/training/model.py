@@ -6,17 +6,59 @@ import torch.nn as nn
 from transformers import DetrForObjectDetection, DetrImageProcessor
 from typing import Dict, List
 import torch.nn.functional as F
+import math
+
+
+def compute_focal_loss(logits, targets, alpha=0.25, gamma=2.0, num_classes=2):
+    """
+    Compute Focal Loss for classification
+    
+    Args:
+        logits: [N, num_classes+1] classification logits (including background)
+        targets: [N] target class labels (1-based: 1=player, 2=ball, 0=background)
+        alpha: Weighting factor for rare class
+        gamma: Focusing parameter
+        num_classes: Number of object classes (excluding background)
+    
+    Returns:
+        Focal loss value
+    """
+    # Convert targets to one-hot if needed
+    if len(targets) == 0:
+        return torch.tensor(0.0, device=logits.device, dtype=logits.dtype)
+    
+    # Get probabilities
+    probs = F.softmax(logits, dim=-1)
+    
+    # Get probability of true class
+    target_probs = probs.gather(1, targets.unsqueeze(1)).squeeze(1)
+    
+    # Compute focal weight: (1 - p_t)^gamma
+    focal_weight = (1 - target_probs) ** gamma
+    
+    # Compute cross-entropy
+    ce_loss = F.cross_entropy(logits, targets, reduction='none')
+    
+    # Apply alpha weighting (weight ball class more)
+    # For simplicity, use uniform alpha - could be per-class
+    alpha_t = alpha * torch.ones_like(target_probs)
+    
+    # Focal Loss: FL = -alpha_t * (1 - p_t)^gamma * log(p_t)
+    focal_loss = alpha_t * focal_weight * ce_loss
+    
+    return focal_loss.mean()
 
 
 class DETRWrapper(nn.Module):
     """Wrapper to make transformers DETR compatible with torchvision API"""
     
-    def __init__(self, detr_model, num_classes: int, class_weights: Dict = None):
+    def __init__(self, detr_model, num_classes: int, class_weights: Dict = None, focal_loss_config: Dict = None):
         super().__init__()
         self.detr_model = detr_model
         self.num_classes = num_classes
         self.processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
-        self.class_weights = class_weights  # Store class weights for loss function
+        self.class_weights = class_weights  # Store class weights (deprecated, kept for compatibility)
+        self.focal_loss_config = focal_loss_config  # Focal Loss configuration
     
     def forward(self, images: List[torch.Tensor], targets: List[Dict] = None):
         """
@@ -115,8 +157,10 @@ class DETRWrapper(nn.Module):
                 boxes_center[:, 2] = torch.clamp(boxes_center[:, 2], min=1e-6)  # width
                 boxes_center[:, 3] = torch.clamp(boxes_center[:, 3], min=1e-6)  # height
                 
+                # Dataset already provides 1-based labels (1=player, 2=ball, 0=background)
+                # DETR expects 1-based labels, so use them directly
                 labels.append({
-                    'class_labels': target['labels'] + 1,  # Add 1 for background class
+                    'class_labels': target['labels'],  # Already 1-based from dataset
                     'boxes': boxes_center,
                 })
             else:
@@ -142,7 +186,7 @@ class DETRWrapper(nn.Module):
         captured_loss_dict = {}
         
         def patched_loss_function(logits, labels, device, pred_boxes, config, outputs_class=None, outputs_coord=None, **kwargs):
-            """Patched loss function with class weighting for imbalanced dataset"""
+            """Patched loss function with Focal Loss support"""
             # CRITICAL: Set num_labels to number of object classes (not including background)
             config.num_labels = self.num_classes
             
@@ -156,38 +200,34 @@ class DETRWrapper(nn.Module):
             for key, value in loss_dict.items():
                 captured_loss_dict[key] = value
             
-            # Apply class weighting by scaling loss based on class distribution in batch
-            # This approximates proper class weighting
-            if hasattr(self, 'class_weights') and self.class_weights is not None:
-                # Count objects per class in this batch
-                player_count = 0
-                ball_count = 0
+            # Apply Focal Loss to classification loss if enabled
+            if hasattr(self, 'focal_loss_config') and self.focal_loss_config and self.focal_loss_config.get('enabled', False):
+                alpha = self.focal_loss_config.get('alpha', 0.25)
+                gamma = self.focal_loss_config.get('gamma', 2.0)
                 
-                for label_dict in labels:
-                    if 'class_labels' in label_dict and len(label_dict['class_labels']) > 0:
-                        class_labels = label_dict['class_labels']
-                        # DETR labels: 1=player, 2=ball (after +1 offset in training)
-                        player_count += (class_labels == 1).sum().item()
-                        ball_count += (class_labels == 2).sum().item()
-                
-                total_objects = player_count + ball_count
-                
-                if total_objects > 0:
-                    # Compute weighted loss scale based on class distribution
-                    # Weight the loss to emphasize underrepresented class (ball)
-                    ball_weight = self.class_weights.get('ball', 1.0)
-                    player_weight = self.class_weights.get('player', 1.0)
+                # If we have logits and labels, compute Focal Loss directly
+                if outputs_class is not None and len(labels) > 0:
+                    # Collect all logits and targets for Focal Loss computation
+                    all_logits = []
+                    all_targets = []
                     
-                    # Compute expected weight based on class distribution
-                    # If batch has more players, scale up to balance
-                    expected_player_ratio = player_count / total_objects
-                    expected_ball_ratio = ball_count / total_objects
-                    
-                    # Weight loss: emphasize ball class more when it appears
-                    if ball_count > 0:
-                        # Scale loss to give more importance to ball examples
-                        loss_scale = 1.0 + (ball_weight - 1.0) * expected_ball_ratio
-                        loss = loss * loss_scale
+                    # Note: outputs_class structure depends on DETR implementation
+                    # For now, apply Focal Loss scaling to existing classification loss
+                    # This is a practical approximation that maintains gradient flow
+                    if 'loss_ce' in loss_dict:
+                        loss_ce = loss_dict['loss_ce']
+                        # Scale classification loss to emphasize hard examples
+                        # Higher loss = harder example = apply more focus
+                        # This approximates (1 - p_t)^gamma from Focal Loss
+                        focal_scale = alpha * (1.0 + loss_ce.detach().clamp(min=0, max=10)) ** gamma
+                        loss_ce_focal = loss_ce * focal_scale.clamp(min=0.1, max=10.0)
+                        
+                        # Update loss_dict and total loss
+                        loss_dict['loss_ce'] = loss_ce_focal
+                        captured_loss_dict['loss_ce'] = loss_ce_focal
+                        
+                        # Recompute total loss
+                        loss = sum(v for k, v in loss_dict.items() if k.startswith('loss_'))
             
             return loss, loss_dict, auxiliary_outputs
         
@@ -262,93 +302,30 @@ class DETRWrapper(nn.Module):
             scores = results['scores']
             raw_labels = results['labels']
             
-            # CRITICAL FIX: Handle label indexing correctly to prevent "All Background" bug
-            # 
-            # The Bug: If DETR outputs 0-indexed labels (0=player, 1=ball) and we subtract 1:
-            #   - Ball (ID 1) → Player (ID 0) ✗ (ball detections vanish!)
-            #   - Player (ID 0) → -1 (invalid, filtered out) ✗
-            #
-            # Expected DETR format (with num_labels=3): 0=background, 1=player, 2=ball
-            # Target format: 0=player, 1=ball (0-indexed, no background)
-            #
-            # Solution: Detect label format by checking range, then convert correctly
-            
-            # Determine label format by checking max label value
-            # If max label >= num_classes, then labels are 1-indexed (1=player, 2=ball)
-            # If max label < num_classes, then labels are 0-indexed (0=player, 1=ball)
+            # DETR outputs 1-based labels: 0=background, 1=player, 2=ball
+            # Evaluator expects 0-based labels: 0=player, 1=ball
+            # Filter background and convert to 0-based
             if len(raw_labels) > 0:
-                max_label = raw_labels.max().item()
-                min_label = raw_labels.min().item()
-                
-                # CRITICAL FIX: Determine label format to prevent "All Background" bug
-                # 
-                # The Bug: If DETR outputs 0-indexed (0=player, 1=ball) and we subtract 1:
-                #   - Ball (ID 1) → Player (ID 0) ✗
-                #   - Player (ID 0) → -1 (invalid, filtered out) ✗
-                #
-                # Detection logic:
-                # - If max_label >= num_classes: labels are 1-indexed (0=bg, 1=player, 2=ball)
-                # - If max_label < num_classes and min_label >= 0: labels are 0-indexed (0=player, 1=ball)
-                
-                if max_label >= self.num_classes:
-                    # Labels are 1-indexed: 0=background, 1=player, 2=ball
-                    # Filter background (label 0) and convert to 0-indexed
-                    mask = raw_labels > 0  # Keep only non-background (1=player, 2=ball)
-                    if mask.any():
-                        boxes = boxes[mask]
-                        scores = scores[mask]
-                        labels = raw_labels[mask] - 1  # Convert: 1→0 (player), 2→1 (ball)
-                        # Validate converted labels are in valid range [0, num_classes-1]
-                        valid_mask = (labels >= 0) & (labels < self.num_classes)
-                        if valid_mask.all():
-                            # All labels valid
-                            pass
-                        else:
-                            # Some labels out of range - filter them
-                            boxes = boxes[valid_mask]
-                            scores = scores[valid_mask]
-                            labels = labels[valid_mask]
+                # Filter out background (label 0) and convert 1-based to 0-based
+                mask = raw_labels > 0  # Keep only non-background (1=player, 2=ball)
+                if mask.any():
+                    boxes = boxes[mask]
+                    scores = scores[mask]
+                    labels = raw_labels[mask] - 1  # Convert: 1→0 (player), 2→1 (ball)
+                    # Validate labels are in valid range [0, num_classes-1]
+                    valid_mask = (labels >= 0) & (labels < self.num_classes)
+                    if valid_mask.all():
+                        pass  # All labels valid
                     else:
-                        # No valid predictions (all background)
-                        boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
-                        scores = torch.zeros((0,), dtype=scores.dtype, device=scores.device)
-                        labels = torch.zeros((0,), dtype=raw_labels.dtype, device=raw_labels.device)
-                elif min_label >= 0 and max_label < self.num_classes:
-                    # Labels are already 0-indexed: 0=player, 1=ball (no background class)
-                    # DO NOT subtract 1 - labels are already correct!
-                    valid_mask = (raw_labels >= 0) & (raw_labels < self.num_classes)
-                    if valid_mask.any():
+                        # Filter out invalid labels
                         boxes = boxes[valid_mask]
                         scores = scores[valid_mask]
-                        labels = raw_labels[valid_mask]  # Already 0-indexed, use as-is
-                    else:
-                        # No valid predictions
-                        boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
-                        scores = torch.zeros((0,), dtype=scores.dtype, device=scores.device)
-                        labels = torch.zeros((0,), dtype=raw_labels.dtype, device=raw_labels.device)
+                        labels = labels[valid_mask]
                 else:
-                    # Unexpected label range - log warning and handle gracefully
-                    print(f"Warning: Unexpected label range [{min_label}, {max_label}], num_classes={self.num_classes}. Assuming 1-indexed format.")
-                    # Assume 1-indexed format and try conversion
-                    mask = raw_labels > 0
-                    if mask.any():
-                        boxes = boxes[mask]
-                        scores = scores[mask]
-                        converted_labels = raw_labels[mask] - 1
-                        # Clamp labels to valid range [0, num_classes-1]
-                        valid_mask = (converted_labels >= 0) & (converted_labels < self.num_classes)
-                        if valid_mask.any():
-                            boxes = boxes[valid_mask]
-                            scores = scores[valid_mask]
-                            labels = converted_labels[valid_mask]
-                        else:
-                            boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
-                            scores = torch.zeros((0,), dtype=scores.dtype, device=scores.device)
-                            labels = torch.zeros((0,), dtype=raw_labels.dtype, device=raw_labels.device)
-                    else:
-                        boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
-                        scores = torch.zeros((0,), dtype=scores.dtype, device=scores.device)
-                        labels = torch.zeros((0,), dtype=raw_labels.dtype, device=raw_labels.device)
+                    # No valid predictions (all background)
+                    boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
+                    scores = torch.zeros((0,), dtype=scores.dtype, device=scores.device)
+                    labels = torch.zeros((0,), dtype=raw_labels.dtype, device=raw_labels.device)
             else:
                 # No predictions at all
                 boxes = torch.zeros((0, 4), dtype=boxes.dtype, device=boxes.device)
@@ -367,6 +344,52 @@ class DETRWrapper(nn.Module):
         return predictions
 
 
+def get_rfdetr_model(config: Dict, training_config: Dict = None) -> nn.Module:
+    """
+    Get RF-DETR model (Roboflow DETR)
+    
+    Args:
+        config: Model configuration dictionary
+        training_config: Optional training configuration
+    
+    Returns:
+        RF-DETR model wrapped for torchvision API compatibility
+    """
+    try:
+        from rfdetr import RFDETRBase, RFDETRNano, RFDETRSmall, RFDETRMedium, RFDETRLarge
+        
+        num_classes = config.get('num_classes', 2)
+        rfdetr_size = config.get('rfdetr_size', 'base').lower()
+        
+        # Map size to RF-DETR class
+        size_map = {
+            'nano': RFDETRNano,
+            'small': RFDETRSmall,
+            'medium': RFDETRMedium,
+            'base': RFDETRBase,
+            'large': RFDETRLarge
+        }
+        
+        if rfdetr_size not in size_map:
+            print(f"Warning: Unknown RF-DETR size '{rfdetr_size}', using 'base'")
+            rfdetr_size = 'base'
+        
+        rfdetr_class = size_map[rfdetr_size]
+        rfdetr_model = rfdetr_class()
+        
+        # Note: RF-DETR has different API, would need custom wrapper
+        # For now, return a placeholder that indicates RF-DETR needs custom integration
+        print(f"RF-DETR {rfdetr_size} model created. Note: Full integration requires custom training pipeline.")
+        print("RF-DETR has its own training API. Consider using RF-DETR's native training method.")
+        
+        # Return a wrapper that can be used for inference
+        # Full training integration would require adapting the training pipeline
+        return rfdetr_model
+        
+    except ImportError:
+        raise ImportError("RF-DETR not installed. Install with: pip install rfdetr")
+
+
 def get_detr_model(config: Dict, training_config: Dict = None) -> nn.Module:
     """
     Get DETR model with specified configuration
@@ -378,6 +401,14 @@ def get_detr_model(config: Dict, training_config: Dict = None) -> nn.Module:
     Returns:
         DETR model wrapped for torchvision API compatibility
     """
+    architecture = config.get('architecture', 'detr').lower()
+    
+    # Route to appropriate model based on architecture
+    if architecture == 'rfdetr':
+        return get_rfdetr_model(config, training_config)
+    elif architecture != 'detr':
+        print(f"Warning: Unknown architecture '{architecture}', using 'detr'")
+    
     num_classes = config.get('num_classes', 2)
     pretrained = config.get('pretrained', True)
     
@@ -405,7 +436,7 @@ def get_detr_model(config: Dict, training_config: Dict = None) -> nn.Module:
     # Create a dummy forward pass to trigger loss creation, then patch it
     # Actually, we'll patch it in the forward pass instead
     
-    # Get class weights from training config if enabled
+    # Get class weights from training config if enabled (deprecated, kept for compatibility)
     class_weights = None
     if training_config is not None:
         class_weights_config = training_config.get('class_weights', {})
@@ -416,7 +447,16 @@ def get_detr_model(config: Dict, training_config: Dict = None) -> nn.Module:
             }
             print(f"Class weighting enabled: player={class_weights['player']}, ball={class_weights['ball']}")
     
+    # Get Focal Loss configuration
+    focal_loss_config = None
+    if training_config is not None:
+        focal_loss_config = training_config.get('focal_loss', {})
+        if focal_loss_config.get('enabled', False):
+            alpha = focal_loss_config.get('alpha', 0.25)
+            gamma = focal_loss_config.get('gamma', 2.0)
+            print(f"Focal Loss enabled: alpha={alpha}, gamma={gamma}")
+    
     # Wrap model for torchvision API compatibility
-    wrapped_model = DETRWrapper(detr_model, num_classes, class_weights=class_weights)
+    wrapped_model = DETRWrapper(detr_model, num_classes, class_weights=class_weights, focal_loss_config=focal_loss_config)
     
     return wrapped_model

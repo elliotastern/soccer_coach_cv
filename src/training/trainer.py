@@ -826,9 +826,14 @@ class Trainer:
                     outputs = self.model(images)
                 
                 # Store for evaluation
+                # Convert target labels from 1-based (1=player, 2=ball) to 0-based (0=player, 1=ball)
                 for i, (output, target) in enumerate(zip(outputs, targets)):
+                    # Convert target labels: 1→0 (player), 2→1 (ball)
+                    target_0based = target.copy()
+                    if 'labels' in target_0based and len(target_0based['labels']) > 0:
+                        target_0based['labels'] = target_0based['labels'] - 1
                     all_predictions.append(output)
-                    all_targets.append(target)
+                    all_targets.append(target_0based)
                 
                 # Memory cleanup during validation
                 del images, targets, outputs

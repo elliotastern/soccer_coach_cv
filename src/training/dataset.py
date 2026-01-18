@@ -37,16 +37,17 @@ class CocoDataset(Dataset):
         self.images = {img['id']: img for img in self.coco_data['images']}
         self.categories = {cat['id']: cat['name'] for cat in self.coco_data['categories']}
         
-        # Map category names to class IDs (player=0, ball=1)
+        # Map category names to class IDs (1-based for DETR: 1=player, 2=ball, 0=background)
+        # DETR expects 1-based indexing where 0 is reserved for background
         self.class_map = {}
         for cat_id, cat_name in self.categories.items():
             if cat_name.lower() == 'player':
-                self.class_map[cat_id] = 0
+                self.class_map[cat_id] = 1  # Player = 1 (0 is background)
             elif cat_name.lower() == 'ball':
-                self.class_map[cat_id] = 1
+                self.class_map[cat_id] = 2  # Ball = 2
             else:
-                # Default mapping
-                self.class_map[cat_id] = int(cat_id)
+                # Default mapping: add 1 to make 1-based
+                self.class_map[cat_id] = int(cat_id) + 1
         
         # Group annotations by image
         self.image_annotations = {}
@@ -124,9 +125,10 @@ class CocoDataset(Dataset):
             # Convert to [x_min, y_min, x_max, y_max]
             boxes.append([x, y, x + w, y + h])
             
-            # Map category to class ID
+            # Map category to class ID (1-based: 1=player, 2=ball)
             cat_id = ann['category_id']
-            labels.append(self.class_map.get(cat_id, 0))
+            # Default to 1 (player) if category not found
+            labels.append(self.class_map.get(cat_id, 1))
             
             areas.append(ann.get('area', w * h))
             iscrowd.append(ann.get('iscrowd', 0))
