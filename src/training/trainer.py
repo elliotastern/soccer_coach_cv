@@ -308,7 +308,7 @@ class Trainer:
     
     def __init__(self, model: nn.Module, train_loader: DataLoader,
                  val_loader: DataLoader, config: Dict, device: torch.device,
-                 writer: Optional = None, mlflow_run=None):
+                 writer: Optional = None, mlflow_run=None, real_val_path: Optional[str] = None):
         """
         Initialize trainer
         
@@ -320,6 +320,7 @@ class Trainer:
             device: Device to train on
             writer: TensorBoard writer (optional)
             mlflow_run: MLflow run object (optional)
+            real_val_path: Path to real validation set for generalization testing (optional)
         """
         self.model = model
         self.train_loader = train_loader
@@ -329,6 +330,7 @@ class Trainer:
         self.writer = writer
         self.mlflow_run = mlflow_run
         self.use_mlflow = mlflow_run is not None and MLFLOW_AVAILABLE
+        self.real_val_path = real_val_path
         self.mlflow_failure_count = 0  # Track consecutive MLflow failures
         self.mlflow_max_failures = 5  # Disable MLflow after this many consecutive failures
         # Disable model logging by default (causes INTERNAL_ERROR) - can be enabled via config
@@ -989,6 +991,219 @@ class Trainer:
         gc.collect()
         
         return map_score
+
+    
+    def test_real_validation(self, epoch: int):
+        """
+        Test on real validation set to track generalization
+        Logs results to MLflow
+        """
+        import json
+        from PIL import Image
+        import numpy as np
+        from scipy.optimize import linear_sum_assignment
+        from src.training.augmentation import get_val_transforms
+        
+        if not self.real_val_path:
+            return
+        
+        real_val_dir = Path(self.real_val_path)
+        annotation_file = real_val_dir / "just_ball_and_people.json"
+        
+        if not annotation_file.exists():
+            print(f"Warning: Real validation annotation file not found: {annotation_file}")
+            return
+        
+        print(f"\n🧪 Testing on real validation set (generalization)...")
+        
+        # Load annotations
+        with open(annotation_file, 'r') as f:
+            coco_data = json.load(f)
+        
+        images = {img['id']: img for img in coco_data['images']}
+        image_annotations = {}
+        for ann in coco_data['annotations']:
+            img_id = ann['image_id']
+            if img_id not in image_annotations:
+                image_annotations[img_id] = []
+            image_annotations[img_id].append(ann)
+        
+        # Setup transforms
+        val_transforms = get_val_transforms(self.config['augmentation']['val'])
+        evaluator = Evaluator({'iou_thresholds': [0.5], 'max_detections': 100})
+        threshold = 0.1  # Lower threshold for real validation
+        
+        all_predictions = []
+        all_targets = []
+        ball_tp = 0
+        ball_fp = 0
+        ball_fn = 0
+        
+        self.model.eval()
+        with torch.no_grad():
+            for image_id in sorted(images.keys()):
+                image_info = images[image_id]
+                image_path = real_val_dir / image_info['file_name']
+                
+                if not image_path.exists():
+                    continue
+                
+                try:
+                    pil_image = Image.open(image_path).convert('RGB')
+                except Exception as e:
+                    continue
+                
+                dummy_target = {
+                    'boxes': torch.zeros((0, 4), dtype=torch.float32),
+                    'labels': torch.zeros((0,), dtype=torch.int64),
+                    'image_id': torch.tensor([image_id], dtype=torch.int64),
+                    'area': torch.zeros((0,), dtype=torch.float32),
+                    'iscrowd': torch.zeros((0,), dtype=torch.int64)
+                }
+                
+                image_tensor, _ = val_transforms(pil_image, dummy_target)
+                image_tensor = image_tensor.to(self.device)
+                outputs = self.model([image_tensor])
+                
+                output = outputs[0]
+                pred_scores = output['scores'].cpu()
+                pred_labels = output['labels'].cpu()
+                pred_boxes = output['boxes'].cpu()
+                
+                # Filter by confidence threshold
+                mask = pred_scores >= threshold
+                pred_scores_filtered = pred_scores[mask]
+                pred_labels_filtered = pred_labels[mask]
+                pred_boxes_filtered = pred_boxes[mask]
+                
+                # Convert labels from 1-based to 0-based
+                valid_mask = pred_labels_filtered > 0
+                pred_labels_filtered = pred_labels_filtered[valid_mask] - 1
+                pred_scores_filtered = pred_scores_filtered[valid_mask]
+                pred_boxes_filtered = pred_boxes_filtered[valid_mask]
+                
+                # Get ground truth
+                annotations = image_annotations.get(image_id, [])
+                gt_boxes = []
+                gt_labels = []
+                
+                for ann in annotations:
+                    bbox = ann['bbox']
+                    x, y, w, h = bbox
+                    x_min, y_min, x_max, y_max = x, y, x + w, y + h
+                    cat_id = ann['category_id']
+                    gt_boxes.append([x_min, y_min, x_max, y_max])
+                    gt_labels.append(cat_id)
+                
+                if len(pred_boxes_filtered) == 0:
+                    pred_boxes_tensor = torch.zeros((0, 4), dtype=torch.float32)
+                    pred_scores_tensor = torch.zeros((0,), dtype=torch.float32)
+                    pred_labels_tensor = torch.zeros((0,), dtype=torch.int64)
+                else:
+                    pred_boxes_tensor = pred_boxes_filtered
+                    pred_scores_tensor = pred_scores_filtered
+                    pred_labels_tensor = pred_labels_filtered
+                
+                if len(gt_boxes) == 0:
+                    gt_boxes_tensor = torch.zeros((0, 4), dtype=torch.float32)
+                    gt_labels_tensor = torch.zeros((0,), dtype=torch.int64)
+                else:
+                    gt_boxes_tensor = torch.tensor(gt_boxes, dtype=torch.float32)
+                    gt_labels_tensor = torch.tensor(gt_labels, dtype=torch.int64)
+                
+                all_predictions.append({
+                    'boxes': pred_boxes_tensor,
+                    'scores': pred_scores_tensor,
+                    'labels': pred_labels_tensor
+                })
+                
+                all_targets.append({
+                    'boxes': gt_boxes_tensor,
+                    'labels': gt_labels_tensor
+                })
+                
+                # Calculate ball metrics
+                pred_boxes_np = pred_boxes_tensor.cpu().numpy()
+                pred_labels_np = pred_labels_tensor.cpu().numpy()
+                pred_scores_np = pred_scores_tensor.cpu().numpy()
+                
+                target_boxes_np = gt_boxes_tensor.cpu().numpy()
+                target_labels_np = gt_labels_tensor.cpu().numpy()
+                
+                ball_pred_mask = pred_labels_np == 1
+                ball_target_mask = target_labels_np == 1
+                
+                if np.sum(ball_target_mask) == 0:
+                    ball_fp += np.sum(ball_pred_mask)
+                    continue
+                
+                if np.sum(ball_pred_mask) == 0:
+                    ball_fn += np.sum(ball_target_mask)
+                    continue
+                
+                ball_pred_boxes = pred_boxes_np[ball_pred_mask]
+                ball_target_boxes = target_boxes_np[ball_target_mask]
+                ball_pred_scores = pred_scores_np[ball_pred_mask]
+                
+                ious = evaluator._compute_ious(ball_pred_boxes, ball_target_boxes)
+                matched_targets = np.zeros(len(ball_target_boxes), dtype=bool)
+                sorted_indices = np.argsort(ball_pred_scores)[::-1]
+                
+                tp = 0
+                for pred_idx in sorted_indices:
+                    best_iou = 0.0
+                    best_target_idx = -1
+                    
+                    for target_idx in range(len(ball_target_boxes)):
+                        if not matched_targets[target_idx]:
+                            iou = ious[pred_idx, target_idx]
+                            if iou > best_iou:
+                                best_iou = iou
+                                best_target_idx = target_idx
+                    
+                    if best_iou >= 0.5:
+                        matched_targets[best_target_idx] = True
+                        tp += 1
+                    else:
+                        ball_fp += 1
+                
+                ball_tp += tp
+                ball_fn += np.sum(~matched_targets)
+        
+        # Calculate metrics
+        metrics = evaluator.evaluate(all_predictions, all_targets)
+        
+        ball_recall = ball_tp / (ball_tp + ball_fn) if (ball_tp + ball_fn) > 0 else 0.0
+        ball_precision = ball_tp / (ball_tp + ball_fp) if (ball_tp + ball_fp) > 0 else 0.0
+        
+        # Print results
+        print(f"  Real Val - Ball: mAP={metrics['ball_map_05']:.4f}, Recall={ball_recall:.4f}, Prec={ball_precision:.4f}")
+        print(f"  Real Val - Player: mAP={metrics['player_map_05']:.4f}, Recall={metrics['player_recall_05']:.4f}, Prec={metrics['player_precision_05']:.4f}")
+        
+        # Log to MLflow
+        if self.use_mlflow:
+            try:
+                mlflow.log_metric('real_val_ball_map_05', float(metrics['ball_map_05']), step=epoch)
+                mlflow.log_metric('real_val_ball_recall', float(ball_recall), step=epoch)
+                mlflow.log_metric('real_val_ball_precision', float(ball_precision), step=epoch)
+                mlflow.log_metric('real_val_player_map_05', float(metrics['player_map_05']), step=epoch)
+                mlflow.log_metric('real_val_player_recall_05', float(metrics['player_recall_05']), step=epoch)
+                mlflow.log_metric('real_val_player_precision_05', float(metrics['player_precision_05']), step=epoch)
+                mlflow.log_metric('real_val_ball_tp', int(ball_tp), step=epoch)
+                mlflow.log_metric('real_val_ball_fp', int(ball_fp), step=epoch)
+                mlflow.log_metric('real_val_ball_fn', int(ball_fn), step=epoch)
+                print(f"  ✅ Logged real validation metrics to MLflow")
+            except Exception as e:
+                print(f"  Warning: Failed to log real validation metrics to MLflow: {e}")
+        
+        # Log to TensorBoard
+        if self.writer:
+            self.writer.add_scalar('RealVal/Ball_mAP', metrics['ball_map_05'], epoch)
+            self.writer.add_scalar('RealVal/Ball_Recall', ball_recall, epoch)
+            self.writer.add_scalar('RealVal/Ball_Precision', ball_precision, epoch)
+            self.writer.add_scalar('RealVal/Player_mAP', metrics['player_map_05'], epoch)
+            self.writer.add_scalar('RealVal/Player_Recall', metrics['player_recall_05'], epoch)
+            self.writer.add_scalar('RealVal/Player_Precision', metrics['player_precision_05'], epoch)
     
     def _log_goals_to_mlflow(self, eval_metrics: Dict[str, float], epoch: int):
         """
@@ -1593,6 +1808,15 @@ class Trainer:
                     use_lightweight_only = self.config['checkpoint'].get('use_lightweight_only', False)
                     if not use_lightweight_only and (epoch + 1) % self.config['checkpoint']['save_frequency'] == 0:
                         self.save_checkpoint(epoch, map_score, is_best, is_interrupt=False, lightweight=False)
+                
+                # Test on real validation set after each epoch (if path provided)
+                if self.real_val_path and Path(self.real_val_path).exists():
+                    try:
+                        self.test_real_validation(epoch)
+                    except Exception as e:
+                        print(f"Warning: Real validation test failed: {e}")
+                        import traceback
+                        traceback.print_exc()
                 
                 # Print adaptive optimization stats at end of epoch
                 if self.adaptive_optimizer:

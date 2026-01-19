@@ -329,6 +329,12 @@ def main():
             print(f"Warning: Model compilation failed: {e}")
             print("Continuing without compilation...")
     
+    # Get real validation path from config or use default
+    real_val_path = config.get('dataset', {}).get('real_val_path', None)
+    if not real_val_path:
+        # Default path for real validation set
+        real_val_path = "data/raw/Validation images OFFICIAL/test"
+    
     # Create trainer
     trainer = Trainer(
         model=model,
@@ -337,7 +343,8 @@ def main():
         config=config,
         device=device,
         writer=writer,
-        mlflow_run=mlflow_run
+        mlflow_run=mlflow_run,
+        real_val_path=real_val_path
     )
     
     # Resume from checkpoint if specified
