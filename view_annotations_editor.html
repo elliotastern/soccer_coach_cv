@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVAT Annotations Editor - Bounding Boxes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 75vh;
+            min-height: 400px;
+            flex-shrink: 0;
+            transition: height 0.2s ease;
+        }
+        #videoCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+            object-fit: contain;
+        }
+        .video-size-control {
+            background: #2a2a2a;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .video-size-control label {
+            color: #888;
+            font-size: 13px;
+            min-width: 120px;
+        }
+        .video-size-control input[type="range"] {
+            flex: 1;
+            min-width: 200px;
+        }
+        .video-size-value {
+            color: #4CAF50;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: right;
+        }
+        video {
+            display: none;
+        }
+        .controls {
+            background: #2a2a2a;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.delete {
+            background: #f44336;
+        }
+        button.delete:hover {
+            background: #da190b;
+        }
+        input[type="range"] {
+            flex: 1;
+            min-width: 200px;
+        }
+        .frame-info {
+            color: #888;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        .sidebar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .panel {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .panel h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .box-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .box-item {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            border-left: 4px solid #4CAF50;
+        }
+        .box-item:hover {
+            background: #3a3a3a;
+        }
+        .box-item.selected {
+            border-left-color: #FF9800;
+            background: #3a3a3a;
+        }
+        .box-item.player {
+            border-left-color: #2196F3;
+        }
+        .box-item.ball {
+            border-left-color: #FFC107;
+        }
+        .box-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .box-coords {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .event-item {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            border-left: 4px solid #FF9800;
+        }
+        .event-item:hover {
+            background: #3a3a3a;
+        }
+        .event-item.pass { border-left-color: #2196F3; }
+        .event-item.shot { border-left-color: #f44336; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .stat-card h3 {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .instructions {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        .instructions h3 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .instructions ul {
+            margin-left: 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        .keyboard-shortcuts {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #FF9800;
+            flex-shrink: 0;
+        }
+        .keyboard-shortcuts h3 {
+            color: #FF9800;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            font-size: 13px;
+        }
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+        .shortcut-item:last-child {
+            border-bottom: none;
+        }
+        .shortcut-key {
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #FF9800;
+            font-weight: bold;
+        }
+        .shortcut-desc {
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚽ CVAT Annotations Editor - Bounding Boxes</h1>
+        
+        <div class="instructions">
+            <h3>📝 How to Edit:</h3>
+            <ul>
+                <li><strong>Click & Drag</strong> on canvas to create new bounding box</li>
+                <li><strong>Click</strong> existing box to select it</li>
+                <li><strong>Drag</strong> selected box corners to resize</li>
+                <li><strong>Delete</strong> button removes selected box</li>
+                <li><strong>Navigate frames</strong> with slider or buttons</li>
+            </ul>
+        </div>
+
+        <div class="stats" id="stats">
+            <!-- Stats populated by JS -->
+        </div>
+
+        <div class="video-size-control">
+            <label>📐 Video Size:</label>
+            <input type="range" id="videoSizeSlider" min="30" max="90" value="75" oninput="adjustVideoSize(this.value)">
+            <span class="video-size-value" id="videoSizeValue">75%</span>
+        </div>
+
+        <div class="video-wrapper" id="videoWrapper">
+            <canvas id="videoCanvas"></canvas>
+            <video id="video" crossorigin="anonymous" preload="metadata">
+                <source src="data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506.mp4" type="video/mp4">
+            </video>
+            <div id="playOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 8px; cursor: pointer; display: none;">
+                <div style="color: #4CAF50; font-size: 24px; font-weight: bold;">▶ Click to Play Video</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="seekToFrame(0)">⏮ First</button>
+            <button onclick="prevFrame()">⏪ Prev</button>
+            <input type="range" id="frameSlider" min="0" max="1452" value="0" oninput="seekToFrame(this.value)">
+            <button onclick="nextFrame()">⏩ Next</button>
+            <button onclick="seekToFrame(1452)">⏭ Last</button>
+            <span class="frame-info">Frame: <span id="currentFrame">0</span> / 1452</span>
+            <button onclick="deleteSelectedBox()" class="delete">🗑️ Delete Selected</button>
+            <button onclick="saveAnnotations()">💾 Save Changes</button>
+        </div>
+
+        <div class="sidebar">
+            <div class="panel">
+                <h2>🎯 Boxes in Current Frame</h2>
+                <div class="box-list" id="boxesList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            <div class="panel">
+                <h2>📅 Events</h2>
+                <div class="box-list" id="eventsList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div class="keyboard-shortcuts">
+            <h3>⌨️ Keyboard Shortcuts</h3>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">Delete selected box</span>
+                    <span class="shortcut-key">Delete</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">Previous frame</span>
+                    <span class="shortcut-key">←</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">Next frame</span>
+                    <span class="shortcut-key">→</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">First frame</span>
+                    <span class="shortcut-key">Home</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">Last frame</span>
+                    <span class="shortcut-key">End</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">Deselect box</span>
+                    <span class="shortcut-key">Esc</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="shortcut-desc">Save changes</span>
+                    <span class="shortcut-key">Ctrl+S</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let annotations = null;
+        let currentFrame = 0;
+        let video = null;
+        let canvas = null;
+        let ctx = null;
+        let videoWidth = 0;
+        let videoHeight = 0;
+        let scaleX = 1;
+        let scaleY = 1;
+        let boxes = {}; // frame -> [boxes]
+        let selectedBox = null;
+        let isDrawing = false;
+        let drawStart = null;
+        let isDragging = false;
+        let dragHandle = null;
+
+        // Debug panel
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'debugPanel';
+        debugPanel.style.cssText = 'position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.9); color: #0f0; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 11px; z-index: 10000; max-width: 300px; max-height: 400px; overflow-y: auto;';
+        document.body.appendChild(debugPanel);
+        
+        function debugLog(msg) {
+            const debugPanel = document.getElementById('debugPanel');
+            const time = new Date().toLocaleTimeString();
+            debugPanel.innerHTML += `<div>[${time}] ${msg}</div>`;
+            debugPanel.scrollTop = debugPanel.scrollHeight;
+            console.log('[DEBUG]', msg);
+        }
+
+        // Load video and annotations
+        video = document.getElementById('video');
+        canvas = document.getElementById('videoCanvas');
+        ctx = canvas.getContext('2d');
+        
+        debugLog('Initialized video and canvas elements');
+
+        video.addEventListener('loadstart', () => {
+            debugLog('Video loadstart event');
+        });
+
+        video.addEventListener('loadeddata', () => {
+            debugLog('Video loadeddata - readyState: ' + video.readyState);
+        });
+
+        video.addEventListener('loadedmetadata', () => {
+            videoWidth = video.videoWidth;
+            videoHeight = video.videoHeight;
+            debugLog(`Video metadata loaded: ${videoWidth}x${videoHeight}`);
+            
+            if (videoWidth === 0 || videoHeight === 0) {
+                debugLog('ERROR: Video dimensions are 0!');
+                return;
+            }
+            
+            canvas.width = videoWidth;
+            canvas.height = videoHeight;
+            debugLog(`Canvas set to: ${canvas.width}x${canvas.height}`);
+            
+            // Calculate scale for responsive display
+            const wrapper = canvas.parentElement;
+            const containerWidth = wrapper.clientWidth || wrapper.offsetWidth || 800;
+            const containerHeight = wrapper.clientHeight || wrapper.offsetHeight || 600;
+            debugLog(`Container size: ${containerWidth}x${containerHeight}`);
+            
+            if (containerWidth === 0 || containerHeight === 0) {
+                debugLog('WARNING: Container has zero size, using defaults');
+                // Force a minimum size
+                wrapper.style.minHeight = '400px';
+                setTimeout(() => {
+                    const newWidth = wrapper.clientWidth || 800;
+                    const newHeight = wrapper.clientHeight || 600;
+                    scaleX = newWidth / videoWidth;
+                    scaleY = newHeight / videoHeight;
+                    const scale = Math.min(scaleX, scaleY);
+                    canvas.style.width = (videoWidth * scale) + 'px';
+                    canvas.style.height = (videoHeight * scale) + 'px';
+                    debugLog(`Canvas display size (retry): ${canvas.style.width} x ${canvas.style.height}`);
+                }, 100);
+                return;
+            }
+            
+            scaleX = containerWidth / videoWidth;
+            scaleY = containerHeight / videoHeight;
+            const scale = Math.min(scaleX, scaleY);
+            
+            canvas.style.width = (videoWidth * scale) + 'px';
+            canvas.style.height = (videoHeight * scale) + 'px';
+            debugLog(`Canvas display size: ${canvas.style.width} x ${canvas.style.height}`);
+            
+            // Draw first frame immediately
+            if (video.readyState >= 2) {
+                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                debugLog('Drew first frame to canvas');
+            }
+            
+            loadAnnotations();
+            // Start drawing loop
+            requestAnimationFrame(drawLoop);
+            debugLog('Started draw loop');
+        });
+
+        let drawLoopCount = 0;
+        function drawLoop() {
+            drawLoopCount++;
+            if (drawLoopCount % 60 === 0) { // Log every 60 frames (~1 second)
+                debugLog(`Draw loop: readyState=${video.readyState}, paused=${video.paused}, dims=${videoWidth}x${videoHeight}`);
+            }
+            
+            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
+                if (!video.paused) {
+                    drawFrame();
+                } else {
+                    // Draw paused frame (for frame-by-frame editing)
+                    try {
+                        ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                        if (boxes[currentFrame]) {
+                            boxes[currentFrame].forEach(box => {
+                                drawBox(box, box.id === selectedBox?.id);
+                            });
+                        }
+                    } catch (e) {
+                        if (drawLoopCount % 60 === 0) {
+                            debugLog('ERROR drawing: ' + e.message);
+                        }
+                    }
+                }
+            } else {
+                if (drawLoopCount % 60 === 0) {
+                    debugLog(`Skipping draw: readyState=${video.readyState}, dims=${videoWidth}x${videoHeight}`);
+                }
+            }
+            requestAnimationFrame(drawLoop);
+        }
+
+        video.addEventListener('timeupdate', () => {
+            const frame = Math.floor(video.currentTime * 60);
+            if (Math.abs(frame - currentFrame) > 1) {
+                currentFrame = frame;
+                document.getElementById('frameSlider').value = currentFrame;
+                document.getElementById('currentFrame').textContent = currentFrame;
+                updateBoxesList();
+            }
+        });
+
+        video.addEventListener('error', (e) => {
+            const error = video.error;
+            let errorMsg = 'Video error occurred';
+            if (error) {
+                errorMsg = `Video error code ${error.code}: `;
+                switch(error.code) {
+                    case 1: errorMsg += 'MEDIA_ERR_ABORTED'; break;
+                    case 2: errorMsg += 'MEDIA_ERR_NETWORK'; break;
+                    case 3: errorMsg += 'MEDIA_ERR_DECODE'; break;
+                    case 4: errorMsg += 'MEDIA_ERR_SRC_NOT_SUPPORTED'; break;
+                }
+            }
+            debugLog('ERROR: ' + errorMsg);
+            console.error('Video error:', e, error);
+            
+            if (canvas.width > 0 && canvas.height > 0) {
+                ctx.fillStyle = '#333';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#f00';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Video failed to load', canvas.width / 2, canvas.height / 2);
+                ctx.fillText(errorMsg, canvas.width / 2, canvas.height / 2 + 30);
+            }
+        });
+
+        // Load XML annotations
+        function loadAnnotations() {
+            fetch('data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml')
+                .then(response => response.text())
+                .then(xmlText => {
+                    const parser = new DOMParser();
+                    annotations = parser.parseFromString(xmlText, 'text/xml');
+                    parseAnnotations();
+                    updateStats();
+                    updateEventsList();
+                })
+                .catch(error => {
+                    console.error('Error loading annotations:', error);
+                });
+        }
+
+        function parseAnnotations() {
+            boxes = {};
+            
+            // Parse tracks
+            const tracks = annotations.querySelectorAll('track');
+            tracks.forEach(track => {
+                const trackId = track.getAttribute('id');
+                const label = track.getAttribute('label');
+                const trackBoxes = track.querySelectorAll('box');
+                
+                trackBoxes.forEach(box => {
+                    const frame = parseInt(box.getAttribute('frame'));
+                    const xtl = parseFloat(box.getAttribute('xtl'));
+                    const ytl = parseFloat(box.getAttribute('ytl'));
+                    const xbr = parseFloat(box.getAttribute('xbr'));
+                    const ybr = parseFloat(box.getAttribute('ybr'));
+                    const conf = box.querySelector('attribute[name="confidence"]');
+                    const confidence = conf ? parseFloat(conf.textContent) : 0.5;
+                    
+                    if (!boxes[frame]) boxes[frame] = [];
+                    
+                    boxes[frame].push({
+                        trackId: trackId,
+                        label: label,
+                        xtl: xtl,
+                        ytl: ytl,
+                        xbr: xbr,
+                        ybr: ybr,
+                        confidence: confidence,
+                        id: `${trackId}-${frame}`
+                    });
+                });
+            });
+        }
+
+        let drawFrameCount = 0;
+        function drawFrame() {
+            drawFrameCount++;
+            if (!video || !ctx) {
+                if (drawFrameCount % 30 === 0) debugLog('drawFrame: Missing video or ctx');
+                return;
+            }
+            if (videoWidth === 0 || videoHeight === 0) {
+                if (drawFrameCount % 30 === 0) debugLog(`drawFrame: Invalid dimensions ${videoWidth}x${videoHeight}`);
+                return;
+            }
+            
+            try {
+                // Draw video frame
+                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                
+                // Draw bounding boxes for current frame
+                if (boxes[currentFrame]) {
+                    boxes[currentFrame].forEach(box => {
+                        drawBox(box, box.id === selectedBox?.id);
+                    });
+                }
+                
+                // Draw new box being drawn
+                if (isDrawing && drawStart) {
+                    const rect = getMouseRect(drawStart, {x: event.clientX, y: event.clientY});
+                    drawBox(rect, false, true);
+                }
+            } catch (e) {
+                debugLog('ERROR in drawFrame: ' + e.message);
+                console.error('Error drawing frame:', e);
+            }
+        }
+
+        function drawBox(box, isSelected = false, isTemporary = false) {
+            const x = box.xtl;
+            const y = box.ytl;
+            const w = box.xbr - box.xtl;
+            const h = box.ybr - box.ytl;
+            
+            // Box color based on label
+            let color = '#4CAF50'; // default green
+            if (box.label === 'player') color = '#2196F3'; // blue
+            if (box.label === 'ball') color = '#FFC107'; // yellow
+            
+            ctx.strokeStyle = isSelected ? '#FF9800' : color;
+            ctx.lineWidth = isSelected ? 3 : 2;
+            ctx.setLineDash(isTemporary ? [5, 5] : []);
+            
+            // Draw box
+            ctx.strokeRect(x, y, w, h);
+            
+            // Draw label
+            ctx.fillStyle = color;
+            ctx.font = '14px Arial';
+            ctx.fillText(`${box.label} (${(box.confidence * 100).toFixed(0)}%)`, x, y - 5);
+            
+            // Draw resize handles if selected
+            if (isSelected && !isTemporary) {
+                const handleSize = 8;
+                const handles = [
+                    {x: x, y: y}, // top-left
+                    {x: x + w, y: y}, // top-right
+                    {x: x, y: y + h}, // bottom-left
+                    {x: x + w, y: y + h} // bottom-right
+                ];
+                
+                handles.forEach(handle => {
+                    ctx.fillStyle = '#FF9800';
+                    ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
+                });
+            }
+        }
+
+        function getMouseRect(start, end) {
+            const rect = canvas.getBoundingClientRect();
+            const startX = (start.x - rect.left) / scaleX;
+            const startY = (start.y - rect.top) / scaleY;
+            const endX = (end.x - rect.left) / scaleX;
+            const endY = (end.y - rect.top) / scaleY;
+            
+            return {
+                xtl: Math.min(startX, endX),
+                ytl: Math.min(startY, endY),
+                xbr: Math.max(startX, endX),
+                ybr: Math.max(startY, endY),
+                label: 'player', // default
+                confidence: 0.8
+            };
+        }
+
+        // Canvas interaction
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / scaleX;
+            const y = (e.clientY - rect.top) / scaleY;
+            
+            // Check if clicking on existing box
+            if (boxes[currentFrame]) {
+                for (let box of boxes[currentFrame]) {
+                    if (x >= box.xtl && x <= box.xbr && y >= box.ytl && y <= box.ybr) {
+                        selectedBox = box;
+                        isDragging = true;
+                        updateBoxesList();
+                        drawFrame();
+                        return;
+                    }
+                }
+            }
+            
+            // Start drawing new box
+            isDrawing = true;
+            drawStart = {x: e.clientX, y: e.clientY};
+            selectedBox = null;
+            updateBoxesList();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing && drawStart) {
+                drawFrame();
+            } else if (isDragging && selectedBox) {
+                const rect = canvas.getBoundingClientRect();
+                const dx = (e.clientX - rect.left) / scaleX - (drawStart.x - rect.left) / scaleX;
+                const dy = (e.clientY - rect.top) / scaleY - (drawStart.y - rect.top) / scaleY;
+                
+                selectedBox.xtl += dx;
+                selectedBox.ytl += dy;
+                selectedBox.xbr += dx;
+                selectedBox.ybr += dy;
+                
+                drawStart = {x: e.clientX, y: e.clientY};
+                drawFrame();
+                updateBoxesList();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (isDrawing && drawStart) {
+                const rect = getMouseRect(drawStart, {x: e.clientX, y: e.clientY});
+                
+                // Add new box
+                if (!boxes[currentFrame]) boxes[currentFrame] = [];
+                rect.id = `new-${Date.now()}`;
+                rect.trackId = `track-${Date.now()}`;
+                boxes[currentFrame].push(rect);
+                selectedBox = rect;
+                isDrawing = false;
+                drawStart = null;
+                updateBoxesList();
+                drawFrame();
+            }
+            isDragging = false;
+        });
+
+        function seekToFrame(frameNum) {
+            currentFrame = Math.max(0, Math.min(parseInt(frameNum), 1452)); // Clamp to valid range
+            document.getElementById('frameSlider').value = currentFrame;
+            document.getElementById('currentFrame').textContent = currentFrame;
+            if (video.readyState >= 2) {
+                video.currentTime = currentFrame / 60;
+                // Pause video when seeking for frame-by-frame editing
+                video.pause();
+            }
+            selectedBox = null;
+            // Force draw current frame
+            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
+                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                if (boxes[currentFrame]) {
+                    boxes[currentFrame].forEach(box => {
+                        drawBox(box, box.id === selectedBox?.id);
+                    });
+                }
+            }
+            updateBoxesList();
+        }
+
+        function nextFrame() {
+            if (currentFrame < 1452) seekToFrame(currentFrame + 1);
+        }
+
+        function prevFrame() {
+            if (currentFrame > 0) seekToFrame(currentFrame - 1);
+        }
+
+        function deleteSelectedBox() {
+            if (selectedBox && boxes[currentFrame]) {
+                boxes[currentFrame] = boxes[currentFrame].filter(b => b.id !== selectedBox.id);
+                selectedBox = null;
+                drawFrame();
+                updateBoxesList();
+            }
+        }
+
+        function updateBoxesList() {
+            const list = document.getElementById('boxesList');
+            list.innerHTML = '';
+            
+            if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
+                boxes[currentFrame].forEach(box => {
+                    const item = document.createElement('div');
+                    item.className = `box-item ${box.label} ${box.id === selectedBox?.id ? 'selected' : ''}`;
+                    item.innerHTML = `
+                        <div class="box-label">${box.label} (Track ${box.trackId})</div>
+                        <div class="box-coords">(${box.xtl.toFixed(0)}, ${box.ytl.toFixed(0)}) → (${box.xbr.toFixed(0)}, ${box.ybr.toFixed(0)})</div>
+                        <div class="box-coords">Confidence: ${(box.confidence * 100).toFixed(0)}%</div>
+                    `;
+                    item.onclick = () => {
+                        selectedBox = box;
+                        drawFrame();
+                        updateBoxesList();
+                    };
+                    list.appendChild(item);
+                });
+            } else {
+                list.innerHTML = '<div style="color: #888; padding: 20px; text-align: center;">No boxes in this frame</div>';
+            }
+        }
+
+        function updateEventsList() {
+            const list = document.getElementById('eventsList');
+            list.innerHTML = '';
+            
+            const events = annotations.querySelectorAll('tag');
+            events.forEach(event => {
+                const label = event.getAttribute('label');
+                const frame = event.getAttribute('frame');
+                const conf = event.querySelector('attribute[name="confidence"]');
+                const confidence = conf ? conf.textContent : 'N/A';
+                
+                const item = document.createElement('div');
+                item.className = `event-item ${label}`;
+                item.innerHTML = `
+                    <strong>${label.toUpperCase()}</strong> at Frame ${frame}<br>
+                    <span style="color: #888; font-size: 12px;">Confidence: ${confidence}</span>
+                `;
+                item.onclick = () => seekToFrame(frame);
+                list.appendChild(item);
+            });
+        }
+
+        function updateStats() {
+            const task = annotations.querySelector('task');
+            const frames = task.querySelector('size').textContent;
+            const tracks = annotations.querySelectorAll('track');
+            const events = annotations.querySelectorAll('tag');
+            const totalBoxes = Object.values(boxes).reduce((sum, frameBoxes) => sum + frameBoxes.length, 0);
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <h3>Total Frames</h3>
+                    <div class="value">${frames}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Object Tracks</h3>
+                    <div class="value">${tracks.length}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Boxes</h3>
+                    <div class="value">${totalBoxes}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Events</h3>
+                    <div class="value">${events.length}</div>
+                </div>
+            `;
+        }
+
+        function saveAnnotations() {
+            // This would need to be implemented to save back to XML
+            alert('Save functionality: Export to CVAT XML format\n\nThis would update the XML file with your edits.');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger shortcuts when typing in inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            switch(e.key) {
+                case 'Delete':
+                case 'Backspace':
+                    if (selectedBox) {
+                        e.preventDefault();
+                        deleteSelectedBox();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    prevFrame();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextFrame();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    seekToFrame(0);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    seekToFrame(1452);
+                    break;
+                case 'Escape':
+                case 'Esc':
+                    e.preventDefault();
+                    selectedBox = null;
+                    drawFrame();
+                    updateBoxesList();
+                    break;
+            }
+
+            // Ctrl+S to save
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveAnnotations();
+            }
+        });
+
+        // Video size adjustment
+        function adjustVideoSize(percentage) {
+            const wrapper = document.getElementById('videoWrapper');
+            wrapper.style.height = percentage + 'vh';
+            document.getElementById('videoSizeValue').textContent = percentage + '%';
+            // Redraw to adjust canvas
+            setTimeout(() => {
+                drawFrame();
+            }, 100);
+        }
+
+        // Make canvas focusable for keyboard events
+        canvas.setAttribute('tabindex', '0');
+        canvas.addEventListener('click', () => {
+            canvas.focus();
+            // Start video on first click if not playing
+            if (video.paused) {
+                video.play().catch(e => console.log('Play failed:', e));
+            }
+        });
+
+        // Add play button overlay if video not playing
+        function checkVideoState() {
+            if (video.readyState >= 2 && video.paused) {
+                // Video loaded but paused - show play button
+                drawPlayButton();
+            }
+        }
+
+        function drawPlayButton() {
+            if (!ctx) return;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#4CAF50';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('▶ Click to Play Video', canvas.width / 2, canvas.height / 2);
+        }
+
+        video.addEventListener('loadeddata', () => {
+            debugLog(`Video loadeddata: dimensions=${videoWidth}x${videoHeight}, readyState=${video.readyState}`);
+            checkVideoState();
+            // Draw first frame
+            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
+                try {
+                    ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                    debugLog('Drew first frame on loadeddata');
+                } catch (e) {
+                    debugLog('ERROR drawing on loadeddata: ' + e.message);
+                }
+            }
+        });
+
+        video.addEventListener('play', () => {
+            const overlay = document.getElementById('playOverlay');
+            if (overlay) overlay.style.display = 'none';
+        });
+
+        video.addEventListener('pause', () => {
+            const overlay = document.getElementById('playOverlay');
+            if (overlay && video.readyState >= 2) overlay.style.display = 'block';
+        });
+
+        // Click overlay to play
+        document.getElementById('playOverlay').addEventListener('click', () => {
+            video.play().catch(e => console.log('Play failed:', e));
+        });
+
+        // Try to load video
+        debugLog('Starting video load...');
+        debugLog('Video source: ' + video.querySelector('source').src);
+        video.load();
+        
+        // Check video state periodically
+        setInterval(() => {
+            const state = {
+                readyState: video.readyState,
+                networkState: video.networkState,
+                paused: video.paused,
+                currentTime: video.currentTime,
+                videoWidth: video.videoWidth,
+                videoHeight: video.videoHeight,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                canvasDisplayWidth: canvas.style.width,
+                canvasDisplayHeight: canvas.style.height
+            };
+            if (video.readyState < 2) {
+                debugLog(`Waiting for video: readyState=${state.readyState}, networkState=${state.networkState}`);
+            }
+        }, 2000);
+        
+        // Show overlay initially
+        setTimeout(() => {
+            if (video.paused) {
+                document.getElementById('playOverlay').style.display = 'block';
+                debugLog('Showing play overlay (video paused)');
+            } else {
+                debugLog('Video is playing, hiding overlay');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
