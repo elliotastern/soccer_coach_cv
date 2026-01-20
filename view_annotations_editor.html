@@ -14,33 +14,81 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: #1a1a1a;
             color: #e0e0e0;
-            padding: 20px;
+            padding: 0;
             overflow-x: hidden;
         }
         .container {
-            max-width: 1600px;
-            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 40px);
+            height: 100vh;
         }
-        h1 {
+        .header {
+            background: #2a2a2a;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4CAF50;
+            flex-shrink: 0;
+        }
+        .header h1 {
             color: #4CAF50;
-            margin-bottom: 20px;
+            font-size: 20px;
+            margin: 0;
+        }
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .status-item {
+            display: flex;
+            gap: 5px;
+        }
+        .status-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .icon-button {
+            background: #333;
+            border: none;
+            color: #4CAF50;
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-button:hover {
+            background: #3a3a3a;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .video-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
         .video-wrapper {
             position: relative;
             background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 20px;
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 75vh;
-            min-height: 400px;
-            flex-shrink: 0;
-            transition: height 0.2s ease;
+            overflow: hidden;
         }
         #videoCanvas {
             max-width: 100%;
@@ -50,51 +98,101 @@
             display: block;
             cursor: crosshair;
             object-fit: contain;
+            transform-origin: center;
+            transition: transform 0.1s;
         }
-        .video-size-control {
-            background: #2a2a2a;
-            padding: 10px 15px;
+        .canvas-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            gap: 5px;
+            z-index: 100;
         }
-        .video-size-control label {
-            color: #888;
-            font-size: 13px;
-            min-width: 120px;
-        }
-        .video-size-control input[type="range"] {
-            flex: 1;
-            min-width: 200px;
-        }
-        .video-size-value {
+        .canvas-controls button {
+            background: rgba(42, 42, 42, 0.9);
+            border: 1px solid #4CAF50;
             color: #4CAF50;
-            font-weight: bold;
-            min-width: 60px;
-            text-align: right;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .canvas-controls button:hover {
+            background: rgba(76, 175, 80, 0.2);
         }
         video {
             display: none;
         }
-        .controls {
+        .timeline-container {
             background: #2a2a2a;
             padding: 15px;
+            border-top: 2px solid #333;
+            flex-shrink: 0;
+        }
+        .timeline-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        #frameSlider {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            outline: none;
+            position: relative;
+        }
+        .timeline-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            pointer-events: none;
+        }
+        .timeline-marker {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #4CAF50;
+            opacity: 0.6;
+        }
+        .timeline-controls {
             display: flex;
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
-            flex-shrink: 0;
-            position: sticky;
-            bottom: 0;
-            z-index: 10;
+        }
+        .frame-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            min-width: 150px;
+            text-align: center;
+        }
+        .playback-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .playback-speed {
+            background: #333;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .playback-speed:hover {
+            background: #3a3a3a;
         }
         button {
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
@@ -108,148 +206,130 @@
         button.delete:hover {
             background: #da190b;
         }
-        input[type="range"] {
-            flex: 1;
-            min-width: 200px;
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
         }
-        .frame-info {
-            color: #888;
-            font-size: 14px;
-            min-width: 120px;
-        }
-        .sidebar {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+        .object-sidebar {
+            width: 250px;
+            background: #2a2a2a;
+            border-left: 2px solid #333;
+            padding: 15px;
+            overflow-y: auto;
             flex-shrink: 0;
         }
-        .panel {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .panel h2 {
+        .object-sidebar h3 {
             color: #4CAF50;
             margin-bottom: 15px;
-            font-size: 18px;
+            font-size: 14px;
+            text-transform: uppercase;
         }
-        .box-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .box-item {
+        .object-track-item {
             background: #333;
             padding: 10px;
             margin-bottom: 8px;
             border-radius: 4px;
             cursor: pointer;
             border-left: 4px solid #4CAF50;
+        }
+        .object-track-item:hover {
+            background: #3a3a3a;
+        }
+        .object-track-item.selected {
+            border-left-color: #FF9800;
+            background: #3a3a3a;
+        }
+        .object-track-item.player {
+            border-left-color: #2196F3;
+        }
+        .object-track-item.ball {
+            border-left-color: #FFC107;
+        }
+        .track-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .track-info {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .box-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .box-item {
+            background: #333;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            border-left: 3px solid #4CAF50;
+            font-size: 12px;
         }
         .box-item:hover {
             background: #3a3a3a;
         }
         .box-item.selected {
             border-left-color: #FF9800;
-            background: #3a3a3a;
         }
-        .box-item.player {
-            border-left-color: #2196F3;
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
         }
-        .box-item.ball {
-            border-left-color: #FFC107;
+        .modal.active {
+            display: flex;
         }
-        .box-label {
-            font-weight: bold;
+        .modal-content {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid #4CAF50;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
             color: #4CAF50;
         }
-        .box-coords {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-        .event-item {
-            background: #333;
-            padding: 10px;
-            margin-bottom: 8px;
+        .close-modal {
+            background: #f44336;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
             border-radius: 4px;
             cursor: pointer;
-            border-left: 4px solid #FF9800;
-        }
-        .event-item:hover {
-            background: #3a3a3a;
-        }
-        .event-item.pass { border-left-color: #2196F3; }
-        .event-item.shot { border-left-color: #f44336; }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #4CAF50;
-        }
-        .stat-card h3 {
-            color: #888;
-            font-size: 11px;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-        .stat-card .value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #4CAF50;
-        }
-        .instructions {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196F3;
-        }
-        .instructions h3 {
-            color: #2196F3;
-            margin-bottom: 10px;
-        }
-        .instructions ul {
-            margin-left: 20px;
-            color: #aaa;
-            font-size: 14px;
-        }
-        .instructions li {
-            margin-bottom: 5px;
-        }
-        .keyboard-shortcuts {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid #FF9800;
-            flex-shrink: 0;
-        }
-        .keyboard-shortcuts h3 {
-            color: #FF9800;
-            margin-bottom: 10px;
-            font-size: 14px;
+            font-size: 18px;
         }
         .shortcuts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             font-size: 13px;
         }
         .shortcut-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #333;
-        }
-        .shortcut-item:last-child {
-            border-bottom: none;
+            padding: 8px;
+            background: #333;
+            border-radius: 4px;
         }
         .shortcut-key {
             background: #1a1a1a;
@@ -259,101 +339,222 @@
             color: #FF9800;
             font-weight: bold;
         }
-        .shortcut-desc {
-            color: #aaa;
+        .debug-panel {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            z-index: 9999;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #0f0;
+        }
+        .debug-panel.collapsed {
+            max-height: 30px;
+            overflow: hidden;
+        }
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        .debug-toggle {
+            color: #0f0;
+            font-size: 12px;
+        }
+        .debug-content {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .debug-panel.collapsed .debug-content {
+            display: none;
+        }
+        #playOverlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 20px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+            z-index: 50;
+        }
+        #playOverlay div {
+            color: #4CAF50;
+            font-size: 24px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚽ CVAT Annotations Editor - Bounding Boxes</h1>
-        
-        <div class="instructions">
-            <h3>📝 How to Edit:</h3>
-            <ul>
-                <li><strong>Click & Drag</strong> on canvas to create new bounding box</li>
-                <li><strong>Click</strong> existing box to select it</li>
-                <li><strong>Drag</strong> selected box corners to resize</li>
-                <li><strong>Delete</strong> button removes selected box</li>
-                <li><strong>Navigate frames</strong> with slider or buttons</li>
+        <div class="header">
+            <h1>⚽ CVAT Annotations Editor</h1>
+            <div class="status-bar" id="statusBar">
+                <div class="status-item">Frames: <span class="status-value" id="statFrames">0</span></div>
+                <div class="status-item">Tracks: <span class="status-value" id="statTracks">0</span></div>
+                <div class="status-item">Boxes: <span class="status-value" id="statBoxes">0</span></div>
+                <div class="status-item">Events: <span class="status-value" id="statEvents">0</span></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-button" onclick="toggleHelp()" title="Help">?</button>
+                <button class="icon-button" onclick="toggleShortcuts()" title="Keyboard Shortcuts">⌨</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-container">
+                <div class="video-wrapper" id="videoWrapper">
+                    <div class="canvas-controls">
+                        <button onclick="zoomIn()" title="Zoom In">+</button>
+                        <button onclick="zoomOut()" title="Zoom Out">-</button>
+                        <button onclick="resetZoom()" title="Reset Zoom">⌂</button>
+                    </div>
+                    <canvas id="videoCanvas"></canvas>
+                    <video id="video" crossorigin="anonymous" preload="metadata">
+                        <source src="data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506.mp4" type="video/mp4">
+                    </video>
+                    <div id="playOverlay">
+                        <div>▶ Click to Play Video</div>
+                    </div>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-wrapper">
+                        <div class="timeline-markers" id="timelineMarkers"></div>
+                        <input type="range" id="frameSlider" min="0" max="1452" value="0" oninput="seekToFrame(this.value)">
+                    </div>
+                    <div class="timeline-controls">
+                        <button onclick="seekToFrame(0)">⏮ First</button>
+                        <button onclick="prevFrame()">⏪ Prev</button>
+                        <div class="frame-display">Frame: <span id="currentFrame">0</span> / 1452</div>
+                        <button onclick="nextFrame()">⏩ Next</button>
+                        <button onclick="seekToFrame(1452)">⏭ Last</button>
+                        <div class="playback-controls">
+                            <label style="color: #888; font-size: 12px;">Speed:</label>
+                            <select class="playback-speed" id="playbackSpeed" onchange="setPlaybackSpeed(this.value)">
+                                <option value="0.25">0.25x</option>
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button onclick="deleteSelectedBox()" class="delete">🗑️ Delete</button>
+                            <button onclick="saveAnnotations()">💾 Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="object-sidebar">
+                <h3>Object Tracks</h3>
+                <div id="objectTracksList"></div>
+                <h3 style="margin-top: 20px;">Boxes in Frame</h3>
+                <div class="box-list" id="boxesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 How to Edit</h2>
+                <button class="close-modal" onclick="toggleHelp()">×</button>
+            </div>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Click & Drag</strong> on canvas to create new bounding box
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Click</strong> existing box to select it
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Drag</strong> selected box corners to resize
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Delete</strong> button removes selected box
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Navigate frames</strong> with slider or buttons
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Zoom</strong> with +/- buttons or mouse wheel
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Pan</strong> by dragging when zoomed in
+                </li>
             </ul>
         </div>
+    </div>
 
-        <div class="stats" id="stats">
-            <!-- Stats populated by JS -->
-        </div>
-
-        <div class="video-size-control">
-            <label>📐 Video Size:</label>
-            <input type="range" id="videoSizeSlider" min="30" max="90" value="75" oninput="adjustVideoSize(this.value)">
-            <span class="video-size-value" id="videoSizeValue">75%</span>
-        </div>
-
-        <div class="video-wrapper" id="videoWrapper">
-            <canvas id="videoCanvas"></canvas>
-            <video id="video" crossorigin="anonymous" preload="metadata">
-                <source src="data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506.mp4" type="video/mp4">
-            </video>
-            <div id="playOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 8px; cursor: pointer; display: none;">
-                <div style="color: #4CAF50; font-size: 24px; font-weight: bold;">▶ Click to Play Video</div>
+    <!-- Shortcuts Modal -->
+    <div class="modal" id="shortcutsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⌨️ Keyboard Shortcuts</h2>
+                <button class="close-modal" onclick="toggleShortcuts()">×</button>
             </div>
-        </div>
-
-        <div class="controls">
-            <button onclick="seekToFrame(0)">⏮ First</button>
-            <button onclick="prevFrame()">⏪ Prev</button>
-            <input type="range" id="frameSlider" min="0" max="1452" value="0" oninput="seekToFrame(this.value)">
-            <button onclick="nextFrame()">⏩ Next</button>
-            <button onclick="seekToFrame(1452)">⏭ Last</button>
-            <span class="frame-info">Frame: <span id="currentFrame">0</span> / 1452</span>
-            <button onclick="deleteSelectedBox()" class="delete">🗑️ Delete Selected</button>
-            <button onclick="saveAnnotations()">💾 Save Changes</button>
-        </div>
-
-        <div class="sidebar">
-            <div class="panel">
-                <h2>🎯 Boxes in Current Frame</h2>
-                <div class="box-list" id="boxesList">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-            <div class="panel">
-                <h2>📅 Events</h2>
-                <div class="box-list" id="eventsList">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-        </div>
-
-        <div class="keyboard-shortcuts">
-            <h3>⌨️ Keyboard Shortcuts</h3>
             <div class="shortcuts-grid">
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">Delete selected box</span>
+                    <span>Play/Pause</span>
+                    <span class="shortcut-key">Space</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>New Box</span>
+                    <span class="shortcut-key">N</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Delete Box</span>
                     <span class="shortcut-key">Delete</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">Previous frame</span>
+                    <span>Toggle Overlay</span>
+                    <span class="shortcut-key">H</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Previous Frame</span>
                     <span class="shortcut-key">←</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">Next frame</span>
+                    <span>Next Frame</span>
                     <span class="shortcut-key">→</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">First frame</span>
+                    <span>First Frame</span>
                     <span class="shortcut-key">Home</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">Last frame</span>
+                    <span>Last Frame</span>
                     <span class="shortcut-key">End</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">Deselect box</span>
+                    <span>Deselect</span>
                     <span class="shortcut-key">Esc</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="shortcut-desc">Save changes</span>
+                    <span>Save</span>
                     <span class="shortcut-key">Ctrl+S</span>
                 </div>
             </div>
@@ -370,24 +571,43 @@
         let videoHeight = 0;
         let scaleX = 1;
         let scaleY = 1;
-        let boxes = {}; // frame -> [boxes]
+        let boxes = {};
         let selectedBox = null;
         let isDrawing = false;
         let drawStart = null;
         let isDragging = false;
         let dragHandle = null;
+        let showOverlay = true;
+        let zoomLevel = 1;
+        let panX = 0;
+        let panY = 0;
+        let isPanning = false;
+        let panStart = null;
+        let trackMap = {}; // trackId -> track info
 
-        // Debug panel
+        // Debug panel (collapsed by default)
         const debugPanel = document.createElement('div');
         debugPanel.id = 'debugPanel';
-        debugPanel.style.cssText = 'position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.9); color: #0f0; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 11px; z-index: 10000; max-width: 300px; max-height: 400px; overflow-y: auto;';
+        debugPanel.className = 'debug-panel collapsed';
+        debugPanel.innerHTML = `
+            <div class="debug-header" onclick="toggleDebugPanel()">
+                <span class="debug-toggle">▼ Debug</span>
+            </div>
+            <div class="debug-content" id="debugContent"></div>
+        `;
         document.body.appendChild(debugPanel);
         
+        function toggleDebugPanel() {
+            debugPanel.classList.toggle('collapsed');
+            const toggle = debugPanel.querySelector('.debug-toggle');
+            toggle.textContent = debugPanel.classList.contains('collapsed') ? '▼ Debug' : '▲ Debug';
+        }
+
         function debugLog(msg) {
-            const debugPanel = document.getElementById('debugPanel');
+            const content = document.getElementById('debugContent');
             const time = new Date().toLocaleTimeString();
-            debugPanel.innerHTML += `<div>[${time}] ${msg}</div>`;
-            debugPanel.scrollTop = debugPanel.scrollHeight;
+            content.innerHTML += `<div>[${time}] ${msg}</div>`;
+            content.scrollTop = content.scrollHeight;
             console.log('[DEBUG]', msg);
         }
 
@@ -397,14 +617,6 @@
         ctx = canvas.getContext('2d');
         
         debugLog('Initialized video and canvas elements');
-
-        video.addEventListener('loadstart', () => {
-            debugLog('Video loadstart event');
-        });
-
-        video.addEventListener('loadeddata', () => {
-            debugLog('Video loadeddata - readyState: ' + video.readyState);
-        });
 
         video.addEventListener('loadedmetadata', () => {
             videoWidth = video.videoWidth;
@@ -418,30 +630,10 @@
             
             canvas.width = videoWidth;
             canvas.height = videoHeight;
-            debugLog(`Canvas set to: ${canvas.width}x${canvas.height}`);
             
-            // Calculate scale for responsive display
             const wrapper = canvas.parentElement;
-            const containerWidth = wrapper.clientWidth || wrapper.offsetWidth || 800;
-            const containerHeight = wrapper.clientHeight || wrapper.offsetHeight || 600;
-            debugLog(`Container size: ${containerWidth}x${containerHeight}`);
-            
-            if (containerWidth === 0 || containerHeight === 0) {
-                debugLog('WARNING: Container has zero size, using defaults');
-                // Force a minimum size
-                wrapper.style.minHeight = '400px';
-                setTimeout(() => {
-                    const newWidth = wrapper.clientWidth || 800;
-                    const newHeight = wrapper.clientHeight || 600;
-                    scaleX = newWidth / videoWidth;
-                    scaleY = newHeight / videoHeight;
-                    const scale = Math.min(scaleX, scaleY);
-                    canvas.style.width = (videoWidth * scale) + 'px';
-                    canvas.style.height = (videoHeight * scale) + 'px';
-                    debugLog(`Canvas display size (retry): ${canvas.style.width} x ${canvas.style.height}`);
-                }, 100);
-                return;
-            }
+            const containerWidth = wrapper.clientWidth || 800;
+            const containerHeight = wrapper.clientHeight || 600;
             
             scaleX = containerWidth / videoWidth;
             scaleY = containerHeight / videoHeight;
@@ -449,90 +641,337 @@
             
             canvas.style.width = (videoWidth * scale) + 'px';
             canvas.style.height = (videoHeight * scale) + 'px';
-            debugLog(`Canvas display size: ${canvas.style.width} x ${canvas.style.height}`);
-            
-            // Draw first frame immediately
-            if (video.readyState >= 2) {
-                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                debugLog('Drew first frame to canvas');
-            }
             
             loadAnnotations();
-            // Start drawing loop
             requestAnimationFrame(drawLoop);
-            debugLog('Started draw loop');
+            updateTimelineMarkers();
         });
 
-        let drawLoopCount = 0;
         function drawLoop() {
-            drawLoopCount++;
-            if (drawLoopCount % 60 === 0) { // Log every 60 frames (~1 second)
-                debugLog(`Draw loop: readyState=${video.readyState}, paused=${video.paused}, dims=${videoWidth}x${videoHeight}`);
-            }
-            
             if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
                 if (!video.paused) {
                     drawFrame();
                 } else {
-                    // Draw paused frame (for frame-by-frame editing)
                     try {
+                        ctx.save();
+                        ctx.translate(panX, panY);
+                        ctx.scale(zoomLevel, zoomLevel);
                         ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                        if (boxes[currentFrame]) {
+                        if (showOverlay && boxes[currentFrame]) {
                             boxes[currentFrame].forEach(box => {
                                 drawBox(box, box.id === selectedBox?.id);
                             });
                         }
+                        ctx.restore();
                     } catch (e) {
-                        if (drawLoopCount % 60 === 0) {
-                            debugLog('ERROR drawing: ' + e.message);
-                        }
+                        debugLog('ERROR drawing: ' + e.message);
                     }
-                }
-            } else {
-                if (drawLoopCount % 60 === 0) {
-                    debugLog(`Skipping draw: readyState=${video.readyState}, dims=${videoWidth}x${videoHeight}`);
                 }
             }
             requestAnimationFrame(drawLoop);
         }
 
-        video.addEventListener('timeupdate', () => {
-            const frame = Math.floor(video.currentTime * 60);
-            if (Math.abs(frame - currentFrame) > 1) {
-                currentFrame = frame;
-                document.getElementById('frameSlider').value = currentFrame;
-                document.getElementById('currentFrame').textContent = currentFrame;
+        function drawFrame() {
+            if (!video || !ctx || videoWidth === 0 || videoHeight === 0) return;
+            
+            try {
+                ctx.save();
+                ctx.translate(panX, panY);
+                ctx.scale(zoomLevel, zoomLevel);
+                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                
+                if (showOverlay) {
+                    if (boxes[currentFrame]) {
+                        boxes[currentFrame].forEach(box => {
+                            drawBox(box, box.id === selectedBox?.id);
+                        });
+                    }
+                    
+                    if (isDrawing && drawStart) {
+                        const rect = getMouseRect(drawStart, {x: event.clientX, y: event.clientY});
+                        drawBox(rect, false, true);
+                    }
+                }
+                ctx.restore();
+            } catch (e) {
+                debugLog('ERROR in drawFrame: ' + e.message);
+            }
+        }
+
+        function drawBox(box, isSelected = false, isTemporary = false) {
+            const x = box.xtl;
+            const y = box.ytl;
+            const w = box.xbr - box.xtl;
+            const h = box.ybr - box.ytl;
+            
+            let color = '#4CAF50';
+            if (box.label === 'player') color = '#2196F3';
+            if (box.label === 'ball') color = '#FFC107';
+            
+            ctx.strokeStyle = isSelected ? '#FF9800' : color;
+            ctx.lineWidth = isSelected ? 3 : 2;
+            ctx.setLineDash(isTemporary ? [5, 5] : []);
+            
+            ctx.strokeRect(x, y, w, h);
+            
+            ctx.fillStyle = color;
+            ctx.font = '14px Arial';
+            ctx.fillText(`${box.label} (${(box.confidence * 100).toFixed(0)}%)`, x, y - 5);
+            
+            if (isSelected && !isTemporary) {
+                const handleSize = 8;
+                const handles = [
+                    {x: x, y: y}, {x: x + w, y: y},
+                    {x: x, y: y + h}, {x: x + w, y: y + h}
+                ];
+                handles.forEach(handle => {
+                    ctx.fillStyle = '#FF9800';
+                    ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
+                });
+            }
+        }
+
+        function getMouseRect(start, end) {
+            const rect = canvas.getBoundingClientRect();
+            const startX = (start.x - rect.left - panX) / (scaleX * zoomLevel);
+            const startY = (start.y - rect.top - panY) / (scaleY * zoomLevel);
+            const endX = (end.x - rect.left - panX) / (scaleX * zoomLevel);
+            const endY = (end.y - rect.top - panY) / (scaleY * zoomLevel);
+            
+            return {
+                xtl: Math.min(startX, endX),
+                ytl: Math.min(startY, endY),
+                xbr: Math.max(startX, endX),
+                ybr: Math.max(startY, endY),
+                label: 'player',
+                confidence: 0.8
+            };
+        }
+
+        // Canvas interaction
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
+                isPanning = true;
+                panStart = {x: e.clientX, y: e.clientY};
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left - panX) / (scaleX * zoomLevel);
+            const y = (e.clientY - rect.top - panY) / (scaleY * zoomLevel);
+            
+            if (boxes[currentFrame]) {
+                for (let box of boxes[currentFrame]) {
+                    if (x >= box.xtl && x <= box.xbr && y >= box.ytl && y <= box.ybr) {
+                        selectedBox = box;
+                        isDragging = true;
+                        updateBoxesList();
+                        drawFrame();
+                        return;
+                    }
+                }
+            }
+            
+            isDrawing = true;
+            drawStart = {x: e.clientX, y: e.clientY};
+            selectedBox = null;
+            updateBoxesList();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isPanning && panStart) {
+                panX += e.clientX - panStart.x;
+                panY += e.clientY - panStart.y;
+                panStart = {x: e.clientX, y: e.clientY};
+                drawFrame();
+                return;
+            }
+            
+            if (isDrawing && drawStart) {
+                drawFrame();
+            } else if (isDragging && selectedBox) {
+                const rect = canvas.getBoundingClientRect();
+                const dx = (e.clientX - rect.left - panX) / (scaleX * zoomLevel) - (drawStart.x - rect.left - panX) / (scaleX * zoomLevel);
+                const dy = (e.clientY - rect.top - panY) / (scaleY * zoomLevel) - (drawStart.y - rect.top - panY) / (scaleY * zoomLevel);
+                
+                selectedBox.xtl += dx;
+                selectedBox.ytl += dy;
+                selectedBox.xbr += dx;
+                selectedBox.ybr += dy;
+                
+                drawStart = {x: e.clientX, y: e.clientY};
+                drawFrame();
                 updateBoxesList();
             }
         });
 
-        video.addEventListener('error', (e) => {
-            const error = video.error;
-            let errorMsg = 'Video error occurred';
-            if (error) {
-                errorMsg = `Video error code ${error.code}: `;
-                switch(error.code) {
-                    case 1: errorMsg += 'MEDIA_ERR_ABORTED'; break;
-                    case 2: errorMsg += 'MEDIA_ERR_NETWORK'; break;
-                    case 3: errorMsg += 'MEDIA_ERR_DECODE'; break;
-                    case 4: errorMsg += 'MEDIA_ERR_SRC_NOT_SUPPORTED'; break;
-                }
+        canvas.addEventListener('mouseup', (e) => {
+            if (isPanning) {
+                isPanning = false;
+                panStart = null;
+                return;
             }
-            debugLog('ERROR: ' + errorMsg);
-            console.error('Video error:', e, error);
             
-            if (canvas.width > 0 && canvas.height > 0) {
-                ctx.fillStyle = '#333';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#f00';
-                ctx.font = '24px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Video failed to load', canvas.width / 2, canvas.height / 2);
-                ctx.fillText(errorMsg, canvas.width / 2, canvas.height / 2 + 30);
+            if (isDrawing && drawStart) {
+                const rect = getMouseRect(drawStart, {x: e.clientX, y: e.clientY});
+                if (!boxes[currentFrame]) boxes[currentFrame] = [];
+                rect.id = `new-${Date.now()}`;
+                rect.trackId = `track-${Date.now()}`;
+                boxes[currentFrame].push(rect);
+                selectedBox = rect;
+                isDrawing = false;
+                drawStart = null;
+                updateBoxesList();
+                updateObjectTracks();
+                drawFrame();
             }
+            isDragging = false;
         });
 
-        // Load XML annotations
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            zoomLevel = Math.max(0.5, Math.min(5, zoomLevel * delta));
+            drawFrame();
+        });
+
+        function zoomIn() {
+            zoomLevel = Math.min(5, zoomLevel * 1.2);
+            drawFrame();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(0.5, zoomLevel / 1.2);
+            drawFrame();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            panX = 0;
+            panY = 0;
+            drawFrame();
+        }
+
+        function seekToFrame(frameNum) {
+            currentFrame = Math.max(0, Math.min(parseInt(frameNum), 1452));
+            document.getElementById('frameSlider').value = currentFrame;
+            document.getElementById('currentFrame').textContent = currentFrame;
+            if (video.readyState >= 2) {
+                video.currentTime = currentFrame / 60;
+                video.pause();
+            }
+            selectedBox = null;
+            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
+                ctx.save();
+                ctx.translate(panX, panY);
+                ctx.scale(zoomLevel, zoomLevel);
+                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                if (showOverlay && boxes[currentFrame]) {
+                    boxes[currentFrame].forEach(box => {
+                        drawBox(box, box.id === selectedBox?.id);
+                    });
+                }
+                ctx.restore();
+            }
+            updateBoxesList();
+        }
+
+        function nextFrame() {
+            if (currentFrame < 1452) seekToFrame(currentFrame + 1);
+        }
+
+        function prevFrame() {
+            if (currentFrame > 0) seekToFrame(currentFrame - 1);
+        }
+
+        function deleteSelectedBox() {
+            if (selectedBox && boxes[currentFrame]) {
+                boxes[currentFrame] = boxes[currentFrame].filter(b => b.id !== selectedBox.id);
+                selectedBox = null;
+                drawFrame();
+                updateBoxesList();
+                updateObjectTracks();
+            }
+        }
+
+        function setPlaybackSpeed(speed) {
+            video.playbackRate = parseFloat(speed);
+        }
+
+        function updateBoxesList() {
+            const list = document.getElementById('boxesList');
+            list.innerHTML = '';
+            
+            if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
+                boxes[currentFrame].forEach(box => {
+                    const item = document.createElement('div');
+                    item.className = `box-item ${box.id === selectedBox?.id ? 'selected' : ''}`;
+                    item.innerHTML = `${box.label} (Track ${box.trackId})`;
+                    item.onclick = () => {
+                        selectedBox = box;
+                        drawFrame();
+                        updateBoxesList();
+                    };
+                    list.appendChild(item);
+                });
+            } else {
+                list.innerHTML = '<div style="color: #888; padding: 10px; text-align: center; font-size: 11px;">No boxes</div>';
+            }
+        }
+
+        function updateObjectTracks() {
+            const list = document.getElementById('objectTracksList');
+            list.innerHTML = '';
+            
+            Object.keys(trackMap).forEach(trackId => {
+                const track = trackMap[trackId];
+                const item = document.createElement('div');
+                item.className = `object-track-item ${track.label}`;
+                item.innerHTML = `
+                    <div class="track-label">${track.label} (ID: ${trackId})</div>
+                    <div class="track-info">Frames: ${track.frameCount}</div>
+                `;
+                item.onclick = () => {
+                    // Highlight boxes from this track
+                    selectedBox = null;
+                    drawFrame();
+                    updateBoxesList();
+                };
+                list.appendChild(item);
+            });
+        }
+
+        function updateTimelineMarkers() {
+            const markers = document.getElementById('timelineMarkers');
+            markers.innerHTML = '';
+            const slider = document.getElementById('frameSlider');
+            const sliderWidth = slider.offsetWidth;
+            const maxFrame = parseInt(slider.max);
+            
+            Object.keys(boxes).forEach(frame => {
+                if (boxes[frame] && boxes[frame].length > 0) {
+                    const position = (parseInt(frame) / maxFrame) * sliderWidth;
+                    const marker = document.createElement('div');
+                    marker.className = 'timeline-marker';
+                    marker.style.left = position + 'px';
+                    markers.appendChild(marker);
+                }
+            });
+        }
+
+        function updateStats() {
+            const task = annotations.querySelector('task');
+            const frames = task ? task.querySelector('size').textContent : '0';
+            const tracks = annotations.querySelectorAll('track');
+            const events = annotations.querySelectorAll('tag');
+            const totalBoxes = Object.values(boxes).reduce((sum, frameBoxes) => sum + frameBoxes.length, 0);
+            
+            document.getElementById('statFrames').textContent = frames;
+            document.getElementById('statTracks').textContent = tracks.length;
+            document.getElementById('statBoxes').textContent = totalBoxes;
+            document.getElementById('statEvents').textContent = events.length;
+        }
+
         function loadAnnotations() {
             fetch('data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml')
                 .then(response => response.text())
@@ -541,7 +980,8 @@
                     annotations = parser.parseFromString(xmlText, 'text/xml');
                     parseAnnotations();
                     updateStats();
-                    updateEventsList();
+                    updateObjectTracks();
+                    updateTimelineMarkers();
                 })
                 .catch(error => {
                     console.error('Error loading annotations:', error);
@@ -550,13 +990,18 @@
 
         function parseAnnotations() {
             boxes = {};
+            trackMap = {};
             
-            // Parse tracks
             const tracks = annotations.querySelectorAll('track');
             tracks.forEach(track => {
                 const trackId = track.getAttribute('id');
                 const label = track.getAttribute('label');
                 const trackBoxes = track.querySelectorAll('box');
+                
+                trackMap[trackId] = {
+                    label: label,
+                    frameCount: trackBoxes.length
+                };
                 
                 trackBoxes.forEach(box => {
                     const frame = parseInt(box.getAttribute('frame'));
@@ -583,286 +1028,48 @@
             });
         }
 
-        let drawFrameCount = 0;
-        function drawFrame() {
-            drawFrameCount++;
-            if (!video || !ctx) {
-                if (drawFrameCount % 30 === 0) debugLog('drawFrame: Missing video or ctx');
-                return;
-            }
-            if (videoWidth === 0 || videoHeight === 0) {
-                if (drawFrameCount % 30 === 0) debugLog(`drawFrame: Invalid dimensions ${videoWidth}x${videoHeight}`);
-                return;
-            }
-            
-            try {
-                // Draw video frame
-                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                
-                // Draw bounding boxes for current frame
-                if (boxes[currentFrame]) {
-                    boxes[currentFrame].forEach(box => {
-                        drawBox(box, box.id === selectedBox?.id);
-                    });
-                }
-                
-                // Draw new box being drawn
-                if (isDrawing && drawStart) {
-                    const rect = getMouseRect(drawStart, {x: event.clientX, y: event.clientY});
-                    drawBox(rect, false, true);
-                }
-            } catch (e) {
-                debugLog('ERROR in drawFrame: ' + e.message);
-                console.error('Error drawing frame:', e);
-            }
+        function toggleHelp() {
+            document.getElementById('helpModal').classList.toggle('active');
         }
 
-        function drawBox(box, isSelected = false, isTemporary = false) {
-            const x = box.xtl;
-            const y = box.ytl;
-            const w = box.xbr - box.xtl;
-            const h = box.ybr - box.ytl;
-            
-            // Box color based on label
-            let color = '#4CAF50'; // default green
-            if (box.label === 'player') color = '#2196F3'; // blue
-            if (box.label === 'ball') color = '#FFC107'; // yellow
-            
-            ctx.strokeStyle = isSelected ? '#FF9800' : color;
-            ctx.lineWidth = isSelected ? 3 : 2;
-            ctx.setLineDash(isTemporary ? [5, 5] : []);
-            
-            // Draw box
-            ctx.strokeRect(x, y, w, h);
-            
-            // Draw label
-            ctx.fillStyle = color;
-            ctx.font = '14px Arial';
-            ctx.fillText(`${box.label} (${(box.confidence * 100).toFixed(0)}%)`, x, y - 5);
-            
-            // Draw resize handles if selected
-            if (isSelected && !isTemporary) {
-                const handleSize = 8;
-                const handles = [
-                    {x: x, y: y}, // top-left
-                    {x: x + w, y: y}, // top-right
-                    {x: x, y: y + h}, // bottom-left
-                    {x: x + w, y: y + h} // bottom-right
-                ];
-                
-                handles.forEach(handle => {
-                    ctx.fillStyle = '#FF9800';
-                    ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
-                });
-            }
-        }
-
-        function getMouseRect(start, end) {
-            const rect = canvas.getBoundingClientRect();
-            const startX = (start.x - rect.left) / scaleX;
-            const startY = (start.y - rect.top) / scaleY;
-            const endX = (end.x - rect.left) / scaleX;
-            const endY = (end.y - rect.top) / scaleY;
-            
-            return {
-                xtl: Math.min(startX, endX),
-                ytl: Math.min(startY, endY),
-                xbr: Math.max(startX, endX),
-                ybr: Math.max(startY, endY),
-                label: 'player', // default
-                confidence: 0.8
-            };
-        }
-
-        // Canvas interaction
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / scaleX;
-            const y = (e.clientY - rect.top) / scaleY;
-            
-            // Check if clicking on existing box
-            if (boxes[currentFrame]) {
-                for (let box of boxes[currentFrame]) {
-                    if (x >= box.xtl && x <= box.xbr && y >= box.ytl && y <= box.ybr) {
-                        selectedBox = box;
-                        isDragging = true;
-                        updateBoxesList();
-                        drawFrame();
-                        return;
-                    }
-                }
-            }
-            
-            // Start drawing new box
-            isDrawing = true;
-            drawStart = {x: e.clientX, y: e.clientY};
-            selectedBox = null;
-            updateBoxesList();
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing && drawStart) {
-                drawFrame();
-            } else if (isDragging && selectedBox) {
-                const rect = canvas.getBoundingClientRect();
-                const dx = (e.clientX - rect.left) / scaleX - (drawStart.x - rect.left) / scaleX;
-                const dy = (e.clientY - rect.top) / scaleY - (drawStart.y - rect.top) / scaleY;
-                
-                selectedBox.xtl += dx;
-                selectedBox.ytl += dy;
-                selectedBox.xbr += dx;
-                selectedBox.ybr += dy;
-                
-                drawStart = {x: e.clientX, y: e.clientY};
-                drawFrame();
-                updateBoxesList();
-            }
-        });
-
-        canvas.addEventListener('mouseup', (e) => {
-            if (isDrawing && drawStart) {
-                const rect = getMouseRect(drawStart, {x: e.clientX, y: e.clientY});
-                
-                // Add new box
-                if (!boxes[currentFrame]) boxes[currentFrame] = [];
-                rect.id = `new-${Date.now()}`;
-                rect.trackId = `track-${Date.now()}`;
-                boxes[currentFrame].push(rect);
-                selectedBox = rect;
-                isDrawing = false;
-                drawStart = null;
-                updateBoxesList();
-                drawFrame();
-            }
-            isDragging = false;
-        });
-
-        function seekToFrame(frameNum) {
-            currentFrame = Math.max(0, Math.min(parseInt(frameNum), 1452)); // Clamp to valid range
-            document.getElementById('frameSlider').value = currentFrame;
-            document.getElementById('currentFrame').textContent = currentFrame;
-            if (video.readyState >= 2) {
-                video.currentTime = currentFrame / 60;
-                // Pause video when seeking for frame-by-frame editing
-                video.pause();
-            }
-            selectedBox = null;
-            // Force draw current frame
-            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
-                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                if (boxes[currentFrame]) {
-                    boxes[currentFrame].forEach(box => {
-                        drawBox(box, box.id === selectedBox?.id);
-                    });
-                }
-            }
-            updateBoxesList();
-        }
-
-        function nextFrame() {
-            if (currentFrame < 1452) seekToFrame(currentFrame + 1);
-        }
-
-        function prevFrame() {
-            if (currentFrame > 0) seekToFrame(currentFrame - 1);
-        }
-
-        function deleteSelectedBox() {
-            if (selectedBox && boxes[currentFrame]) {
-                boxes[currentFrame] = boxes[currentFrame].filter(b => b.id !== selectedBox.id);
-                selectedBox = null;
-                drawFrame();
-                updateBoxesList();
-            }
-        }
-
-        function updateBoxesList() {
-            const list = document.getElementById('boxesList');
-            list.innerHTML = '';
-            
-            if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
-                boxes[currentFrame].forEach(box => {
-                    const item = document.createElement('div');
-                    item.className = `box-item ${box.label} ${box.id === selectedBox?.id ? 'selected' : ''}`;
-                    item.innerHTML = `
-                        <div class="box-label">${box.label} (Track ${box.trackId})</div>
-                        <div class="box-coords">(${box.xtl.toFixed(0)}, ${box.ytl.toFixed(0)}) → (${box.xbr.toFixed(0)}, ${box.ybr.toFixed(0)})</div>
-                        <div class="box-coords">Confidence: ${(box.confidence * 100).toFixed(0)}%</div>
-                    `;
-                    item.onclick = () => {
-                        selectedBox = box;
-                        drawFrame();
-                        updateBoxesList();
-                    };
-                    list.appendChild(item);
-                });
-            } else {
-                list.innerHTML = '<div style="color: #888; padding: 20px; text-align: center;">No boxes in this frame</div>';
-            }
-        }
-
-        function updateEventsList() {
-            const list = document.getElementById('eventsList');
-            list.innerHTML = '';
-            
-            const events = annotations.querySelectorAll('tag');
-            events.forEach(event => {
-                const label = event.getAttribute('label');
-                const frame = event.getAttribute('frame');
-                const conf = event.querySelector('attribute[name="confidence"]');
-                const confidence = conf ? conf.textContent : 'N/A';
-                
-                const item = document.createElement('div');
-                item.className = `event-item ${label}`;
-                item.innerHTML = `
-                    <strong>${label.toUpperCase()}</strong> at Frame ${frame}<br>
-                    <span style="color: #888; font-size: 12px;">Confidence: ${confidence}</span>
-                `;
-                item.onclick = () => seekToFrame(frame);
-                list.appendChild(item);
-            });
-        }
-
-        function updateStats() {
-            const task = annotations.querySelector('task');
-            const frames = task.querySelector('size').textContent;
-            const tracks = annotations.querySelectorAll('track');
-            const events = annotations.querySelectorAll('tag');
-            const totalBoxes = Object.values(boxes).reduce((sum, frameBoxes) => sum + frameBoxes.length, 0);
-            
-            document.getElementById('stats').innerHTML = `
-                <div class="stat-card">
-                    <h3>Total Frames</h3>
-                    <div class="value">${frames}</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Object Tracks</h3>
-                    <div class="value">${tracks.length}</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Total Boxes</h3>
-                    <div class="value">${totalBoxes}</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Events</h3>
-                    <div class="value">${events.length}</div>
-                </div>
-            `;
+        function toggleShortcuts() {
+            document.getElementById('shortcutsModal').classList.toggle('active');
         }
 
         function saveAnnotations() {
-            // This would need to be implemented to save back to XML
             alert('Save functionality: Export to CVAT XML format\n\nThis would update the XML file with your edits.');
         }
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Don't trigger shortcuts when typing in inputs
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
                 return;
             }
 
             switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    if (video.readyState >= 2) {
+                        if (video.paused) {
+                            video.play().catch(e => console.log('Play failed:', e));
+                            document.getElementById('playOverlay').style.display = 'none';
+                        } else {
+                            video.pause();
+                            document.getElementById('playOverlay').style.display = 'block';
+                        }
+                    }
+                    break;
+                case 'h':
+                case 'H':
+                    e.preventDefault();
+                    showOverlay = !showOverlay;
+                    drawFrame();
+                    break;
+                case 'n':
+                case 'N':
+                    e.preventDefault();
+                    // Enter new box mode
+                    break;
                 case 'Delete':
                 case 'Backspace':
                     if (selectedBox) {
@@ -895,114 +1102,38 @@
                     break;
             }
 
-            // Ctrl+S to save
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 saveAnnotations();
             }
         });
 
-        // Video size adjustment
-        function adjustVideoSize(percentage) {
-            const wrapper = document.getElementById('videoWrapper');
-            wrapper.style.height = percentage + 'vh';
-            document.getElementById('videoSizeValue').textContent = percentage + '%';
-            // Redraw to adjust canvas
-            setTimeout(() => {
-                drawFrame();
-            }, 100);
-        }
-
-        // Make canvas focusable for keyboard events
-        canvas.setAttribute('tabindex', '0');
-        canvas.addEventListener('click', () => {
-            canvas.focus();
-            // Start video on first click if not playing
-            if (video.paused) {
-                video.play().catch(e => console.log('Play failed:', e));
-            }
-        });
-
-        // Add play button overlay if video not playing
-        function checkVideoState() {
-            if (video.readyState >= 2 && video.paused) {
-                // Video loaded but paused - show play button
-                drawPlayButton();
-            }
-        }
-
-        function drawPlayButton() {
-            if (!ctx) return;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#4CAF50';
-            ctx.font = '48px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('▶ Click to Play Video', canvas.width / 2, canvas.height / 2);
-        }
-
-        video.addEventListener('loadeddata', () => {
-            debugLog(`Video loadeddata: dimensions=${videoWidth}x${videoHeight}, readyState=${video.readyState}`);
-            checkVideoState();
-            // Draw first frame
-            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
-                try {
-                    ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                    debugLog('Drew first frame on loadeddata');
-                } catch (e) {
-                    debugLog('ERROR drawing on loadeddata: ' + e.message);
-                }
+        video.addEventListener('timeupdate', () => {
+            const frame = Math.floor(video.currentTime * 60);
+            if (Math.abs(frame - currentFrame) > 1) {
+                currentFrame = frame;
+                document.getElementById('frameSlider').value = currentFrame;
+                document.getElementById('currentFrame').textContent = currentFrame;
+                updateBoxesList();
             }
         });
 
         video.addEventListener('play', () => {
-            const overlay = document.getElementById('playOverlay');
-            if (overlay) overlay.style.display = 'none';
+            document.getElementById('playOverlay').style.display = 'none';
         });
 
         video.addEventListener('pause', () => {
-            const overlay = document.getElementById('playOverlay');
-            if (overlay && video.readyState >= 2) overlay.style.display = 'block';
-        });
-
-        // Click overlay to play
-        document.getElementById('playOverlay').addEventListener('click', () => {
-            video.play().catch(e => console.log('Play failed:', e));
-        });
-
-        // Try to load video
-        debugLog('Starting video load...');
-        debugLog('Video source: ' + video.querySelector('source').src);
-        video.load();
-        
-        // Check video state periodically
-        setInterval(() => {
-            const state = {
-                readyState: video.readyState,
-                networkState: video.networkState,
-                paused: video.paused,
-                currentTime: video.currentTime,
-                videoWidth: video.videoWidth,
-                videoHeight: video.videoHeight,
-                canvasWidth: canvas.width,
-                canvasHeight: canvas.height,
-                canvasDisplayWidth: canvas.style.width,
-                canvasDisplayHeight: canvas.style.height
-            };
-            if (video.readyState < 2) {
-                debugLog(`Waiting for video: readyState=${state.readyState}, networkState=${state.networkState}`);
-            }
-        }, 2000);
-        
-        // Show overlay initially
-        setTimeout(() => {
-            if (video.paused) {
+            if (video.readyState >= 2) {
                 document.getElementById('playOverlay').style.display = 'block';
-                debugLog('Showing play overlay (video paused)');
-            } else {
-                debugLog('Video is playing, hiding overlay');
             }
-        }, 500);
+        });
+
+        canvas.setAttribute('tabindex', '0');
+        canvas.addEventListener('click', () => {
+            canvas.focus();
+        });
+
+        video.load();
     </script>
 </body>
 </html>
