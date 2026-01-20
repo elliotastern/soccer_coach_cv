@@ -1,7 +1,17 @@
 # ByteTrack logic
 from typing import List, Dict
 import numpy as np
-from supervision.tracker.byte_tracker import ByteTracker
+try:
+    from supervision.tracker.byte_tracker.core import ByteTrack
+    BYTETRACK_AVAILABLE = True
+except ImportError:
+    try:
+        from supervision.tracker.byte_tracker import ByteTrack
+        BYTETRACK_AVAILABLE = True
+    except ImportError:
+        BYTETRACK_AVAILABLE = False
+        ByteTrack = None
+
 from supervision.detection.core import Detections
 from src.types import Detection, TrackedObject
 
@@ -28,7 +38,10 @@ class Tracker:
         self.match_thresh = match_thresh
         self.frame_rate = frame_rate
         
-        self.byte_tracker = ByteTracker(
+        if not BYTETRACK_AVAILABLE:
+            raise ImportError("ByteTrack not available. Install supervision with: pip install supervision")
+        
+        self.byte_tracker = ByteTrack(
             track_thresh=track_thresh,
             high_thresh=high_thresh,
             track_buffer=track_buffer,
@@ -101,10 +114,11 @@ class Tracker:
     
     def reset(self):
         """Reset tracker state (call on scene cut)"""
-        self.byte_tracker = ByteTracker(
-            track_thresh=self.track_thresh,
-            high_thresh=self.high_thresh,
-            track_buffer=self.track_buffer,
-            match_thresh=self.match_thresh,
-            frame_rate=self.frame_rate
-        )
+        if BYTETRACK_AVAILABLE:
+            self.byte_tracker = ByteTrack(
+                track_thresh=self.track_thresh,
+                high_thresh=self.high_thresh,
+                track_buffer=self.track_buffer,
+                match_thresh=self.match_thresh,
+                frame_rate=self.frame_rate
+            )

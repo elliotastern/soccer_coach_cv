@@ -1,0 +1,68 @@
+version: '3.3'
+
+services:
+  cvat_db:
+    container_name: cvat_db
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: cvat
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - cvat_db:/var/lib/postgresql/data
+    networks:
+      - cvat
+
+  cvat_redis:
+    container_name: cvat_redis
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - cvat
+
+  cvat_server:
+    container_name: cvat_server
+    image: cvat/server:latest
+    restart: always
+    depends_on:
+      - cvat_db
+      - cvat_redis
+    environment:
+      CVAT_POSTGRES_HOST: cvat_db
+      CVAT_REDIS_HOST: cvat_redis
+      CVAT_SHARE_URL: /home/django/share
+    ports:
+      - "8080:8080"
+    volumes:
+      - cvat_data:/home/django/data
+      - cvat_keys:/home/django/keys
+      - cvat_logs:/home/django/logs
+      # Mount your videos directory
+      - ./data/raw:/home/django/share:ro
+    networks:
+      - cvat
+
+  cvat_worker_default:
+    container_name: cvat_worker_default
+    image: cvat/server:latest
+    restart: always
+    depends_on:
+      - cvat_server
+    environment:
+      CVAT_POSTGRES_HOST: cvat_db
+      CVAT_REDIS_HOST: cvat_redis
+    volumes:
+      - cvat_data:/home/django/data
+      - ./data/raw:/home/django/share:ro
+    networks:
+      - cvat
+
+volumes:
+  cvat_db:
+  cvat_data:
+  cvat_keys:
+  cvat_logs:
+
+networks:
+  cvat:

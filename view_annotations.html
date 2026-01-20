@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVAT Annotations Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .stat-card h3 {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .video-container {
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        .controls {
+            background: #2a2a2a;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        input[type="range"] {
+            flex: 1;
+        }
+        .frame-info {
+            color: #888;
+            font-size: 14px;
+        }
+        .timeline {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .timeline h2 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+        .event {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #FF9800;
+        }
+        .event.pass { border-left-color: #2196F3; }
+        .event.shot { border-left-color: #f44336; }
+        .event.dribble { border-left-color: #9C27B0; }
+        .event.recovery { border-left-color: #00BCD4; }
+        .tracks {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .tracks h2 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+        .track {
+            background: #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .track-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .track-id {
+            color: #888;
+            font-size: 12px;
+        }
+        .boxes-count {
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚽ CVAT Annotations Viewer</h1>
+        
+        <div class="stats" id="stats">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+
+        <div class="video-container">
+            <video id="video" controls>
+                <source src="data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="controls">
+                <button onclick="seekToFrame(0)">⏮ First</button>
+                <button onclick="prevFrame()">⏪ Prev</button>
+                <input type="range" id="frameSlider" min="0" max="1452" value="0" oninput="seekToFrame(this.value)">
+                <button onclick="nextFrame()">⏩ Next</button>
+                <button onclick="seekToFrame(1452)">⏭ Last</button>
+                <span class="frame-info">Frame: <span id="currentFrame">0</span> / 1452</span>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <h2>📅 Event Timeline</h2>
+            <div id="events">
+                <!-- Events will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="tracks">
+            <h2>🎯 Object Tracks</h2>
+            <div id="tracks">
+                <!-- Tracks will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let annotations = null;
+        let currentFrame = 0;
+
+        // Load XML annotations
+        fetch('data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml')
+            .then(response => response.text())
+            .then(xmlText => {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                annotations = xmlDoc;
+                parseAnnotations();
+            })
+            .catch(error => {
+                console.error('Error loading annotations:', error);
+                document.getElementById('events').innerHTML = '<p style="color: #f44336;">Could not load annotations file. Make sure the XML file is accessible.</p>';
+            });
+
+        function parseAnnotations() {
+            // Parse stats
+            const task = annotations.querySelector('task');
+            const frames = task.querySelector('size').textContent;
+            const tracks = annotations.querySelectorAll('track');
+            const events = annotations.querySelectorAll('tag');
+
+            // Update stats
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <h3>Total Frames</h3>
+                    <div class="value">${frames}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Object Tracks</h3>
+                    <div class="value">${tracks.length}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Events</h3>
+                    <div class="value">${events.length}</div>
+                </div>
+            `;
+
+            // Parse events
+            const eventsDiv = document.getElementById('events');
+            events.forEach(event => {
+                const label = event.getAttribute('label');
+                const frame = event.getAttribute('frame');
+                const conf = event.querySelector('attribute[name="confidence"]');
+                const confidence = conf ? conf.textContent : 'N/A';
+                
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `event ${label}`;
+                eventDiv.innerHTML = `
+                    <strong>${label.toUpperCase()}</strong> at Frame ${frame}
+                    <span style="float: right; color: #888;">Confidence: ${confidence}</span>
+                `;
+                eventDiv.onclick = () => seekToFrame(frame);
+                eventDiv.style.cursor = 'pointer';
+                eventsDiv.appendChild(eventDiv);
+            });
+
+            // Parse tracks
+            const tracksDiv = document.getElementById('tracks');
+            tracks.forEach(track => {
+                const trackId = track.getAttribute('id');
+                const label = track.getAttribute('label');
+                const boxes = track.querySelectorAll('box');
+                
+                const trackDiv = document.createElement('div');
+                trackDiv.className = 'track';
+                trackDiv.innerHTML = `
+                    <div class="track-header">
+                        <span class="track-label">${label}</span>
+                        <span class="track-id">Track ID: ${trackId}</span>
+                    </div>
+                    <div class="boxes-count">${boxes.length} bounding boxes</div>
+                `;
+                tracksDiv.appendChild(trackDiv);
+            });
+        }
+
+        const video = document.getElementById('video');
+        const frameSlider = document.getElementById('frameSlider');
+
+        video.addEventListener('loadedmetadata', () => {
+            frameSlider.max = Math.floor(video.duration * video.framerate || 1452);
+        });
+
+        function seekToFrame(frameNum) {
+            currentFrame = parseInt(frameNum);
+            frameSlider.value = currentFrame;
+            document.getElementById('currentFrame').textContent = currentFrame;
+            
+            // Seek video (approximate - assumes 60fps)
+            if (video.readyState >= 2) {
+                video.currentTime = currentFrame / 60;
+            }
+        }
+
+        function nextFrame() {
+            if (currentFrame < parseInt(frameSlider.max)) {
+                seekToFrame(currentFrame + 1);
+            }
+        }
+
+        function prevFrame() {
+            if (currentFrame > 0) {
+                seekToFrame(currentFrame - 1);
+            }
+        }
+
+        video.addEventListener('timeupdate', () => {
+            const frame = Math.floor(video.currentTime * 60);
+            if (Math.abs(frame - currentFrame) > 1) {
+                currentFrame = frame;
+                frameSlider.value = currentFrame;
+                document.getElementById('currentFrame').textContent = currentFrame;
+            }
+        });
+    </script>
+</body>
+</html>

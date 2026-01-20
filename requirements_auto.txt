@@ -1,0 +1,21 @@
+# Additional requirements for auto_ingest.py
+# Install with: pip install -r requirements_auto.txt
+
+# CVAT SDK
+cvat-sdk>=2.14.0
+
+# Watchdog for file monitoring
+watchdog>=3.0.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# YAML configuration
+pyyaml>=6.0
+
+# Note: These should already be in requirements.txt, but listed for completeness:
+# torch
+# torchvision
+# opencv-python-headless
+# supervision (for ByteTrack)
+# numpy
