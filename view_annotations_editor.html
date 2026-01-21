@@ -652,20 +652,7 @@
                 if (!video.paused) {
                     drawFrame();
                 } else {
-                    try {
-                        ctx.save();
-                        ctx.translate(panX, panY);
-                        ctx.scale(zoomLevel, zoomLevel);
-                        ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                        if (showOverlay && boxes[currentFrame]) {
-                            boxes[currentFrame].forEach(box => {
-                                drawBox(box, box.id === selectedBox?.id);
-                            });
-                        }
-                        ctx.restore();
-                    } catch (e) {
-                        debugLog('ERROR drawing: ' + e.message);
-                    }
+                    drawFrame();
                 }
             }
             requestAnimationFrame(drawLoop);
@@ -675,11 +662,30 @@
             if (!video || !ctx || videoWidth === 0 || videoHeight === 0) return;
             
             try {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Get canvas display dimensions
+                const rect = canvas.getBoundingClientRect();
+                const displayWidth = rect.width;
+                const displayHeight = rect.height;
+                
+                // Calculate center of visible area
+                const centerX = displayWidth / 2;
+                const centerY = displayHeight / 2;
+                
+                // Apply transformations centered on the canvas
                 ctx.save();
-                ctx.translate(panX, panY);
+                
+                // Move to center, scale, then move back with pan offset
+                ctx.translate(centerX + panX, centerY + panY);
                 ctx.scale(zoomLevel, zoomLevel);
+                ctx.translate(-videoWidth / 2, -videoHeight / 2);
+                
+                // Draw video frame
                 ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
                 
+                // Draw bounding boxes if overlay is enabled
                 if (showOverlay) {
                     if (boxes[currentFrame]) {
                         boxes[currentFrame].forEach(box => {
@@ -692,6 +698,7 @@
                         drawBox(rect, false, true);
                     }
                 }
+                
                 ctx.restore();
             } catch (e) {
                 debugLog('ERROR in drawFrame: ' + e.message);
@@ -731,18 +738,29 @@
             }
         }
 
-        function getMouseRect(start, end) {
+        function screenToCanvas(x, y) {
             const rect = canvas.getBoundingClientRect();
-            const startX = (start.x - rect.left - panX) / (scaleX * zoomLevel);
-            const startY = (start.y - rect.top - panY) / (scaleY * zoomLevel);
-            const endX = (end.x - rect.left - panX) / (scaleX * zoomLevel);
-            const endY = (end.y - rect.top - panY) / (scaleY * zoomLevel);
+            const displayWidth = rect.width;
+            const displayHeight = rect.height;
+            const centerX = displayWidth / 2;
+            const centerY = displayHeight / 2;
+            
+            // Convert screen coordinates to canvas coordinates accounting for zoom/pan
+            const canvasX = (x - rect.left - centerX - panX) / zoomLevel + videoWidth / 2;
+            const canvasY = (y - rect.top - centerY - panY) / zoomLevel + videoHeight / 2;
+            
+            return { x: canvasX, y: canvasY };
+        }
+
+        function getMouseRect(start, end) {
+            const startPos = screenToCanvas(start.x, start.y);
+            const endPos = screenToCanvas(end.x, end.y);
             
             return {
-                xtl: Math.min(startX, endX),
-                ytl: Math.min(startY, endY),
-                xbr: Math.max(startX, endX),
-                ybr: Math.max(startY, endY),
+                xtl: Math.min(startPos.x, endPos.x),
+                ytl: Math.min(startPos.y, endPos.y),
+                xbr: Math.max(startPos.x, endPos.x),
+                ybr: Math.max(startPos.y, endPos.y),
                 label: 'player',
                 confidence: 0.8
             };
@@ -750,21 +768,21 @@
 
         // Canvas interaction
         canvas.addEventListener('mousedown', (e) => {
-            if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
+            if (e.button === 1 || (e.button === 0 && e.ctrlKey) || (e.button === 0 && e.shiftKey)) {
                 isPanning = true;
                 panStart = {x: e.clientX, y: e.clientY};
+                canvas.style.cursor = 'grabbing';
                 return;
             }
             
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left - panX) / (scaleX * zoomLevel);
-            const y = (e.clientY - rect.top - panY) / (scaleY * zoomLevel);
+            const pos = screenToCanvas(e.clientX, e.clientY);
             
             if (boxes[currentFrame]) {
                 for (let box of boxes[currentFrame]) {
-                    if (x >= box.xtl && x <= box.xbr && y >= box.ytl && y <= box.ybr) {
+                    if (pos.x >= box.xtl && pos.x <= box.xbr && pos.y >= box.ytl && pos.y <= box.ybr) {
                         selectedBox = box;
                         isDragging = true;
+                        drawStart = {x: e.clientX, y: e.clientY};
                         updateBoxesList();
                         drawFrame();
                         return;
@@ -789,10 +807,12 @@
             
             if (isDrawing && drawStart) {
                 drawFrame();
-            } else if (isDragging && selectedBox) {
-                const rect = canvas.getBoundingClientRect();
-                const dx = (e.clientX - rect.left - panX) / (scaleX * zoomLevel) - (drawStart.x - rect.left - panX) / (scaleX * zoomLevel);
-                const dy = (e.clientY - rect.top - panY) / (scaleY * zoomLevel) - (drawStart.y - rect.top - panY) / (scaleY * zoomLevel);
+            } else if (isDragging && selectedBox && drawStart) {
+                const startPos = screenToCanvas(drawStart.x, drawStart.y);
+                const currentPos = screenToCanvas(e.clientX, e.clientY);
+                
+                const dx = currentPos.x - startPos.x;
+                const dy = currentPos.y - startPos.y;
                 
                 selectedBox.xtl += dx;
                 selectedBox.ytl += dy;
@@ -809,6 +829,7 @@
             if (isPanning) {
                 isPanning = false;
                 panStart = null;
+                canvas.style.cursor = 'crosshair';
                 return;
             }
             
@@ -823,25 +844,70 @@
                 drawStart = null;
                 updateBoxesList();
                 updateObjectTracks();
+                updateTimelineMarkers();
                 drawFrame();
             }
             isDragging = false;
+            drawStart = null;
         });
 
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Get mouse position in canvas coordinates before zoom
+            const beforeZoom = screenToCanvas(e.clientX, e.clientY);
+            
+            // Apply zoom
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const oldZoom = zoomLevel;
             zoomLevel = Math.max(0.5, Math.min(5, zoomLevel * delta));
+            
+            // Get mouse position in canvas coordinates after zoom
+            const afterZoom = screenToCanvas(e.clientX, e.clientY);
+            
+            // Adjust pan to keep the point under the mouse in the same place
+            const dx = (beforeZoom.x - afterZoom.x) * zoomLevel;
+            const dy = (beforeZoom.y - afterZoom.y) * zoomLevel;
+            panX -= dx;
+            panY -= dy;
+            
             drawFrame();
         });
 
         function zoomIn() {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const beforeZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
             zoomLevel = Math.min(5, zoomLevel * 1.2);
+            const afterZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
+            
+            const dx = (beforeZoom.x - afterZoom.x) * zoomLevel;
+            const dy = (beforeZoom.y - afterZoom.y) * zoomLevel;
+            panX -= dx;
+            panY -= dy;
+            
             drawFrame();
         }
 
         function zoomOut() {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const beforeZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
             zoomLevel = Math.max(0.5, zoomLevel / 1.2);
+            const afterZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
+            
+            const dx = (beforeZoom.x - afterZoom.x) * zoomLevel;
+            const dy = (beforeZoom.y - afterZoom.y) * zoomLevel;
+            panX -= dx;
+            panY -= dy;
+            
             drawFrame();
         }
 
@@ -861,18 +927,7 @@
                 video.pause();
             }
             selectedBox = null;
-            if (video.readyState >= 2 && videoWidth > 0 && videoHeight > 0) {
-                ctx.save();
-                ctx.translate(panX, panY);
-                ctx.scale(zoomLevel, zoomLevel);
-                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-                if (showOverlay && boxes[currentFrame]) {
-                    boxes[currentFrame].forEach(box => {
-                        drawBox(box, box.id === selectedBox?.id);
-                    });
-                }
-                ctx.restore();
-            }
+            drawFrame();
             updateBoxesList();
         }
 
