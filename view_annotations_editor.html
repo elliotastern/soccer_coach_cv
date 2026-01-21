@@ -536,12 +536,20 @@
                     <span class="shortcut-key">H</span>
                 </div>
                 <div class="shortcut-item">
+                    <span>Move Box (1px)</span>
+                    <span class="shortcut-key">← → ↑ ↓</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Move Box (10px)</span>
+                    <span class="shortcut-key">Shift + ← → ↑ ↓</span>
+                </div>
+                <div class="shortcut-item">
                     <span>Previous Frame</span>
-                    <span class="shortcut-key">←</span>
+                    <span class="shortcut-key">← (no box)</span>
                 </div>
                 <div class="shortcut-item">
                     <span>Next Frame</span>
-                    <span class="shortcut-key">→</span>
+                    <span class="shortcut-key">→ (no box)</span>
                 </div>
                 <div class="shortcut-item">
                     <span>First Frame</span>
@@ -1652,11 +1660,55 @@
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
-                    prevFrame();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box left
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.xtl -= moveAmount;
+                        selectedBox.xbr -= moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    } else {
+                        prevFrame();
+                    }
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    nextFrame();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box right
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.xtl += moveAmount;
+                        selectedBox.xbr += moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    } else {
+                        nextFrame();
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box up
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.ytl -= moveAmount;
+                        selectedBox.ybr -= moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    }
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box down
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.ytl += moveAmount;
+                        selectedBox.ybr += moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    }
                     break;
                 case 'Home':
                     e.preventDefault();
