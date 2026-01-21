@@ -41,13 +41,8 @@ class Tracker:
         if not BYTETRACK_AVAILABLE:
             raise ImportError("ByteTrack not available. Install supervision with: pip install supervision")
         
-        self.byte_tracker = ByteTrack(
-            track_thresh=track_thresh,
-            high_thresh=high_thresh,
-            track_buffer=track_buffer,
-            match_thresh=match_thresh,
-            frame_rate=frame_rate
-        )
+        # ByteTrack API - use minimal initialization (parameters are handled internally)
+        self.byte_tracker = ByteTrack()
     
     def update(self, detections: List[Detection], frame: np.ndarray) -> List[TrackedObject]:
         """

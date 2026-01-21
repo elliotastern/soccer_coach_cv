@@ -49,6 +49,24 @@ class LocalDetector:
         self.model.eval()
         self.model.to(self.device)
         
+        # Apply quantization for faster inference (default enabled per user rules)
+        # Use dynamic quantization for transformer models
+        try:
+            if self.device.type == 'cpu':
+                # Dynamic quantization works best on CPU
+                self.model = torch.quantization.quantize_dynamic(
+                    self.model, {torch.nn.Linear}, dtype=torch.qint8
+                )
+                print("✅ Applied dynamic quantization (CPU)")
+            else:
+                # For CUDA, use FP16 mixed precision for faster inference
+                # Full quantization on CUDA requires more setup, FP16 is a good default
+                self.model = self.model.half()  # Convert to FP16
+                print("✅ Using FP16 precision on CUDA (faster inference)")
+        except Exception as e:
+            print(f"⚠️  Warning: Could not apply quantization/FP16: {e}")
+            print("Continuing with full precision model")
+        
         # Setup transforms
         self.transform = T.Compose([
             T.ToTensor(),
@@ -74,6 +92,10 @@ class LocalDetector:
         # Transform image
         image_tensor = self.transform(pil_image).unsqueeze(0).to(self.device)
         
+        # Convert to half precision if model is FP16
+        if next(self.model.parameters()).dtype == torch.float16:
+            image_tensor = image_tensor.half()
+        
         # Run inference
         with torch.no_grad():
             outputs = self.model([image_tensor[0]])
@@ -86,8 +108,23 @@ class LocalDetector:
         scores = output['scores'].cpu().numpy()
         labels = output['labels'].cpu().numpy()
         
+        # Debug: log score distribution for first few frames
+        if len(scores) > 0:
+            max_score = float(scores.max())
+            mean_score = float(scores.mean())
+            above_threshold = (scores >= self.confidence_threshold).sum()
+            non_bg_labels = (labels > 0).sum()
+            if hasattr(self, '_debug_count'):
+                self._debug_count += 1
+            else:
+                self._debug_count = 0
+            
+            if self._debug_count < 5:  # Log first 5 frames
+                print(f"  Frame {self._debug_count}: max_score={max_score:.4f}, mean_score={mean_score:.4f}, above_threshold={above_threshold}/{len(scores)}, non_bg_labels={non_bg_labels}/{len(labels)}")
+        
         # Filter by confidence and remove background class (class 0 in DETR is background)
         for box, score, label in zip(boxes, scores, labels):
+            # DETR outputs: label 0 = background, label 1 = first class, label 2 = second class
             if score >= self.confidence_threshold and label > 0:
                 # Convert from [x_min, y_min, x_max, y_max] to [x, y, width, height]
                 x_min, y_min, x_max, y_max = box

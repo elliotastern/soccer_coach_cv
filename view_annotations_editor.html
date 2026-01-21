@@ -749,15 +749,26 @@
                 
                 // Draw bounding boxes if overlay is enabled
                 if (showOverlay) {
-                    if (boxes[currentFrame]) {
+                    if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
                         boxes[currentFrame].forEach(box => {
                             drawBox(box, box.id === selectedBox?.id);
                         });
+                    } else {
+                        // Debug: log when no boxes for current frame
+                        if (currentFrame === 0) {
+                            console.log(`Frame ${currentFrame}: No boxes found. showOverlay=${showOverlay}, boxes object has ${Object.keys(boxes).length} frames`);
+                        }
                     }
                     
                     if (isDrawing && drawStart) {
                         const rect = getMouseRect(drawStart, currentMousePos);
                         drawBox(rect, false, true);
+                    }
+                } else {
+                    // Overlay is hidden - log once
+                    if (currentFrame === 0 && !hasLoggedOverlayHidden) {
+                        console.log('Overlay is hidden (press H to toggle)');
+                        hasLoggedOverlayHidden = true;
                     }
                 }
                 
@@ -907,18 +918,18 @@
 
         // Canvas interaction
         canvas.addEventListener('mousedown', (e) => {
-            if (e.button === 1 || (e.button === 0 && e.ctrlKey) || (e.button === 0 && e.shiftKey)) {
-                isPanning = true;
-                panStart = {x: e.clientX, y: e.clientY};
-                canvas.style.cursor = 'grabbing';
-                return;
-            }
+            // DEFAULT: Left click and drag = panning (unless clicking on a box)
+            // Priority order:
+            // 1. Box handle (resize) - highest priority
+            // 2. Box interior (select/drag) - second priority  
+            // 3. New box mode (draw) - third priority
+            // 4. Default: Panning - lowest priority
             
             const pos = screenToCanvas(e.clientX, e.clientY);
             
+            // Priority 1: Check if clicking on a box handle (for resizing)
             if (boxes[currentFrame]) {
                 for (let box of boxes[currentFrame]) {
-                    // Check if clicking on a corner handle first
                     const handle = getHandleAt(pos.x, pos.y, box);
                     if (handle) {
                         selectedBox = box;
@@ -935,15 +946,21 @@
                         drawFrame();
                         return;
                     }
-                    
-                    // Check if clicking inside the box
-                    if (pos.x >= box.xtl && pos.x <= box.xbr && pos.y >= box.ytl && pos.y <= box.ybr) {
+                }
+            }
+            
+            // Priority 2: Check if clicking inside an existing box (for selection and dragging)
+            if (boxes[currentFrame] && e.button === 0) {
+                // Iterate in reverse to select the topmost box
+                for (let i = boxes[currentFrame].length - 1; i >= 0; i--) {
+                    const box = boxes[currentFrame][i];
+                    if (pos.x >= box.xtl && pos.x <= box.xbr && 
+                        pos.y >= box.ytl && pos.y <= box.ybr) {
                         selectedBox = box;
                         isDragging = true;
                         isResizing = false;
                         dragHandle = null;
                         drawStart = {x: e.clientX, y: e.clientY};
-                        // Store original box position to prevent coordinate drift
                         originalBoxPos = {
                             xtl: box.xtl,
                             ytl: box.ytl,
@@ -957,24 +974,37 @@
                 }
             }
             
-            // Only allow drawing if new box mode is active
-            if (newBoxMode) {
+            // Priority 3: If in new box mode, start drawing a new box
+            if (newBoxMode && e.button === 0) {
                 isDrawing = true;
                 drawStart = {x: e.clientX, y: e.clientY};
                 selectedBox = null;
                 updateBoxesList();
-            } else {
-                // If not in new box mode, just deselect
+                return;
+            }
+            
+            // Priority 4: DEFAULT BEHAVIOR - Panning (left click, middle click, or Ctrl/Shift + left)
+            if (e.button === 0 || e.button === 1 || (e.button === 0 && (e.ctrlKey || e.shiftKey))) {
+                isPanning = true;
+                panStart = {x: e.clientX, y: e.clientY};
+                canvas.style.cursor = 'grabbing';
+                // Deselect box when starting to pan
                 selectedBox = null;
                 updateBoxesList();
-                drawFrame();
+                return;
             }
+            
+            // Fallback: Deselect if clicking on empty space
+            selectedBox = null;
+            updateBoxesList();
+            drawFrame();
         });
 
         canvas.addEventListener('mousemove', (e) => {
             // Store current mouse position for drawing temporary boxes
             currentMousePos = {x: e.clientX, y: e.clientY};
             
+            // Panning takes priority
             if (isPanning && panStart) {
                 panX += e.clientX - panStart.x;
                 panY += e.clientY - panStart.y;
@@ -1049,19 +1079,21 @@
                         'sw': 'sw-resize',
                         'se': 'se-resize'
                     };
-                    canvas.style.cursor = cursors[handle] || 'default';
+                    canvas.style.cursor = cursors[handle] || 'grab';
                 } else if (pos.x >= selectedBox.xtl && pos.x <= selectedBox.xbr && 
                           pos.y >= selectedBox.ytl && pos.y <= selectedBox.ybr) {
                     canvas.style.cursor = 'move';
                 } else if (newBoxMode) {
                     canvas.style.cursor = 'crosshair';
                 } else {
-                    canvas.style.cursor = 'default';
+                    // Default: show grab cursor for panning
+                    canvas.style.cursor = 'grab';
                 }
             } else if (newBoxMode) {
                 canvas.style.cursor = 'crosshair';
             } else {
-                canvas.style.cursor = 'default';
+                // Default cursor when not hovering over anything - show pan cursor
+                canvas.style.cursor = 'grab';
             }
         });
 
@@ -1069,7 +1101,7 @@
             if (isPanning) {
                 isPanning = false;
                 panStart = null;
-                canvas.style.cursor = 'crosshair';
+                canvas.style.cursor = 'grab'; // Default to grab cursor for panning
                 return;
             }
             
@@ -1088,7 +1120,7 @@
                 drawStart = null;
                 // Exit new box mode after creating a box
                 newBoxMode = false;
-                canvas.style.cursor = 'default';
+                canvas.style.cursor = 'grab'; // Default to grab for panning
                 updateBoxesList();
                 updateObjectTracks();
                 updateTimelineMarkers();
@@ -1106,7 +1138,8 @@
             dragHandle = null;
             originalBoxPos = null;
             drawStart = null;
-            canvas.style.cursor = 'crosshair';
+            // Default cursor is grab (for panning), unless in new box mode
+            canvas.style.cursor = newBoxMode ? 'crosshair' : 'grab';
         });
 
         canvas.addEventListener('wheel', (e) => {
@@ -1309,6 +1342,15 @@
                 .then(xmlText => {
                     const parser = new DOMParser();
                     annotations = parser.parseFromString(xmlText, 'text/xml');
+                    
+                    // Check for parsing errors
+                    const parserError = annotations.querySelector('parsererror');
+                    if (parserError) {
+                        console.error('XML parsing error:', parserError.textContent);
+                        alert('Error parsing XML file. The file may be corrupted.');
+                        return;
+                    }
+                    
                     parseAnnotations();
                     updateStats();
                     updateObjectTracks();
@@ -1316,6 +1358,15 @@
                     // Initialize history with initial state
                     saveState();
                     updateUndoRedoButtons();
+                    
+                    // Debug: log what was loaded
+                    console.log('Annotations loaded:', {
+                        tracks: annotations.querySelectorAll('track').length,
+                        boxes: Object.keys(boxes).length + ' frames',
+                        currentFrame: currentFrame,
+                        boxesInCurrentFrame: boxes[currentFrame] ? boxes[currentFrame].length : 0
+                    });
+                    
                     // Force video to seek to current frame and redraw
                     if (video && video.readyState >= 2) {
                         // Seek to current frame to ensure video is at correct position
@@ -1324,10 +1375,24 @@
                         // Wait for seek to complete, then draw
                         video.addEventListener('seeked', function onSeeked() {
                             video.removeEventListener('seeked', onSeeked);
+                            console.log('Video seeked, drawing frame', currentFrame);
                             drawFrame();
                         }, { once: true });
                         // Fallback: draw immediately if seek is instant
-                        setTimeout(() => drawFrame(), 100);
+                        setTimeout(() => {
+                            console.log('Fallback draw after timeout');
+                            drawFrame();
+                        }, 100);
+                    } else {
+                        // Video not ready yet, but still draw when it becomes ready
+                        console.log('Video not ready yet, will draw when ready');
+                        if (video) {
+                            video.addEventListener('seeked', function onSeeked() {
+                                video.removeEventListener('seeked', onSeeked);
+                                console.log('Video ready after load, drawing frame', currentFrame);
+                                drawFrame();
+                            }, { once: true });
+                        }
                     }
                 })
                 .catch(error => {
@@ -1341,6 +1406,8 @@
             trackMap = {};
             
             const tracks = annotations.querySelectorAll('track');
+            console.log(`parseAnnotations: Found ${tracks.length} tracks`);
+            
             tracks.forEach(track => {
                 const trackId = track.getAttribute('id');
                 const label = track.getAttribute('label') || 'player'; // Ensure label is never null/empty
@@ -1374,6 +1441,9 @@
                     });
                 });
             });
+            
+            console.log(`parseAnnotations: Parsed ${Object.keys(boxes).length} frames with boxes`);
+            console.log(`parseAnnotations: Frame 0 has ${boxes[0] ? boxes[0].length : 0} boxes`);
         }
 
         function toggleHelp() {
@@ -1464,14 +1534,28 @@
                     throw new Error('Invalid XML structure: annotations root not found');
                 }
                 
-                // Remove all existing track boxes (but keep tracks)
+                // CRITICAL: Preserve all existing boxes, only update/delete boxes that are in the current 'boxes' object
+                // This ensures frames 0 and 899 (and all other frames) are preserved
+                
+                // First, collect all frames that we're editing (in the boxes object)
+                const editedFrames = new Set(Object.keys(boxes).map(f => parseInt(f)));
+                
+                // For each track, update only boxes in edited frames, preserve others
                 const tracks = newDoc.querySelectorAll('track');
                 tracks.forEach(track => {
-                    const trackBoxes = track.querySelectorAll('box');
-                    trackBoxes.forEach(box => box.remove());
+                    const trackId = track.getAttribute('id');
+                    const trackBoxes = Array.from(track.querySelectorAll('box'));
+                    
+                    // Remove boxes from edited frames (we'll add them back from current state)
+                    trackBoxes.forEach(box => {
+                        const frame = parseInt(box.getAttribute('frame'));
+                        if (editedFrames.has(frame)) {
+                            box.remove();
+                        }
+                    });
                 });
                 
-                // Rebuild boxes from current state
+                // Now add/update boxes from current state (only for edited frames)
                 Object.keys(boxes).forEach(frameNum => {
                     const frame = parseInt(frameNum);
                     if (boxes[frame] && boxes[frame].length > 0) {
@@ -1539,8 +1623,30 @@
                 });
                 
                 // Serialize to string with proper formatting
-                const finalXml = serializer.serializeToString(newDoc);
+                let finalXml = serializer.serializeToString(newDoc);
+                
+                // Validate XML before formatting
+                const validationParser = new DOMParser();
+                const validationDoc = validationParser.parseFromString(finalXml, 'text/xml');
+                const validationError = validationDoc.querySelector('parsererror');
+                if (validationError) {
+                    throw new Error('Generated XML is invalid: ' + validationError.textContent);
+                }
+                
+                // Format the XML (this also validates it)
                 const formattedXml = formatXML(finalXml);
+                
+                // Final validation of formatted XML
+                const finalValidationParser = new DOMParser();
+                const finalValidationDoc = finalValidationParser.parseFromString(formattedXml, 'text/xml');
+                const finalValidationError = finalValidationDoc.querySelector('parsererror');
+                if (finalValidationError) {
+                    console.warn('Formatted XML has errors, using unformatted version:', finalValidationError.textContent);
+                    // Use unformatted but valid XML if formatting broke it
+                    finalXml = finalXml;
+                } else {
+                    finalXml = formattedXml;
+                }
                 
                 // Save to server
                 fetch('/save_annotations', {
@@ -1549,7 +1655,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        xml: formattedXml,
+                        xml: finalXml, // Use validated XML
                         file_path: 'data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml'
                     })
                 })
@@ -1567,6 +1673,15 @@
                 })
                 .then(data => {
                     if (data.success) {
+                        // Validate the saved XML by trying to reload it
+                        const validateParser = new DOMParser();
+                        const validateDoc = validateParser.parseFromString(finalXml, 'text/xml');
+                        const validateError = validateDoc.querySelector('parsererror');
+                        if (validateError) {
+                            console.error('Saved XML validation error:', validateError.textContent);
+                            alert('Warning: Saved XML may be corrupted. Please check the file.');
+                        }
+                        
                         // Reload annotations to show the saved changes immediately
                         loadAnnotations();
                         // Force video seek and redraw
@@ -1594,18 +1709,36 @@
         }
         
         function formatXML(xml) {
-            // Simple XML formatting (indentation)
-            let formatted = '';
-            let indent = 0;
-            const tab = '  ';
-            
-            xml.split(/>\s*</).forEach(node => {
-                if (node.match(/^\/\w/)) indent--;
-                formatted += tab.repeat(Math.max(0, indent)) + '<' + node + '>\r\n';
-                if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('xml')) indent++;
-            });
-            
-            return formatted.substring(1, formatted.length - 2);
+            // Use a proper XML formatter that preserves structure
+            // The previous string manipulation was corrupting the XML
+            try {
+                // Parse and re-serialize to ensure valid XML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(xml, 'text/xml');
+                
+                // Check for parsing errors
+                const parserError = doc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('XML parsing error in formatXML:', parserError.textContent);
+                    // Return original if parsing fails
+                    return xml;
+                }
+                
+                // Serialize with proper formatting
+                const serializer = new XMLSerializer();
+                let formatted = serializer.serializeToString(doc);
+                
+                // Add XML declaration if missing
+                if (!formatted.startsWith('<?xml')) {
+                    formatted = '<?xml version="1.0" encoding="UTF-8"?>\n' + formatted;
+                }
+                
+                return formatted;
+            } catch (e) {
+                console.error('Error formatting XML:', e);
+                // Return original if formatting fails
+                return xml;
+            }
         }
 
         // Keyboard shortcuts
@@ -1645,7 +1778,7 @@
                         updateBoxesList();
                     } else {
                         debugLog('New box mode: OFF');
-                        canvas.style.cursor = 'default';
+                        canvas.style.cursor = 'grab'; // Default to grab for panning
                         isDrawing = false;
                         drawStart = null;
                         drawFrame();
