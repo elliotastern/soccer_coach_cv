@@ -422,7 +422,7 @@
                     </div>
                     <canvas id="videoCanvas"></canvas>
                     <video id="video" crossorigin="anonymous" preload="metadata">
-                        <source src="data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506.mp4" type="video/mp4">
+                        <source src="data/raw/real_data/F9D97C58-4877-4905-9A9F-6590FCC758FF.mp4" type="video/mp4">
                     </video>
                     <div id="playOverlay">
                         <div>▶ Click to Play Video</div>
@@ -432,14 +432,14 @@
                 <div class="timeline-container">
                     <div class="timeline-wrapper">
                         <div class="timeline-markers" id="timelineMarkers"></div>
-                        <input type="range" id="frameSlider" min="0" max="1452" value="0" oninput="seekToFrame(this.value)">
+                        <input type="range" id="frameSlider" min="0" max="796" value="0" oninput="seekToFrame(this.value)">
                     </div>
                     <div class="timeline-controls">
                         <button onclick="seekToFrame(0)">⏮ First</button>
                         <button onclick="prevFrame()">⏪ Prev</button>
-                        <div class="frame-display">Frame: <span id="currentFrame">0</span> / 1452</div>
+                        <div class="frame-display">Frame: <span id="currentFrame">0</span> / 796</div>
                         <button onclick="nextFrame()">⏩ Next</button>
-                        <button onclick="seekToFrame(1452)">⏭ Last</button>
+                        <button onclick="seekToFrame(796)">⏭ Last</button>
                         <div class="playback-controls">
                             <label style="color: #888; font-size: 12px;">Speed:</label>
                             <select class="playback-speed" id="playbackSpeed" onchange="setPlaybackSpeed(this.value)">
@@ -1229,7 +1229,7 @@
         }
 
         function seekToFrame(frameNum) {
-            currentFrame = Math.max(0, Math.min(parseInt(frameNum), 1452));
+            currentFrame = Math.max(0, Math.min(parseInt(frameNum), 796));
             document.getElementById('frameSlider').value = currentFrame;
             document.getElementById('currentFrame').textContent = currentFrame;
             if (video.readyState >= 2) {
@@ -1243,7 +1243,7 @@
         }
 
         function nextFrame() {
-            if (currentFrame < 1452) seekToFrame(currentFrame + 1);
+            if (currentFrame < 796) seekToFrame(currentFrame + 1);
         }
 
         function prevFrame() {
@@ -1739,7 +1739,7 @@
                     },
                     body: JSON.stringify({
                         xml: finalXml, // Use validated XML
-                        file_path: 'data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml'
+                        file_path: 'data/raw/real_data/F9D97C58-4877-4905-9A9F-6590FCC758FF_annotations.xml'
                     })
                 })
                 .then(response => {
@@ -1932,7 +1932,7 @@
                     break;
                 case 'End':
                     e.preventDefault();
-                    seekToFrame(1452);
+                    seekToFrame(796);
                     break;
                 case 'Escape':
                 case 'Esc':

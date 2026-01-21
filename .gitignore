@@ -71,3 +71,5 @@ coco_annotations_only/
 *.tar.gz
 *.tar
 *.zip
+rf-detr-base.pth
+*.pth
