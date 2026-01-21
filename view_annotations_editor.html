@@ -481,7 +481,7 @@
             <ul style="list-style: none; padding: 0;">
                 <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
                     <span style="position: absolute; left: 0; color: #2196F3;">•</span>
-                    <strong>Click & Drag</strong> on canvas to create new bounding box
+                    Press <strong>N</strong> to enter new box mode, then <strong>Click & Drag</strong> to create bounding box
                 </li>
                 <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
                     <span style="position: absolute; left: 0; color: #2196F3;">•</span>
@@ -524,7 +524,7 @@
                     <span class="shortcut-key">Space</span>
                 </div>
                 <div class="shortcut-item">
-                    <span>New Box</span>
+                    <span>New Box Mode</span>
                     <span class="shortcut-key">N</span>
                 </div>
                 <div class="shortcut-item">
@@ -586,6 +586,7 @@
         let isDrawing = false;
         let drawStart = null;
         let isDragging = false;
+        let newBoxMode = false; // Must press 'b' to enter new box mode
         let dragHandle = null; // 'nw', 'ne', 'sw', 'se', or null for moving
         let isResizing = false;
         let showOverlay = true;
@@ -800,20 +801,27 @@
             }
             
             if (isSelected && !isTemporary) {
-                const handleSize = 8;
+                // Handles are 3px × 3px - small and transparent
+                const baseHandleSize = 3;
+                const handleSize = Math.max(baseHandleSize, baseHandleSize * zoomLevel);
                 const handles = [
                     {x: x, y: y, corner: 'nw'}, {x: x + w, y: y, corner: 'ne'},
                     {x: x, y: y + h, corner: 'sw'}, {x: x + w, y: y + h, corner: 'se'}
                 ];
                 handles.forEach(handle => {
-                    ctx.fillStyle = dragHandle === handle.corner ? '#FF5722' : '#FF9800';
+                    // Draw handle - 3px, more transparent
+                    ctx.fillStyle = dragHandle === handle.corner ? 'rgba(255, 87, 34, 0.7)' : 'rgba(255, 152, 0, 0.5)';
                     ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
                 });
             }
         }
         
         function getHandleAt(x, y, box) {
-            const handleSize = 8;
+            // Visual handle is 3px, but hit area is larger for easier grabbing
+            const hitRadius = Math.max(10, 10 * zoomLevel) / 2; // 10px hit area for corners
+            const edgeHitDistance = Math.max(8, 8 * zoomLevel) / 2; // 8px hit area for edges
+            
+            // Check corner handles first
             const handles = [
                 {x: box.xtl, y: box.ytl, corner: 'nw'},
                 {x: box.xbr, y: box.ytl, corner: 'ne'},
@@ -821,13 +829,39 @@
                 {x: box.xbr, y: box.ybr, corner: 'se'}
             ];
             
-            for (let handle of handles) {
+            for (let i = handles.length - 1; i >= 0; i--) {
+                const handle = handles[i];
                 const dx = x - handle.x;
                 const dy = y - handle.y;
-                if (Math.abs(dx) <= handleSize/2 && Math.abs(dy) <= handleSize/2) {
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance <= hitRadius) {
                     return handle.corner;
                 }
             }
+            
+            // Check if clicking near box edges (for easier selection)
+            const isNearLeftEdge = Math.abs(x - box.xtl) <= edgeHitDistance && y >= box.ytl && y <= box.ybr;
+            const isNearRightEdge = Math.abs(x - box.xbr) <= edgeHitDistance && y >= box.ytl && y <= box.ybr;
+            const isNearTopEdge = Math.abs(y - box.ytl) <= edgeHitDistance && x >= box.xtl && x <= box.xbr;
+            const isNearBottomEdge = Math.abs(y - box.ybr) <= edgeHitDistance && x >= box.xtl && x <= box.xbr;
+            
+            // If near an edge, return the closest corner for resizing
+            if (isNearLeftEdge || isNearRightEdge || isNearTopEdge || isNearBottomEdge) {
+                // Find closest corner
+                let minDist = Infinity;
+                let closestCorner = null;
+                for (let handle of handles) {
+                    const dx = x - handle.x;
+                    const dy = y - handle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < minDist) {
+                        minDist = distance;
+                        closestCorner = handle.corner;
+                    }
+                }
+                return closestCorner;
+            }
+            
             return null;
         }
 
@@ -915,10 +949,18 @@
                 }
             }
             
-            isDrawing = true;
-            drawStart = {x: e.clientX, y: e.clientY};
-            selectedBox = null;
-            updateBoxesList();
+            // Only allow drawing if new box mode is active
+            if (newBoxMode) {
+                isDrawing = true;
+                drawStart = {x: e.clientX, y: e.clientY};
+                selectedBox = null;
+                updateBoxesList();
+            } else {
+                // If not in new box mode, just deselect
+                selectedBox = null;
+                updateBoxesList();
+                drawFrame();
+            }
         });
 
         canvas.addEventListener('mousemove', (e) => {
@@ -1003,9 +1045,15 @@
                 } else if (pos.x >= selectedBox.xtl && pos.x <= selectedBox.xbr && 
                           pos.y >= selectedBox.ytl && pos.y <= selectedBox.ybr) {
                     canvas.style.cursor = 'move';
-                } else {
+                } else if (newBoxMode) {
                     canvas.style.cursor = 'crosshair';
+                } else {
+                    canvas.style.cursor = 'default';
                 }
+            } else if (newBoxMode) {
+                canvas.style.cursor = 'crosshair';
+            } else {
+                canvas.style.cursor = 'default';
             }
         });
 
@@ -1030,6 +1078,9 @@
                 selectedBox = rect;
                 isDrawing = false;
                 drawStart = null;
+                // Exit new box mode after creating a box
+                newBoxMode = false;
+                canvas.style.cursor = 'default';
                 updateBoxesList();
                 updateObjectTracks();
                 updateTimelineMarkers();
@@ -1577,7 +1628,20 @@
                 case 'n':
                 case 'N':
                     e.preventDefault();
-                    // Enter new box mode
+                    // Toggle new box mode
+                    newBoxMode = !newBoxMode;
+                    if (newBoxMode) {
+                        debugLog('New box mode: ON - Click and drag to create box');
+                        canvas.style.cursor = 'crosshair';
+                        selectedBox = null;
+                        updateBoxesList();
+                    } else {
+                        debugLog('New box mode: OFF');
+                        canvas.style.cursor = 'default';
+                        isDrawing = false;
+                        drawStart = null;
+                        drawFrame();
+                    }
                     break;
                 case 'Delete':
                 case 'Backspace':
