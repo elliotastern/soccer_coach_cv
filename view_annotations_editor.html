@@ -453,6 +453,8 @@
                             </select>
                         </div>
                         <div class="action-buttons">
+                            <button onclick="undoAction()" id="undoBtn" title="Undo (⌘+Z / Ctrl+Z)">↶ Undo</button>
+                            <button onclick="redoAction()" id="redoBtn" title="Redo (⌘+Y / Ctrl+Y)">↷ Redo</button>
                             <button onclick="deleteSelectedBox()" class="delete">🗑️ Delete</button>
                             <button onclick="saveAnnotations()">💾 Save</button>
                         </div>
@@ -554,8 +556,16 @@
                     <span class="shortcut-key">Esc</span>
                 </div>
                 <div class="shortcut-item">
+                    <span>Undo</span>
+                    <span class="shortcut-key">⌘+Z / Ctrl+Z</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Redo</span>
+                    <span class="shortcut-key">⌘+Y / Ctrl+Y</span>
+                </div>
+                <div class="shortcut-item">
                     <span>Save</span>
-                    <span class="shortcut-key">Ctrl+S</span>
+                    <span class="shortcut-key">⌘+S / Ctrl+S</span>
                 </div>
             </div>
         </div>
@@ -584,6 +594,11 @@
         let isPanning = false;
         let panStart = null;
         let trackMap = {}; // trackId -> track info
+        let currentMousePos = {x: 0, y: 0}; // Store current mouse position for drawing
+        let originalBoxPos = null; // Store original box position when dragging starts
+        let historyStack = []; // Undo history
+        let historyIndex = -1; // Current position in history
+        const MAX_HISTORY = 50; // Maximum history entries
 
         // Debug panel (collapsed by default)
         const debugPanel = document.createElement('div');
@@ -694,7 +709,7 @@
                     }
                     
                     if (isDrawing && drawStart) {
-                        const rect = getMouseRect(drawStart, {x: event.clientX, y: event.clientY});
+                        const rect = getMouseRect(drawStart, currentMousePos);
                         drawBox(rect, false, true);
                     }
                 }
@@ -783,6 +798,13 @@
                         selectedBox = box;
                         isDragging = true;
                         drawStart = {x: e.clientX, y: e.clientY};
+                        // Store original box position to prevent coordinate drift
+                        originalBoxPos = {
+                            xtl: box.xtl,
+                            ytl: box.ytl,
+                            xbr: box.xbr,
+                            ybr: box.ybr
+                        };
                         updateBoxesList();
                         drawFrame();
                         return;
@@ -797,6 +819,9 @@
         });
 
         canvas.addEventListener('mousemove', (e) => {
+            // Store current mouse position for drawing temporary boxes
+            currentMousePos = {x: e.clientX, y: e.clientY};
+            
             if (isPanning && panStart) {
                 panX += e.clientX - panStart.x;
                 panY += e.clientY - panStart.y;
@@ -807,19 +832,20 @@
             
             if (isDrawing && drawStart) {
                 drawFrame();
-            } else if (isDragging && selectedBox && drawStart) {
-                const startPos = screenToCanvas(drawStart.x, drawStart.y);
+            } else if (isDragging && selectedBox && originalBoxPos) {
+                // Calculate delta from original position to current mouse position
+                const originalPos = screenToCanvas(drawStart.x, drawStart.y);
                 const currentPos = screenToCanvas(e.clientX, e.clientY);
                 
-                const dx = currentPos.x - startPos.x;
-                const dy = currentPos.y - startPos.y;
+                const dx = currentPos.x - originalPos.x;
+                const dy = currentPos.y - originalPos.y;
                 
-                selectedBox.xtl += dx;
-                selectedBox.ytl += dy;
-                selectedBox.xbr += dx;
-                selectedBox.ybr += dy;
+                // Apply delta to original position (prevents accumulation errors)
+                selectedBox.xtl = originalBoxPos.xtl + dx;
+                selectedBox.ytl = originalBoxPos.ytl + dy;
+                selectedBox.xbr = originalBoxPos.xbr + dx;
+                selectedBox.ybr = originalBoxPos.ybr + dy;
                 
-                drawStart = {x: e.clientX, y: e.clientY};
                 drawFrame();
                 updateBoxesList();
             }
@@ -838,6 +864,10 @@
                 if (!boxes[currentFrame]) boxes[currentFrame] = [];
                 rect.id = `new-${Date.now()}`;
                 rect.trackId = `track-${Date.now()}`;
+                
+                // Save state before adding box
+                saveState();
+                
                 boxes[currentFrame].push(rect);
                 selectedBox = rect;
                 isDrawing = false;
@@ -847,7 +877,15 @@
                 updateTimelineMarkers();
                 drawFrame();
             }
+            
+            // Save state after dragging ends (if box was moved)
+            if (isDragging && originalBoxPos) {
+                saveState();
+            }
+            
+            // Reset dragging state and clear original position
             isDragging = false;
+            originalBoxPos = null;
             drawStart = null;
         });
 
@@ -941,11 +979,15 @@
 
         function deleteSelectedBox() {
             if (selectedBox && boxes[currentFrame]) {
+                // Save state before deleting
+                saveState();
+                
                 boxes[currentFrame] = boxes[currentFrame].filter(b => b.id !== selectedBox.id);
                 selectedBox = null;
                 drawFrame();
                 updateBoxesList();
                 updateObjectTracks();
+                updateTimelineMarkers();
             }
         }
 
@@ -1037,6 +1079,9 @@
                     updateStats();
                     updateObjectTracks();
                     updateTimelineMarkers();
+                    // Initialize history with initial state
+                    saveState();
+                    updateUndoRedoButtons();
                 })
                 .catch(error => {
                     console.error('Error loading annotations:', error);
@@ -1089,6 +1134,67 @@
 
         function toggleShortcuts() {
             document.getElementById('shortcutsModal').classList.toggle('active');
+        }
+
+        function saveState() {
+            // Deep clone the boxes object
+            const stateCopy = JSON.parse(JSON.stringify(boxes));
+            
+            // Remove any states after current index (when undoing then making new changes)
+            if (historyIndex < historyStack.length - 1) {
+                historyStack = historyStack.slice(0, historyIndex + 1);
+            }
+            
+            // Add new state
+            historyStack.push(stateCopy);
+            
+            // Limit history size
+            if (historyStack.length > MAX_HISTORY) {
+                historyStack.shift();
+            } else {
+                historyIndex++;
+            }
+            
+            updateUndoRedoButtons();
+        }
+
+        function undoAction() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState(historyStack[historyIndex]);
+            }
+        }
+
+        function redoAction() {
+            if (historyIndex < historyStack.length - 1) {
+                historyIndex++;
+                restoreState(historyStack[historyIndex]);
+            }
+        }
+
+        function restoreState(state) {
+            boxes = JSON.parse(JSON.stringify(state));
+            selectedBox = null;
+            drawFrame();
+            updateBoxesList();
+            updateObjectTracks();
+            updateTimelineMarkers();
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            
+            if (undoBtn) {
+                undoBtn.disabled = historyIndex <= 0;
+                undoBtn.style.opacity = historyIndex <= 0 ? '0.5' : '1';
+            }
+            
+            if (redoBtn) {
+                redoBtn.disabled = historyIndex >= historyStack.length - 1;
+                redoBtn.style.opacity = historyIndex >= historyStack.length - 1 ? '0.5' : '1';
+            }
         }
 
         function saveAnnotations() {
@@ -1157,7 +1263,20 @@
                     break;
             }
 
-            if (e.ctrlKey && e.key === 's') {
+            // Ctrl+Z (Windows/Linux) or Cmd+Z (Mac) to undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undoAction();
+            }
+            
+            // Ctrl+Y or Ctrl+Shift+Z (Windows/Linux) or Cmd+Y or Cmd+Shift+Z (Mac) to redo
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+                e.preventDefault();
+                redoAction();
+            }
+            
+            // Ctrl+S (Windows/Linux) or Cmd+S (Mac) to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 saveAnnotations();
             }
