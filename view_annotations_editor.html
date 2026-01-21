@@ -586,7 +586,8 @@
         let isDrawing = false;
         let drawStart = null;
         let isDragging = false;
-        let dragHandle = null;
+        let dragHandle = null; // 'nw', 'ne', 'sw', 'se', or null for moving
+        let isResizing = false;
         let showOverlay = true;
         let zoomLevel = 1;
         let panX = 0;
@@ -743,14 +744,33 @@
             if (isSelected && !isTemporary) {
                 const handleSize = 8;
                 const handles = [
-                    {x: x, y: y}, {x: x + w, y: y},
-                    {x: x, y: y + h}, {x: x + w, y: y + h}
+                    {x: x, y: y, corner: 'nw'}, {x: x + w, y: y, corner: 'ne'},
+                    {x: x, y: y + h, corner: 'sw'}, {x: x + w, y: y + h, corner: 'se'}
                 ];
                 handles.forEach(handle => {
-                    ctx.fillStyle = '#FF9800';
+                    ctx.fillStyle = dragHandle === handle.corner ? '#FF5722' : '#FF9800';
                     ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
                 });
             }
+        }
+        
+        function getHandleAt(x, y, box) {
+            const handleSize = 8;
+            const handles = [
+                {x: box.xtl, y: box.ytl, corner: 'nw'},
+                {x: box.xbr, y: box.ytl, corner: 'ne'},
+                {x: box.xtl, y: box.ybr, corner: 'sw'},
+                {x: box.xbr, y: box.ybr, corner: 'se'}
+            ];
+            
+            for (let handle of handles) {
+                const dx = x - handle.x;
+                const dy = y - handle.y;
+                if (Math.abs(dx) <= handleSize/2 && Math.abs(dy) <= handleSize/2) {
+                    return handle.corner;
+                }
+            }
+            return null;
         }
 
         function screenToCanvas(x, y) {
@@ -794,9 +814,30 @@
             
             if (boxes[currentFrame]) {
                 for (let box of boxes[currentFrame]) {
+                    // Check if clicking on a corner handle first
+                    const handle = getHandleAt(pos.x, pos.y, box);
+                    if (handle) {
+                        selectedBox = box;
+                        isResizing = true;
+                        dragHandle = handle;
+                        drawStart = {x: e.clientX, y: e.clientY};
+                        originalBoxPos = {
+                            xtl: box.xtl,
+                            ytl: box.ytl,
+                            xbr: box.xbr,
+                            ybr: box.ybr
+                        };
+                        updateBoxesList();
+                        drawFrame();
+                        return;
+                    }
+                    
+                    // Check if clicking inside the box
                     if (pos.x >= box.xtl && pos.x <= box.xbr && pos.y >= box.ytl && pos.y <= box.ybr) {
                         selectedBox = box;
                         isDragging = true;
+                        isResizing = false;
+                        dragHandle = null;
                         drawStart = {x: e.clientX, y: e.clientY};
                         // Store original box position to prevent coordinate drift
                         originalBoxPos = {
@@ -832,6 +873,43 @@
             
             if (isDrawing && drawStart) {
                 drawFrame();
+            } else if (isResizing && selectedBox && originalBoxPos && dragHandle) {
+                // Resize box by dragging corner handle
+                const currentPos = screenToCanvas(e.clientX, e.clientY);
+                
+                switch(dragHandle) {
+                    case 'nw': // Top-left
+                        selectedBox.xtl = currentPos.x;
+                        selectedBox.ytl = currentPos.y;
+                        break;
+                    case 'ne': // Top-right
+                        selectedBox.xbr = currentPos.x;
+                        selectedBox.ytl = currentPos.y;
+                        break;
+                    case 'sw': // Bottom-left
+                        selectedBox.xtl = currentPos.x;
+                        selectedBox.ybr = currentPos.y;
+                        break;
+                    case 'se': // Bottom-right
+                        selectedBox.xbr = currentPos.x;
+                        selectedBox.ybr = currentPos.y;
+                        break;
+                }
+                
+                // Ensure box doesn't flip (min width/height)
+                if (selectedBox.xbr < selectedBox.xtl) {
+                    const temp = selectedBox.xtl;
+                    selectedBox.xtl = selectedBox.xbr;
+                    selectedBox.xbr = temp;
+                }
+                if (selectedBox.ybr < selectedBox.ytl) {
+                    const temp = selectedBox.ytl;
+                    selectedBox.ytl = selectedBox.ybr;
+                    selectedBox.ybr = temp;
+                }
+                
+                drawFrame();
+                updateBoxesList();
             } else if (isDragging && selectedBox && originalBoxPos) {
                 // Calculate delta from original position to current mouse position
                 const originalPos = screenToCanvas(drawStart.x, drawStart.y);
@@ -848,6 +926,24 @@
                 
                 drawFrame();
                 updateBoxesList();
+            } else if (selectedBox && boxes[currentFrame]) {
+                // Update cursor when hovering over handles
+                const pos = screenToCanvas(e.clientX, e.clientY);
+                const handle = getHandleAt(pos.x, pos.y, selectedBox);
+                if (handle) {
+                    const cursors = {
+                        'nw': 'nw-resize',
+                        'ne': 'ne-resize',
+                        'sw': 'sw-resize',
+                        'se': 'se-resize'
+                    };
+                    canvas.style.cursor = cursors[handle] || 'default';
+                } else if (pos.x >= selectedBox.xtl && pos.x <= selectedBox.xbr && 
+                          pos.y >= selectedBox.ytl && pos.y <= selectedBox.ybr) {
+                    canvas.style.cursor = 'move';
+                } else {
+                    canvas.style.cursor = 'crosshair';
+                }
             }
         });
 
@@ -878,15 +974,18 @@
                 drawFrame();
             }
             
-            // Save state after dragging ends (if box was moved)
-            if (isDragging && originalBoxPos) {
+            // Save state after dragging or resizing ends
+            if ((isDragging || isResizing) && originalBoxPos) {
                 saveState();
             }
             
-            // Reset dragging state and clear original position
+            // Reset dragging/resizing state and clear original position
             isDragging = false;
+            isResizing = false;
+            dragHandle = null;
             originalBoxPos = null;
             drawStart = null;
+            canvas.style.cursor = 'crosshair';
         });
 
         canvas.addEventListener('wheel', (e) => {
