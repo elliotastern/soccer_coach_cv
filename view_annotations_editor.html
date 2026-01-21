@@ -658,7 +658,26 @@
             canvas.style.width = (videoWidth * scale) + 'px';
             canvas.style.height = (videoHeight * scale) + 'px';
             
-            loadAnnotations();
+            // Ensure video is at frame 0
+            video.currentTime = 0;
+            video.pause();
+            
+            // Wait for video to be ready, then load annotations
+            const onCanPlay = () => {
+                video.removeEventListener('canplay', onCanPlay);
+                loadAnnotations();
+                // Seek to frame 0 and draw
+                seekToFrame(0);
+            };
+            video.addEventListener('canplay', onCanPlay, { once: true });
+            
+            // Fallback: if video is already ready
+            if (video.readyState >= 3) {
+                video.removeEventListener('canplay', onCanPlay);
+                loadAnnotations();
+                seekToFrame(0);
+            }
+            
             requestAnimationFrame(drawLoop);
             updateTimelineMarkers();
         });
@@ -675,7 +694,12 @@
         }
 
         function drawFrame() {
-            if (!video || !ctx || videoWidth === 0 || videoHeight === 0) return;
+            if (!video || !ctx || !canvas) return;
+            if (videoWidth === 0 || videoHeight === 0) {
+                // Video not loaded yet, just clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
             
             try {
                 // Clear canvas
@@ -698,8 +722,21 @@
                 ctx.scale(zoomLevel, zoomLevel);
                 ctx.translate(-videoWidth / 2, -videoHeight / 2);
                 
-                // Draw video frame
-                ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                // Draw video frame - ensure video is ready and seeked
+                if (video.readyState >= 2) {
+                    try {
+                        ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                    } catch (e) {
+                        debugLog('ERROR drawing video frame: ' + e.message);
+                        // If drawImage fails, fill with dark gray to show something
+                        ctx.fillStyle = '#1a1a1a';
+                        ctx.fillRect(0, 0, videoWidth, videoHeight);
+                    }
+                } else {
+                    // Video not ready yet, fill with dark background
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, videoWidth, videoHeight);
+                }
                 
                 // Draw bounding boxes if overlay is enabled
                 if (showOverlay) {
@@ -727,9 +764,12 @@
             const w = box.xbr - box.xtl;
             const h = box.ybr - box.ytl;
             
+            // Get label from box or trackMap - prioritize box.label
+            const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+            
             let color = '#4CAF50';
-            if (box.label === 'player') color = '#2196F3';
-            if (box.label === 'ball') color = '#FFC107';
+            if (label === 'player') color = '#2196F3';
+            if (label === 'ball') color = '#FFC107';
             
             ctx.strokeStyle = isSelected ? '#FF9800' : color;
             ctx.lineWidth = isSelected ? 3 : 2;
@@ -737,9 +777,27 @@
             
             ctx.strokeRect(x, y, w, h);
             
-            ctx.fillStyle = color;
-            ctx.font = '14px Arial';
-            ctx.fillText(`${box.label} (${(box.confidence * 100).toFixed(0)}%)`, x, y - 5);
+            // Draw label text with background for better visibility
+            if (label && label !== 'undefined') {
+                const labelText = `${label} (${(box.confidence * 100).toFixed(0)}%)`;
+                ctx.font = 'bold 14px Arial';
+                const textMetrics = ctx.measureText(labelText);
+                const textWidth = textMetrics.width;
+                const textHeight = 16;
+                
+                // Draw semi-transparent background for text
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(x - 2, y - textHeight - 2, textWidth + 6, textHeight + 4);
+                
+                // Draw text with white outline for better visibility
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.lineWidth = 3;
+                ctx.strokeText(labelText, x + 1, y - 4);
+                
+                // Draw text
+                ctx.fillStyle = color;
+                ctx.fillText(labelText, x + 1, y - 4);
+            }
             
             if (isSelected && !isTemporary) {
                 const handleSize = 8;
@@ -774,6 +832,10 @@
         }
 
         function screenToCanvas(x, y) {
+            if (!canvas || videoWidth === 0 || videoHeight === 0) {
+                return { x: 0, y: 0 };
+            }
+            
             const rect = canvas.getBoundingClientRect();
             const displayWidth = rect.width;
             const displayHeight = rect.height;
@@ -1169,8 +1231,22 @@
         }
 
         function loadAnnotations() {
-            fetch('data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml')
-                .then(response => response.text())
+            // Add cache-busting timestamp to force fresh load
+            const timestamp = new Date().getTime();
+            fetch(`data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml?t=${timestamp}`, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
                 .then(xmlText => {
                     const parser = new DOMParser();
                     annotations = parser.parseFromString(xmlText, 'text/xml');
@@ -1181,9 +1257,23 @@
                     // Initialize history with initial state
                     saveState();
                     updateUndoRedoButtons();
+                    // Force video to seek to current frame and redraw
+                    if (video && video.readyState >= 2) {
+                        // Seek to current frame to ensure video is at correct position
+                        video.currentTime = currentFrame / 60;
+                        video.pause();
+                        // Wait for seek to complete, then draw
+                        video.addEventListener('seeked', function onSeeked() {
+                            video.removeEventListener('seeked', onSeeked);
+                            drawFrame();
+                        }, { once: true });
+                        // Fallback: draw immediately if seek is instant
+                        setTimeout(() => drawFrame(), 100);
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading annotations:', error);
+                    alert('Error loading annotations: ' + error.message);
                 });
         }
 
@@ -1194,7 +1284,7 @@
             const tracks = annotations.querySelectorAll('track');
             tracks.forEach(track => {
                 const trackId = track.getAttribute('id');
-                const label = track.getAttribute('label');
+                const label = track.getAttribute('label') || 'player'; // Ensure label is never null/empty
                 const trackBoxes = track.querySelectorAll('box');
                 
                 trackMap[trackId] = {
@@ -1215,7 +1305,7 @@
                     
                     boxes[frame].push({
                         trackId: trackId,
-                        label: label,
+                        label: label || 'player', // Ensure label is always set
                         xtl: xtl,
                         ytl: ytl,
                         xbr: xbr,
@@ -1297,7 +1387,166 @@
         }
 
         function saveAnnotations() {
-            alert('Save functionality: Export to CVAT XML format\n\nThis would update the XML file with your edits.');
+            if (!annotations) {
+                alert('No annotations loaded. Cannot save.');
+                return;
+            }
+            
+            try {
+                // Create a copy of the original XML structure
+                const serializer = new XMLSerializer();
+                const xmlString = serializer.serializeToString(annotations);
+                const parser = new DOMParser();
+                const newDoc = parser.parseFromString(xmlString, 'text/xml');
+                
+                // Get the root annotations element
+                const annotationsRoot = newDoc.documentElement;
+                if (!annotationsRoot || annotationsRoot.nodeName !== 'annotations') {
+                    throw new Error('Invalid XML structure: annotations root not found');
+                }
+                
+                // Remove all existing track boxes (but keep tracks)
+                const tracks = newDoc.querySelectorAll('track');
+                tracks.forEach(track => {
+                    const trackBoxes = track.querySelectorAll('box');
+                    trackBoxes.forEach(box => box.remove());
+                });
+                
+                // Rebuild boxes from current state
+                Object.keys(boxes).forEach(frameNum => {
+                    const frame = parseInt(frameNum);
+                    if (boxes[frame] && boxes[frame].length > 0) {
+                        boxes[frame].forEach(box => {
+                            // Find or create the track element
+                            let track = Array.from(newDoc.querySelectorAll('track')).find(t => 
+                                t.getAttribute('id') === box.trackId.toString()
+                            );
+                            
+                            if (!track) {
+                                // Create new track if it doesn't exist
+                                // Get label from box or trackMap
+                                const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+                                
+                                // Find where to insert (after meta, before other tracks)
+                                const meta = annotationsRoot.querySelector('meta');
+                                track = newDoc.createElement('track');
+                                track.setAttribute('id', box.trackId.toString());
+                                track.setAttribute('label', label);
+                                track.setAttribute('source', 'manual');
+                                
+                                // Insert after meta, or append to root
+                                if (meta) {
+                                    // Find the next sibling after meta
+                                    let insertPoint = meta.nextSibling;
+                                    while (insertPoint && insertPoint.nodeType !== 1) {
+                                        insertPoint = insertPoint.nextSibling;
+                                    }
+                                    if (insertPoint) {
+                                        annotationsRoot.insertBefore(track, insertPoint);
+                                    } else {
+                                        annotationsRoot.appendChild(track);
+                                    }
+                                } else {
+                                    annotationsRoot.appendChild(track);
+                                }
+                            } else {
+                                // Update existing track label if box has a label and it's different
+                                const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label);
+                                if (label && track.getAttribute('label') !== label) {
+                                    track.setAttribute('label', label);
+                                }
+                            }
+                            
+                            // Create box element
+                            const boxElem = newDoc.createElement('box');
+                            boxElem.setAttribute('frame', frame.toString());
+                            boxElem.setAttribute('xtl', box.xtl.toFixed(2));
+                            boxElem.setAttribute('ytl', box.ytl.toFixed(2));
+                            boxElem.setAttribute('xbr', box.xbr.toFixed(2));
+                            boxElem.setAttribute('ybr', box.ybr.toFixed(2));
+                            boxElem.setAttribute('occluded', '0');
+                            boxElem.setAttribute('outside', '0');
+                            boxElem.setAttribute('keyframe', '1');
+                            
+                            // Add confidence attribute
+                            const confAttr = newDoc.createElement('attribute');
+                            confAttr.setAttribute('name', 'confidence');
+                            confAttr.textContent = (box.confidence || 0.8).toFixed(3);
+                            boxElem.appendChild(confAttr);
+                            
+                            track.appendChild(boxElem);
+                        });
+                    }
+                });
+                
+                // Serialize to string with proper formatting
+                const finalXml = serializer.serializeToString(newDoc);
+                const formattedXml = formatXML(finalXml);
+                
+                // Save to server
+                fetch('/save_annotations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        xml: formattedXml,
+                        file_path: 'data/raw/real_data/37CAE053-841F-4851-956E-CBF17A51C506_annotations.xml'
+                    })
+                })
+                .then(response => {
+                    // Check if response is actually JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        // If not JSON, read as text to see what we got
+                        return response.text().then(text => {
+                            throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Reload annotations to show the saved changes immediately
+                        loadAnnotations();
+                        // Force video seek and redraw
+                        if (video && video.readyState >= 2) {
+                            video.currentTime = currentFrame / 60;
+                            video.addEventListener('seeked', function onSeeked() {
+                                video.removeEventListener('seeked', onSeeked);
+                                drawFrame();
+                            }, { once: true });
+                            setTimeout(() => drawFrame(), 100);
+                        }
+                        alert('Annotations saved successfully! The XML file has been updated.');
+                    } else {
+                        alert('Error saving annotations: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving annotations:', error);
+                    alert('Error saving annotations: ' + error.message);
+                });
+            } catch (error) {
+                console.error('Error saving annotations:', error);
+                alert('Error saving annotations: ' + error.message);
+            }
+        }
+        
+        function formatXML(xml) {
+            // Simple XML formatting (indentation)
+            let formatted = '';
+            let indent = 0;
+            const tab = '  ';
+            
+            xml.split(/>\s*</).forEach(node => {
+                if (node.match(/^\/\w/)) indent--;
+                formatted += tab.repeat(Math.max(0, indent)) + '<' + node + '>\r\n';
+                if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('xml')) indent++;
+            });
+            
+            return formatted.substring(1, formatted.length - 2);
         }
 
         // Keyboard shortcuts
