@@ -467,6 +467,18 @@
                 <div id="objectTracksList"></div>
                 <h3 style="margin-top: 20px;">Boxes in Frame</h3>
                 <div class="box-list" id="boxesList"></div>
+                <div id="labelSelector" style="margin-top: 20px; padding: 12px; background: #2a2a2a; border: 2px solid #444; border-radius: 6px; display: none;">
+                    <h4 style="color: #fff; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;">✏️ Change Label</h4>
+                    <select id="labelDropdown" onchange="changeBoxLabel(this.value)" style="width: 100%; padding: 8px; background: #1a1a1a; color: #fff; border: 1px solid #666; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                        <option value="player">Player</option>
+                        <option value="person">Person</option>
+                        <option value="ball">Ball</option>
+                        <option value="referee">Referee</option>
+                        <option value="coach">Coach</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div style="color: #888; font-size: 11px; margin-top: 6px;">Select a box above to change its label</div>
+                </div>
             </div>
         </div>
     </div>
@@ -789,7 +801,11 @@
             
             let color = '#4CAF50';
             if (label === 'player') color = '#2196F3';
+            if (label === 'person') color = '#2196F3'; // Same as player
             if (label === 'ball') color = '#FFC107';
+            if (label === 'referee') color = '#9C27B0';
+            if (label === 'coach') color = '#00BCD4';
+            if (label === 'other') color = '#795548';
             
             ctx.strokeStyle = isSelected ? '#FF9800' : color;
             ctx.lineWidth = isSelected ? 3 : 2;
@@ -933,6 +949,7 @@
                     const handle = getHandleAt(pos.x, pos.y, box);
                     if (handle) {
                         selectedBox = box;
+                        updateLabelSelector();
                         isResizing = true;
                         dragHandle = handle;
                         drawStart = {x: e.clientX, y: e.clientY};
@@ -957,6 +974,7 @@
                     if (pos.x >= box.xtl && pos.x <= box.xbr && 
                         pos.y >= box.ytl && pos.y <= box.ybr) {
                         selectedBox = box;
+                        updateLabelSelector();
                         isDragging = true;
                         isResizing = false;
                         dragHandle = null;
@@ -996,6 +1014,7 @@
             
             // Fallback: Deselect if clicking on empty space
             selectedBox = null;
+            updateLabelSelector();
             updateBoxesList();
             drawFrame();
         });
@@ -1218,6 +1237,7 @@
                 video.pause();
             }
             selectedBox = null;
+            updateLabelSelector();
             drawFrame();
             updateBoxesList();
         }
@@ -1237,6 +1257,7 @@
                 
                 boxes[currentFrame] = boxes[currentFrame].filter(b => b.id !== selectedBox.id);
                 selectedBox = null;
+                updateLabelSelector();
                 drawFrame();
                 updateBoxesList();
                 updateObjectTracks();
@@ -1256,17 +1277,78 @@
                 boxes[currentFrame].forEach(box => {
                     const item = document.createElement('div');
                     item.className = `box-item ${box.id === selectedBox?.id ? 'selected' : ''}`;
-                    item.innerHTML = `${box.label} (Track ${box.trackId})`;
+                    const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+                    item.innerHTML = `${label} (Track ${box.trackId})`;
                     item.onclick = () => {
                         selectedBox = box;
                         drawFrame();
                         updateBoxesList();
+                        updateLabelSelector();
                     };
                     list.appendChild(item);
                 });
             } else {
                 list.innerHTML = '<div style="color: #888; padding: 10px; text-align: center; font-size: 11px;">No boxes</div>';
             }
+            
+            // Update label selector visibility
+            updateLabelSelector();
+        }
+        
+        function updateLabelSelector() {
+            const labelSelector = document.getElementById('labelSelector');
+            const labelDropdown = document.getElementById('labelDropdown');
+            
+            if (!labelSelector || !labelDropdown) {
+                console.warn('Label selector elements not found');
+                return;
+            }
+            
+            if (selectedBox) {
+                labelSelector.style.display = 'block';
+                // Set current label in dropdown
+                const currentLabel = selectedBox.label || (selectedBox.trackId && trackMap[selectedBox.trackId] && trackMap[selectedBox.trackId].label) || 'player';
+                labelDropdown.value = currentLabel;
+                // Update the hint text
+                const hint = labelSelector.querySelector('div[style*="color: #888"]');
+                if (hint) {
+                    hint.textContent = `Current label: ${currentLabel}`;
+                }
+            } else {
+                labelSelector.style.display = 'none';
+            }
+        }
+        
+        function changeBoxLabel(newLabel) {
+            if (!selectedBox) return;
+            
+            // Save state before changing label
+            saveState();
+            
+            // Update the box label
+            selectedBox.label = newLabel;
+            
+            // Update trackMap for all boxes with the same trackId
+            if (selectedBox.trackId && trackMap[selectedBox.trackId]) {
+                trackMap[selectedBox.trackId].label = newLabel;
+                
+                // Update all boxes in the same track across all frames
+                Object.keys(boxes).forEach(frameNum => {
+                    const frame = parseInt(frameNum);
+                    if (boxes[frame]) {
+                        boxes[frame].forEach(box => {
+                            if (box.trackId === selectedBox.trackId) {
+                                box.label = newLabel;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Redraw and update UI
+            drawFrame();
+            updateBoxesList();
+            updateObjectTracks();
         }
 
         function updateObjectTracks() {
@@ -1493,6 +1575,7 @@
         function restoreState(state) {
             boxes = JSON.parse(JSON.stringify(state));
             selectedBox = null;
+            updateLabelSelector();
             drawFrame();
             updateBoxesList();
             updateObjectTracks();
