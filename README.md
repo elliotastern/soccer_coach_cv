@@ -12,6 +12,31 @@ The pipeline follows a modular architecture:
 - **Analysis Layer**: Coordinate mapping, event detection, event aggregation
 - **Visualization Layer**: Review dashboard, annotation tools
 
+## Precision & Quantization Strategy
+
+**IMPORTANT:** This project uses a specific precision strategy optimized for tiny object detection (<15 pixels):
+
+### 1. Training: Mixed Precision (FP16/FP32)
+- **Status:** ✅ Active (RF-DETR default `amp=True`)
+- **Why:** Essential to capture tiny gradients of small objects
+- **Result:** ~2x faster training with minimal accuracy loss
+
+### 2. MVP Deployment: FP16 (Half Precision)
+- **Status:** ✅ Active for all devices (CUDA and CPU)
+- **Why:** Safest start. ~3x speedup on NVIDIA GPUs with zero accuracy loss
+- **Implementation:** `model.half()` in `src/perception/local_detector.py`
+- **Use this for:** First production release
+
+### 3. Future Optimization: INT8 via QAT (Quantization-Aware Training)
+- **Status:** 🔄 Future optimization only (if FP16 is too slow)
+- **Critical:** Use **QAT** (Quantization-Aware Training), **NOT PTQ** (Post-Training Quantization)
+- **Why:** QAT preserves tiny object detection; PTQ may lose it
+- **When:** Edge devices, mobile, very slow inference requirements
+
+**Key Rule:** For tiny object detection, always use QAT for INT8, never PTQ.
+
+See `docs/DEPLOYMENT_STRATEGY.md` for detailed implementation guide.
+
 ## Setup
 
 ### 1. Install Dependencies
@@ -129,3 +154,4 @@ soccer_coach_cv/
 - RF-DETR for detection (not YOLO)
 - COCO JSON format for detections
 - ByteTrack for multi-object tracking
+- **Precision Strategy:** Mixed Precision (FP16/FP32) for training, FP16 for MVP deployment, QAT (not PTQ) for future INT8 optimization

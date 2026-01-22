@@ -12,6 +12,7 @@ from src.types import FrameData, Player, Ball, Location
 from src.perception.camera import is_gameplay_view, detect_scene_cut
 from src.perception.detector import Detector
 from src.perception.tracker import Tracker
+from src.perception.track_ball import create_ball_tracker_wrapper
 from src.perception.team import assign_teams
 from src.analysis.mapping import PitchMapper
 from src.analysis.events import EventDetector
@@ -123,12 +124,20 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/output"
         confidence_threshold=config['detection']['confidence_threshold']
     )
     
-    tracker = Tracker(
+    base_tracker = Tracker(
         track_thresh=config['tracker']['track_thresh'],
         high_thresh=config['tracker']['high_thresh'],
         track_buffer=config['tracker']['track_buffer'],
         match_thresh=config['tracker']['match_thresh'],
         frame_rate=config['tracker']['frame_rate']
+    )
+    
+    # Wrap tracker with ball validation (parabolic fit check)
+    # This filters out false positives like white socks that don't follow gravity curves
+    tracker = create_ball_tracker_wrapper(
+        base_tracker,
+        min_track_length=5,  # Check after 5 detections
+        fit_threshold=0.15  # 15% max normalized residual for valid trajectory
     )
     
     pitch_mapper = PitchMapper(

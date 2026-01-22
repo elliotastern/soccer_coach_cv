@@ -110,6 +110,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 def main():
     os.chdir(Path(__file__).parent)
     
+    # Allow socket reuse to avoid "Address already in use" errors
+    socketserver.TCPServer.allow_reuse_address = True
     httpd = socketserver.TCPServer(("", PORT), MyHTTPRequestHandler)
     print("=" * 60)
     print("🌐 Annotation Viewer Server Started")
