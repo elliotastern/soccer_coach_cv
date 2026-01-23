@@ -37,16 +37,18 @@ class CocoDataset(Dataset):
         self.images = {img['id']: img for img in self.coco_data['images']}
         self.categories = {cat['id']: cat['name'] for cat in self.coco_data['categories']}
         
-        # Map category names to class IDs (1-based for DETR: 1=player, 2=ball, 0=background)
+        # Map category names to class IDs (1-based for DETR: 1=player, 0=background)
         # DETR expects 1-based indexing where 0 is reserved for background
+        # For single class (player only), all player annotations map to class ID 1
         self.class_map = {}
         for cat_id, cat_name in self.categories.items():
             if cat_name.lower() == 'player':
                 self.class_map[cat_id] = 1  # Player = 1 (0 is background)
             elif cat_name.lower() == 'ball':
-                self.class_map[cat_id] = 2  # Ball = 2
+                # Filter out ball annotations for player-only training
+                continue
             else:
-                # Default mapping: add 1 to make 1-based
+                # Default mapping: add 1 to make 1-based (for other classes if any)
                 self.class_map[cat_id] = int(cat_id) + 1
         
         # Group annotations by image

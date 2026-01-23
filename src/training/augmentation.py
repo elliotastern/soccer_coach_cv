@@ -5,6 +5,7 @@ import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as F
 from typing import Dict, Tuple, List, Optional
+from torch.utils.data import Dataset
 from PIL import Image
 import random
 import numpy as np
@@ -311,7 +312,317 @@ class CopyPasteAugmentation:
         return image, target
 
 
-def get_train_transforms(aug_config: dict, copy_paste_aug: Optional[CopyPasteAugmentation] = None) -> Compose:
+class GaussianBlurAugmentation:
+    """
+    Gaussian blur augmentation for sensor noise simulation
+    Helps model learn to detect objects in slightly blurred images
+    """
+    def __init__(self, prob: float = 0.3, kernel_size_range: Tuple[int, int] = (3, 7), 
+                 sigma_range: Tuple[float, float] = (0.5, 2.0)):
+        """
+        Args:
+            prob: Probability of applying Gaussian blur
+            kernel_size_range: Range of kernel sizes (must be odd)
+            sigma_range: Range of sigma values for blur
+        """
+        self.prob = prob
+        self.kernel_size_range = kernel_size_range
+        self.sigma_range = sigma_range
+    
+    def __call__(self, image, target):
+        if random.random() > self.prob:
+            return image, target
+        
+        # Convert PIL to numpy
+        img_np = np.array(image)
+        
+        # Generate random kernel size (must be odd)
+        kernel_size = random.randint(self.kernel_size_range[0], self.kernel_size_range[1])
+        if kernel_size % 2 == 0:
+            kernel_size += 1
+        
+        # Generate random sigma
+        sigma = random.uniform(self.sigma_range[0], self.sigma_range[1])
+        
+        # Apply Gaussian blur
+        img_np = cv2.GaussianBlur(img_np, (kernel_size, kernel_size), sigma)
+        
+        # Convert back to PIL
+        image = Image.fromarray(img_np)
+        
+        return image, target
+
+
+class ISONoiseAugmentation:
+    """
+    ISO noise injection for camera sensor noise simulation
+    Simulates high ISO noise in low-light conditions
+    """
+    def __init__(self, prob: float = 0.3, noise_level: Tuple[int, int] = (5, 25)):
+        """
+        Args:
+            prob: Probability of applying ISO noise
+            noise_level: Range of noise levels (higher = more noise)
+        """
+        self.prob = prob
+        self.noise_level = noise_level
+    
+    def __call__(self, image, target):
+        if random.random() > self.prob:
+            return image, target
+        
+        # Convert PIL to numpy
+        img_np = np.array(image, dtype=np.float32)
+        
+        # Generate random noise level
+        noise_level = random.randint(self.noise_level[0], self.noise_level[1])
+        
+        # Generate Gaussian noise
+        noise = np.random.normal(0, noise_level, img_np.shape).astype(np.float32)
+        
+        # Add noise
+        img_np = img_np + noise
+        
+        # Clip to valid range
+        img_np = np.clip(img_np, 0, 255).astype(np.uint8)
+        
+        # Convert back to PIL
+        image = Image.fromarray(img_np)
+        
+        return image, target
+
+
+class JPEGCompressionAugmentation:
+    """
+    JPEG compression artifacts simulation
+    Simulates broadcast video compression artifacts
+    """
+    def __init__(self, prob: float = 0.2, quality_range: Tuple[int, int] = (60, 95)):
+        """
+        Args:
+            prob: Probability of applying JPEG compression
+            quality_range: Range of JPEG quality (lower = more compression)
+        """
+        self.prob = prob
+        self.quality_range = quality_range
+    
+    def __call__(self, image, target):
+        if random.random() > self.prob:
+            return image, target
+        
+        # Convert PIL to numpy
+        img_np = np.array(image)
+        
+        # Generate random quality
+        quality = random.randint(self.quality_range[0], self.quality_range[1])
+        
+        # Encode and decode with JPEG compression
+        import io
+        buffer = io.BytesIO()
+        image.save(buffer, format='JPEG', quality=quality)
+        buffer.seek(0)
+        image = Image.open(buffer)
+        image = image.convert('RGB')
+        
+        return image, target
+
+
+class MixUpAugmentation:
+    """
+    MixUp augmentation for occlusion handling
+    Blends two images together to simulate partial occlusion
+    """
+    def __init__(self, prob: float = 0.3, alpha: float = 0.2, dataset=None):
+        """
+        Args:
+            prob: Probability of applying MixUp
+            alpha: MixUp mixing parameter (beta distribution parameter)
+            dataset: Optional dataset to sample from for mixing
+        """
+        self.prob = prob
+        self.alpha = alpha
+        self.dataset = dataset
+    
+    def __call__(self, image, target):
+        if random.random() > self.prob or self.dataset is None:
+            return image, target
+        
+        # Sample another image from dataset
+        try:
+            idx = random.randint(0, len(self.dataset) - 1)
+            mix_image, mix_target = self.dataset[idx]
+            
+            # Convert to numpy if needed
+            if isinstance(image, Image.Image):
+                img1 = np.array(image, dtype=np.float32)
+            else:
+                img1 = np.array(image, dtype=np.float32)
+            
+            if isinstance(mix_image, Image.Image):
+                img2 = np.array(mix_image, dtype=np.float32)
+            else:
+                img2 = np.array(mix_image, dtype=np.float32)
+            
+            # Resize mix_image to match image size
+            if img1.shape != img2.shape:
+                img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
+            
+            # Sample lambda from beta distribution
+            lam = np.random.beta(self.alpha, self.alpha)
+            
+            # Mix images
+            mixed_img = lam * img1 + (1 - lam) * img2
+            mixed_img = np.clip(mixed_img, 0, 255).astype(np.uint8)
+            
+            # Mix targets (keep both sets of boxes)
+            if 'boxes' in target and 'boxes' in mix_target and len(mix_target['boxes']) > 0:
+                # Combine boxes and labels
+                boxes1 = target['boxes']
+                boxes2 = mix_target['boxes']
+                labels1 = target['labels']
+                labels2 = mix_target['labels']
+                
+                # Scale boxes2 to match image size if needed
+                if img1.shape != img2.shape:
+                    scale_x = img1.shape[1] / img2.shape[1]
+                    scale_y = img1.shape[0] / img2.shape[0]
+                    boxes2 = boxes2.clone()
+                    boxes2[:, [0, 2]] *= scale_x
+                    boxes2[:, [1, 3]] *= scale_y
+                
+                # Combine boxes and labels
+                combined_boxes = torch.cat([boxes1, boxes2])
+                combined_labels = torch.cat([labels1, labels2])
+                
+                target['boxes'] = combined_boxes
+                target['labels'] = combined_labels
+            
+            image = Image.fromarray(mixed_img)
+            
+        except Exception as e:
+            # If MixUp fails, return original
+            pass
+        
+        return image, target
+
+
+class MosaicAugmentation:
+    """
+    Mosaic augmentation for multi-scale learning
+    Combines 4 images into a grid to learn multi-scale features
+    """
+    def __init__(self, prob: float = 0.5, min_scale: float = 0.4, max_scale: float = 1.0, dataset=None):
+        """
+        Args:
+            prob: Probability of applying Mosaic
+            min_scale: Minimum scale for cropped images
+            max_scale: Maximum scale for cropped images
+            dataset: Optional dataset to sample from
+        """
+        self.prob = prob
+        self.min_scale = min_scale
+        self.max_scale = max_scale
+        self.dataset = dataset
+    
+    def __call__(self, image, target):
+        if random.random() > self.prob or self.dataset is None:
+            return image, target
+        
+        try:
+            # Sample 3 additional images
+            indices = random.sample(range(len(self.dataset)), 3)
+            images = [image]
+            targets = [target]
+            
+            for idx in indices:
+                img, tgt = self.dataset[idx]
+                images.append(img)
+                targets.append(tgt)
+            
+            # Get base image size
+            if isinstance(images[0], Image.Image):
+                base_w, base_h = images[0].size
+            else:
+                base_h, base_w = images[0].shape[:2]
+            
+            # Create mosaic canvas
+            canvas = np.zeros((base_h * 2, base_w * 2, 3), dtype=np.uint8)
+            canvas_targets = {'boxes': [], 'labels': []}
+            
+            # Place images in 2x2 grid
+            positions = [
+                (0, 0),  # Top-left
+                (base_w, 0),  # Top-right
+                (0, base_h),  # Bottom-left
+                (base_w, base_h)  # Bottom-right
+            ]
+            
+            for i, (img, tgt) in enumerate(zip(images, targets)):
+                x_offset, y_offset = positions[i]
+                
+                # Convert to numpy
+                if isinstance(img, Image.Image):
+                    img_np = np.array(img)
+                else:
+                    img_np = np.array(img)
+                
+                # Resize image
+                h, w = img_np.shape[:2]
+                scale = random.uniform(self.min_scale, self.max_scale)
+                new_h, new_w = int(h * scale), int(w * scale)
+                img_np = cv2.resize(img_np, (new_w, new_h))
+                
+                # Place on canvas
+                y_end = min(y_offset + new_h, base_h * 2)
+                x_end = min(x_offset + new_w, base_w * 2)
+                canvas[y_offset:y_end, x_offset:x_end] = img_np[:y_end-y_offset, :x_end-x_offset]
+                
+                # Adjust target boxes
+                if 'boxes' in tgt and len(tgt['boxes']) > 0:
+                    boxes = tgt['boxes'].clone()
+                    labels = tgt['labels'].clone()
+                    
+                    # Scale boxes
+                    boxes[:, [0, 2]] *= (new_w / w)
+                    boxes[:, [1, 3]] *= (new_h / h)
+                    
+                    # Offset boxes
+                    boxes[:, [0, 2]] += x_offset
+                    boxes[:, [1, 3]] += y_offset
+                    
+                    # Clip boxes to canvas
+                    boxes[:, 0] = torch.clamp(boxes[:, 0], 0, base_w * 2)
+                    boxes[:, 1] = torch.clamp(boxes[:, 1], 0, base_h * 2)
+                    boxes[:, 2] = torch.clamp(boxes[:, 2], 0, base_w * 2)
+                    boxes[:, 3] = torch.clamp(boxes[:, 3], 0, base_h * 2)
+                    
+                    # Filter out invalid boxes
+                    valid = (boxes[:, 2] > boxes[:, 0]) & (boxes[:, 3] > boxes[:, 1])
+                    if valid.any():
+                        canvas_targets['boxes'].append(boxes[valid])
+                        canvas_targets['labels'].append(labels[valid])
+            
+            # Combine all boxes
+            if canvas_targets['boxes']:
+                target['boxes'] = torch.cat(canvas_targets['boxes'])
+                target['labels'] = torch.cat(canvas_targets['labels'])
+            else:
+                target['boxes'] = torch.zeros((0, 4), dtype=torch.float32)
+                target['labels'] = torch.zeros((0,), dtype=torch.int64)
+            
+            # Resize canvas to original size
+            canvas = cv2.resize(canvas, (base_w, base_h))
+            image = Image.fromarray(canvas)
+            
+        except Exception as e:
+            # If Mosaic fails, return original
+            pass
+        
+        return image, target
+
+
+def get_train_transforms(aug_config: dict, copy_paste_aug: Optional[CopyPasteAugmentation] = None, 
+                         dataset: Optional[Dataset] = None) -> Compose:
     """
     Get training transforms
     
@@ -364,6 +675,50 @@ def get_train_transforms(aug_config: dict, copy_paste_aug: Optional[CopyPasteAug
         transforms.append(MotionBlurAugmentation(
             prob=motion_blur_config.get('prob', 0.3),
             max_kernel_size=motion_blur_config.get('max_kernel_size', 15)
+        ))
+    
+    # Gaussian blur augmentation
+    if aug_config.get('gaussian_blur', {}).get('enabled', False):
+        gaussian_blur_config = aug_config['gaussian_blur']
+        transforms.append(GaussianBlurAugmentation(
+            prob=gaussian_blur_config.get('prob', 0.3),
+            kernel_size_range=tuple(gaussian_blur_config.get('kernel_size_range', [3, 7])),
+            sigma_range=tuple(gaussian_blur_config.get('sigma_range', [0.5, 2.0]))
+        ))
+    
+    # ISO noise augmentation
+    if aug_config.get('iso_noise', {}).get('enabled', False):
+        iso_noise_config = aug_config['iso_noise']
+        transforms.append(ISONoiseAugmentation(
+            prob=iso_noise_config.get('prob', 0.3),
+            noise_level=tuple(iso_noise_config.get('noise_level', [5, 25]))
+        ))
+    
+    # JPEG compression augmentation
+    if aug_config.get('jpeg_compression', {}).get('enabled', False):
+        jpeg_config = aug_config['jpeg_compression']
+        transforms.append(JPEGCompressionAugmentation(
+            prob=jpeg_config.get('prob', 0.2),
+            quality_range=tuple(jpeg_config.get('quality_range', [60, 95]))
+        ))
+    
+    # MixUp augmentation (requires dataset)
+    if aug_config.get('mixup', {}).get('enabled', False) and dataset is not None:
+        mixup_config = aug_config['mixup']
+        transforms.append(MixUpAugmentation(
+            prob=mixup_config.get('prob', 0.3),
+            alpha=mixup_config.get('alpha', 0.2),
+            dataset=dataset
+        ))
+    
+    # Mosaic augmentation (requires dataset)
+    if aug_config.get('mosaic', {}).get('enabled', False) and dataset is not None:
+        mosaic_config = aug_config['mosaic']
+        transforms.append(MosaicAugmentation(
+            prob=mosaic_config.get('prob', 0.5),
+            min_scale=mosaic_config.get('min_scale', 0.4),
+            max_scale=mosaic_config.get('max_scale', 1.0),
+            dataset=dataset
         ))
     
     # To tensor and normalize

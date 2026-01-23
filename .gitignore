@@ -45,6 +45,10 @@ data/output/*
 # Model files (too large for git)
 models/*
 !models/.gitkeep
+# Allow checkpoint files to be tracked
+!models/checkpoints/
+models/checkpoints/*
+!models/checkpoints/*.pth
 
 # Logs
 *.log
@@ -72,4 +76,6 @@ coco_annotations_only/
 *.tar
 *.zip
 rf-detr-base.pth
+# Allow checkpoint .pth files in models/checkpoints/
 *.pth
+!models/checkpoints/*.pth

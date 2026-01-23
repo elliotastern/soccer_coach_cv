@@ -1,0 +1,135 @@
+# Training Configuration for Player-Only Detection - Phase 1 (Head Training)
+# Freeze backbone, train only decoder + classification head
+
+# Model Architecture
+model:
+  architecture: "detr"  # Options: "detr" (vanilla DETR) or "rfdetr" (RF-DETR from Roboflow)
+  backbone: "resnet50"  # ResNet backbone
+  num_classes: 1  # ONLY player
+  pretrained: true  # Use pre-trained weights
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: "base"
+
+# Progressive Training Settings
+progressive_training:
+  freeze_backbone: true  # Freeze backbone for Phase 1
+  phase: 1
+
+# Hyperparameters
+training:
+  batch_size: 4  # Increased for more stable gradients
+  num_epochs: 15  # Phase 1: 15 epochs (extended from 10)
+  learning_rate: 0.0001  # 1e-4 as float (standard LR for head training)
+  weight_decay: 0.0001  # 1e-4 as float
+  warmup_epochs: 3  # Reduced for faster learning
+  gradient_clip: 0.1
+  gradient_accumulation_steps: 2
+  memory_cleanup_frequency: 10
+  adaptive_optimization: true
+  target_gpu_utilization: 0.85
+  max_ram_usage: 0.80
+  adaptive_adjustment_interval: 50
+  mixed_precision: true
+  compile_model: false
+  channels_last: true
+  cudnn_benchmark: false  # Disable to avoid CUDNN compatibility issues
+  tf32: true
+  focal_loss:
+    enabled: true
+    alpha: 0.5
+    gamma: 2.0
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  lr: 0.0001  # 1e-4 as float
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001  # 1e-4 as float
+
+# Learning Rate Schedule
+lr_schedule:
+  type: "cosine"  # cosine annealing
+  warmup_epochs: 3
+  min_lr: 0.000001  # 1e-6 as float
+
+# Data Augmentation
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_crop: false
+    resize_range: [800, 1333]
+    clahe:
+      enabled: true
+      clip_limit: 2.0
+      tile_grid_size: [8, 8]
+    motion_blur:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      max_kernel_size: 15
+    gaussian_blur:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      kernel_size_range: [3, 7]
+      sigma_range: [0.5, 2.0]
+    iso_noise:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      noise_level: [5, 25]
+    jpeg_compression:
+      enabled: true
+      prob: 0.2  # Keep at 0.2
+      quality_range: [60, 95]
+    mixup:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      alpha: 0.2
+    mosaic:
+      enabled: true
+      prob: 0.3  # Reduced from 0.5
+      min_scale: 0.4
+      max_scale: 1.0
+  val:
+    resize: 1333
+
+# Dataset
+dataset:
+  train_path: "/workspace/soccer_coach_cv/datasets/soccertrack/train"
+  val_path: "/workspace/soccer_coach_cv/datasets/soccertrack/val"
+  num_workers: 4
+  pin_memory: true
+  prefetch_factor: 2
+  persistent_workers: false
+
+# Checkpoint Settings
+checkpoint:
+  save_dir: "models/checkpoints"
+  save_frequency: 999
+  save_every_epoch: true
+  keep_last_lightweight: 20
+  save_best: false
+  metric: "mAP"
+  use_lightweight_only: true
+
+# Evaluation
+evaluation:
+  iou_thresholds: [0.5, 0.75]
+  max_detections: 100
+
+# Logging
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  mlflow: true
+  mlflow_tracking_uri: "file:./mlruns"
+  mlflow_experiment_name: "detr_training_player_phase1"
+  mlflow_log_models: true
+  print_frequency: 20
+  log_every_n_steps: 50

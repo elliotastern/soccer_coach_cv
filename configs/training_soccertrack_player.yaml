@@ -1,0 +1,138 @@
+# Training Configuration for Player-Only Detection (SoccerTrack_sub)
+
+# Model Architecture
+model:
+  architecture: "detr"  # Options: "detr" (vanilla DETR) or "rfdetr" (RF-DETR from Roboflow)
+  backbone: "resnet50"  # ResNet backbone
+  num_classes: 1  # ONLY player (was 2)
+  pretrained: true  # Use pre-trained weights
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  # RF-DETR specific options (used when architecture="rfdetr")
+  rfdetr_size: "base"  # Options: "nano", "small", "medium", "base", "large"
+
+# Hyperparameters
+training:
+  batch_size: 32  # A40 can handle larger batches
+  num_epochs: 50
+  learning_rate: 0.0001  # 1e-4 as float
+  weight_decay: 0.0001  # 1e-4 as float
+  warmup_epochs: 5
+  gradient_clip: 0.1
+  gradient_accumulation_steps: 2  # Accumulate gradients over N batches to reduce memory
+  memory_cleanup_frequency: 10  # Cleanup memory every N batches
+  adaptive_optimization: true  # Enable adaptive resource optimization based on usage
+  target_gpu_utilization: 0.85  # Target GPU utilization for adaptive optimization
+  max_ram_usage: 0.80  # Maximum RAM usage threshold
+  adaptive_adjustment_interval: 50  # Check and adjust every N batches
+  mixed_precision: true  # Enable AMP for faster training
+  compile_model: false  # Disabled: causes recompilation overhead with variable-sized DETR inputs
+  channels_last: true  # Use channels-last memory format for faster convolutions
+  cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
+  tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
+  # Focal Loss enabled for hard examples and class imbalance
+  focal_loss:
+    enabled: true
+    alpha: 0.5
+    gamma: 2.0
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  lr: 0.0001  # 1e-4 as float
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001  # 1e-4 as float
+
+# Learning Rate Schedule
+lr_schedule:
+  type: "cosine"  # cosine annealing
+  warmup_epochs: 5
+  min_lr: 0.000001  # 1e-6 as float
+
+# Data Augmentation
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_crop: false
+    resize_range: [800, 1333]  # DETR standard
+    # CLAHE contrast enhancement for synthetic image fog
+    clahe:
+      enabled: true
+      clip_limit: 2.0  # Contrast limiting threshold
+      tile_grid_size: [8, 8]  # Grid size for adaptive equalization
+    # Motion blur augmentation for realistic player detection
+    motion_blur:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3 - less aggressive augmentation
+      max_kernel_size: 15  # Maximum motion blur kernel size
+    # Gaussian blur for sensor noise simulation
+    gaussian_blur:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      kernel_size_range: [3, 7]
+      sigma_range: [0.5, 2.0]
+    # ISO noise injection
+    iso_noise:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      noise_level: [5, 25]
+    # JPEG compression artifacts
+    jpeg_compression:
+      enabled: true
+      prob: 0.2  # Keep at 0.2
+      quality_range: [60, 95]
+    # MixUp for occlusion handling
+    mixup:
+      enabled: true
+      prob: 0.2  # Reduced from 0.3
+      alpha: 0.2
+    # Mosaic for multi-scale learning
+    mosaic:
+      enabled: true
+      prob: 0.3  # Reduced from 0.5
+      min_scale: 0.4
+      max_scale: 1.0
+  val:
+    resize: 1333  # Fixed size for validation
+
+# Dataset
+dataset:
+  train_path: "/workspace/soccer_coach_cv/datasets/soccertrack/train"
+  val_path: "/workspace/soccer_coach_cv/datasets/soccertrack/val"
+  num_workers: 4  # Reduced from 8 to lower crash risk from worker kills
+  pin_memory: true
+  prefetch_factor: 2  # Reduced from 3 for stability
+  persistent_workers: false  # Disabled: fewer worker-related crashes when process is interrupted
+
+# Checkpoint Settings
+checkpoint:
+  save_dir: "models/checkpoints"
+  save_frequency: 999  # Disabled: use lightweight checkpoints only to avoid disk quota issues
+  save_every_epoch: true  # Save lightweight checkpoint every epoch (ensures no progress loss)
+  keep_last_lightweight: 20  # Keep last N lightweight checkpoints (deletes older ones to save space)
+  save_best: false  # Disabled: use lightweight checkpoints only to avoid disk quota issues
+  metric: "mAP"  # Mean Average Precision
+  use_lightweight_only: true  # Only save lightweight checkpoints to avoid disk quota issues
+
+# Evaluation
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP
+  max_detections: 100
+
+# Logging
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking (or use SQLite/remote server)
+  mlflow_experiment_name: "detr_training_player"  # MLflow experiment name
+  mlflow_log_models: true  # Enable model artifact logging (with error handling)
+  print_frequency: 20  # Print every N iterations (reduced for less I/O overhead)
+  log_every_n_steps: 50  # Log to TensorBoard less frequently

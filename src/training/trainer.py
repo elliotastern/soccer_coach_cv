@@ -516,6 +516,12 @@ class Trainer:
                 loss_dict = self.model(images, targets)
                 if batch_idx == 0:
                     print(f"[VERBOSE] Batch {batch_idx}: model.forward() completed", flush=True)
+                
+                # Log loss components for diagnostics
+                if batch_idx % self.config['logging'].get('print_frequency', 20) == 0:
+                    loss_components_str = ", ".join([f"{k}: {v.item():.4f}" for k, v in loss_dict.items()])
+                    print(f"[DIAGNOSTIC] Epoch {epoch}, Batch {batch_idx}: {loss_components_str}", flush=True)
+                
                 losses = sum(loss for loss in loss_dict.values())
                 
                 # Scale loss by accumulation steps
@@ -538,16 +544,33 @@ class Trainer:
                 accumulation_loss_components[loss_name] += loss_value.item()
             accumulation_count += 1
             
+            # Log label distribution for diagnostics (first batch of epoch, every 5 epochs)
+            if batch_idx == 0 and epoch % 5 == 0:
+                label_counts = {}
+                for target in targets:
+                    labels = target.get('labels', torch.tensor([]))
+                    for label in labels.cpu().numpy():
+                        label_counts[label] = label_counts.get(label, 0) + 1
+                if label_counts:
+                    label_dist_str = ", ".join([f"label_{k}: {v}" for k, v in sorted(label_counts.items())])
+                    print(f"[DIAGNOSTIC] Epoch {epoch}, Batch 0 label distribution: {label_dist_str}", flush=True)
+            
             # Only step optimizer after accumulation steps
             if (batch_idx + 1) % self.gradient_accumulation_steps == 0:
                 # Gradient clipping
                 if self.config['training'].get('gradient_clip'):
                     if self.use_amp:
                         self.scaler.unscale_(self.optimizer)
-                    torch.nn.utils.clip_grad_norm_(
+                    
+                    # Calculate gradient norm before clipping for diagnostics
+                    total_norm = torch.nn.utils.clip_grad_norm_(
                         self.model.parameters(),
                         self.config['training']['gradient_clip']
                     )
+                    
+                    # Log gradient norm periodically
+                    if batch_idx % (self.config['logging'].get('print_frequency', 20) * 2) == 0:
+                        print(f"[DIAGNOSTIC] Epoch {epoch}, Batch {batch_idx}: Gradient norm: {total_norm.item():.4f}", flush=True)
                 
                 # Optimizer step
                 if self.use_amp:

@@ -2,8 +2,12 @@
 """
 Main training script for RF-DETR model
 """
-import argparse
+# CRITICAL: Disable CUDNN graph optimization BEFORE importing torch
 import os
+os.environ['TORCH_CUDNN_V8_API_ENABLED'] = '0'
+os.environ['CUDNN_DETERMINISTIC'] = '0'
+
+import argparse
 import sys
 from pathlib import Path
 import yaml
@@ -45,23 +49,33 @@ def load_config(config_path: str) -> dict:
         return yaml.safe_load(f)
 
 
-def setup_device() -> torch.device:
+def setup_device(config=None) -> torch.device:
     """Setup GPU/CPU device with optimizations"""
     if torch.cuda.is_available():
         device = torch.device('cuda')
         print(f"Using GPU: {torch.cuda.get_device_name(0)}")
         
         # Enable CUDA optimizations
-        torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
-        torch.backends.cudnn.deterministic = False  # Faster, but non-deterministic
+        # CUDNN settings from config
+        if config is None:
+            cudnn_benchmark = False
+            tf32_enabled = True
+        else:
+            cudnn_benchmark = config['training'].get('cudnn_benchmark', False)
+            tf32_enabled = config['training'].get('tf32', True)
+        # Disable CUDNN entirely to avoid compatibility issues with cudnnGetLibConfig
+        torch.backends.cudnn.enabled = False
+        print("CUDNN disabled to avoid compatibility issues")
+        # The environment variable is set at the top of the file before torch import
         
         # Enable TF32 on Ampere GPUs (A40) for faster matmul operations
         if torch.cuda.get_device_capability()[0] >= 8:  # Ampere or newer
-            torch.backends.cuda.matmul.allow_tf32 = True
-            torch.backends.cudnn.allow_tf32 = True
-            print("TF32 enabled for Ampere GPU (faster matmul operations)")
+            torch.backends.cuda.matmul.allow_tf32 = tf32_enabled
+            torch.backends.cudnn.allow_tf32 = tf32_enabled
+            if tf32_enabled:
+                print("TF32 enabled for Ampere GPU (faster matmul operations)")
         
-        print("CUDA optimizations enabled")
+        print(f"CUDA optimizations enabled (CUDNN benchmark: {cudnn_benchmark})")
     else:
         device = torch.device('cpu')
         print("Using CPU")
@@ -107,7 +121,7 @@ def main():
     config = load_config(args.config)
     
     # Setup device
-    device = setup_device()
+    device = setup_device(config)
     
     # Create output directories
     os.makedirs(args.output_dir, exist_ok=True)
@@ -119,16 +133,22 @@ def main():
     if config['logging'].get('tensorboard', False) and TENSORBOARD_AVAILABLE:
         writer = SummaryWriter(log_dir=config['logging']['log_dir'])
     
-    # Create datasets
+    # Create datasets (without transforms first, then add transforms that need dataset reference)
     print("Loading datasets...")
-    train_dataset = CocoDataset(
+    train_dataset_temp = CocoDataset(
         dataset_dir=args.train_dir,
-        transforms=get_train_transforms(config['augmentation']['train'])
+        transforms=None
     )
     
     val_dataset = CocoDataset(
         dataset_dir=args.val_dir,
         transforms=get_val_transforms(config['augmentation']['val'])
+    )
+    
+    # Create train dataset with transforms (pass dataset for MixUp/Mosaic)
+    train_dataset = CocoDataset(
+        dataset_dir=args.train_dir,
+        transforms=get_train_transforms(config['augmentation']['train'], dataset=train_dataset_temp)
     )
     
     print(f"Training samples: {len(train_dataset)}")
@@ -309,6 +329,36 @@ def main():
     model = get_detr_model(config['model'], training_config=config.get('training', {}))
     model = model.to(device)
     
+    # Progressive training: freeze/unfreeze backbone
+    progressive_config = config.get('progressive_training', {})
+    freeze_backbone = progressive_config.get('freeze_backbone', False)
+    
+    if freeze_backbone:
+        print("=" * 70)
+        print("PROGRESSIVE TRAINING: Freezing backbone (Phase 1)")
+        print("=" * 70)
+        # Freeze backbone parameters
+        # For DETR from transformers, backbone is at model.backbone
+        if hasattr(model, 'detr_model') and hasattr(model.detr_model, 'model'):
+            if hasattr(model.detr_model.model, 'backbone'):
+                for param in model.detr_model.model.backbone.parameters():
+                    param.requires_grad = False
+                print("✅ Backbone frozen (only decoder + heads will be trained)")
+            else:
+                print("⚠️  Warning: Could not find backbone to freeze")
+        else:
+            print("⚠️  Warning: Model structure not recognized for freezing")
+    else:
+        print("=" * 70)
+        print("PROGRESSIVE TRAINING: Backbone unfrozen (Phase 2)")
+        print("=" * 70)
+        # Ensure backbone is unfrozen
+        if hasattr(model, 'detr_model') and hasattr(model.detr_model, 'model'):
+            if hasattr(model.detr_model.model, 'backbone'):
+                for param in model.detr_model.model.backbone.parameters():
+                    param.requires_grad = True
+                print("✅ Backbone unfrozen (full fine-tuning)")
+    
     # Convert to channels-last memory format for faster convolutions
     if config['training'].get('channels_last', False) and device.type == 'cuda':
         try:
@@ -347,11 +397,17 @@ def main():
         real_val_path=real_val_path
     )
     
-    # Resume from checkpoint if specified
+    # Resume from checkpoint if specified (command line or config)
     start_epoch = 0
-    if args.resume:
-        print(f"Resuming from checkpoint: {args.resume}")
-        checkpoint = torch.load(args.resume, map_location=device, weights_only=False)
+    resume_path = args.resume
+    if not resume_path:
+        # Check config for resume path (for Phase 2)
+        progressive_config = config.get('progressive_training', {})
+        resume_path = progressive_config.get('resume_from', None)
+    
+    if resume_path:
+        print(f"Resuming from checkpoint: {resume_path}")
+        checkpoint = torch.load(resume_path, map_location=device, weights_only=False)
         
         # Handle torch.compile prefix mismatch
         state_dict = checkpoint['model_state_dict']
@@ -377,6 +433,16 @@ def main():
         start_epoch = checkpoint['epoch'] + 1
         if 'optimizer_state_dict' in checkpoint:
             trainer.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        
+        # If resuming to Phase 2, ensure backbone is unfrozen
+        progressive_config = config.get('progressive_training', {})
+        if not progressive_config.get('freeze_backbone', False):
+            print("Phase 2: Ensuring backbone is unfrozen after resume...")
+            if hasattr(model, 'detr_model') and hasattr(model.detr_model, 'model'):
+                if hasattr(model.detr_model.model, 'backbone'):
+                    for param in model.detr_model.model.backbone.parameters():
+                        param.requires_grad = True
+                    print("✅ Backbone unfrozen after resume")
     
     # Train (try/finally so we attempt MLflow end_run on exit)
     print("Starting training...")

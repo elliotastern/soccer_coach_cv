@@ -240,6 +240,8 @@ class DETRWrapper(nn.Module):
                 pixel_mask=pixel_mask,
                 labels=labels
             )
+        except Exception as e:
+            raise
         finally:
             # Restore original loss function
             self.detr_model.loss_function = original_loss_fn
