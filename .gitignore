@@ -36,19 +36,17 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data files (keep structure, ignore content)
-data/raw/*
-data/output/*
-!data/raw/.gitkeep
-!data/output/.gitkeep
+# Data files (too large for git)
+data/
+!data/.gitkeep
 
 # Model files (too large for git)
-models/*
+models/
 !models/.gitkeep
-# Allow checkpoint files to be tracked
-!models/checkpoints/
-models/checkpoints/*
-!models/checkpoints/*.pth
+
+# Output files (too large for git)
+output/
+temp_*/
 
 # Logs
 *.log
@@ -72,10 +70,14 @@ mlruns/
 # Datasets (too large for git)
 datasets/
 coco_annotations_only/
+
+# Large files
 *.tar.gz
 *.tar
 *.zip
-rf-detr-base.pth
-# Allow checkpoint .pth files in models/checkpoints/
 *.pth
-!models/checkpoints/*.pth
+rf-detr-base.pth
+
+# Large images (validation outputs, etc)
+*validation*.jpg
+*prediction*.jpg
