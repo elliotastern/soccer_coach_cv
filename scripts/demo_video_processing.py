@@ -128,29 +128,40 @@ def process_video_demo(video_path: str, model_path: str, output_dir: str = "outp
                     print(f"   Team 1 HSV: {team_colors[1]}")
             print()
         
-        # Initialize homography on first frame (simple calibration)
+        # Initialize homography on first frame using automatic landmark detection
         if frame_count == 0:
-            # Use a simple calibration based on frame dimensions
-            # In production, this would use the calibration tool
-            manual_points = {
-                'image_points': [
-                    [0, 0],
-                    [width, 0],
-                    [width, height],
-                    [0, height]
-                ],
-                'pitch_points': [
-                    [-52.5, -34.0],
-                    [52.5, -34.0],
-                    [52.5, 34.0],
-                    [-52.5, 34.0]
-                ]
-            }
-            homography_estimator.estimate(frame, manual_points)
-            if homography_estimator.homography is not None:
+            print("📐 Initializing homography with automatic landmark detection...")
+            # Use automatic keypoint detection to find pitch landmarks
+            # This detects goals, center circle, penalty boxes, corners, etc.
+            # and uses up to 25 landmarks for accurate homography estimation
+            success = homography_estimator.estimate(frame, manual_points=None, use_auto_detection=True)
+            if success and homography_estimator.homography is not None:
                 pitch_mapper.homography = homography_estimator.homography
-                print("✅ Homography initialized")
+                print("✅ Homography initialized using automatic landmark detection")
+                print("   Using detected pitch landmarks (goals, center circle, penalty boxes, corners)")
                 print()
+            else:
+                # Fallback to simple calibration if automatic detection fails
+                print("⚠️  Automatic landmark detection failed, using simple calibration fallback")
+                manual_points = {
+                    'image_points': [
+                        [0, 0],
+                        [width, 0],
+                        [width, height],
+                        [0, height]
+                    ],
+                    'pitch_points': [
+                        [-52.5, -34.0],
+                        [52.5, -34.0],
+                        [52.5, 34.0],
+                        [-52.5, 34.0]
+                    ]
+                }
+                homography_estimator.estimate(frame, manual_points)
+                if homography_estimator.homography is not None:
+                    pitch_mapper.homography = homography_estimator.homography
+                    print("✅ Homography initialized (fallback method)")
+                    print()
         
         # Process detections
         frame_result = {
