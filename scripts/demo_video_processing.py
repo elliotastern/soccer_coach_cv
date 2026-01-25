@@ -11,6 +11,11 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# Add rf-detr directory to path if it exists
+rfdetr_path = Path("/workspace/rf-detr")
+if rfdetr_path.exists():
+    sys.path.insert(0, str(rfdetr_path))
+
 from rfdetr import RFDETRMedium
 from src.types import Detection
 from src.logic.team_id import TeamClusterer
@@ -237,8 +242,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Demonstrate video processing with R-002 and R-003")
     parser.add_argument("video", type=str, help="Input video file")
     parser.add_argument("--model", "-m", type=str, 
-                       default="models/rf_detr_soccertrack/checkpoint_best_total.pth",
-                       help="Path to RF-DETR checkpoint")
+                       default="models/rf_detr_soccertrack/checkpoint0099.pth",
+                       help="Path to RF-DETR checkpoint (default: checkpoint0099 - 99 epoch trained model)")
     parser.add_argument("--output", "-o", type=str, default="output/demo",
                        help="Output directory")
     parser.add_argument("--max-frames", type=int, default=50,

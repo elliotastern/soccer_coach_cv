@@ -13,8 +13,8 @@ python-dotenv
 plotly
 
 # Training dependencies
-torch
-torchvision
+torch>=1.13.0,<=2.8.0
+torchvision>=0.14.0
 transformers
 timm
 pycocotools
@@ -23,3 +23,12 @@ pillow
 mlflow
 rfdetr>=1.3.0
 byte-track>=1.0.0
+
+# RF-DETR additional dependencies (from pyproject.toml)
+tqdm
+peft
+polygraphy
+rf100vl
+pydantic
+matplotlib
+pillow-avif-plugin<1.5.3

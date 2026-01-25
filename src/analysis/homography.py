@@ -59,9 +59,12 @@ def estimate_homography_manual(image_points: np.ndarray, pitch_points: np.ndarra
         return None
     
     # Estimate homography using RANSAC
+    # With more points (15-25), use tighter threshold for better accuracy
+    reproj_threshold = 3.0 if len(image_points) > 10 else 5.0
     H, mask = cv2.findHomography(image_points, pitch_points, 
                                  method=cv2.RANSAC, 
-                                 ransacReprojThreshold=5.0)
+                                 ransacReprojThreshold=reproj_threshold,
+                                 maxIters=2000)  # More iterations for better results with many points
     
     return H
 
@@ -69,7 +72,7 @@ def estimate_homography_manual(image_points: np.ndarray, pitch_points: np.ndarra
 def estimate_homography_auto(image: np.ndarray, pitch_width: float = 105.0, 
                             pitch_height: float = 68.0) -> Optional[np.ndarray]:
     """
-    Automatically estimate homography from image
+    Automatically estimate homography from image using enhanced keypoint detection
     
     Args:
         image: Input image
@@ -79,7 +82,30 @@ def estimate_homography_auto(image: np.ndarray, pitch_width: float = 105.0,
     Returns:
         Homography matrix [3, 3] or None if estimation fails
     """
-    # Detect keypoints
+    try:
+        # Try enhanced keypoint detection first
+        from src.analysis.pitch_keypoint_detector import detect_pitch_keypoints_auto
+        
+        keypoint_data = detect_pitch_keypoints_auto(
+            image, 
+            pitch_length=pitch_height,  # Note: pitch_height is length in this context
+            pitch_width=pitch_width,
+            min_points=4,
+            max_points=25  # Use comprehensive landmark system for maximum accuracy
+        )
+        
+        if keypoint_data is not None:
+            image_points = np.array(keypoint_data['image_points'], dtype=np.float32)
+            pitch_points = np.array(keypoint_data['pitch_points'], dtype=np.float32)
+            
+            # Estimate homography with detected keypoints
+            H = estimate_homography_manual(image_points, pitch_points)
+            return H
+    except ImportError:
+        # Fallback to basic detection if enhanced detector not available
+        pass
+    
+    # Fallback to basic keypoint detection
     keypoints = detect_pitch_keypoints(image)
     if keypoints is None or len(keypoints) < 4:
         return None
@@ -216,7 +242,8 @@ class HomographyEstimator:
         self.pitch_height = pitch_height
         self.homography = None
     
-    def estimate(self, image: np.ndarray, manual_points: Optional[Dict] = None) -> bool:
+    def estimate(self, image: np.ndarray, manual_points: Optional[Dict] = None, 
+                 use_auto_detection: bool = True) -> bool:
         """
         Estimate homography from image
         
@@ -224,6 +251,7 @@ class HomographyEstimator:
             image: Input image
             manual_points: Optional manual point correspondences
                           {'image_points': [[x, y], ...], 'pitch_points': [[x, y], ...]}
+            use_auto_detection: If True and manual_points not provided, use automatic keypoint detection
         
         Returns:
             True if estimation successful, False otherwise
@@ -232,7 +260,11 @@ class HomographyEstimator:
             image_points = np.array(manual_points['image_points'], dtype=np.float32)
             pitch_points = np.array(manual_points['pitch_points'], dtype=np.float32)
             self.homography = estimate_homography_manual(image_points, pitch_points)
+        elif use_auto_detection:
+            # Use enhanced automatic keypoint detection
+            self.homography = estimate_homography_auto(image, self.pitch_width, self.pitch_height)
         else:
+            # Fallback to basic detection
             self.homography = estimate_homography_auto(image, self.pitch_width, self.pitch_height)
         
         return self.homography is not None

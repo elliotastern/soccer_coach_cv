@@ -12,6 +12,8 @@ import argparse
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add rf-detr to Python path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "rf-detr"))
 
 from rfdetr import RFDETRMedium
 from PIL import Image
