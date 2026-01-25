@@ -27,6 +27,7 @@ class TrackedObject:
     object_id: int
     detection: Detection
     team_id: Optional[int] = None
+    role: Optional[str] = None  # "PLAYER", "GK", "REF"
 
 
 @dataclass

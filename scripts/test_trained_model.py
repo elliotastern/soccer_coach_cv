@@ -176,6 +176,10 @@ def test_on_video(video_path: str, checkpoint_path: str, num_frames: int = 100,
         if not ret:
             break
         
+        # Get original frame dimensions BEFORE any processing
+        # OpenCV frame shape is (height, width, channels)
+        original_height, original_width = frame.shape[:2]
+        
         # Preprocess
         img_tensor, pil_image = preprocess_frame(frame)
         
@@ -190,6 +194,21 @@ def test_on_video(video_path: str, checkpoint_path: str, num_frames: int = 100,
         img_denorm = torch.clamp(img_denorm, 0, 1)
         pil_img = TF.to_pil_image(img_denorm)
         
+        # Verify PIL image size matches original frame dimensions
+        # PIL uses (width, height) format, OpenCV uses (height, width)
+        pil_width, pil_height = pil_img.size
+        pil_image_width, pil_image_height = pil_image.size
+        
+        # Verify both PIL images have correct size
+        if pil_width != original_width or pil_height != original_height:
+            print(f"⚠️  Warning: pil_img size ({pil_width}x{pil_height}) doesn't match original frame ({original_width}x{original_height})")
+        if pil_image_width != original_width or pil_image_height != original_height:
+            print(f"⚠️  Warning: pil_image size ({pil_image_width}x{pil_image_height}) doesn't match original frame ({original_width}x{original_height})")
+        
+        # Verify both PIL images have same size
+        if pil_img.size != pil_image.size:
+            print(f"⚠️  Warning: pil_img.size ({pil_img.size}) != pil_image.size ({pil_image.size})")
+        
         processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
         inputs = processor(images=pil_img, return_tensors="pt")
         inputs = {k: v.to(img_tensor.device) for k, v in inputs.items()}
@@ -198,25 +217,94 @@ def test_on_video(video_path: str, checkpoint_path: str, num_frames: int = 100,
             detr_outputs = model.detr_model(**inputs)
         
         # Post-process with threshold=0.0 to get ALL predictions
-        target_sizes = torch.tensor([pil_img.size[::-1]], device=img_tensor.device, dtype=torch.float32)
+        # CRITICAL FIX: DETR post_process_object_detection expects target_sizes as [height, width]
+        # This matches DETR's internal (C, H, W) tensor coordinate system
+        # The processor resizes images to (C, H, W) format, so target_sizes must be [H, W]
+        # This matches the working code in src/training/model.py line 297
+        target_sizes = torch.tensor([pil_img.size[::-1]], device=img_tensor.device, dtype=torch.float32)  # [height, width]
         results = processor.post_process_object_detection(
             detr_outputs, target_sizes=target_sizes, threshold=0.0
         )[0]
         
-        # Convert to our format (include ALL predictions, even low confidence)
-        all_predictions = []
-        for score, label, box in zip(results['scores'], results['labels'], results['boxes']):
-            # Label 0 = background, 1 = player (for our single-class model)
-            # Save all predictions, but mark background separately
-            class_name = 'player' if label.item() == 1 else 'background'
-            all_predictions.append({
-                'bbox': box.cpu().tolist(),
-                'score': score.item(),
-                'label': label.item(),
-                'class_name': class_name
-            })
+        # BUG FIX: transformers post_process_object_detection incorrectly maps labels
+        # The model predicts class 1 (player) but post-processing outputs class 0 (background)
+        # We need to manually extract the correct labels from logits
+        logits = detr_outputs.logits[0]  # [100, 2] for 100 queries, 2 classes
+        probs = torch.softmax(logits, dim=-1)
+        predicted_labels = torch.argmax(probs, dim=-1)  # [100] - actual predicted class
+        predicted_scores = probs.max(dim=-1)[0]  # [100] - confidence of predicted class
         
-        # Filter for drawing
+        # Filter out background predictions and low confidence
+        # Use confidence threshold from command line argument
+        player_mask = (predicted_labels == 1) & (predicted_scores >= confidence_threshold)  # Only players above threshold
+        
+        if player_mask.sum() > 0:
+            # Get player boxes and scores
+            player_boxes = results['boxes'][player_mask]
+            player_scores = predicted_scores[player_mask]
+            
+            # CRITICAL: Use ORIGINAL frame dimensions for filtering, not resized PIL image dimensions
+            # The bounding boxes are already scaled to original frame size via target_sizes parameter
+            # pil_img.size gives resized dimensions (e.g., 662x1333), but boxes are in original dimensions (e.g., 1906x3840)
+            img_height = original_height
+            img_width = original_width
+            
+            # Filter out very small boxes (likely false positives)
+            box_areas = (player_boxes[:, 2] - player_boxes[:, 0]) * (player_boxes[:, 3] - player_boxes[:, 1])
+            min_area = 2000  # Minimum box area in pixels
+            max_area = 50000  # Maximum box area (filter huge boxes on lights/structures)
+            size_mask = (box_areas >= min_area) & (box_areas <= max_area)
+            
+            # Filter out boxes in top 15% of image (likely stadium lights)
+            # For panoramic videos, be less aggressive
+            top_threshold = img_height * 0.10 if img_width / img_height > 3.0 else img_height * 0.15
+            top_mask = player_boxes[:, 1] >= top_threshold
+            
+            # Filter out boxes in bottom 10% of image (likely sidelines/dugouts)
+            # For very wide videos (panoramic), disable bottom filter as it's too aggressive
+            if img_width / img_height > 3.0:
+                bottom_mask = torch.ones(len(player_boxes), dtype=torch.bool, device=player_boxes.device)  # Don't filter bottom for panoramic
+            else:
+                bottom_mask = player_boxes[:, 3] <= (img_height * 0.90)
+            
+            # Combine all filters
+            valid_mask = size_mask & top_mask & bottom_mask
+            
+            if valid_mask.sum() > 0:
+                player_boxes = player_boxes[valid_mask]
+                player_scores = player_scores[valid_mask]
+                
+                # Apply Non-Maximum Suppression to remove duplicate/overlapping detections
+                # Use stricter IoU threshold to remove more duplicates
+                from torchvision.ops import nms
+                keep_indices = nms(player_boxes, player_scores, iou_threshold=0.4)
+                
+                player_boxes = player_boxes[keep_indices]
+                player_scores = player_scores[keep_indices]
+                
+                # Sort by confidence and keep only top N detections
+                # Limit to max 22 detections per frame (reasonable for soccer: 11 players per team)
+                if len(player_scores) > 22:
+                    sorted_indices = torch.argsort(player_scores, descending=True)
+                    top_indices = sorted_indices[:22]
+                    player_boxes = player_boxes[top_indices]
+                    player_scores = player_scores[top_indices]
+                
+                # Convert to our format
+                all_predictions = []
+                for box, score in zip(player_boxes, player_scores):
+                    all_predictions.append({
+                        'bbox': box.cpu().tolist(),
+                        'score': score.item(),
+                        'label': 1,
+                        'class_name': 'player'
+                    })
+            else:
+                all_predictions = []
+        else:
+            all_predictions = []
+        
+        # Filter by confidence threshold for display
         filtered_detections = [d for d in all_predictions if d['score'] >= confidence_threshold]
         
         all_detections.append({

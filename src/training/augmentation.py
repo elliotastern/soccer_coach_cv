@@ -392,6 +392,187 @@ class ISONoiseAugmentation:
         return image, target
 
 
+class HSVColorJitter:
+    """
+    HSV color jitter augmentation
+    Specifically designed for player detection to avoid team color confusion
+    """
+    def __init__(self, hsv_h: float = 0.01, hsv_s: float = 0.6, hsv_v: float = 0.4):
+        """
+        Args:
+            hsv_h: Hue shift (very low to preserve team colors)
+            hsv_s: Saturation shift (high for sweat/rain/lighting)
+            hsv_v: Value/brightness shift (high for shadows/floodlights)
+        """
+        self.hsv_h = hsv_h
+        self.hsv_s = hsv_s
+        self.hsv_v = hsv_v
+    
+    def __call__(self, image, target):
+        if random.random() < 0.5:  # Apply 50% of the time
+            # Convert PIL to numpy
+            img_array = np.array(image, dtype=np.float32)
+            
+            # Convert RGB to HSV
+            img_hsv = cv2.cvtColor(img_array, cv2.COLOR_RGB2HSV).astype(np.float32)
+            
+            # Apply jitter
+            h_shift = random.uniform(-self.hsv_h * 180, self.hsv_h * 180)
+            s_shift = random.uniform(-self.hsv_s, self.hsv_s)
+            v_shift = random.uniform(-self.hsv_v, self.hsv_v)
+            
+            img_hsv[:, :, 0] = np.clip(img_hsv[:, :, 0] + h_shift, 0, 180)  # Hue
+            img_hsv[:, :, 1] = np.clip(img_hsv[:, :, 1] * (1 + s_shift), 0, 255)  # Saturation
+            img_hsv[:, :, 2] = np.clip(img_hsv[:, :, 2] * (1 + v_shift), 0, 255)  # Value
+            
+            # Convert back to RGB
+            img_rgb = cv2.cvtColor(img_hsv.astype(np.uint8), cv2.COLOR_HSV2RGB)
+            image = Image.fromarray(img_rgb)
+        
+        return image, target
+
+
+class GeometricAugmentation:
+    """
+    Geometric augmentation: shear, perspective, scale
+    Simulates camera angles and player positions
+    """
+    def __init__(self, degrees: float = 0.0, shear: float = 5.0, 
+                 perspective: float = 0.001, scale: float = 0.8):
+        """
+        Args:
+            degrees: Rotation degrees (0.0 = OFF for players)
+            shear: Shear angle in degrees (simulates camera tilt)
+            perspective: Perspective distortion factor
+            scale: Scale variation factor
+        """
+        self.degrees = degrees
+        self.shear = shear
+        self.perspective = perspective
+        self.scale = scale
+    
+    def __call__(self, image, target):
+        if random.random() < 0.5:  # Apply 50% of the time
+            img_array = np.array(image)
+            h, w = img_array.shape[:2]
+            
+            # Get transformation parameters
+            scale_factor = random.uniform(1.0 - self.scale, 1.0 + self.scale)
+            shear_angle = random.uniform(-self.shear, self.shear)
+            rotation = random.uniform(-self.degrees, self.degrees) if self.degrees > 0 else 0
+            
+            # Build transformation matrix
+            center = (w / 2, h / 2)
+            
+            # Scale
+            M = cv2.getRotationMatrix2D(center, 0, scale_factor)
+            
+            # Shear
+            if abs(shear_angle) > 0.1:
+                shear_rad = np.radians(shear_angle)
+                shear_matrix = np.array([[1, np.tan(shear_rad), 0],
+                                        [0, 1, 0]], dtype=np.float32)
+                M = np.dot(M, np.vstack([shear_matrix, [0, 0, 1]]))[:2]
+            
+            # Rotation
+            if abs(rotation) > 0.1:
+                M_rot = cv2.getRotationMatrix2D(center, rotation, 1.0)
+                M = np.dot(np.vstack([M, [0, 0, 1]]), np.vstack([M_rot, [0, 0, 1]]))[:2]
+            
+            # Apply transformation
+            img_transformed = cv2.warpAffine(img_array, M, (w, h), 
+                                            flags=cv2.INTER_LINEAR,
+                                            borderMode=cv2.BORDER_REFLECT_101)
+            
+            # Update bounding boxes
+            if 'boxes' in target and len(target['boxes']) > 0:
+                boxes = target['boxes'].clone().numpy()
+                # Transform box corners
+                n_boxes = boxes.shape[0]
+                corners = np.zeros((n_boxes * 4, 2), dtype=np.float32)
+                for i, box in enumerate(boxes):
+                    x1, y1, x2, y2 = box
+                    corners[i*4:(i+1)*4] = [
+                        [x1, y1], [x2, y1], [x2, y2], [x1, y2]
+                    ]
+                
+                # Apply transformation to corners
+                corners_homogeneous = np.hstack([corners, np.ones((corners.shape[0], 1))])
+                corners_transformed = (M @ corners_homogeneous.T).T
+                
+                # Reconstruct boxes from transformed corners
+                boxes_transformed = np.zeros((n_boxes, 4), dtype=np.float32)
+                for i in range(n_boxes):
+                    x_coords = corners_transformed[i*4:(i+1)*4, 0]
+                    y_coords = corners_transformed[i*4:(i+1)*4, 1]
+                    boxes_transformed[i] = [
+                        np.min(x_coords), np.min(y_coords),
+                        np.max(x_coords), np.max(y_coords)
+                    ]
+                
+                # Clip to image bounds
+                boxes_transformed[:, [0, 2]] = np.clip(boxes_transformed[:, [0, 2]], 0, w)
+                boxes_transformed[:, [1, 3]] = np.clip(boxes_transformed[:, [1, 3]], 0, h)
+                
+                # Filter out invalid boxes
+                valid = (boxes_transformed[:, 2] > boxes_transformed[:, 0]) & \
+                       (boxes_transformed[:, 3] > boxes_transformed[:, 1])
+                
+                if np.any(valid):
+                    target['boxes'] = torch.from_numpy(boxes_transformed[valid]).float()
+                    if 'labels' in target:
+                        target['labels'] = target['labels'][valid]
+                    if 'area' in target:
+                        areas = (boxes_transformed[valid, 2] - boxes_transformed[valid, 0]) * \
+                               (boxes_transformed[valid, 3] - boxes_transformed[valid, 1])
+                        target['area'] = torch.from_numpy(areas).float()
+                else:
+                    # If no valid boxes, return original
+                    return image, target
+            
+            image = Image.fromarray(img_transformed)
+        
+        return image, target
+
+
+class RandomErasing:
+    """
+    Random erasing augmentation for occlusion simulation
+    """
+    def __init__(self, prob: float = 0.4):
+        """
+        Args:
+            prob: Probability of applying erasing
+        """
+        self.prob = prob
+    
+    def __call__(self, image, target):
+        if random.random() < self.prob and isinstance(image, Image.Image):
+            # Convert to numpy for easier manipulation
+            img_array = np.array(image)
+            h, w = img_array.shape[:2]
+            
+            # Random erasing parameters
+            area = h * w
+            target_area = random.uniform(0.02, 0.33) * area
+            aspect_ratio = random.uniform(0.3, 3.3)
+            
+            h_erase = int(round(np.sqrt(target_area * aspect_ratio)))
+            w_erase = int(round(np.sqrt(target_area / aspect_ratio)))
+            
+            if h_erase < h and w_erase < w:
+                top = random.randint(0, h - h_erase)
+                left = random.randint(0, w - w_erase)
+                
+                # Erase with random value (0-255 for RGB)
+                erase_value = random.randint(0, 255)
+                img_array[top:top+h_erase, left:left+w_erase] = erase_value
+                
+                image = Image.fromarray(img_array)
+        
+        return image, target
+
+
 class JPEGCompressionAugmentation:
     """
     JPEG compression artifacts simulation
@@ -726,6 +907,114 @@ def get_train_transforms(aug_config: dict, copy_paste_aug: Optional[CopyPasteAug
     transforms.append(Normalize())
     
     return Compose(transforms)
+
+
+def make_rfdetr_custom_transforms(image_set: str, resolution: int, dataset=None):
+    """
+    Create RF-DETR compatible transforms with custom player-specific augmentations
+    
+    Args:
+        image_set: 'train' or 'val'
+        resolution: Image resolution
+        dataset: Dataset instance (needed for MixUp/Mosaic)
+    
+    Returns:
+        Compose transform compatible with RF-DETR
+    """
+    # Import RF-DETR's transform classes
+    import sys
+    import os
+    rfdetr_path = os.path.join(os.path.dirname(__file__), '../../rf-detr')
+    if rfdetr_path not in sys.path:
+        sys.path.insert(0, rfdetr_path)
+    
+    from rfdetr.datasets.transforms import (
+        Compose as RFCompose, 
+        Normalize, 
+        ToTensor,
+        RandomHorizontalFlip,
+        RandomResize,
+        RandomSelect,
+        RandomSizeCrop
+    )
+    
+    normalize = Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    
+    if image_set == 'train':
+        transforms = []
+        
+        # 1. Mosaic (applied first, requires dataset) - prob=1.0 means always on
+        if dataset is not None:
+            transforms.append(MosaicAugmentation(
+                prob=1.0,  # Always on as specified
+                min_scale=0.4,
+                max_scale=1.0,
+                dataset=dataset
+            ))
+        
+        # 2. Copy-Paste (early in pipeline)
+        if dataset is not None:
+            transforms.append(CopyPasteAugmentation(
+                prob=0.3,
+                max_pastes=3,
+                dataset=dataset
+            ))
+        
+        # 3. MixUp (occlusion handling)
+        if dataset is not None:
+            transforms.append(MixUpAugmentation(
+                prob=0.2,
+                alpha=0.2,
+                dataset=dataset
+            ))
+        
+        # 4. Random Erasing (occlusion)
+        transforms.append(RandomErasing(prob=0.4))
+        
+        # 5. Geometric augmentations (shear, perspective, scale)
+        transforms.append(GeometricAugmentation(
+            degrees=0.0,  # OFF for players
+            shear=5.0,
+            perspective=0.001,
+            scale=0.8
+        ))
+        
+        # 6. Horizontal flip
+        transforms.append(RandomHorizontalFlip(prob=0.5))
+        
+        # 7. HSV Color Jitter (team color protection)
+        transforms.append(HSVColorJitter(
+            hsv_h=0.01,  # VERY LOW
+            hsv_s=0.6,   # High
+            hsv_v=0.4    # High
+        ))
+        
+        # 8. Resize (RF-DETR style) - use RandomSelect for multi-scale
+        # RF-DETR uses RandomSelect with resize or crop+resize
+        transforms.append(RandomSelect(
+            RandomResize([resolution], max_size=1333),
+            RFCompose([
+                RandomResize([400, 500, 600]),
+                RandomSizeCrop(384, 600),
+                RandomResize([resolution], max_size=1333),
+            ])
+        ))
+        
+        # 9. ToTensor and Normalize
+        transforms.append(ToTensor())
+        transforms.append(normalize)
+        
+        return RFCompose(transforms)
+    
+    elif image_set == 'val':
+        # Validation: simple resize and normalize
+        return RFCompose([
+            RandomResize([resolution], max_size=1333),
+            ToTensor(),
+            normalize,
+        ])
+    
+    raise ValueError(f'unknown {image_set}')
 
 
 def get_val_transforms(aug_config: dict) -> Compose:

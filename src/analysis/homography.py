@@ -125,6 +125,37 @@ def transform_point(homography: np.ndarray, point: Tuple[float, float]) -> Tuple
     return (x_pitch, y_pitch)
 
 
+def apply_homography_vectorized(points: np.ndarray, H: np.ndarray) -> np.ndarray:
+    """
+    Apply homography to multiple points (vectorized for speed).
+    
+    Args:
+        points: (N, 2) array of (u, v) pixel coordinates
+        H: 3x3 Homography Matrix
+    
+    Returns:
+        (N, 2) array of (x, y) pitch coordinates
+    """
+    if len(points) == 0:
+        return np.array([]).reshape(0, 2)
+    
+    # Convert to homogeneous coords
+    points_h = np.hstack([points, np.ones((len(points), 1))])
+    
+    # Matrix multiplication
+    transformed = (H @ points_h.T).T
+    
+    # Normalize by the scaling factor w
+    w = transformed[:, 2]
+    # Avoid division by zero
+    w[np.abs(w) < 1e-10] = 1e-10
+    
+    x = transformed[:, 0] / w
+    y = transformed[:, 1] / w
+    
+    return np.column_stack([x, y])
+
+
 def transform_boxes(homography: np.ndarray, boxes: torch.Tensor) -> torch.Tensor:
     """
     Transform bounding boxes from image coordinates to pitch coordinates
