@@ -77,6 +77,10 @@ class PitchKeypointDetector:
         center_line_points = self._detect_center_line(image, lines)
         keypoints.extend(center_line_points)
         
+        # 3b. Detect touchlines (sidelines) - these are critical for y-axis accuracy
+        touchlines = self._detect_touchlines(image, lines)
+        keypoints.extend(touchlines)
+        
         # 4. Detect center circle (enhanced)
         center_circle = self._detect_center_circle_enhanced(image, lines)
         keypoints.extend(center_circle)
@@ -596,19 +600,24 @@ class PitchKeypointDetector:
         
         return keypoints
     
-    def _detect_center_circle_enhanced(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
+    def _detect_center_circle_enhanced(self, image: np.ndarray, lines: List[np.ndarray], num_points: int = 8) -> List[PitchKeypoint]:
         """
-        Enhanced center circle detection with radius validation
+        Enhanced center circle detection with radius validation.
+        Samples multiple points evenly spaced around the circle for better homography accuracy.
         
         Args:
             image: Input image
             lines: Detected field lines
+            num_points: Number of points to sample around circle (default: 8, range: 4-16)
         
         Returns:
-            List of center circle keypoints (center + 4 cardinal directions)
+            List of center circle keypoints (center + num_points evenly spaced around circle)
         """
         h, w = image.shape[:2]
         keypoints = []
+        
+        # Clamp num_points to reasonable range
+        num_points = max(4, min(16, num_points))
         
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
@@ -653,31 +662,24 @@ class PitchKeypointDetector:
                         confidence=0.8
                     ))
                     
-                    # 4 cardinal directions
-                    keypoints.append(PitchKeypoint(
-                        image_point=(float(cx), float(cy - r)),
-                        pitch_point=(0.0, -self.center_circle_radius),
-                        landmark_type="center_circle",
-                        confidence=0.7
-                    ))
-                    keypoints.append(PitchKeypoint(
-                        image_point=(float(cx), float(cy + r)),
-                        pitch_point=(0.0, self.center_circle_radius),
-                        landmark_type="center_circle",
-                        confidence=0.7
-                    ))
-                    keypoints.append(PitchKeypoint(
-                        image_point=(float(cx - r), float(cy)),
-                        pitch_point=(-self.center_circle_radius, 0.0),
-                        landmark_type="center_circle",
-                        confidence=0.7
-                    ))
-                    keypoints.append(PitchKeypoint(
-                        image_point=(float(cx + r), float(cy)),
-                        pitch_point=(self.center_circle_radius, 0.0),
-                        landmark_type="center_circle",
-                        confidence=0.7
-                    ))
+                    # Sample num_points evenly spaced around the circle
+                    # Angle 0 is at top (negative y in pitch coordinates)
+                    for i in range(num_points):
+                        angle = 2 * np.pi * i / num_points
+                        # Image coordinates: angle 0 is at top (negative y)
+                        img_x = cx + r * np.sin(angle)
+                        img_y = cy - r * np.cos(angle)
+                        
+                        # Pitch coordinates: angle 0 is at top (negative y)
+                        pitch_x = self.center_circle_radius * np.sin(angle)
+                        pitch_y = -self.center_circle_radius * np.cos(angle)
+                        
+                        keypoints.append(PitchKeypoint(
+                            image_point=(float(img_x), float(img_y)),
+                            pitch_point=(pitch_x, pitch_y),
+                            landmark_type="center_circle",
+                            confidence=0.7
+                        ))
         
         # Fallback to basic detection
         if len(keypoints) == 0:
@@ -916,6 +918,120 @@ class PitchKeypointDetector:
         
         return intersections
     
+    def _detect_touchlines(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
+        """
+        Detect touchlines (sidelines) - critical for y-axis accuracy.
+        Touchlines run along the length of the field and provide stable y-coordinate references.
+        
+        Args:
+            image: Input image
+            lines: Detected field lines
+        
+        Returns:
+            List of touchline keypoints
+        """
+        h, w = image.shape[:2]
+        keypoints = []
+        
+        # Find long horizontal lines (touchlines run along field length)
+        # These are typically the longest lines in the image
+        horizontal_lines = []
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            # Check if line is roughly horizontal
+            if abs(y2 - y1) < abs(x2 - x1) * 0.3:  # More horizontal than vertical
+                length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+                if length > min(w, h) * 0.3:  # Long enough to be a touchline
+                    horizontal_lines.append((line, length))
+        
+        # Sort by length (longest first)
+        horizontal_lines.sort(key=lambda x: x[1], reverse=True)
+        
+        # Use top 2 longest horizontal lines as touchlines
+        for i, (line, length) in enumerate(horizontal_lines[:2]):
+            x1, y1, x2, y2 = line[0]
+            mid_y = (y1 + y2) / 2
+            
+            # Map to pitch coordinates
+            # Top touchline (near top of image) maps to -pitch_width/2
+            # Bottom touchline (near bottom of image) maps to +pitch_width/2
+            if i == 0:  # First (likely top touchline)
+                # Sample points along the line
+                for x in [x1, (x1 + x2) / 2, x2]:
+                    if 0 <= x < w:
+                        keypoints.append(PitchKeypoint(
+                            image_point=(float(x), float(mid_y)),
+                            pitch_point=(0.0, -self.pitch_width / 2),  # Top touchline
+                            landmark_type="touchline",
+                            confidence=0.6
+                        ))
+            else:  # Second (likely bottom touchline)
+                for x in [x1, (x1 + x2) / 2, x2]:
+                    if 0 <= x < w:
+                        keypoints.append(PitchKeypoint(
+                            image_point=(float(x), float(mid_y)),
+                            pitch_point=(0.0, self.pitch_width / 2),  # Bottom touchline
+                            landmark_type="touchline",
+                            confidence=0.6
+                        ))
+        
+        return keypoints
+    
+    def _detect_additional_line_intersections(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
+        """
+        Detect additional line intersections to increase reference point count.
+        Since camera is static, more points = better homography accuracy.
+        
+        Args:
+            image: Input image
+            lines: Detected field lines
+        
+        Returns:
+            List of intersection keypoints
+        """
+        keypoints = []
+        h, w = image.shape[:2]
+        
+        # Get all line intersections
+        intersections = self._detect_line_intersections(lines)
+        
+        # Filter intersections that are likely valid pitch landmarks
+        # (not too close to image edges, reasonable spacing)
+        valid_intersections = []
+        for ix, iy in intersections:
+            # Must be within image bounds with margin
+            margin = min(w, h) * 0.05
+            if margin <= ix <= w - margin and margin <= iy <= h - margin:
+                # Check distance from existing intersections
+                too_close = False
+                for vx, vy in valid_intersections:
+                    if np.sqrt((ix - vx)**2 + (iy - vy)**2) < min(w, h) * 0.05:
+                        too_close = True
+                        break
+                if not too_close:
+                    valid_intersections.append((ix, iy))
+        
+        # For each valid intersection, try to map to pitch coordinates
+        # This is approximate - in a real system, we'd use more sophisticated matching
+        for ix, iy in valid_intersections[:10]:  # Limit to top 10 to avoid noise
+            # Approximate mapping based on position in image
+            # This is a heuristic - could be improved with better line matching
+            norm_x = ix / w
+            norm_y = iy / h
+            
+            # Map to pitch coordinates (rough approximation)
+            pitch_x = (norm_x - 0.5) * self.pitch_length
+            pitch_y = (norm_y - 0.5) * self.pitch_width
+            
+            keypoints.append(PitchKeypoint(
+                image_point=(float(ix), float(iy)),
+                pitch_point=(pitch_x, pitch_y),
+                landmark_type="line_intersection",
+                confidence=0.4  # Lower confidence for approximate mappings
+            ))
+        
+        return keypoints
+    
     def _validate_geometric_constraints(self, keypoints: List[PitchKeypoint], 
                                         image: np.ndarray) -> List[PitchKeypoint]:
         """
@@ -961,27 +1077,93 @@ class PitchKeypointDetector:
         
         return validated
     
-    def select_best_keypoints(self, keypoints: List[PitchKeypoint], 
-                             min_points: int = 4, max_points: int = 25) -> List[PitchKeypoint]:
+    def _calculate_y_axis_reliability(self, keypoint: PitchKeypoint, image: np.ndarray) -> float:
         """
-        Select best keypoints for homography estimation
+        Calculate reliability score for y-axis accuracy.
+        
+        Landmarks that are more reliable for y-axis:
+        - Goals (vertical posts) - high reliability
+        - Center line (horizontal reference) - high reliability
+        - Penalty box vertical edges - medium reliability
+        - Corners near edges - lower reliability (affected by distortion)
+        
+        Args:
+            keypoint: Keypoint to evaluate
+            image: Input image for context
+        
+        Returns:
+            Reliability score (0-1), higher = more reliable for y-axis
+        """
+        h, w = image.shape[:2]
+        x, y = keypoint.image_point
+        
+        # Base reliability by type
+        type_reliability = {
+            "goal": 0.95,           # Goals are excellent y-axis references
+            "center_line": 0.90,    # Center line provides y-scale reference
+            "penalty_box": 0.75,    # Penalty box vertical edges are good
+            "goal_area": 0.70,      # Goal area edges
+            "center_circle": 0.65,  # Center circle helps but less critical
+            "penalty_spot": 0.60,   # Penalty spots are points, less reliable
+            "corner": 0.50,         # Corners may be affected by distortion
+            "corner_arc": 0.45,     # Corner arcs near edges
+            "touchline": 0.40       # Touchlines may curve due to distortion
+        }
+        
+        base_reliability = type_reliability.get(keypoint.landmark_type, 0.5)
+        
+        # Adjust based on position: landmarks near image edges are less reliable
+        # due to potential fisheye distortion
+        distance_from_center = np.sqrt((x - w/2)**2 + (y - h/2)**2)
+        max_distance = np.sqrt(w**2 + h**2) / 2
+        normalized_distance = distance_from_center / max_distance
+        
+        # Reduce reliability for edge landmarks (where distortion is strongest)
+        edge_penalty = normalized_distance * 0.3  # Up to 30% penalty at edges
+        position_adjusted = base_reliability * (1.0 - edge_penalty)
+        
+        # Boost reliability for high-confidence detections
+        confidence_boost = keypoint.confidence * 0.1  # Up to 10% boost
+        
+        final_reliability = min(1.0, position_adjusted + confidence_boost)
+        
+        return final_reliability
+    
+    def select_best_keypoints(self, keypoints: List[PitchKeypoint], 
+                             min_points: int = 4, max_points: int = 25,
+                             image: Optional[np.ndarray] = None,
+                             prioritize_y_axis: bool = True) -> List[PitchKeypoint]:
+        """
+        Select best keypoints for homography estimation with y-axis accuracy focus.
         
         Prioritizes:
-        1. Goals (high confidence, critical landmarks)
-        2. Center point (halfway point)
+        1. Goals (high confidence, critical landmarks, excellent y-axis reference)
+        2. Center point (halfway point, good y-scale reference)
         3. Center circle
-        4. Penalty boxes, penalty spots, goal areas
-        5. Corners
+        4. Penalty boxes, penalty spots, goal areas (vertical edges help y-axis)
+        5. Corners (may be affected by distortion)
         6. Other landmarks
         
         Args:
             keypoints: All detected keypoints
             min_points: Minimum points needed (default: 4)
             max_points: Maximum points to use (default: 25 for comprehensive system)
+            image: Input image for calculating y-axis reliability (optional)
+            prioritize_y_axis: If True, weight landmarks by y-axis reliability
         
         Returns:
             Selected keypoints sorted by priority
         """
+        # Calculate y-axis reliability if image provided and prioritizing y-axis
+        if prioritize_y_axis and image is not None:
+            for kp in keypoints:
+                # Add y-axis reliability as an attribute (we'll use it in sorting)
+                kp.y_axis_reliability = self._calculate_y_axis_reliability(kp, image)
+        else:
+            # Default reliability if not calculated
+            for kp in keypoints:
+                kp.y_axis_reliability = 0.7
+        
         # Sort by confidence and type priority
         type_priority = {
             "goal": 1,
@@ -995,11 +1177,21 @@ class PitchKeypointDetector:
             "touchline": 6
         }
         
-        # Sort by priority (lower number = higher priority), then by confidence
-        sorted_keypoints = sorted(
-            keypoints,
-            key=lambda kp: (type_priority.get(kp.landmark_type, 99), -kp.confidence)
-        )
+        # Sort by priority, then by y-axis reliability (if prioritizing), then by confidence
+        if prioritize_y_axis:
+            sorted_keypoints = sorted(
+                keypoints,
+                key=lambda kp: (
+                    type_priority.get(kp.landmark_type, 99),
+                    -getattr(kp, 'y_axis_reliability', 0.7),  # Higher reliability first
+                    -kp.confidence
+                )
+            )
+        else:
+            sorted_keypoints = sorted(
+                keypoints,
+                key=lambda kp: (type_priority.get(kp.landmark_type, 99), -kp.confidence)
+            )
         
         # Select top N points (up to max_points for maximum accuracy)
         selected = sorted_keypoints[:max_points]
@@ -1031,7 +1223,14 @@ def detect_pitch_keypoints_auto(image: np.ndarray,
     """
     detector = PitchKeypointDetector(pitch_length, pitch_width)
     keypoints = detector.detect_all_keypoints(image)
-    selected = detector.select_best_keypoints(keypoints, min_points=min_points, max_points=max_points)
+    # Pass image for y-axis reliability calculation
+    selected = detector.select_best_keypoints(
+        keypoints, 
+        min_points=min_points, 
+        max_points=max_points,
+        image=image,  # Pass image for y-axis reliability scoring
+        prioritize_y_axis=True  # Enable y-axis prioritization
+    )
     
     if len(selected) < min_points:
         return None

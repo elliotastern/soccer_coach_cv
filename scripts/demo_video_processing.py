@@ -131,14 +131,45 @@ def process_video_demo(video_path: str, model_path: str, output_dir: str = "outp
         # Initialize homography on first frame using automatic landmark detection
         if frame_count == 0:
             print("📐 Initializing homography with automatic landmark detection...")
+            print("   Detecting pitch landmarks and correcting lens distortion for y-axis accuracy...")
             # Use automatic keypoint detection to find pitch landmarks
             # This detects goals, center circle, penalty boxes, corners, etc.
             # and uses up to 25 landmarks for accurate homography estimation
-            success = homography_estimator.estimate(frame, manual_points=None, use_auto_detection=True)
+            # correct_distortion=True enables fisheye/barrel distortion correction
+            success = homography_estimator.estimate(
+                frame, 
+                manual_points=None, 
+                use_auto_detection=True,
+                correct_distortion=True  # Enable distortion correction for y-axis accuracy
+            )
             if success and homography_estimator.homography is not None:
                 pitch_mapper.homography = homography_estimator.homography
+                
+                # Apply y-axis scale factor from center circle calibration
+                if hasattr(homography_estimator, 'y_axis_scale'):
+                    pitch_mapper.y_axis_scale = homography_estimator.y_axis_scale
+                
                 print("✅ Homography initialized using automatic landmark detection")
                 print("   Using detected pitch landmarks (goals, center circle, penalty boxes, corners)")
+                
+                # Report y-axis validation results
+                if hasattr(homography_estimator, 'y_axis_distortion_detected'):
+                    if homography_estimator.y_axis_distortion_detected:
+                        print(f"   ⚠️  Y-axis distortion detected (ratio: {homography_estimator.y_axis_error_ratio:.2f})")
+                        print("   Distortion correction applied to improve y-axis accuracy")
+                    else:
+                        print(f"   ✅ Y-axis accuracy validated (error ratio: {homography_estimator.y_axis_error_ratio:.2f})")
+                
+                # Report center circle calibration
+                if hasattr(homography_estimator, 'center_circle_detected'):
+                    if homography_estimator.center_circle_detected:
+                        print(f"   ✅ Center circle detected (radius: {homography_estimator.center_circle_radius_px:.1f}px)")
+                        if hasattr(homography_estimator, 'y_axis_scale') and homography_estimator.y_axis_scale != 1.0:
+                            print(f"   Y-axis scale correction: {homography_estimator.y_axis_scale:.3f} (applied as post-transform)")
+                        else:
+                            print("   Y-axis scale: 1.0 (no correction needed)")
+                    else:
+                        print("   ⚠️  Center circle not detected - using standard calibration")
                 print()
             else:
                 # Fallback to simple calibration if automatic detection fails
@@ -157,7 +188,7 @@ def process_video_demo(video_path: str, model_path: str, output_dir: str = "outp
                         [-52.5, 34.0]
                     ]
                 }
-                homography_estimator.estimate(frame, manual_points)
+                homography_estimator.estimate(frame, manual_points, correct_distortion=False)
                 if homography_estimator.homography is not None:
                     pitch_mapper.homography = homography_estimator.homography
                     print("✅ Homography initialized (fallback method)")
