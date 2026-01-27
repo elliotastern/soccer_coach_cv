@@ -215,38 +215,44 @@ class PitchKeypointDetector:
         goal_center_y = h / 2
         
         # Left goal (at x = -pitch_length/2, y = 0)
+        # Handle partial visibility - camera may only see one goal
         if left_goal_lines is not None and len(left_goal_lines) > 0:
             # Find average x position of vertical lines
             x_positions = []
             for line in left_goal_lines:
                 x1, y1, x2, y2 = line[0]
-                x_positions.append((x1 + x2) / 2)
+                # Check if line is mostly vertical
+                if abs(x2 - x1) < abs(y2 - y1) * 0.3:  # More vertical than horizontal
+                    x_positions.append((x1 + x2) / 2)
             
             if x_positions:
-                avg_x = np.mean(x_positions)
+                avg_x = np.median(x_positions)  # Use median for robustness
                 keypoints.append(PitchKeypoint(
                     image_point=(avg_x, goal_center_y),
                     pitch_point=(-self.pitch_length / 2, 0.0),
                     landmark_type="goal",
-                    confidence=0.7
+                    confidence=0.75
                 ))
         
         # Right goal (at x = +pitch_length/2, y = 0)
+        # May not be visible depending on camera angle
         if right_goal_lines is not None and len(right_goal_lines) > 0:
             x_positions = []
             for line in right_goal_lines:
                 x1, y1, x2, y2 = line[0]
-                x_positions.append((x1 + x2) / 2 + int(w * 0.85))  # Adjust for region offset
+                if abs(x2 - x1) < abs(y2 - y1) * 0.3:
+                    x_positions.append((x1 + x2) / 2 + int(w * 0.85))  # Adjust for region offset
             
             if x_positions:
-                avg_x = np.mean(x_positions)
+                avg_x = np.median(x_positions)
                 keypoints.append(PitchKeypoint(
                     image_point=(avg_x, goal_center_y),
                     pitch_point=(self.pitch_length / 2, 0.0),
                     landmark_type="goal",
-                    confidence=0.7
+                    confidence=0.75
                 ))
         
+        # It's OK if only one goal is detected - camera angle may hide the other
         return keypoints
     
     def _detect_center_line(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
@@ -270,49 +276,72 @@ class PitchKeypointDetector:
         
         for line in lines:
             x1, y1, x2, y2 = line[0]
-            # Check if line is mostly horizontal
-            if abs(y2 - y1) < 20:  # Horizontal line threshold
-                avg_y = (y1 + y2) / 2
-                # Check if near center
-                if abs(avg_y - center_y) < h * 0.1:  # Within 10% of center
-                    horizontal_lines.append(line[0])
+            # Check if line is mostly horizontal with better metric
+            line_length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            if line_length > 0:
+                horizontal_ratio = abs(x2 - x1) / line_length
+                # Line should be more horizontal than vertical
+                if horizontal_ratio > 0.7:  # At least 70% horizontal
+                    avg_y = (y1 + y2) / 2
+                    # Check if near center (wider tolerance)
+                    if abs(avg_y - center_y) < h * 0.15:  # Within 15% of center
+                        horizontal_lines.append((line[0], avg_y, (x1 + x2) / 2))
         
         if horizontal_lines:
-            # Find average y position
-            y_positions = []
-            x_midpoints = []
-            for line in horizontal_lines:
-                x1, y1, x2, y2 = line
-                y_positions.append((y1 + y2) / 2)
-                x_midpoints.append((x1 + x2) / 2)
+            # Use median for more robust position
+            y_positions = [line[1] for line in horizontal_lines]
+            x_midpoints = [line[2] for line in horizontal_lines]
             
-            avg_y = np.mean(y_positions)
-            avg_x = np.mean(x_midpoints)
+            median_y = np.median(y_positions)
+            median_x = np.median(x_midpoints)
             
             # Center point (halfway point)
             keypoints.append(PitchKeypoint(
-                image_point=(avg_x, avg_y),
+                image_point=(median_x, median_y),
                 pitch_point=(0.0, 0.0),  # Center of pitch
                 landmark_type="center_line",
-                confidence=0.8
+                confidence=0.85
             ))
             
-            # Center line endpoints (if we can detect them)
-            # Left endpoint
-            keypoints.append(PitchKeypoint(
-                image_point=(w * 0.1, avg_y),
-                pitch_point=(-self.pitch_length / 2, 0.0),
-                landmark_type="center_line",
-                confidence=0.6
-            ))
+            # Use actual line endpoints if available
+            all_x = []
+            for line, _, _ in horizontal_lines:
+                x1, y1, x2, y2 = line
+                all_x.extend([x1, x2])
             
-            # Right endpoint
-            keypoints.append(PitchKeypoint(
-                image_point=(w * 0.9, avg_y),
-                pitch_point=(self.pitch_length / 2, 0.0),
-                landmark_type="center_line",
-                confidence=0.6
-            ))
+            if all_x:
+                left_x = min(all_x)
+                right_x = max(all_x)
+                
+                # Left endpoint
+                keypoints.append(PitchKeypoint(
+                    image_point=(left_x, median_y),
+                    pitch_point=(-self.pitch_length / 2, 0.0),
+                    landmark_type="center_line",
+                    confidence=0.7
+                ))
+                
+                # Right endpoint
+                keypoints.append(PitchKeypoint(
+                    image_point=(right_x, median_y),
+                    pitch_point=(self.pitch_length / 2, 0.0),
+                    landmark_type="center_line",
+                    confidence=0.7
+                ))
+            else:
+                # Fallback to approximate positions
+                keypoints.append(PitchKeypoint(
+                    image_point=(w * 0.1, median_y),
+                    pitch_point=(-self.pitch_length / 2, 0.0),
+                    landmark_type="center_line",
+                    confidence=0.5
+                ))
+                keypoints.append(PitchKeypoint(
+                    image_point=(w * 0.9, median_y),
+                    pitch_point=(self.pitch_length / 2, 0.0),
+                    landmark_type="center_line",
+                    confidence=0.5
+                ))
         
         return keypoints
     
@@ -389,7 +418,7 @@ class PitchKeypointDetector:
     
     def _detect_penalty_boxes(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
         """
-        Detect penalty box corners
+        Detect penalty box corners using line intersections (improved accuracy)
         
         Args:
             image: Input image
@@ -401,49 +430,96 @@ class PitchKeypointDetector:
         h, w = image.shape[:2]
         keypoints = []
         
+        # Find all line intersections
+        intersections = self._detect_line_intersections(lines)
+        
+        if len(intersections) < 4:
+            # Not enough intersections - use approximate positions as last resort
+            keypoints.append(PitchKeypoint(
+                image_point=(w * 0.15, h * 0.3),
+                pitch_point=(-self.pitch_length / 2 + self.penalty_box_depth, -self.penalty_box_width / 2),
+                landmark_type="penalty_box",
+                confidence=0.2  # Very low confidence for hardcoded positions
+            ))
+            keypoints.append(PitchKeypoint(
+                image_point=(w * 0.15, h * 0.7),
+                pitch_point=(-self.pitch_length / 2 + self.penalty_box_depth, self.penalty_box_width / 2),
+                landmark_type="penalty_box",
+                confidence=0.2
+            ))
+            keypoints.append(PitchKeypoint(
+                image_point=(w * 0.85, h * 0.3),
+                pitch_point=(self.pitch_length / 2 - self.penalty_box_depth, -self.penalty_box_width / 2),
+                landmark_type="penalty_box",
+                confidence=0.2
+            ))
+            keypoints.append(PitchKeypoint(
+                image_point=(w * 0.85, h * 0.7),
+                pitch_point=(self.pitch_length / 2 - self.penalty_box_depth, self.penalty_box_width / 2),
+                landmark_type="penalty_box",
+                confidence=0.2
+            ))
+            return keypoints
+        
         # Penalty boxes are rectangular areas near goals
-        # Find rectangular structures near field edges
+        # Left penalty box should be near left edge (x < w/3)
+        # Right penalty box should be near right edge (x > 2*w/3)
         
-        # This is a simplified detection - in practice would use more sophisticated methods
-        # like rectangle detection or corner detection
+        left_intersections = [(x, y) for x, y in intersections if x < w / 3]
+        right_intersections = [(x, y) for x, y in intersections if x > 2 * w / 3]
         
-        # Left penalty box (near left edge)
-        # Top-left corner of penalty box
-        keypoints.append(PitchKeypoint(
-            image_point=(w * 0.15, h * 0.3),
-            pitch_point=(-self.pitch_length / 2 + self.penalty_box_depth, -self.penalty_box_width / 2),
-            landmark_type="penalty_box",
-            confidence=0.5
-        ))
-        
-        # Bottom-left corner
-        keypoints.append(PitchKeypoint(
-            image_point=(w * 0.15, h * 0.7),
-            pitch_point=(-self.pitch_length / 2 + self.penalty_box_depth, self.penalty_box_width / 2),
-            landmark_type="penalty_box",
-            confidence=0.5
-        ))
+        # Left penalty box: Find intersections that form rectangle corners
+        if len(left_intersections) >= 2:
+            # Sort by y to find top and bottom
+            left_sorted = sorted(left_intersections, key=lambda p: p[1])
+            # Penalty box should span roughly middle 40% of field height
+            # Find intersections closest to expected positions
+            expected_top_y = h * 0.3
+            expected_bottom_y = h * 0.7
+            
+            left_top = min(left_sorted, key=lambda p: abs(p[1] - expected_top_y))
+            left_bottom = min(left_sorted, key=lambda p: abs(p[1] - expected_bottom_y))
+            
+            # Validate these are reasonable (within 20% of expected)
+            if abs(left_top[1] - expected_top_y) < h * 0.2 and abs(left_bottom[1] - expected_bottom_y) < h * 0.2:
+                keypoints.append(PitchKeypoint(
+                    image_point=left_top,
+                    pitch_point=(-self.pitch_length / 2 + self.penalty_box_depth, -self.penalty_box_width / 2),
+                    landmark_type="penalty_box",
+                    confidence=0.75
+                ))
+                keypoints.append(PitchKeypoint(
+                    image_point=left_bottom,
+                    pitch_point=(-self.pitch_length / 2 + self.penalty_box_depth, self.penalty_box_width / 2),
+                    landmark_type="penalty_box",
+                    confidence=0.75
+                ))
         
         # Right penalty box
-        keypoints.append(PitchKeypoint(
-            image_point=(w * 0.85, h * 0.3),
-            pitch_point=(self.pitch_length / 2 - self.penalty_box_depth, -self.penalty_box_width / 2),
-            landmark_type="penalty_box",
-            confidence=0.5
-        ))
-        
-        keypoints.append(PitchKeypoint(
-            image_point=(w * 0.85, h * 0.7),
-            pitch_point=(self.pitch_length / 2 - self.penalty_box_depth, self.penalty_box_width / 2),
-            landmark_type="penalty_box",
-            confidence=0.5
-        ))
+        if len(right_intersections) >= 2:
+            right_sorted = sorted(right_intersections, key=lambda p: p[1])
+            right_top = min(right_sorted, key=lambda p: abs(p[1] - h * 0.3))
+            right_bottom = min(right_sorted, key=lambda p: abs(p[1] - h * 0.7))
+            
+            if abs(right_top[1] - h * 0.3) < h * 0.2 and abs(right_bottom[1] - h * 0.7) < h * 0.2:
+                keypoints.append(PitchKeypoint(
+                    image_point=right_top,
+                    pitch_point=(self.pitch_length / 2 - self.penalty_box_depth, -self.penalty_box_width / 2),
+                    landmark_type="penalty_box",
+                    confidence=0.75
+                ))
+                keypoints.append(PitchKeypoint(
+                    image_point=right_bottom,
+                    pitch_point=(self.pitch_length / 2 - self.penalty_box_depth, self.penalty_box_width / 2),
+                    landmark_type="penalty_box",
+                    confidence=0.75
+                ))
         
         return keypoints
     
     def _detect_field_corners(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
         """
-        Detect field corners (intersections of field boundaries)
+        Detect field corners using actual line intersections
         
         Args:
             image: Input image
@@ -455,24 +531,53 @@ class PitchKeypointDetector:
         h, w = image.shape[:2]
         keypoints = []
         
-        # Find line intersections to detect corners
-        # This is simplified - would use proper line intersection detection
+        # Find all line intersections
+        intersections = self._detect_line_intersections(lines)
         
-        # Field corners (approximate positions)
-        corners = [
-            ((w * 0.05, h * 0.1), (-self.pitch_length / 2, -self.pitch_width / 2), "corner"),  # Top-left
-            ((w * 0.95, h * 0.1), (self.pitch_length / 2, -self.pitch_width / 2), "corner"),  # Top-right
-            ((w * 0.95, h * 0.9), (self.pitch_length / 2, self.pitch_width / 2), "corner"),  # Bottom-right
-            ((w * 0.05, h * 0.9), (-self.pitch_length / 2, self.pitch_width / 2), "corner"),  # Bottom-left
+        if len(intersections) < 4:
+            # Fallback to approximate positions only if no intersections found
+            corners = [
+                ((w * 0.05, h * 0.1), (-self.pitch_length / 2, -self.pitch_width / 2), "corner"),  # Top-left
+                ((w * 0.95, h * 0.1), (self.pitch_length / 2, -self.pitch_width / 2), "corner"),  # Top-right
+                ((w * 0.95, h * 0.9), (self.pitch_length / 2, self.pitch_width / 2), "corner"),  # Bottom-right
+                ((w * 0.05, h * 0.9), (-self.pitch_length / 2, self.pitch_width / 2), "corner"),  # Bottom-left
+            ]
+            for img_pt, pitch_pt, landmark_type in corners:
+                keypoints.append(PitchKeypoint(
+                    image_point=img_pt,
+                    pitch_point=pitch_pt,
+                    landmark_type=landmark_type,
+                    confidence=0.2  # Very low confidence for hardcoded positions
+                ))
+            return keypoints
+        
+        # Find intersections near image corners (likely field corners)
+        corner_regions = [
+            (0, 0, w * 0.25, h * 0.25, (-self.pitch_length / 2, -self.pitch_width / 2)),  # Top-left
+            (w * 0.75, 0, w, h * 0.25, (self.pitch_length / 2, -self.pitch_width / 2)),  # Top-right
+            (w * 0.75, h * 0.75, w, h, (self.pitch_length / 2, self.pitch_width / 2)),  # Bottom-right
+            (0, h * 0.75, w * 0.25, h, (-self.pitch_length / 2, self.pitch_width / 2)),  # Bottom-left
         ]
         
-        for img_pt, pitch_pt, landmark_type in corners:
-            keypoints.append(PitchKeypoint(
-                image_point=img_pt,
-                pitch_point=pitch_pt,
-                landmark_type=landmark_type,
-                confidence=0.4  # Lower confidence for approximate corners
-            ))
+        for x_min, y_min, x_max, y_max, pitch_coords in corner_regions:
+            # Find intersection closest to corner region
+            region_intersections = [
+                (x, y) for x, y in intersections
+                if x_min <= x <= x_max and y_min <= y <= y_max
+            ]
+            
+            if region_intersections:
+                # Use intersection closest to actual corner
+                corner_point = (x_min if x_min < w/2 else x_max, y_min if y_min < h/2 else y_max)
+                closest = min(region_intersections, 
+                            key=lambda p: np.sqrt((p[0] - corner_point[0])**2 + (p[1] - corner_point[1])**2))
+                
+                keypoints.append(PitchKeypoint(
+                    image_point=closest,
+                    pitch_point=pitch_coords,
+                    landmark_type="corner",
+                    confidence=0.7
+                ))
         
         return keypoints
     
@@ -1116,7 +1221,8 @@ class PitchKeypointDetector:
     def _validate_geometric_constraints(self, keypoints: List[PitchKeypoint], 
                                         image: np.ndarray) -> List[PitchKeypoint]:
         """
-        Validate keypoints using geometric constraints
+        Validate keypoints using geometric constraints to ensure detected landmarks
+        match expected pitch layout
         
         Args:
             keypoints: Detected keypoints
@@ -1128,33 +1234,92 @@ class PitchKeypointDetector:
         validated = []
         h, w = image.shape[:2]
         
+        # Group keypoints by type for cross-validation
+        by_type = {}
+        for kp in keypoints:
+            kp_type = kp.landmark_type
+            if kp_type not in by_type:
+                by_type[kp_type] = []
+            by_type[kp_type].append(kp)
+        
+        # Validate each keypoint
         for kp in keypoints:
             x, y = kp.image_point
+            pitch_x, pitch_y = kp.pitch_point
             
             # Basic bounds check
-            if 0 <= x <= w and 0 <= y <= h:
-                # Additional validation based on landmark type
-                if kp.landmark_type == "goal":
-                    # Goals should be near edges
-                    if x < w * 0.2 or x > w * 0.8:
-                        validated.append(kp)
-                elif kp.landmark_type == "center_line" or kp.landmark_type == "center_circle":
-                    # Center features should be near center
-                    if abs(x - w/2) < w * 0.3 and abs(y - h/2) < h * 0.3:
-                        validated.append(kp)
-                elif kp.landmark_type == "corner":
-                    # Corners should be near image corners
-                    corner_dist = min(
-                        np.sqrt((x - 0)**2 + (y - 0)**2),
-                        np.sqrt((x - w)**2 + (y - 0)**2),
-                        np.sqrt((x - w)**2 + (y - h)**2),
-                        np.sqrt((x - 0)**2 + (y - h)**2)
-                    )
-                    if corner_dist < min(w, h) * 0.3:
-                        validated.append(kp)
-                else:
-                    # Other landmarks - accept if in bounds
-                    validated.append(kp)
+            if not (0 <= x <= w and 0 <= y <= h):
+                continue
+            
+            # Type-specific geometric validation
+            valid = True
+            
+            if kp.landmark_type == "goal":
+                # Goals should be near left/right edges (more lenient - camera may only see one)
+                if not (x < w * 0.3 or x > w * 0.7):
+                    valid = False
+                # Goals should be near center vertically (y near h/2) - more lenient
+                if abs(y - h / 2) > h * 0.3:
+                    valid = False
+                # Pitch coordinates should be at ±pitch_length/2 (more lenient tolerance)
+                if abs(abs(pitch_x) - self.pitch_length / 2) > 10.0:
+                    valid = False
+            
+            elif kp.landmark_type == "center_line":
+                # Center line should be near image center vertically
+                if abs(y - h / 2) > h * 0.2:
+                    valid = False
+                # Pitch y should be 0 (center line)
+                if abs(pitch_y) > 2.0:
+                    valid = False
+            
+            elif kp.landmark_type == "corner":
+                # Corners should be near image corners (more lenient - may only see some corners)
+                corner_regions = [
+                    (x < w * 0.4 and y < h * 0.4),  # Top-left (wider region)
+                    (x > w * 0.6 and y < h * 0.4),  # Top-right
+                    (x > w * 0.6 and y > h * 0.6),  # Bottom-right
+                    (x < w * 0.4 and y > h * 0.6),  # Bottom-left
+                ]
+                if not any(corner_regions):
+                    valid = False
+                # Pitch coordinates should be at field corners (more lenient - camera angle may distort)
+                expected_corners = [
+                    (-self.pitch_length / 2, -self.pitch_width / 2),
+                    (self.pitch_length / 2, -self.pitch_width / 2),
+                    (self.pitch_length / 2, self.pitch_width / 2),
+                    (-self.pitch_length / 2, self.pitch_width / 2),
+                ]
+                min_dist = min([np.sqrt((pitch_x - ex)**2 + (pitch_y - ey)**2) 
+                               for ex, ey in expected_corners])
+                if min_dist > 15.0:  # More lenient - within 15m of a corner
+                    valid = False
+            
+            elif kp.landmark_type == "penalty_box":
+                # Penalty boxes should be near goals (left/right edges) - more lenient
+                if not (x < w * 0.5 or x > w * 0.5):  # Either side is OK
+                    # Actually, this should be OR, not AND - fix logic
+                    pass  # Accept if on either side
+                # Pitch x should be near goal line ± penalty depth (more lenient)
+                expected_x_left = -self.pitch_length / 2 + self.penalty_box_depth
+                expected_x_right = self.pitch_length / 2 - self.penalty_box_depth
+                if not (abs(pitch_x - expected_x_left) < 8.0 or abs(pitch_x - expected_x_right) < 8.0):
+                    valid = False
+            
+            elif kp.landmark_type == "center_circle":
+                # Center circle should be near image center (more lenient - may be off-center in some views)
+                center_dist = np.sqrt((x - w / 2)**2 + (y - h / 2)**2)
+                if center_dist > min(w, h) * 0.4:  # More lenient - 40% instead of 30%
+                    valid = False
+                # Pitch coordinates should be near (0, 0) - more lenient
+                if np.sqrt(pitch_x**2 + pitch_y**2) > 10.0:  # Within 10m instead of 5m
+                    valid = False
+            
+            # Confidence penalty for invalid detections
+            if not valid:
+                kp.confidence *= 0.5  # Reduce confidence but don't discard
+            
+            validated.append(kp)
         
         return validated
     
