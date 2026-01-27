@@ -59,7 +59,7 @@ class VideoProcessingPipeline:
         # Initialize RF-DETR model
         print("Loading RF-DETR model...")
         self.detector = RFDETRMedium(pretrain_weights=model_path)
-        self.detector.eval()
+        # Model is already in eval mode by default for inference
         print("✅ Model loaded")
         
         # Initialize team clusterer
@@ -74,14 +74,14 @@ class VideoProcessingPipeline:
             print(f"Loading homography from: {homography_path}")
             self._load_homography(homography_path)
         else:
-            print("⚠️  No homography provided. Will need manual calibration.")
-            print("   Run: python scripts/calibrate_homography.py <video> --output homography.json")
+            print("ℹ️  No homography file provided. Will auto-initialize on first frame.")
+            print("   Using automatic landmark detection with fisheye distortion correction.")
+            self.homography_auto_init = True  # Flag to auto-initialize on first frame
         
         # Initialize pitch mapper
         self.pitch_mapper = PitchMapper(
             pitch_length, 
-            pitch_width,
-            homography_estimator=self.homography_estimator
+            pitch_width
         )
         
         # Frame tracking
@@ -98,9 +98,12 @@ class VideoProcessingPipeline:
             data = json.load(f)
         
         H = np.array(data['homography'], dtype=np.float32)
+        y_scale = data.get('y_axis_scale', 1.0)
         self.homography_estimator.set_homography(H)
-        self.pitch_mapper.set_homography(H)
+        self.pitch_mapper.set_homography(H, y_axis_scale=y_scale)
         print("✅ Homography loaded")
+        if y_scale != 1.0:
+            print(f"   Y-axis scale factor: {y_scale:.3f}")
     
     def detect_players(self, frame: np.ndarray) -> List[Detection]:
         """
@@ -164,7 +167,7 @@ class VideoProcessingPipeline:
         
         # Get pitch positions for crops (if homography available)
         positions = None
-        if self.homography_estimator.get_homography() is not None:
+        if self.homography_estimator.homography is not None:
             positions = []
             for det in high_conf_detections:
                 x, y, w, h = det.bbox
@@ -213,6 +216,30 @@ class VideoProcessingPipeline:
         Returns:
             FrameData object or None
         """
+        # Auto-initialize homography on first frame if needed
+        if self.homography_auto_init and self.homography_estimator.homography is None:
+            print(f"\n📐 Auto-initializing homography on frame {frame_id}...")
+            print("   Detecting pitch landmarks with fisheye distortion correction...")
+            success = self.homography_estimator.estimate(
+                frame,
+                use_auto_detection=True,
+                correct_distortion=True  # Enable fisheye correction
+            )
+            if success:
+                H = self.homography_estimator.homography
+                y_scale = getattr(self.homography_estimator, 'y_axis_scale', 1.0)
+                self.pitch_mapper.set_homography(H, y_axis_scale=y_scale)
+                print("✅ Homography initialized with automatic landmark detection")
+                if self.homography_estimator.y_axis_distortion_detected:
+                    print("   ⚠️  Y-axis distortion detected - correction applied")
+                else:
+                    print("   ℹ️  No significant distortion detected")
+                if y_scale != 1.0:
+                    print(f"   Y-axis scale factor: {y_scale:.3f}")
+            else:
+                print("❌ Failed to initialize homography automatically")
+                print("   Will continue without pitch mapping")
+        
         # Step 1: Detect players
         detections = self.detect_players(frame)
         
@@ -233,13 +260,9 @@ class VideoProcessingPipeline:
                 x, y, w, h = det.bbox
                 player_bboxes.append((x, y, w, h))
         
-        # Update homography with optical flow (if initialized)
-        if self.homography_estimator.get_homography() is not None:
-            self.homography_estimator.track_with_optical_flow(frame, player_bboxes)
-            
-            # Check for drift
-            if self.homography_estimator.detect_drift(frame):
-                print(f"⚠️  Drift detected at frame {frame_id}. Re-alignment needed.")
+        # Note: Homography tracking with optical flow not yet implemented
+        # For now, homography is fixed after initialization
+        # Future enhancement: track homography changes across frames
                 # In production, would trigger re-calibration here
         
         # Step 4: Assign team IDs and map to pitch
@@ -374,10 +397,25 @@ class VideoProcessingPipeline:
             }
             results.append(frame_dict)
         
-        # Save JSON
+        # Save JSON (convert numpy types to Python types for serialization)
+        def convert_to_python_types(obj):
+            """Recursively convert numpy types to Python types"""
+            if isinstance(obj, np.integer):
+                return int(obj)
+            elif isinstance(obj, np.floating):
+                return float(obj)
+            elif isinstance(obj, np.ndarray):
+                return obj.tolist()
+            elif isinstance(obj, dict):
+                return {key: convert_to_python_types(value) for key, value in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_to_python_types(item) for item in obj]
+            return obj
+        
+        results_python = convert_to_python_types(results)
         output_path = output_dir / "frame_data.json"
         with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(results_python, f, indent=2)
         
         print(f"\n💾 Results saved to: {output_path}")
         

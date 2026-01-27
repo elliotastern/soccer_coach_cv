@@ -25,6 +25,17 @@ class PitchMapper:
         self.homography = homography_matrix
         self.y_axis_scale = y_axis_scale
     
+    def set_homography(self, homography_matrix: np.ndarray, y_axis_scale: float = 1.0):
+        """
+        Set homography matrix directly
+        
+        Args:
+            homography_matrix: 3x3 homography matrix
+            y_axis_scale: Y-axis scale factor for correction (default: 1.0)
+        """
+        self.homography = homography_matrix
+        self.y_axis_scale = y_axis_scale
+    
     def set_homography_from_points(self, src_points: List[Tuple[float, float]],
                                    dst_points: List[Tuple[float, float]]):
         """
@@ -90,3 +101,25 @@ class PitchMapper:
         center_x = x + w / 2
         center_y = y + h / 2
         return self.pixel_to_pitch(center_x, center_y)
+
+    def distance_to_center(self, x_pitch: float, y_pitch: float) -> float:
+        """
+        Calculate distance to center circle accounting for y-axis compression.
+        
+        This method calculates the Euclidean distance to the center circle (0, 0)
+        using corrected y-coordinates that account for y-axis compression.
+        
+        Args:
+            x_pitch: X coordinate in pitch space
+            y_pitch: Y coordinate in pitch space (may be compressed)
+        
+        Returns:
+            Distance in meters to center circle (0, 0)
+        """
+        # Apply y-axis correction if needed
+        y_corrected = y_pitch * self.y_axis_scale
+        
+        # Calculate Euclidean distance to center (0, 0)
+        distance = np.sqrt(x_pitch**2 + y_corrected**2)
+        
+        return distance

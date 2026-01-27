@@ -116,20 +116,27 @@ def detect_center_circle_accurate(image: np.ndarray) -> Optional[CenterCircle]:
 def calibrate_y_axis_from_center_circle(
     homography: np.ndarray,
     center_circle: CenterCircle,
-    known_radius_m: float = 9.15
+    known_radius_m: float = 9.15,
+    player_y_coords: Optional[List[float]] = None,
+    expected_width: float = 68.0
 ) -> Optional[float]:
     """
-    Calibrate y-axis scale using detected center circle.
+    Calibrate y-axis scale using detected center circle and optionally field width.
     
     The center circle has a known radius (9.15m). We can use this to:
     1. Transform the circle center and edge points to pitch coordinates
     2. Measure the actual radius in pitch coordinates
     3. Calculate the y-axis scale correction factor
     
+    If player_y_coords are provided, also uses field width constraints for more
+    accurate calibration.
+    
     Args:
         homography: Current homography matrix [3, 3]
         center_circle: Detected center circle
         known_radius_m: Known center circle radius in meters (default: 9.15)
+        player_y_coords: Optional list of player y-coordinates for field width calibration
+        expected_width: Expected field width in meters (default: 68.0)
     
     Returns:
         Y-axis scale factor (float), or None if calibration fails
@@ -193,43 +200,90 @@ def calibrate_y_axis_from_center_circle(
     print(f"      Y-axis scale factor: {scale_y:.3f}")
     print(f"      X-axis scale factor: {scale_x:.3f}")
     
+    # If player y-coords are provided, also check field width early
+    field_width_scale = None
+    if player_y_coords is not None and len(player_y_coords) >= 4:
+        field_width_scale = calibrate_y_axis_from_field_width(player_y_coords, expected_width)
+    
     # Validate: scales should be reasonable (0.5 to 2.0)
     if not (0.5 <= scale_y <= 2.0):
+        # If field width scale is available and valid, use it instead
+        if field_width_scale is not None and 0.5 <= field_width_scale <= 5.0:
+            print(f"      ⚠️  Center circle scale {scale_y:.3f} out of range, using field width scale: {field_width_scale:.3f}")
+            return field_width_scale
         print(f"      ⚠️  Y-axis scale factor {scale_y:.3f} out of range, skipping calibration")
         return None
     
     # If y-axis scale is significantly different from 1.0, return correction factor
     # This indicates y-axis compression/expansion
     if abs(scale_y - 1.0) > 0.05:  # More than 5% difference
+        final_scale = scale_y
+        
+        # If we have field width scale, use it to validate/refine the center circle scale
+        if field_width_scale is not None and abs(field_width_scale - 1.0) > 0.05:
+            # Both indicate compression/expansion - combine them
+            # Use weighted average, giving more weight to field width (more direct measurement)
+            final_scale = 0.3 * scale_y + 0.7 * field_width_scale
+            print(f"      🔄 Combined scale (circle: {scale_y:.3f}, width: {field_width_scale:.3f}) -> {final_scale:.3f}")
+        elif field_width_scale is not None:
+            # Field width suggests no correction needed, but circle suggests correction
+            # Trust field width more (it's a direct measurement of the problem)
+            if abs(field_width_scale - 1.0) < 0.1:
+                print(f"      ⚠️  Center circle suggests scale {scale_y:.3f}, but field width is accurate")
+                print(f"      → Using field width scale: {field_width_scale:.3f}")
+                final_scale = field_width_scale
+        
         # If measured radius is larger than expected, scale < 1.0 (compresses)
         # If measured radius is smaller than expected, scale > 1.0 (expands)
         # If measured radius is larger than expected, the transformation is expanding distances
         # But if players appear "too close" (narrow y range), we need to expand MORE
         # The inverted scale (1/scale_y) expands the y-axis
-        if radius_y_avg > known_radius_m and scale_y < 1.0:
+        if radius_y_avg > known_radius_m and final_scale < 1.0:
             # Measured is larger than expected, but players are clustered
             # We need to expand the y-axis more aggressively
-            inverted_scale = 1.0 / scale_y
+            inverted_scale = 1.0 / final_scale
             # Apply additional expansion factor if needed
             # Since players are still clustered, try a larger expansion
             expansion_factor = 1.5  # Additional 50% expansion
             final_scale = inverted_scale * expansion_factor
             print(f"      ✅ Y-axis scale correction: {scale_y:.3f} -> inverted: {inverted_scale:.3f} -> final: {final_scale:.3f}")
             return final_scale
-        elif radius_y_avg < known_radius_m and scale_y > 1.0:
+        elif radius_y_avg < known_radius_m and final_scale > 1.0:
             # Measured is smaller, scale already > 1.0 (expands)
             # But might need more expansion
             expansion_factor = 1.3  # Additional 30% expansion
-            final_scale = scale_y * expansion_factor
+            final_scale = final_scale * expansion_factor
             print(f"      ✅ Y-axis scale correction: {scale_y:.3f} -> expanded: {final_scale:.3f}")
             return final_scale
         else:
-            print(f"      ✅ Y-axis scale correction: {scale_y:.3f} (will be applied as post-transform)")
-            return scale_y
+            print(f"      ✅ Y-axis scale correction: {final_scale:.3f} (will be applied as post-transform)")
+            return final_scale
     
-    # No correction needed
-    print(f"      ℹ️  Y-axis scale is accurate (factor: {scale_y:.3f}), no correction needed")
-    return 1.0
+    # Combine both scale factors if available (field_width_scale already calculated above)
+    if field_width_scale is not None:
+        # Use weighted average: 40% circle radius, 60% field width (field width is more direct)
+        combined_scale = 0.4 * scale_y + 0.6 * field_width_scale
+        print(f"      🔄 Combined calibration (circle + field width):")
+        print(f"         Circle radius scale: {scale_y:.3f}")
+        print(f"         Field width scale: {field_width_scale:.3f}")
+        print(f"         Combined scale: {combined_scale:.3f}")
+        
+        # Validate combined scale
+        if 0.5 <= combined_scale <= 5.0:
+            if abs(combined_scale - 1.0) > 0.05:
+                return combined_scale
+        else:
+            # If combined scale is out of range, use field width scale if valid
+            if 0.5 <= field_width_scale <= 5.0:
+                print(f"      ⚠️  Combined scale out of range, using field width scale: {field_width_scale:.3f}")
+                return field_width_scale
+    
+    # No correction needed or field width not available
+    if abs(scale_y - 1.0) <= 0.05:
+        print(f"      ℹ️  Y-axis scale is accurate (factor: {scale_y:.3f}), no correction needed")
+        return 1.0
+    else:
+        return scale_y
 
 
 def refine_homography_directly_with_center_circle(
@@ -441,3 +495,56 @@ def refine_homography_with_center_circle(
     
     # Return original homography (unchanged) and scale factor for post-transform
     return homography, center_circle, y_axis_scale
+
+
+def calibrate_y_axis_from_field_width(
+    player_y_coords: List[float],
+    expected_width: float = 68.0
+) -> Optional[float]:
+    """
+    Calculate y-axis scale from observed field width.
+    
+    This function measures the actual y-axis range from player positions
+    and compares it to the expected field width (68m) to determine
+    the compression factor.
+    
+    Args:
+        player_y_coords: List of y-coordinates from players in pitch space
+        expected_width: Expected field width in meters (default: 68.0)
+    
+    Returns:
+        Y-axis scale factor (>1.0 if compressed, <1.0 if expanded), or None if insufficient data
+    """
+    if not player_y_coords or len(player_y_coords) < 4:
+        return None
+    
+    # Calculate observed range
+    y_min = min(player_y_coords)
+    y_max = max(player_y_coords)
+    observed_range = y_max - y_min
+    
+    if observed_range < 1.0:  # Too small to be meaningful
+        return None
+    
+    # Calculate scale factor
+    # If observed_range < expected_width, field is compressed, need to expand (scale > 1.0)
+    # If observed_range > expected_width, field is expanded, need to compress (scale < 1.0)
+    scale_factor = expected_width / observed_range
+    
+    # Validate scale factor is reasonable (0.5 to 5.0)
+    if not (0.5 <= scale_factor <= 5.0):
+        print(f"   ⚠️  Field width scale factor {scale_factor:.3f} out of range, skipping")
+        return None
+    
+    print(f"   🔍 Field width calibration:")
+    print(f"      Observed y-range: {observed_range:.2f}m (from {y_min:.2f}m to {y_max:.2f}m)")
+    print(f"      Expected width: {expected_width:.2f}m")
+    print(f"      Y-axis scale factor: {scale_factor:.3f}")
+    
+    # Only return scale if significantly different from 1.0
+    if abs(scale_factor - 1.0) > 0.05:  # More than 5% difference
+        print(f"      ✅ Field width indicates {'compression' if scale_factor > 1.0 else 'expansion'}")
+        return scale_factor
+    
+    print(f"      ℹ️  Field width is accurate, no correction needed")
+    return 1.0

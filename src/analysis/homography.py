@@ -116,7 +116,7 @@ def estimate_homography_auto(image: np.ndarray, pitch_length: float = 105.0,
             pitch_length=pitch_length,
             pitch_width=pitch_width,
             min_points=4,
-            max_points=25  # Use comprehensive landmark system for maximum accuracy
+            max_points=40  # Increased to include more touchline points for y-axis accuracy
         )
         
         if keypoint_data is not None:
@@ -356,7 +356,13 @@ class HomographyEstimator:
             # Refine y-axis using center circle calibration (for stationary camera)
             if correct_distortion and use_auto_detection:
                 try:
-                    from src.analysis.y_axis_calibration import refine_homography_with_center_circle
+                    from src.analysis.y_axis_calibration import (
+                        refine_homography_with_center_circle,
+                        calibrate_y_axis_from_field_width
+                    )
+                    from src.analysis.pitch_keypoint_detector import detect_pitch_keypoints_auto
+                    
+                    # First, do center circle calibration
                     result = refine_homography_with_center_circle(self.homography, image)
                     
                     # Handle both old (2-tuple) and new (3-tuple) return signatures
@@ -375,6 +381,43 @@ class HomographyEstimator:
                         self.center_circle_radius_px = center_circle.radius
                     else:
                         self.center_circle_detected = False
+                    
+                    # Now try to get field width calibration from touchline points
+                    # Re-detect keypoints to get touchline y-coordinates
+                    keypoint_data = detect_pitch_keypoints_auto(
+                        image,
+                        pitch_length=self.pitch_length,
+                        pitch_width=self.pitch_width,
+                        min_points=4,
+                        max_points=50
+                    )
+                    
+                    player_y_coords = None
+                    if keypoint_data is not None and 'keypoints' in keypoint_data:
+                        # Extract touchline points - they already have pitch coordinates
+                        touchline_y_coords = []
+                        for kp in keypoint_data['keypoints']:
+                            if kp.landmark_type == 'touchline':
+                                # Use the pitch y-coordinate directly (already in pitch space)
+                                touchline_y_coords.append(kp.pitch_point[1])
+                        
+                        if len(touchline_y_coords) >= 4:
+                            player_y_coords = touchline_y_coords
+                    
+                    # Enhance center circle calibration with field width if available
+                    if player_y_coords is not None and center_circle is not None:
+                        from src.analysis.y_axis_calibration import calibrate_y_axis_from_center_circle
+                        # Re-calibrate with field width constraints
+                        enhanced_scale = calibrate_y_axis_from_center_circle(
+                            self.homography,
+                            center_circle,
+                            known_radius_m=9.15,
+                            player_y_coords=player_y_coords,
+                            expected_width=self.pitch_width
+                        )
+                        if enhanced_scale is not None:
+                            y_axis_scale = enhanced_scale
+                            print(f"   ✅ Enhanced calibration with field width: scale={y_axis_scale:.3f}")
                     
                     # Store y-axis scale factor for post-transform application
                     # This provides additional correction if direct refinement wasn't perfect
