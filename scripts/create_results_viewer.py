@@ -25,8 +25,8 @@ def create_results_viewer(results_path: str, output_html: str, title: str = "Vid
     
     # Calculate pitch bounds
     if all_players:
-        pitch_x = [p['pitch_position'][0] for p in all_players]
-        pitch_y = [p['pitch_position'][1] for p in all_players]
+        pitch_x = [p.get('x_pitch', p.get('pitch_position', [0, 0])[0]) for p in all_players]
+        pitch_y = [p.get('y_pitch', p.get('pitch_position', [0, 0])[1]) for p in all_players]
         x_min, x_max = min(pitch_x), max(pitch_x)
         y_min, y_max = min(pitch_y), max(pitch_y)
     else:
@@ -195,8 +195,12 @@ def create_results_viewer(results_path: str, output_html: str, title: str = "Vid
                 team_id = player.get('team_id')
                 team_class = f"team-{team_id}" if team_id is not None else "unassigned"
                 team_str = f"Team {team_id}" if team_id is not None else "Unassigned"
-                px, py = player['pixel_center']
-                pitch_x, pitch_y = player['pitch_position']
+                # Calculate pixel center from bbox
+                bbox = player.get('bbox', [0, 0, 0, 0])
+                px = bbox[0] + bbox[2] / 2 if len(bbox) >= 3 else 0
+                py = bbox[1] + bbox[3] / 2 if len(bbox) >= 4 else 0
+                pitch_x = player.get('x_pitch', 0)
+                pitch_y = player.get('y_pitch', 0)
                 conf = player.get('confidence', 0)
                 
                 html_content += f"""
@@ -229,8 +233,8 @@ def create_results_viewer(results_path: str, output_html: str, title: str = "Vid
         const players = {json.dumps(all_players[:100])};  // Limit to 100 for performance
         
         players.forEach(player => {{
-            const pitchX = player.pitch_position[0];
-            const pitchY = player.pitch_position[1];
+            const pitchX = player.x_pitch !== undefined ? player.x_pitch : (player.pitch_position ? player.pitch_position[0] : 0);
+            const pitchY = player.y_pitch !== undefined ? player.y_pitch : (player.pitch_position ? player.pitch_position[1] : 0);
             
             // Normalize to 0-1
             const normX = (pitchX - {x_min}) / xRange;

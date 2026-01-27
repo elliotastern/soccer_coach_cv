@@ -216,29 +216,54 @@ class VideoProcessingPipeline:
         Returns:
             FrameData object or None
         """
-        # Auto-initialize homography on first frame if needed
+        # Auto-initialize homography using multi-frame averaging if needed
         if self.homography_auto_init and self.homography_estimator.homography is None:
-            print(f"\n📐 Auto-initializing homography on frame {frame_id}...")
-            print("   Detecting pitch landmarks with fisheye distortion correction...")
-            success = self.homography_estimator.estimate(
-                frame,
-                use_auto_detection=True,
-                correct_distortion=True  # Enable fisheye correction
-            )
-            if success:
-                H = self.homography_estimator.homography
-                y_scale = getattr(self.homography_estimator, 'y_axis_scale', 1.0)
-                self.pitch_mapper.set_homography(H, y_axis_scale=y_scale)
-                print("✅ Homography initialized with automatic landmark detection")
-                if self.homography_estimator.y_axis_distortion_detected:
-                    print("   ⚠️  Y-axis distortion detected - correction applied")
+            # Collect frames for averaging (use first 10 frames for stable detection)
+            if not hasattr(self, '_homography_init_frames'):
+                self._homography_init_frames = []
+                self._homography_init_frame_count = 0
+            
+            self._homography_init_frames.append(frame.copy())
+            self._homography_init_frame_count += 1
+            
+            # Wait until we have enough frames for averaging
+            min_frames_for_averaging = 10
+            if self._homography_init_frame_count >= min_frames_for_averaging:
+                print(f"\n📐 Auto-initializing homography using {len(self._homography_init_frames)} frames...")
+                print("   Averaging landmark detections across frames for improved accuracy...")
+                print("   Detecting pitch landmarks with fisheye distortion correction...")
+                
+                success = self.homography_estimator.estimate_averaged(
+                    self._homography_init_frames,
+                    correct_distortion=True,  # Enable fisheye correction
+                    min_frames=min_frames_for_averaging
+                )
+                
+                if success:
+                    H = self.homography_estimator.homography
+                    y_scale = getattr(self.homography_estimator, 'y_axis_scale', 1.0)
+                    self.pitch_mapper.set_homography(H, y_axis_scale=y_scale)
+                    print("✅ Homography initialized with multi-frame averaged landmark detection")
+                    print(f"   Used {len(self._homography_init_frames)} frames for averaging")
+                    if self.homography_estimator.y_axis_distortion_detected:
+                        print("   ⚠️  Y-axis distortion detected - correction applied")
+                    else:
+                        print("   ℹ️  No significant distortion detected")
+                    if y_scale != 1.0:
+                        print(f"   Y-axis scale factor: {y_scale:.3f}")
+                    
+                    # Clear frame buffer after successful initialization
+                    del self._homography_init_frames
+                    del self._homography_init_frame_count
                 else:
-                    print("   ℹ️  No significant distortion detected")
-                if y_scale != 1.0:
-                    print(f"   Y-axis scale factor: {y_scale:.3f}")
+                    print("❌ Failed to initialize homography automatically")
+                    print("   Will continue without pitch mapping")
+                    # Clear frame buffer on failure too
+                    del self._homography_init_frames
+                    del self._homography_init_frame_count
             else:
-                print("❌ Failed to initialize homography automatically")
-                print("   Will continue without pitch mapping")
+                # Still collecting frames, skip homography initialization for now
+                pass
         
         # Step 1: Detect players
         detections = self.detect_players(frame)

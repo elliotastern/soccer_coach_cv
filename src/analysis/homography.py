@@ -84,6 +84,88 @@ def estimate_homography_manual(image_points: np.ndarray, pitch_points: np.ndarra
     return H
 
 
+def estimate_homography_auto_averaged(images: List[np.ndarray], pitch_length: float = 105.0, 
+                            pitch_width: float = 68.0, 
+                            correct_distortion: bool = True,
+                            min_frames: int = 5) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """
+    Automatically estimate homography by averaging landmark detections across multiple frames.
+    Since camera is stationary, averaging improves accuracy and stability.
+    
+    Args:
+        images: List of frames from the same camera position
+        pitch_length: Standard pitch length in meters
+        pitch_width: Standard pitch width in meters
+        correct_distortion: If True, attempt to correct lens distortion before homography
+        min_frames: Minimum frames needed for averaging
+    
+    Returns:
+        Tuple of (homography matrix [3, 3] or None, undistorted image or None)
+    """
+    if not images or len(images) < min_frames:
+        # Fallback to single frame
+        return estimate_homography_auto_with_undistorted(
+            images[0] if images else None, pitch_length, pitch_width, correct_distortion
+        )
+    
+    try:
+        from src.analysis.pitch_keypoint_detector import detect_pitch_keypoints_auto_averaged
+        from src.analysis.undistortion import (
+            estimate_camera_from_landmarks, 
+            undistort_image,
+            detect_fisheye_distortion,
+            DistortionParams
+        )
+        
+        # Detect keypoints averaged across frames
+        keypoint_data = detect_pitch_keypoints_auto_averaged(
+            images,
+            pitch_length=pitch_length,
+            pitch_width=pitch_width,
+            min_points=4,
+            max_points=40,
+            min_frames=min_frames
+        )
+        
+        undistorted_image = None
+        
+        if keypoint_data is not None:
+            image_points = np.array(keypoint_data['image_points'], dtype=np.float32)
+            pitch_points = np.array(keypoint_data['pitch_points'], dtype=np.float32)
+            
+            # Use first frame for distortion correction context
+            first_frame = images[0]
+            h, w = first_frame.shape[:2]
+            
+            # Attempt distortion correction if enabled
+            if correct_distortion and len(image_points) >= 6:
+                # Detect if fisheye distortion is present
+                is_fisheye = detect_fisheye_distortion(image_points, pitch_points, (w, h))
+                
+                # Estimate camera parameters from averaged landmarks
+                distortion_params = estimate_camera_from_landmarks(
+                    image_points,
+                    pitch_points,
+                    (w, h),
+                    is_fisheye=is_fisheye
+                )
+                
+                if distortion_params and distortion_params.confidence > 0.3:
+                    # Undistort first frame (representative)
+                    undistorted_image = undistort_image(first_frame, distortion_params)
+            
+            # Estimate homography with averaged keypoints
+            H = estimate_homography_manual(image_points, pitch_points)
+            return H, undistorted_image
+        else:
+            return None, None
+    except Exception as e:
+        print(f"Error in estimate_homography_auto_averaged: {e}")
+        import traceback
+        traceback.print_exc()
+        return None, None
+
+
 def estimate_homography_auto_with_undistorted(image: np.ndarray, pitch_length: float = 105.0, 
                             pitch_width: float = 68.0, 
                             correct_distortion: bool = True) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
@@ -396,6 +478,116 @@ class HomographyEstimator:
         self.center_circle_radius_px = 0.0
         self.y_axis_scale = 1.0  # Scale factor for y-axis correction (1.0 = no correction)
         self.undistorted_image = None  # Store undistorted image for touchline detection
+    
+    def estimate_averaged(self, images: List[np.ndarray], 
+                         correct_distortion: bool = True,
+                         min_frames: int = 5) -> bool:
+        """
+        Estimate homography by averaging landmark detections across multiple frames.
+        Since camera is stationary, averaging improves accuracy and stability.
+        
+        Args:
+            images: List of frames from the same camera position
+            correct_distortion: If True, attempt to correct lens distortion (fisheye) for y-axis accuracy
+            min_frames: Minimum frames needed for averaging
+        
+        Returns:
+            True if estimation successful, False otherwise
+        """
+        if not images or len(images) < min_frames:
+            # Fallback to single frame
+            return self.estimate(images[0] if images else None, 
+                               use_auto_detection=True, 
+                               correct_distortion=correct_distortion)
+        
+        # Use averaged detection (function defined at module level)
+        self.homography, self.undistorted_image = estimate_homography_auto_averaged(
+            images,
+            self.pitch_length,
+            self.pitch_width,
+            correct_distortion=correct_distortion,
+            min_frames=min_frames
+        )
+        
+        # Use undistorted image if available, otherwise use first frame
+        image_for_detection = self.undistorted_image if self.undistorted_image is not None else images[0]
+        
+        # Validate homography and check for y-axis distortion issues
+        if self.homography is not None:
+            self._validate_y_axis_accuracy(images[0], None)
+            
+            # Refine y-axis using center circle calibration (for stationary camera)
+            if correct_distortion:
+                try:
+                    from src.analysis.y_axis_calibration import (
+                        refine_homography_with_center_circle,
+                        calibrate_y_axis_from_field_width
+                    )
+                    from src.analysis.pitch_keypoint_detector import detect_pitch_keypoints_auto_averaged
+                    
+                    # First, do center circle calibration (use undistorted image if available)
+                    result = refine_homography_with_center_circle(self.homography, image_for_detection)
+                    
+                    # Handle both old (2-tuple) and new (3-tuple) return signatures
+                    if len(result) == 3:
+                        refined_homography, center_circle, y_axis_scale = result
+                        self.homography = refined_homography
+                    else:
+                        self.homography, center_circle = result
+                        y_axis_scale = None
+                    
+                    if center_circle is not None:
+                        self.center_circle_detected = True
+                        self.center_circle_radius_px = center_circle.radius
+                    else:
+                        self.center_circle_detected = False
+                    
+                    # Get field width calibration from averaged touchline points
+                    keypoint_data = detect_pitch_keypoints_auto_averaged(
+                        images if self.undistorted_image is None else [self.undistorted_image] * len(images),
+                        pitch_length=self.pitch_length,
+                        pitch_width=self.pitch_width,
+                        min_points=4,
+                        max_points=50,
+                        min_frames=min_frames
+                    )
+                    
+                    player_y_coords = None
+                    if keypoint_data is not None and 'keypoints' in keypoint_data:
+                        touchline_y_coords = []
+                        for kp in keypoint_data['keypoints']:
+                            if kp.landmark_type == 'touchline':
+                                touchline_y_coords.append(kp.pitch_point[1])
+                        
+                        if len(touchline_y_coords) >= 4:
+                            player_y_coords = touchline_y_coords
+                    
+                    # Enhance center circle calibration with field width if available
+                    if player_y_coords is not None and center_circle is not None:
+                        from src.analysis.y_axis_calibration import calibrate_y_axis_from_center_circle
+                        enhanced_scale = calibrate_y_axis_from_center_circle(
+                            self.homography,
+                            center_circle,
+                            known_radius_m=9.15,
+                            player_y_coords=player_y_coords,
+                            expected_width=self.pitch_width
+                        )
+                        if enhanced_scale is not None:
+                            y_axis_scale = enhanced_scale
+                            print(f"   ✅ Enhanced calibration with field width: scale={y_axis_scale:.3f}")
+                    
+                    if y_axis_scale is not None:
+                        self.y_axis_scale = y_axis_scale
+                    else:
+                        self.y_axis_scale = 1.0
+                except ImportError:
+                    self.center_circle_detected = False
+                    self.y_axis_scale = 1.0
+                except Exception as e:
+                    print(f"   ⚠️  Error in y-axis calibration: {e}")
+                    self.y_axis_scale = 1.0
+        
+        return self.homography is not None
     
     def estimate(self, image: np.ndarray, manual_points: Optional[Dict] = None, 
                  use_auto_detection: bool = True, correct_distortion: bool = True) -> bool:
