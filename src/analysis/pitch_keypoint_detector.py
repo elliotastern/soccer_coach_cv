@@ -116,8 +116,19 @@ class PitchKeypointDetector:
         Returns:
             List of detected lines as [x1, y1, x2, y2]
         """
+        h, w = image.shape[:2]
+        
+        # Optimize: Downscale for line detection on very large images
+        # HoughLinesP is also expensive on large images
+        if max(h, w) > 3000:
+            scale_factor = 0.5  # Downscale for speed
+            small_image = cv2.resize(image, None, fx=scale_factor, fy=scale_factor)
+        else:
+            scale_factor = 1.0
+            small_image = image
+        
         # Convert to HSV for better color segmentation
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(small_image, cv2.COLOR_BGR2HSV)
         
         # Create mask for white lines (high saturation, high value)
         # White in HSV: low saturation, high value
@@ -138,18 +149,22 @@ class PitchKeypointDetector:
         line_mask = cv2.morphologyEx(line_mask, cv2.MORPH_CLOSE, kernel)
         line_mask = cv2.morphologyEx(line_mask, cv2.MORPH_OPEN, kernel)
         
-        # Detect lines using HoughLinesP
+        # Detect lines using HoughLinesP with optimized parameters
         lines = cv2.HoughLinesP(
             line_mask,
-            rho=1,
+            rho=2,  # Increased from 1 for speed
             theta=np.pi/180,
             threshold=50,
-            minLineLength=50,
+            minLineLength=30 if scale_factor < 1.0 else 50,  # Adjust for downscaled
             maxLineGap=10
         )
         
         if lines is None:
             return []
+        
+        # Scale lines back to original image size if downscaled
+        if scale_factor < 1.0:
+            lines = (lines / scale_factor).astype(np.int32)
         
         return lines
     
@@ -621,20 +636,45 @@ class PitchKeypointDetector:
         
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
-        # Detect circles with tighter parameters
+        # Optimize: Downscale large images for HoughCircles (much faster)
+        # HoughCircles is O(n²) so downscaling dramatically improves speed
+        # Use aggressive downscaling for very large images
+        if max(h, w) > 3000:
+            scale_factor = 0.25  # 4x downscale for very large images (faster)
+        elif max(h, w) > 2000:
+            scale_factor = 0.4   # 2.5x downscale for large images (faster)
+        else:
+            scale_factor = 1.0   # No downscale for smaller images
+        if scale_factor < 1.0:
+            small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
+            small_h, small_w = small_gray.shape[:2]
+        else:
+            small_gray = gray
+            small_h, small_w = h, w
+        
+        # Detect circles with optimized parameters (on downscaled image)
+        # dp=2 is faster than dp=1 with minimal accuracy loss
         circles = cv2.HoughCircles(
-            gray,
+            small_gray,
             cv2.HOUGH_GRADIENT,
-            dp=1,
-            minDist=int(min(h, w) / 3),
+            dp=2,  # Increased from 1 for speed (2x faster)
+            minDist=int(min(small_h, small_w) / 3),
             param1=50,
-            param2=30,
-            minRadius=int(min(h, w) / 25),
-            maxRadius=int(min(h, w) / 8)
+            param2=25,  # Lowered from 30 for speed (still accurate)
+            minRadius=int(min(small_h, small_w) / 25),
+            maxRadius=int(min(small_h, small_w) / 8)
         )
         
         if circles is not None:
             circles = np.uint16(np.around(circles))
+            # Scale circle coordinates back to original image size
+            if scale_factor < 1.0:
+                circles = circles.astype(np.float32)
+                circles[0, :, 0] /= scale_factor  # x coordinates
+                circles[0, :, 1] /= scale_factor  # y coordinates
+                circles[0, :, 2] /= scale_factor  # radius
+                circles = np.uint16(np.around(circles))
+            
             center_x, center_y = w / 2, h / 2
             
             # Find circle closest to center
@@ -923,6 +963,8 @@ class PitchKeypointDetector:
         Detect touchlines (sidelines) - critical for y-axis accuracy.
         Touchlines run along the length of the field and provide stable y-coordinate references.
         
+        Enhanced with more aggressive detection parameters to improve y-axis calibration.
+        
         Args:
             image: Input image
             lines: Detected field lines
@@ -933,46 +975,85 @@ class PitchKeypointDetector:
         h, w = image.shape[:2]
         keypoints = []
         
-        # Find long horizontal lines (touchlines run along field length)
-        # These are typically the longest lines in the image
+        # More aggressive detection: look for horizontal lines
+        # Lower threshold for "horizontal" (was 0.3, now 0.5) to catch more lines
+        # Lower minimum length (was 0.3, now 0.2) to catch shorter but valid touchlines
         horizontal_lines = []
         for line in lines:
             x1, y1, x2, y2 = line[0]
-            # Check if line is roughly horizontal
-            if abs(y2 - y1) < abs(x2 - x1) * 0.3:  # More horizontal than vertical
+            # Check if line is roughly horizontal (more lenient threshold)
+            if abs(y2 - y1) < abs(x2 - x1) * 0.5:  # More horizontal than vertical (was 0.3)
                 length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-                if length > min(w, h) * 0.3:  # Long enough to be a touchline
+                # Lower threshold to catch more lines (was 0.3, now 0.2)
+                if length > min(w, h) * 0.2:  # Long enough to be a touchline
                     horizontal_lines.append((line, length))
         
         # Sort by length (longest first)
         horizontal_lines.sort(key=lambda x: x[1], reverse=True)
         
-        # Use top 2 longest horizontal lines as touchlines
-        for i, (line, length) in enumerate(horizontal_lines[:2]):
-            x1, y1, x2, y2 = line[0]
-            mid_y = (y1 + y2) / 2
+        # Use top 2-4 longest horizontal lines as touchlines (more aggressive)
+        # Look for lines near field edges (top/bottom of image)
+        num_touchlines = min(4, len(horizontal_lines))
+        if num_touchlines >= 2:
+            # Sort by y position (top line has smaller y)
+            sorted_lines = sorted(horizontal_lines[:num_touchlines], key=lambda x: (x[0][0][1] + x[0][0][3]) / 2)
             
-            # Map to pitch coordinates
-            # Top touchline (near top of image) maps to -pitch_width/2
-            # Bottom touchline (near bottom of image) maps to +pitch_width/2
-            if i == 0:  # First (likely top touchline)
-                # Sample points along the line
-                for x in [x1, (x1 + x2) / 2, x2]:
-                    if 0 <= x < w:
+            # Use topmost and bottommost lines as primary touchlines
+            # But also consider intermediate lines if they're near edges
+            edge_threshold = 0.15  # Lines within 15% of image edges are likely touchlines
+            top_edge_y = h * edge_threshold
+            bottom_edge_y = h * (1 - edge_threshold)
+            
+            selected_lines = []
+            for line, length in sorted_lines:
+                x1, y1, x2, y2 = line[0]
+                mid_y = (y1 + y2) / 2
+                # Prefer lines near edges
+                if mid_y < top_edge_y or mid_y > bottom_edge_y:
+                    selected_lines.append((line, length, mid_y))
+            
+            # If we found edge lines, use them; otherwise use top 2
+            if len(selected_lines) >= 2:
+                selected_lines = sorted(selected_lines, key=lambda x: x[2])[:2]
+            elif len(sorted_lines) >= 2:
+                selected_lines = [(line, length, (line[0][1] + line[0][3]) / 2) for line, length in sorted_lines[:2]]
+            else:
+                selected_lines = []
+            
+            for i, (line, length, mid_y) in enumerate(selected_lines):
+                x1, y1, x2, y2 = line[0]
+                
+                # Determine which touchline (top or bottom) based on y position
+                # Top touchline (smaller y) maps to y = -pitch_width/2 = -34m
+                # Bottom touchline (larger y) maps to y = +pitch_width/2 = +34m
+                is_top_touchline = (i == 0)
+                pitch_y = -self.pitch_width / 2 if is_top_touchline else self.pitch_width / 2
+                
+                # Sample more points along the touchline (increased from 8 to 12)
+                # Map x position in image to x position along field length
+                num_samples = 12  # Increased from 8 for better coverage
+                x_min, x_max = min(x1, x2), max(x1, x2)
+                
+                for j in range(num_samples):
+                    # Sample point along the line
+                    t = j / (num_samples - 1) if num_samples > 1 else 0.5
+                    x_img = x_min + t * (x_max - x_min)
+                    
+                    if 0 <= x_img < w:
+                        # Map image x to pitch x
+                        # Assume field spans most of image width
+                        # Map from image x to pitch x (-52.5m to +52.5m)
+                        # Use normalized position: x_img/w maps to pitch x
+                        norm_x = x_img / w
+                        # Map normalized x to pitch x (assuming field is centered)
+                        # Field length is 105m, so x ranges from -52.5 to +52.5
+                        pitch_x = (norm_x - 0.5) * self.pitch_length
+                        
                         keypoints.append(PitchKeypoint(
-                            image_point=(float(x), float(mid_y)),
-                            pitch_point=(0.0, -self.pitch_width / 2),  # Top touchline
+                            image_point=(float(x_img), float(mid_y)),
+                            pitch_point=(pitch_x, pitch_y),  # Correct mapping: x varies, y is ±34m
                             landmark_type="touchline",
-                            confidence=0.6
-                        ))
-            else:  # Second (likely bottom touchline)
-                for x in [x1, (x1 + x2) / 2, x2]:
-                    if 0 <= x < w:
-                        keypoints.append(PitchKeypoint(
-                            image_point=(float(x), float(mid_y)),
-                            pitch_point=(0.0, self.pitch_width / 2),  # Bottom touchline
-                            landmark_type="touchline",
-                            confidence=0.6
+                            confidence=0.7 if abs(norm_x - 0.5) < 0.3 else 0.5  # Higher confidence near center
                         ))
         
         return keypoints
@@ -1165,16 +1246,17 @@ class PitchKeypointDetector:
                 kp.y_axis_reliability = 0.7
         
         # Sort by confidence and type priority
+        # Touchlines are critical for y-axis accuracy (field width), so give them high priority
         type_priority = {
             "goal": 1,
-            "center_line": 2,
-            "center_circle": 3,
-            "penalty_box": 4,
-            "penalty_spot": 4,
-            "goal_area": 4,
-            "corner": 5,
-            "corner_arc": 6,
-            "touchline": 6
+            "touchline": 2,  # High priority - critical for y-axis (field width) accuracy
+            "center_line": 3,
+            "center_circle": 4,
+            "penalty_box": 5,
+            "penalty_spot": 5,
+            "goal_area": 5,
+            "corner": 6,
+            "corner_arc": 7
         }
         
         # Sort by priority, then by y-axis reliability (if prioritizing), then by confidence

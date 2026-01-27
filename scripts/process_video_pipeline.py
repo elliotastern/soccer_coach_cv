@@ -312,6 +312,38 @@ class VideoProcessingPipeline:
         self.frame_count += 1
         return frame_data
     
+    def _refine_y_axis_from_player_positions(self, min_frames: int = 10) -> Optional[float]:
+        """
+        Refine y-axis scale using actual player positions from processed frames.
+        
+        Collects player y-coordinates from first N frames and calculates
+        field width compression factor. This is used when touchline detection
+        fails but we have actual player positions.
+        
+        Args:
+            min_frames: Minimum number of frames needed for calibration
+        
+        Returns:
+            Updated y_axis_scale factor, or None if insufficient data
+        """
+        if len(self.frame_data_list) < min_frames:
+            return None
+        
+        # Collect all player y-coordinates from first batch of frames
+        all_y_coords = []
+        for frame_data in self.frame_data_list[:min_frames]:
+            for player in frame_data.players:
+                all_y_coords.append(player.y_pitch)
+        
+        if len(all_y_coords) < 10:
+            return None
+        
+        # Calculate scale from observed range
+        from src.analysis.y_axis_calibration import calibrate_y_axis_from_field_width
+        scale = calibrate_y_axis_from_field_width(all_y_coords, expected_width=self.pitch_mapper.pitch_width)
+        
+        return scale
+    
     def process_video(self, video_path: str, output_dir: str, max_frames: Optional[int] = None):
         """
         Process entire video
@@ -339,6 +371,8 @@ class VideoProcessingPipeline:
         print("="*70)
         
         frame_id = 0
+        calibration_frames = 15  # Number of frames to use for calibration
+        calibration_done = False
         
         while True:
             ret, frame = cap.read()
@@ -355,6 +389,46 @@ class VideoProcessingPipeline:
             
             if frame_data:
                 self.frame_data_list.append(frame_data)
+            
+            # Post-processing calibration after first batch of frames
+            if not calibration_done and len(self.frame_data_list) >= calibration_frames:
+                print(f"\n🔄 Refining y-axis calibration from player positions...")
+                refined_scale = self._refine_y_axis_from_player_positions(min_frames=calibration_frames)
+                
+                if refined_scale is not None and abs(refined_scale - 1.0) > 0.05:
+                    # Update scale in both estimator and mapper
+                    old_scale = self.homography_estimator.y_axis_scale
+                    self.homography_estimator.y_axis_scale = refined_scale
+                    self.pitch_mapper.set_homography(
+                        self.homography_estimator.homography,
+                        y_axis_scale=refined_scale
+                    )
+                    
+                    print(f"   ✅ Y-axis scale updated: {old_scale:.3f} -> {refined_scale:.3f}")
+                    print(f"   📊 Re-processing first {calibration_frames} frames with corrected scale...")
+                    
+                    # Re-process first frames with corrected scale
+                    # We need to re-transform the player positions
+                    for frame_data in self.frame_data_list[:calibration_frames]:
+                        for player in frame_data.players:
+                            # Re-calculate pitch position with new scale
+                            # Get original pixel position from bbox
+                            x, y, w, h = player.bbox
+                            center_x = x + w / 2
+                            center_y = y + h / 2
+                            # Re-transform with corrected scale
+                            new_pos = self.pitch_mapper.pixel_to_pitch(center_x, center_y)
+                            player.x_pitch = new_pos.x
+                            player.y_pitch = new_pos.y
+                    
+                    print(f"   ✅ First {calibration_frames} frames updated with new scale")
+                else:
+                    if refined_scale is None:
+                        print(f"   ⚠️  Insufficient data for calibration")
+                    else:
+                        print(f"   ℹ️  Scale already accurate: {refined_scale:.3f}")
+                
+                calibration_done = True
             
             # Progress update
             if (frame_id + 1) % 100 == 0:
@@ -374,6 +448,38 @@ class VideoProcessingPipeline:
         print(f"   Frames with detections: {len(self.frame_data_list)}")
         print(f"   Team clusterer trained: {self.team_clusterer_trained}")
         print("="*70)
+    
+    def _refine_y_axis_from_player_positions(self, min_frames: int = 10) -> Optional[float]:
+        """
+        Refine y-axis scale using actual player positions from processed frames.
+        
+        Collects player y-coordinates from first N frames and calculates
+        field width compression factor. This is used when touchline detection
+        fails but we have actual player positions to measure field width.
+        
+        Args:
+            min_frames: Minimum number of frames needed for calibration
+        
+        Returns:
+            Updated y_axis_scale factor, or None if insufficient data
+        """
+        if len(self.frame_data_list) < min_frames:
+            return None
+        
+        # Collect all player y-coordinates from first N frames
+        all_y_coords = []
+        for frame_data in self.frame_data_list[:min_frames]:
+            for player in frame_data.players:
+                all_y_coords.append(player.y_pitch)
+        
+        if len(all_y_coords) < 10:
+            return None
+        
+        # Calculate scale from observed range
+        from src.analysis.y_axis_calibration import calibrate_y_axis_from_field_width
+        scale = calibrate_y_axis_from_field_width(all_y_coords, expected_width=self.pitch_width)
+        
+        return scale
     
     def _save_results(self, output_dir: Path):
         """Save processing results to JSON"""

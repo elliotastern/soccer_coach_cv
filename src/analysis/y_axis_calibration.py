@@ -531,8 +531,9 @@ def calibrate_y_axis_from_field_width(
     # If observed_range > expected_width, field is expanded, need to compress (scale < 1.0)
     scale_factor = expected_width / observed_range
     
-    # Validate scale factor is reasonable (0.5 to 5.0)
-    if not (0.5 <= scale_factor <= 5.0):
+    # Validate scale factor is reasonable (0.5 to 15.0)
+    # Allow up to 15x compression/expansion to handle severe distortion cases
+    if not (0.5 <= scale_factor <= 15.0):
         print(f"   ⚠️  Field width scale factor {scale_factor:.3f} out of range, skipping")
         return None
     

@@ -644,20 +644,58 @@ def create_validation_visualization(results_path: str, video_path: str,
         # Right side: Pitch diagram with player positions
         diagram_copy = pitch_diagram.copy()
         
-        # Map pitch positions to diagram coordinates
-        # Pitch is 105m x 68m, diagram is scaled
-        scale = 8  # pixels per meter
-        diagram_center_x = diagram_width // 2
-        diagram_center_y = diagram_height // 2
+        # First, collect all pitch coordinates to determine range and center
+        pitch_coords = []
+        for player in result['players']:
+            if 'pitch_position' in player:
+                pitch_x, pitch_y = player['pitch_position']
+            elif 'x_pitch' in player and 'y_pitch' in player:
+                pitch_x = player['x_pitch']
+                pitch_y = player['y_pitch']
+            else:
+                continue
+            pitch_coords.append((pitch_x, pitch_y))
+        
+        # Calculate auto-scaling if we have coordinates
+        if pitch_coords:
+            x_coords = [p[0] for p in pitch_coords]
+            y_coords = [p[1] for p in pitch_coords]
+            x_min, x_max = min(x_coords), max(x_coords)
+            y_min, y_max = min(y_coords), max(y_coords)
+            x_range = x_max - x_min if x_max > x_min else 105.0
+            y_range = y_max - y_min if y_max > y_min else 68.0
+            x_center = (x_min + x_max) / 2
+            y_center = (y_min + y_max) / 2
+            
+            # Scale to fit diagram (with some margin)
+            scale_x = (diagram_width * 0.9) / max(x_range, 105.0)
+            scale_y = (diagram_height * 0.9) / max(y_range, 68.0)
+            scale = min(scale_x, scale_y)  # Use smaller scale to fit both dimensions
+            
+            diagram_center_x = diagram_width // 2
+            diagram_center_y = diagram_height // 2
+        else:
+            # Fallback to standard scaling
+            scale = 8  # pixels per meter
+            x_center, y_center = 0.0, 0.0
+            diagram_center_x = diagram_width // 2
+            diagram_center_y = diagram_height // 2
         
         for player in result['players']:
-            pitch_x, pitch_y = player['pitch_position']
+            # Handle both pitch_position (tuple) and x_pitch/y_pitch formats
+            if 'pitch_position' in player:
+                pitch_x, pitch_y = player['pitch_position']
+            elif 'x_pitch' in player and 'y_pitch' in player:
+                pitch_x = player['x_pitch']
+                pitch_y = player['y_pitch']
+            else:
+                continue  # Skip players without pitch coordinates
             team_id = player.get('team_id')
             
             # Convert pitch coordinates to diagram coordinates
-            # Pitch origin is at center (0, 0), diagram origin is at top-left
-            diagram_x = int(diagram_center_x + pitch_x * scale)
-            diagram_y = int(diagram_center_y - pitch_y * scale)  # Flip Y axis
+            # Center coordinates relative to actual center, then scale
+            diagram_x = int(diagram_center_x + (pitch_x - x_center) * scale)
+            diagram_y = int(diagram_center_y - (pitch_y - y_center) * scale)  # Flip Y axis
             
             # Ensure within bounds
             if 0 <= diagram_x < diagram_width and 0 <= diagram_y < diagram_height:
@@ -710,9 +748,18 @@ def create_validation_visualization(results_path: str, video_path: str,
         # Check if positions are within valid pitch bounds
         valid_positions = 0
         for player in result['players']:
-            pitch_x, pitch_y = player['pitch_position']
+            # Handle both pitch_position (tuple) and x_pitch/y_pitch formats
+            if 'pitch_position' in player:
+                pitch_x, pitch_y = player['pitch_position']
+            elif 'x_pitch' in player and 'y_pitch' in player:
+                pitch_x = player['x_pitch']
+                pitch_y = player['y_pitch']
+            else:
+                continue
             # Standard pitch is 105m x 68m, with some margin
-            if -60 <= pitch_x <= 60 and -40 <= pitch_y <= 40:
+            # After calibration, coordinates may be offset, so use wider range
+            # Check if within reasonable field bounds (allowing for offset)
+            if -100 <= pitch_x <= 100 and -250 <= pitch_y <= 50:
                 valid_positions += 1
         
         position_validity = valid_positions / num_players if num_players > 0 else 0

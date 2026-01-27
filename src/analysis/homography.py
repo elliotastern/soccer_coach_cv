@@ -84,6 +84,91 @@ def estimate_homography_manual(image_points: np.ndarray, pitch_points: np.ndarra
     return H
 
 
+def estimate_homography_auto_with_undistorted(image: np.ndarray, pitch_length: float = 105.0, 
+                            pitch_width: float = 68.0, 
+                            correct_distortion: bool = True) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """
+    Automatically estimate homography from image using enhanced keypoint detection.
+    Optionally corrects lens distortion (fisheye) before estimation for accurate y-axis mapping.
+    Returns both homography and undistorted image for later use.
+    
+    Args:
+        image: Input image
+        pitch_length: Standard pitch length in meters
+        pitch_width: Standard pitch width in meters
+        correct_distortion: If True, attempt to correct lens distortion before homography
+    
+    Returns:
+        Tuple of (homography matrix [3, 3] or None, undistorted image or None)
+    """
+    # Duplicate the logic from estimate_homography_auto but return undistorted image
+    try:
+        from src.analysis.pitch_keypoint_detector import detect_pitch_keypoints_auto
+        from src.analysis.undistortion import (
+            estimate_camera_from_landmarks, 
+            undistort_image,
+            detect_fisheye_distortion,
+            DistortionParams
+        )
+        
+        # Detect keypoints on original (potentially distorted) image
+        keypoint_data = detect_pitch_keypoints_auto(
+            image, 
+            pitch_length=pitch_length,
+            pitch_width=pitch_width,
+            min_points=4,
+            max_points=40
+        )
+        
+        undistorted_image = None
+        
+        if keypoint_data is not None:
+            image_points = np.array(keypoint_data['image_points'], dtype=np.float32)
+            pitch_points = np.array(keypoint_data['pitch_points'], dtype=np.float32)
+            
+            # Attempt distortion correction if enabled
+            if correct_distortion and len(image_points) >= 6:
+                h, w = image.shape[:2]
+                
+                # Detect if fisheye distortion is present
+                is_fisheye = detect_fisheye_distortion(image_points, pitch_points, (w, h))
+                
+                # Estimate camera parameters from landmarks
+                distortion_params = estimate_camera_from_landmarks(
+                    image_points,
+                    pitch_points,
+                    (w, h),
+                    is_fisheye=is_fisheye
+                )
+                
+                if distortion_params and distortion_params.confidence > 0.3:
+                    # Undistort image and re-detect keypoints for better accuracy
+                    undistorted_image = undistort_image(image, distortion_params)
+                    
+                    # Re-detect keypoints on undistorted image
+                    keypoint_data_undistorted = detect_pitch_keypoints_auto(
+                        undistorted_image,
+                        pitch_length=pitch_length,
+                        pitch_width=pitch_width,
+                        min_points=4,
+                        max_points=50
+                    )
+                    
+                    if keypoint_data_undistorted is not None:
+                        # Use undistorted keypoints
+                        image_points = np.array(keypoint_data_undistorted['image_points'], dtype=np.float32)
+                        pitch_points = np.array(keypoint_data_undistorted['pitch_points'], dtype=np.float32)
+            
+            # Estimate homography with detected keypoints (now potentially undistorted)
+            H = estimate_homography_manual(image_points, pitch_points)
+            return H, undistorted_image
+        else:
+            return None, None
+    except Exception as e:
+        print(f"Error in estimate_homography_auto_with_undistorted: {e}")
+        return None, None
+
+
 def estimate_homography_auto(image: np.ndarray, pitch_length: float = 105.0, 
                             pitch_width: float = 68.0, 
                             correct_distortion: bool = True) -> Optional[np.ndarray]:
@@ -93,8 +178,8 @@ def estimate_homography_auto(image: np.ndarray, pitch_length: float = 105.0,
     
     Args:
         image: Input image
+        pitch_length: Standard pitch length in meters
         pitch_width: Standard pitch width in meters
-        pitch_height: Standard pitch height in meters
         correct_distortion: If True, attempt to correct lens distortion before homography
     
     Returns:
@@ -139,7 +224,7 @@ def estimate_homography_auto(image: np.ndarray, pitch_length: float = 105.0,
                     is_fisheye=is_fisheye
                 )
                 
-                if distortion_params and distortion_params.confidence > 0.3:
+                if distortion_params and distortion_params.confidence > 0.1:  # Lower threshold to catch more cases
                     # Undistort image and re-detect keypoints for better accuracy
                     undistorted_image = undistort_image(image, distortion_params)
                     
@@ -310,8 +395,7 @@ class HomographyEstimator:
         self.center_circle_detected = False
         self.center_circle_radius_px = 0.0
         self.y_axis_scale = 1.0  # Scale factor for y-axis correction (1.0 = no correction)
-        self.center_circle_detected = False
-        self.center_circle_radius_px = 0.0
+        self.undistorted_image = None  # Store undistorted image for touchline detection
     
     def estimate(self, image: np.ndarray, manual_points: Optional[Dict] = None, 
                  use_auto_detection: bool = True, correct_distortion: bool = True) -> bool:
@@ -334,7 +418,8 @@ class HomographyEstimator:
             self.homography = estimate_homography_manual(image_points, pitch_points)
         elif use_auto_detection:
             # Use enhanced automatic keypoint detection with optional distortion correction
-            self.homography = estimate_homography_auto(
+            # Also get undistorted image for touchline detection
+            self.homography, self.undistorted_image = estimate_homography_auto_with_undistorted(
                 image, 
                 self.pitch_length, 
                 self.pitch_width,
@@ -342,12 +427,15 @@ class HomographyEstimator:
             )
         else:
             # Fallback to basic detection
-            self.homography = estimate_homography_auto(
+            self.homography, self.undistorted_image = estimate_homography_auto_with_undistorted(
                 image, 
                 self.pitch_length, 
                 self.pitch_width,
                 correct_distortion=correct_distortion
             )
+        
+        # Use undistorted image if available, otherwise use original
+        image_for_detection = self.undistorted_image if self.undistorted_image is not None else image
         
         # Validate homography and check for y-axis distortion issues
         if self.homography is not None:
@@ -362,8 +450,8 @@ class HomographyEstimator:
                     )
                     from src.analysis.pitch_keypoint_detector import detect_pitch_keypoints_auto
                     
-                    # First, do center circle calibration
-                    result = refine_homography_with_center_circle(self.homography, image)
+                    # First, do center circle calibration (use undistorted image if available)
+                    result = refine_homography_with_center_circle(self.homography, image_for_detection)
                     
                     # Handle both old (2-tuple) and new (3-tuple) return signatures
                     if len(result) == 3:
@@ -383,9 +471,9 @@ class HomographyEstimator:
                         self.center_circle_detected = False
                     
                     # Now try to get field width calibration from touchline points
-                    # Re-detect keypoints to get touchline y-coordinates
+                    # Re-detect keypoints on UNDISTORTED image for better line detection
                     keypoint_data = detect_pitch_keypoints_auto(
-                        image,
+                        image_for_detection,  # Use undistorted image for better touchline detection
                         pitch_length=self.pitch_length,
                         pitch_width=self.pitch_width,
                         min_points=4,
@@ -435,6 +523,38 @@ class HomographyEstimator:
                     self.y_axis_scale = 1.0
         
         return self.homography is not None
+    
+    def refine_y_axis_from_positions(self, positions: List[Tuple[float, float]], expected_width: float = 68.0) -> Optional[float]:
+        """
+        Refine y-axis scale using actual player positions.
+        
+        Takes a list of (x_pitch, y_pitch) positions and calculates
+        the y-axis compression factor from the observed range.
+        
+        Args:
+            positions: List of (x_pitch, y_pitch) tuples in pitch coordinates
+            expected_width: Expected field width in meters (default: 68.0)
+        
+        Returns:
+            Updated y_axis_scale factor, or None if insufficient data
+        """
+        if not positions or len(positions) < 10:
+            return None
+        
+        # Extract y-coordinates
+        y_coords = [pos[1] for pos in positions]
+        
+        # Calculate scale from observed range
+        from src.analysis.y_axis_calibration import calibrate_y_axis_from_field_width
+        scale = calibrate_y_axis_from_field_width(y_coords, expected_width=expected_width)
+        
+        if scale is not None and scale != 1.0:
+            # Update internal scale factor
+            self.y_axis_scale = scale
+            print(f"   🔄 Y-axis scale refined from positions: {scale:.3f}")
+            return scale
+        
+        return None
     
     def _validate_y_axis_accuracy(self, image: np.ndarray, manual_points: Optional[Dict] = None):
         """
