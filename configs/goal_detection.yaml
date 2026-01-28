@@ -1,0 +1,68 @@
+# Goal Detection Configuration
+# Settings for enhanced goal detection with zero-shot learning and classical CV
+
+# Zero-shot detection settings
+zero_shot:
+  enabled: true  # Enable zero-shot detection (requires transformers library)
+  model_name: "grounding-dino-base"  # Options: "grounding-dino-base" or "google/owlvit-base-patch32"
+  box_threshold: 0.35  # Minimum confidence for bounding boxes (0-1)
+  text_threshold: 0.25  # Minimum text-image alignment confidence (0-1)
+  enable_fp16: true  # Use half-precision for faster inference (requires CUDA)
+
+# Color-based detection settings
+color_detection:
+  adaptive_thresholding: true  # Use adaptive thresholds based on image statistics
+  multi_scale: true  # Process at multiple scales for robustness
+  scales: [1.0, 0.75, 1.25]  # Scale factors for multi-scale detection
+  min_post_height: 0.03  # Minimum post height as fraction of image height
+  min_crossbar_width: 0.02  # Minimum crossbar width as fraction of image width
+
+# Hough transform detection settings
+hough_detection:
+  field_masking: true  # Use green field masking before edge detection
+  green_hue_range: [35, 85]  # HSV hue range for green field detection
+  rho: 1  # Distance resolution in pixels
+  theta: 0.0174533  # Angular resolution in radians (1 degree)
+  threshold: 100  # Minimum number of intersections to detect a line
+  min_line_length: 100  # Minimum line length in pixels
+  max_line_gap: 10  # Maximum gap between line segments to connect
+  vertical_angle_tolerance: [75, 105]  # Angle range for vertical posts (degrees)
+  horizontal_angle_tolerance: [0, 15, 165, 180]  # Angle ranges for horizontal crossbars
+
+# Temporal smoothing settings
+temporal:
+  enabled: true  # Enable temporal smoothing across frames
+  max_history_size: 10  # Number of frames to keep in history
+  distance_threshold: 50.0  # Maximum distance for clustering goals across frames (pixels)
+  consensus_min_frames: 2  # Minimum number of frames with detections for consensus
+
+# Fusion settings
+fusion:
+  # Priority weights for different detection methods
+  weights:
+    zero_shot: 3.0  # Highest priority: semantic understanding
+    color: 2.0  # Second priority: reliable in good conditions
+    lines: 1.0  # Standard weight
+    pairs: 1.0
+    crossbar: 1.0
+  
+  # Confidence boosts
+  confidence_boosts:
+    zero_shot: 0.15  # Boost if zero-shot method agrees
+    color: 0.1  # Boost if color method agrees
+    consensus: 0.15  # Maximum boost from multiple methods agreeing
+
+# Validation settings
+validation:
+  strict_geometry: false  # Use strict geometric validation (more false negatives but fewer false positives)
+  min_confidence: 0.5  # Minimum confidence threshold for accepting detections
+  max_distance_from_edge: 0.3  # Maximum distance from image edge as fraction of image size
+
+# Line segmentation settings (semantic segmentation for pitch line detection)
+line_segmentation:
+  enabled: false  # Enable semantic segmentation for line detection (requires trained model)
+  model_type: "deeplabv3"  # Options: "deeplabv3" or "unet"
+  model_path: null  # Path to trained model checkpoint (None = use color-based fallback)
+  use_pretrained: true  # Use pre-trained weights as starting point (for DeepLabV3)
+  threshold: 0.5  # Binary threshold for mask (0-1)
+  device: null  # Device to use ("cuda", "cpu", or null for auto-detect)

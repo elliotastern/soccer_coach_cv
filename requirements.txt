@@ -5,6 +5,7 @@ opencv-python-headless
 streamlit
 scipy
 scikit-learn
+scikit-image
 polars
 pandas
 numpy

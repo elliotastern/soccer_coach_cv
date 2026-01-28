@@ -8,6 +8,13 @@ import numpy as np
 from typing import List, Tuple, Optional, Dict
 from dataclasses import dataclass
 from src.analysis.pitch_landmarks import LandmarkDatabase, Landmark
+from src.analysis.line_clustering import merged_lines_and_intersection_keypoints
+
+try:
+    from skimage.morphology import skeletonize
+    _SKIMAGE_AVAILABLE = True
+except ImportError:
+    _SKIMAGE_AVAILABLE = False
 
 
 @dataclass
@@ -31,16 +38,55 @@ class PitchKeypointDetector:
     - Field corners
     """
     
-    def __init__(self, pitch_length: float = 105.0, pitch_width: float = 68.0):
+    def __init__(self, pitch_length: float = 105.0, pitch_width: float = 68.0, 
+                 enable_zero_shot: bool = True,
+                 use_semantic_segmentation: bool = False,
+                 segmentation_config: Optional[Dict] = None):
         """
         Initialize detector
         
         Args:
             pitch_length: Standard pitch length in meters
             pitch_width: Standard pitch width in meters
+            enable_zero_shot: Enable zero-shot detection (requires transformers library)
+            use_semantic_segmentation: Enable semantic segmentation for line detection
+            segmentation_config: Configuration dict for segmentation (model_path, model_type, etc.)
         """
         self.pitch_length = pitch_length
         self.pitch_width = pitch_width
+        self.enable_zero_shot = enable_zero_shot
+        self.use_semantic_segmentation = use_semantic_segmentation
+        self._zero_shot_detector = None
+        
+        # Initialize semantic segmentation if enabled
+        self._line_segmenter = None
+        if use_semantic_segmentation:
+            try:
+                from src.analysis.pitch_line_segmentation import PitchLineSegmenter
+                
+                # Get config values with defaults
+                config = segmentation_config or {}
+                model_path = config.get('model_path', None)
+                model_type = config.get('model_type', 'deeplabv3')
+                threshold = config.get('threshold', 0.5)
+                use_pretrained = config.get('use_pretrained', True)
+                device = config.get('device', None)
+                
+                self._line_segmenter = PitchLineSegmenter(
+                    model_path=model_path,
+                    model_type=model_type,
+                    device=device,
+                    threshold=threshold,
+                    use_pretrained=use_pretrained
+                )
+            except ImportError as e:
+                print(f"Warning: Could not import PitchLineSegmenter: {e}")
+                print("Falling back to color-based line detection")
+                self.use_semantic_segmentation = False
+        
+        # Temporal tracking for goal positions (for multi-frame fusion)
+        self._goal_history = []  # List of recent goal detections
+        self._max_history_size = 10  # Keep last 10 frames
         
         # Standard pitch dimensions
         self.goal_width = 7.32  # meters
@@ -54,12 +100,14 @@ class PitchKeypointDetector:
         # Initialize landmark database
         self.landmark_db = LandmarkDatabase(pitch_length, pitch_width)
     
-    def detect_all_keypoints(self, image: np.ndarray) -> List[PitchKeypoint]:
+    def detect_all_keypoints(self, image: np.ndarray, frame_buffer: Optional[List[np.ndarray]] = None) -> List[PitchKeypoint]:
         """
-        Detect all available pitch keypoints from image
+        Detect all available pitch keypoints from image.
+        Supports temporal averaging if frame_buffer is provided (static camera).
         
         Args:
             image: Input image (BGR format)
+            frame_buffer: Optional list of recent frames for temporal averaging (static camera)
         
         Returns:
             List of detected keypoints with their pitch coordinates
@@ -67,7 +115,8 @@ class PitchKeypointDetector:
         keypoints = []
         
         # 1. Detect field lines (white lines on green field)
-        lines = self._detect_field_lines(image)
+        # Use frame averaging if available (static camera)
+        lines = self._detect_field_lines(image, frame_buffer=frame_buffer)
         
         # 2. Detect goals (enhanced)
         goals = self._detect_goals_enhanced(image, lines)
@@ -82,7 +131,8 @@ class PitchKeypointDetector:
         keypoints.extend(touchlines)
         
         # 4. Detect center circle (enhanced)
-        center_circle = self._detect_center_circle_enhanced(image, lines)
+        # Use frame averaging if available (static camera)
+        center_circle = self._detect_center_circle_enhanced(image, lines, frame_buffer=frame_buffer)
         keypoints.extend(center_circle)
         
         # 5. Detect penalty boxes (enhanced)
@@ -101,7 +151,30 @@ class PitchKeypointDetector:
         goal_areas = self._detect_goal_areas(image, lines)
         keypoints.extend(goal_areas)
         
-        # 9. Validate geometric constraints
+        # 9. Virtual keypoints from merged lines (VP + DBSCAN + L_long cap L_trans)
+        h, w = image.shape[:2]
+        if lines is not None and len(lines) >= 4:
+            try:
+                _, _, intersection_pts = merged_lines_and_intersection_keypoints(
+                    lines, w, h,
+                    min_distance_between_keypoints=min(w, h) * 0.05,
+                    extend_bounds_factor=1.5
+                )
+                for ix, iy in intersection_pts[:15]:
+                    norm_x = ix / w
+                    norm_y = iy / h
+                    pitch_x = (norm_x - 0.5) * self.pitch_length
+                    pitch_y = (norm_y - 0.5) * self.pitch_width
+                    keypoints.append(PitchKeypoint(
+                        image_point=(float(ix), float(iy)),
+                        pitch_point=(pitch_x, pitch_y),
+                        landmark_type="virtual_keypoint",
+                        confidence=0.5
+                    ))
+            except Exception:
+                pass
+        
+        # 10. Validate geometric constraints
         keypoints = self._validate_geometric_constraints(keypoints, image)
         
         return keypoints
@@ -374,18 +447,84 @@ class PitchKeypointDetector:
         # All other types pass basic validation
         return True
     
-    def _detect_field_lines(self, image: np.ndarray) -> List[np.ndarray]:
+    def _prepare_mask_for_hough(self, line_mask: np.ndarray) -> np.ndarray:
         """
-        Detect white field lines using color segmentation and line detection
+        Prepare binary line mask for Hough: morphological closing then skeletonization.
+        Skeletonization yields 1-pixel-wide centerlines for precise rho/theta.
+        """
+        # Bridge 1-2 px gaps with closing (linear/elliptical kernel)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        closed = cv2.morphologyEx(line_mask, cv2.MORPH_CLOSE, kernel)
+        if not _SKIMAGE_AVAILABLE:
+            return closed
+        # Skeletonize to 1-pixel centerlines
+        binary = (closed > 0).astype(np.uint8)
+        skel = skeletonize(binary.astype(bool))
+        return (skel.astype(np.uint8)) * 255
+    
+    def _detect_field_lines(self, image: np.ndarray, frame_buffer: Optional[List[np.ndarray]] = None) -> List[np.ndarray]:
+        """
+        Detect white field lines using semantic segmentation or color-based detection.
+        
+        If semantic segmentation is enabled, uses segmentation model to generate
+        a binary mask of pitch lines, then applies Hough transform on the mask.
+        Supports temporal averaging if frame_buffer is provided (static camera).
+        Otherwise, falls back to color-based detection.
         
         Args:
             image: Input image (BGR)
+            frame_buffer: Optional list of recent frames for temporal averaging (static camera)
         
         Returns:
             List of detected lines as [x1, y1, x2, y2]
         """
         h, w = image.shape[:2]
         
+        # Use semantic segmentation if enabled and available
+        if self.use_semantic_segmentation and self._line_segmenter is not None:
+            try:
+                # Get binary mask from segmentation model
+                # Use temporal averaging if available (static camera)
+                if frame_buffer is not None and len(frame_buffer) >= 3:
+                    line_mask = self._line_segmenter.segment_pitch_lines_averaged(frame_buffer)
+                else:
+                    line_mask = self._line_segmenter.segment_pitch_lines(image)
+                
+                # Optimize: Downscale for line detection on very large images
+                if max(h, w) > 3000:
+                    scale_factor = 0.5
+                    small_mask = cv2.resize(line_mask, None, fx=scale_factor, fy=scale_factor)
+                else:
+                    scale_factor = 1.0
+                    small_mask = line_mask
+                
+                # Prepare mask: closing + skeletonization for precise Hough (framework)
+                hough_mask = self._prepare_mask_for_hough(small_mask)
+                min_side = min(hough_mask.shape[0], hough_mask.shape[1])
+                min_line_len = min(100, int(min_side * 0.08))  # ~100 px or 8% of short side
+                # Hough: rho=1, higher minLineLength, maxLineGap 20-50 for secondary hallucination
+                lines = cv2.HoughLinesP(
+                    hough_mask,
+                    rho=1,
+                    theta=np.pi/180,
+                    threshold=40,
+                    minLineLength=max(30, min_line_len),
+                    maxLineGap=30
+                )
+                
+                if lines is not None and len(lines) > 0:
+                    # Scale lines back to original image size if downscaled
+                    if scale_factor < 1.0:
+                        lines = (lines / scale_factor).astype(np.int32)
+                    return lines
+                else:
+                    # If segmentation fails, fall through to color-based
+                    pass
+            except Exception as e:
+                print(f"Warning: Semantic segmentation failed: {e}")
+                print("Falling back to color-based line detection")
+        
+        # Fallback to color-based detection (original method)
         # Optimize: Downscale for line detection on very large images
         # HoughLinesP is also expensive on large images
         if max(h, w) > 3000:
@@ -395,36 +534,46 @@ class PitchKeypointDetector:
             scale_factor = 1.0
             small_image = image
         
-        # Convert to HSV for better color segmentation
+        # Simple approach: mask any shade of white vs everything else
+        # Use multiple color spaces to catch all white/off-white variations
+        
+        # Method 1: Grayscale - simplest, catches all bright pixels
+        gray = cv2.cvtColor(small_image, cv2.COLOR_BGR2GRAY)
+        gray_mask = (gray > 100).astype(np.uint8) * 255  # Low threshold to catch all whites
+        
+        # Method 2: LAB lightness - perceptual lightness (catches off-white better)
+        lab = cv2.cvtColor(small_image, cv2.COLOR_BGR2LAB)
+        l_channel = lab[:, :, 0]  # Lightness channel
+        lab_mask = (l_channel > 120).astype(np.uint8) * 255  # Catch all light colors
+        
+        # Method 3: HSV - catch white with any hue (low saturation, high value)
         hsv = cv2.cvtColor(small_image, cv2.COLOR_BGR2HSV)
+        # Very broad range: any hue, low saturation, high value = white/off-white
+        lower_white = np.array([0, 0, 100])  # Very low threshold for value
+        upper_white = np.array([180, 100, 255])  # High saturation tolerance
+        hsv_mask = cv2.inRange(hsv, lower_white, upper_white)
         
-        # Create mask for white lines (high saturation, high value)
-        # White in HSV: low saturation, high value
-        lower_white = np.array([0, 0, 200])
-        upper_white = np.array([180, 30, 255])
-        white_mask = cv2.inRange(hsv, lower_white, upper_white)
-        
-        # Also detect bright green-white (field lines can appear greenish-white)
-        lower_green_white = np.array([40, 0, 200])
-        upper_green_white = np.array([80, 50, 255])
-        green_white_mask = cv2.inRange(hsv, lower_green_white, upper_green_white)
-        
-        # Combine masks
-        line_mask = cv2.bitwise_or(white_mask, green_white_mask)
+        # Combine all methods (OR) - if ANY method says it's white, it's white
+        line_mask = cv2.bitwise_or(gray_mask, lab_mask)
+        line_mask = cv2.bitwise_or(line_mask, hsv_mask)
         
         # Apply morphological operations to clean up
         kernel = np.ones((3, 3), np.uint8)
         line_mask = cv2.morphologyEx(line_mask, cv2.MORPH_CLOSE, kernel)
         line_mask = cv2.morphologyEx(line_mask, cv2.MORPH_OPEN, kernel)
         
-        # Detect lines using HoughLinesP with optimized parameters
+        # Prepare mask: closing + skeletonization for precise Hough (framework)
+        hough_mask = self._prepare_mask_for_hough(line_mask)
+        min_side = min(hough_mask.shape[0], hough_mask.shape[1])
+        min_line_len = min(100, int(min_side * 0.08))
+        # Hough: rho=1, minLineLength ~100, maxLineGap 20-50
         lines = cv2.HoughLinesP(
-            line_mask,
-            rho=2,  # Increased from 1 for speed
+            hough_mask,
+            rho=1,
             theta=np.pi/180,
-            threshold=50,
-            minLineLength=30 if scale_factor < 1.0 else 50,  # Adjust for downscaled
-            maxLineGap=10
+            threshold=40,
+            minLineLength=max(30, min_line_len),
+            maxLineGap=30
         )
         
         if lines is None:
@@ -438,120 +587,152 @@ class PitchKeypointDetector:
     
     def _detect_goals_improved_lines(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
         """
-        Improved vertical line detection for goal posts with better Hough parameters.
+        Enhanced goal detection using improved Hough transform with geometric validation.
+        
+        Uses field masking, probabilistic Hough transform, and spatial logic to detect
+        goal structures (2 vertical posts + 1 horizontal crossbar).
         
         Args:
             image: Input image
             lines: Detected field lines
         
         Returns:
-            List of goal keypoints from improved line detection
+            List of goal keypoints from enhanced line detection
         """
         h, w = image.shape[:2]
         keypoints = []
         
+        # Step 1: Field masking - detect green field, then invert to find goal posts
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        
+        # Green field detection (HSV range: 35-85 for hue)
+        lower_green = np.array([35, 40, 40])
+        upper_green = np.array([85, 255, 255])
+        field_mask = cv2.inRange(hsv, lower_green, upper_green)
+        
+        # Invert mask to isolate non-field objects (goal posts, lines, etc.)
+        non_field_mask = cv2.bitwise_not(field_mask)
+        
+        # Step 2: Edge detection on masked image
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 50, 150)
+        # Apply mask to gray image
+        masked_gray = cv2.bitwise_and(gray, non_field_mask)
+        edges = cv2.Canny(masked_gray, 50, 150, apertureSize=3)
         
-        # Use both HoughLinesP and HoughLines for better detection
-        # Left goal region (wider region: 20% from left)
-        left_region = edges[:, :int(w * 0.2)]
-        right_region = edges[:, int(w * 0.8):]
+        # Step 3: Enhanced Probabilistic Hough Line Transform
+        # Use optimized parameters for goal detection
+        hough_lines = cv2.HoughLinesP(
+            edges,
+            rho=1,
+            theta=np.pi/180,
+            threshold=100,
+            minLineLength=100,
+            maxLineGap=10
+        )
         
-        # Detect vertical lines with multiple parameter sets
-        vertical_lines_left = []
-        vertical_lines_right = []
+        if hough_lines is None:
+            return []
         
-        # Try different Hough parameter sets for different scales
-        for min_line_length in [30, 50, 80]:
-            for max_line_gap in [5, 10, 15]:
-                # Left region
-                lines_p = cv2.HoughLinesP(left_region, 1, np.pi/180, 30, 
-                                         minLineLength=min_line_length, maxLineGap=max_line_gap)
-                if lines_p is not None:
-                    for line in lines_p:
-                        x1, y1, x2, y2 = line[0]
-                        # Check angle: should be near vertical (75-105 degrees from horizontal)
-                        angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
-                        if abs(angle) > 75 and abs(angle) < 105:
-                            vertical_lines_left.append((x1, y1, x2, y2))
+        # Step 4: Geometric filtering - separate vertical and horizontal lines
+        vertical_lines = []  # Goal posts
+        horizontal_lines = []  # Crossbars
+        
+        for line in hough_lines:
+            x1, y1, x2, y2 = line[0]
+            
+            # Calculate angle (0 = horizontal, 90 = vertical)
+            if x2 != x1:
+                angle = np.arctan2(y2 - y1, x2 - x1) * 180.0 / np.pi
+            else:
+                angle = 90.0
+            
+            # Normalize angle to 0-180 range
+            angle = abs(angle)
+            if angle > 90:
+                angle = 180 - angle
+            
+            # Filter for vertical posts (80-100 degrees, with tolerance for perspective)
+            if 75 <= angle <= 105:
+                vertical_lines.append((x1, y1, x2, y2, angle))
+            # Filter for horizontal crossbars (0-15 or 165-180 degrees)
+            elif angle <= 15 or angle >= 165:
+                horizontal_lines.append((x1, y1, x2, y2, angle))
+        
+        # Step 5: Spatial logic - detect goal structure (2 vertical + 1 horizontal)
+        # Group vertical lines by x-position (goal posts should be close together)
+        left_region_lines = [l for l in vertical_lines if l[0] < w / 2]
+        right_region_lines = [l for l in vertical_lines if l[0] >= w / 2]
+        
+        # Find goal post pairs in each region
+        def find_goal_structure(vertical_lines_list, horizontal_lines_list, pitch_x):
+            """Find goal structure: 2 vertical posts connected by horizontal crossbar"""
+            if len(vertical_lines_list) < 2:
+                return None
+            
+            # Sort by x position
+            sorted_vert = sorted(vertical_lines_list, key=lambda l: (l[0] + l[2]) / 2)
+            
+            # Find pairs of vertical lines that could be goal posts
+            for i in range(len(sorted_vert) - 1):
+                post1 = sorted_vert[i]
+                post2 = sorted_vert[i + 1]
                 
-                # Right region
-                lines_p = cv2.HoughLinesP(right_region, 1, np.pi/180, 30,
-                                         minLineLength=min_line_length, maxLineGap=max_line_gap)
-                if lines_p is not None:
-                    for line in lines_p:
-                        x1, y1, x2, y2 = line[0]
-                        angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
-                        if abs(angle) > 75 and abs(angle) < 105:
-                            vertical_lines_right.append((x1, y1, x2, y2))
-        
-        # Also use standard HoughLines for better angle detection
-        lines_h = cv2.HoughLines(edges, 1, np.pi/180, 100)
-        if lines_h is not None:
-            for line in lines_h:
-                rho, theta = line[0]
-                angle_deg = np.degrees(theta)
-                # Check if near vertical
-                if abs(angle_deg - 90) < 15 or abs(angle_deg - 270) < 15:
-                    # Convert to line endpoints
-                    a = np.cos(theta)
-                    b = np.sin(theta)
-                    x0 = a * rho
-                    y0 = b * rho
-                    x1 = int(x0 + 1000 * (-b))
-                    y1 = int(y0 + 1000 * (a))
-                    x2 = int(x0 - 1000 * (-b))
-                    y2 = int(y0 - 1000 * (a))
+                # Calculate centers
+                x1_center = (post1[0] + post1[2]) / 2
+                y1_center = (post1[1] + post1[3]) / 2
+                x2_center = (post2[0] + post2[2]) / 2
+                y2_center = (post2[1] + post2[3]) / 2
+                
+                # Check if posts are reasonably spaced (goal width ~7.32m)
+                post_distance = abs(x2_center - x1_center)
+                if 30 < post_distance < 500:  # Reasonable goal width in pixels
+                    # Check if there's a horizontal line connecting them (crossbar)
+                    top_y = min(y1_center, y2_center)
+                    bottom_y = max(y1_center, y2_center)
                     
-                    # Check if in goal regions
-                    if x1 < w * 0.2 or x2 < w * 0.2:
-                        vertical_lines_left.append((x1, y1, x2, y2))
-                    if x1 > w * 0.8 or x2 > w * 0.8:
-                        vertical_lines_right.append((x1, y1, x2, y2))
-        
-        # Process left goal
-        if vertical_lines_left:
-            x_positions = []
-            for x1, y1, x2, y2 in vertical_lines_left:
-                # Use midpoint x
-                x_positions.append((x1 + x2) / 2)
+                    has_crossbar = False
+                    for h_line in horizontal_lines_list:
+                        h_x1, h_y1, h_x2, h_y2 = h_line[:4]
+                        h_x_center = (h_x1 + h_x2) / 2
+                        h_y_center = (h_y1 + h_y2) / 2
+                        
+                        # Check if horizontal line is near top of posts
+                        if (min(x1_center, x2_center) - 20 < h_x_center < max(x1_center, x2_center) + 20 and
+                            top_y - 50 < h_y_center < top_y + 50):
+                            has_crossbar = True
+                            break
+                    
+                    # Return goal center (between posts)
+                    goal_x = (x1_center + x2_center) / 2
+                    goal_y = (y1_center + y2_center) / 2
+                    
+                    return (goal_x, goal_y, has_crossbar)
             
-            if x_positions:
-                avg_x = np.median(x_positions)
-                # Use median y from line endpoints
-                y_positions = []
-                for x1, y1, x2, y2 in vertical_lines_left:
-                    y_positions.extend([y1, y2])
-                avg_y = np.median(y_positions) if y_positions else h / 2
-                
-                keypoints.append(PitchKeypoint(
-                    image_point=(float(avg_x), float(avg_y)),
-                    pitch_point=(-self.pitch_length / 2, 0.0),
-                    landmark_type="goal",
-                    confidence=0.75
-                ))
+            return None
         
-        # Process right goal
-        if vertical_lines_right:
-            x_positions = []
-            for x1, y1, x2, y2 in vertical_lines_right:
-                # Adjust for region offset
-                x_positions.append((x1 + x2) / 2 + int(w * 0.8))
-            
-            if x_positions:
-                avg_x = np.median(x_positions)
-                y_positions = []
-                for x1, y1, x2, y2 in vertical_lines_right:
-                    y_positions.extend([y1, y2])
-                avg_y = np.median(y_positions) if y_positions else h / 2
-                
-                keypoints.append(PitchKeypoint(
-                    image_point=(float(avg_x), float(avg_y)),
-                    pitch_point=(self.pitch_length / 2, 0.0),
-                    landmark_type="goal",
-                    confidence=0.75
-                ))
+        # Detect left goal structure
+        left_structure = find_goal_structure(left_region_lines, horizontal_lines, -self.pitch_length / 2)
+        if left_structure:
+            goal_x, goal_y, has_crossbar = left_structure
+            confidence = 0.85 if has_crossbar else 0.75
+            keypoints.append(PitchKeypoint(
+                image_point=(float(goal_x), float(goal_y)),
+                pitch_point=(-self.pitch_length / 2, 0.0),
+                landmark_type="goal",
+                confidence=confidence
+            ))
+        
+        # Detect right goal structure
+        right_structure = find_goal_structure(right_region_lines, horizontal_lines, self.pitch_length / 2)
+        if right_structure:
+            goal_x, goal_y, has_crossbar = right_structure
+            confidence = 0.85 if has_crossbar else 0.75
+            keypoints.append(PitchKeypoint(
+                image_point=(float(goal_x), float(goal_y)),
+                pitch_point=(self.pitch_length / 2, 0.0),
+                landmark_type="goal",
+                confidence=confidence
+            ))
         
         return keypoints
     
@@ -1151,20 +1332,54 @@ class PitchKeypointDetector:
         """
         Fuse goal detections from multiple methods using voting/consensus.
         
+        Improved with better deduplication, outlier filtering, and stricter clustering.
+        
         Args:
             all_detections: List of (method_name, goal) tuples
             image: Input image for reference
         
         Returns:
-            List of fused goal keypoints
+            List of fused goal keypoints (max 2-4 total: 1-2 per side)
         """
         h, w = image.shape[:2]
         
-        # Group detections by side (left vs right)
+        # Step 1: Filter out obvious outliers before clustering
+        # Goals should be near the left/right edges of the image
+        filtered_detections = []
+        for method, goal in all_detections:
+            gx, gy = goal.image_point
+            
+            # Filter by position: goals should be in edge regions
+            # Left goal: x < 30% of width OR x < 50% and pitch_x < 0
+            # Right goal: x > 70% of width OR x > 50% and pitch_x > 0
+            pitch_x = goal.pitch_point[0]
+            is_left = pitch_x < 0
+            is_right = pitch_x > 0
+            
+            # Position validation
+            if is_left and gx > w * 0.5:
+                continue  # Left goal too far right
+            if is_right and gx < w * 0.5:
+                continue  # Right goal too far left
+            
+            # Filter by confidence
+            if goal.confidence < 0.5:
+                continue
+            
+            # Filter by vertical position (goals shouldn't be at extreme top/bottom)
+            if gy < h * 0.05 or gy > h * 0.95:
+                continue
+            
+            filtered_detections.append((method, goal))
+        
+        if len(filtered_detections) == 0:
+            return []
+        
+        # Step 2: Group by side
         left_goals = []
         right_goals = []
         
-        for method, goal in all_detections:
+        for method, goal in filtered_detections:
             pitch_x = goal.pitch_point[0]
             if pitch_x < 0:
                 left_goals.append((method, goal))
@@ -1173,51 +1388,95 @@ class PitchKeypointDetector:
         
         fused = []
         
-        # Fuse left goals
+        # Step 3: Fuse left goals with improved clustering
         if left_goals:
-            # Cluster nearby detections (within 30 pixels for tighter clustering)
+            # Use larger clustering distance (100 pixels) to merge nearby detections
+            # This helps merge detections from different methods that are close
             clusters = []
             for method, goal in left_goals:
                 gx, gy = goal.image_point
-                # Find cluster
                 found_cluster = False
+                
+                # Try to find existing cluster
                 for cluster in clusters:
-                    # Check if close to any goal in cluster
-                    for _, c_goal in cluster:
-                        cx, cy = c_goal.image_point
-                        dist = np.sqrt((gx - cx)**2 + (gy - cy)**2)
-                        if dist < 30:  # Tighter clustering
-                            cluster.append((method, goal))
-                            found_cluster = True
-                            break
-                    if found_cluster:
+                    # Check distance to cluster center
+                    cluster_centers = [(g.image_point[0], g.image_point[1]) for _, g in cluster]
+                    avg_x = np.mean([cx for cx, _ in cluster_centers])
+                    avg_y = np.mean([cy for _, cy in cluster_centers])
+                    
+                    dist = np.sqrt((gx - avg_x)**2 + (gy - avg_y)**2)
+                    if dist < 100:  # Larger clustering distance
+                        cluster.append((method, goal))
+                        found_cluster = True
                         break
                 
                 if not found_cluster:
                     clusters.append([(method, goal)])
             
-            # Fuse each cluster - only keep best clusters
-            # Sort clusters by size and confidence (prefer larger, higher confidence clusters)
-            clusters.sort(key=lambda c: (len(c), np.mean([g.confidence for _, g in c])), reverse=True)
+            # Sort clusters by quality score (consensus + confidence + method priority)
+            def cluster_score(cluster):
+                num_methods = len(cluster)
+                avg_conf = np.mean([g.confidence for _, g in cluster])
+                has_zero_shot = any(m == 'zero_shot' for m, _ in cluster)
+                has_color = any(m == 'color' for m, _ in cluster)
+                
+                # Score: method priority > consensus > confidence
+                method_bonus = 3.0 if has_zero_shot else (2.0 if has_color else 1.0)
+                return method_bonus * num_methods * avg_conf
             
-            # Keep only top 2 clusters per side (left and right goals)
-            for cluster in clusters[:2]:
+            clusters.sort(key=cluster_score, reverse=True)
+            
+            # Keep only the BEST 1-2 clusters per side (not all clusters)
+            # Prefer clusters with multiple methods agreeing
+            best_clusters = []
+            for cluster in clusters:
+                if len(cluster) >= 2:  # Require at least 2 detections agreeing
+                    best_clusters.append(cluster)
+                elif len(best_clusters) == 0 and len(cluster) == 1:
+                    # Allow single detection only if no better clusters exist
+                    method, goal = cluster[0]
+                    if method in ('zero_shot', 'color') and goal.confidence > 0.7:
+                        best_clusters.append(cluster)
+                
+                if len(best_clusters) >= 2:  # Max 2 goals per side
+                    break
+            
+            # Fuse each best cluster
+            for cluster in best_clusters:
                 if len(cluster) == 0:
                     continue
                 
-                # Calculate weighted average position
-                total_confidence = sum(goal.confidence for _, goal in cluster)
-                if total_confidence == 0:
+                # Calculate weighted average position, prioritizing zero-shot and color-based detections
+                # Zero-shot has highest priority (semantic understanding), then color-based
+                weighted_sum_x = 0
+                weighted_sum_y = 0
+                total_weight = 0
+                
+                for method, goal in cluster:
+                    weight = goal.confidence
+                    if method == 'zero_shot':  # Highest priority: semantic understanding
+                        weight *= 3.0
+                    elif method == 'color':  # Second priority: reliable in good conditions
+                        weight *= 2.0
+                    weighted_sum_x += goal.image_point[0] * weight
+                    weighted_sum_y += goal.image_point[1] * weight
+                    total_weight += weight
+                
+                if total_weight == 0:
                     continue
                 
-                weighted_x = sum(goal.image_point[0] * goal.confidence for _, goal in cluster) / total_confidence
-                weighted_y = sum(goal.image_point[1] * goal.confidence for _, goal in cluster) / total_confidence
+                weighted_x = weighted_sum_x / total_weight
+                weighted_y = weighted_sum_y / total_weight
                 
-                # Confidence based on number of methods agreeing
+                # Confidence based on number of methods agreeing, boost if zero-shot or color method agrees
                 num_methods = len(cluster)
+                has_zero_shot = any(method == 'zero_shot' for method, _ in cluster)
+                has_color = any(method == 'color' for method, _ in cluster)
                 base_confidence = np.mean([goal.confidence for _, goal in cluster])
                 consensus_boost = min(0.15, num_methods * 0.05)  # Up to 15% boost
-                final_confidence = min(1.0, base_confidence + consensus_boost)
+                zero_shot_boost = 0.15 if has_zero_shot else 0  # Highest boost for zero-shot
+                color_boost = 0.1 if has_color else 0  # Extra boost if color method agrees
+                final_confidence = min(1.0, base_confidence + consensus_boost + zero_shot_boost + color_boost)
                 
                 fused.append(PitchKeypoint(
                     image_point=(float(weighted_x), float(weighted_y)),
@@ -1226,45 +1485,91 @@ class PitchKeypointDetector:
                     confidence=final_confidence
                 ))
         
-        # Fuse right goals (same process)
+        # Step 4: Fuse right goals (same improved process)
         if right_goals:
+            # Use larger clustering distance (100 pixels) to merge nearby detections
             clusters = []
             for method, goal in right_goals:
                 gx, gy = goal.image_point
                 found_cluster = False
+                
+                # Try to find existing cluster
                 for cluster in clusters:
-                    for _, c_goal in cluster:
-                        cx, cy = c_goal.image_point
-                        dist = np.sqrt((gx - cx)**2 + (gy - cy)**2)
-                        if dist < 30:  # Tighter clustering
-                            cluster.append((method, goal))
-                            found_cluster = True
-                            break
-                    if found_cluster:
+                    # Check distance to cluster center
+                    cluster_centers = [(g.image_point[0], g.image_point[1]) for _, g in cluster]
+                    avg_x = np.mean([cx for cx, _ in cluster_centers])
+                    avg_y = np.mean([cy for _, cy in cluster_centers])
+                    
+                    dist = np.sqrt((gx - avg_x)**2 + (gy - avg_y)**2)
+                    if dist < 100:  # Larger clustering distance
+                        cluster.append((method, goal))
+                        found_cluster = True
                         break
                 
                 if not found_cluster:
                     clusters.append([(method, goal)])
             
-            # Sort clusters by size and confidence
-            clusters.sort(key=lambda c: (len(c), np.mean([g.confidence for _, g in c])), reverse=True)
+            # Sort clusters by quality score
+            def cluster_score(cluster):
+                num_methods = len(cluster)
+                avg_conf = np.mean([g.confidence for _, g in cluster])
+                has_zero_shot = any(m == 'zero_shot' for m, _ in cluster)
+                has_color = any(m == 'color' for m, _ in cluster)
+                
+                method_bonus = 3.0 if has_zero_shot else (2.0 if has_color else 1.0)
+                return method_bonus * num_methods * avg_conf
             
-            # Keep only top 2 clusters per side
-            for cluster in clusters[:2]:
+            clusters.sort(key=cluster_score, reverse=True)
+            
+            # Keep only the BEST 1-2 clusters per side
+            best_clusters = []
+            for cluster in clusters:
+                if len(cluster) >= 2:  # Require at least 2 detections agreeing
+                    best_clusters.append(cluster)
+                elif len(best_clusters) == 0 and len(cluster) == 1:
+                    # Allow single detection only if no better clusters exist
+                    method, goal = cluster[0]
+                    if method in ('zero_shot', 'color') and goal.confidence > 0.7:
+                        best_clusters.append(cluster)
+                
+                if len(best_clusters) >= 2:  # Max 2 goals per side
+                    break
+            
+            # Fuse each best cluster
+            for cluster in best_clusters:
                 if len(cluster) == 0:
                     continue
                 
-                total_confidence = sum(goal.confidence for _, goal in cluster)
-                if total_confidence == 0:
+                # Calculate weighted average position
+                weighted_sum_x = 0
+                weighted_sum_y = 0
+                total_weight = 0
+                
+                for method, goal in cluster:
+                    weight = goal.confidence
+                    if method == 'zero_shot':
+                        weight *= 3.0
+                    elif method == 'color':
+                        weight *= 2.0
+                    weighted_sum_x += goal.image_point[0] * weight
+                    weighted_sum_y += goal.image_point[1] * weight
+                    total_weight += weight
+                
+                if total_weight == 0:
                     continue
                 
-                weighted_x = sum(goal.image_point[0] * goal.confidence for _, goal in cluster) / total_confidence
-                weighted_y = sum(goal.image_point[1] * goal.confidence for _, goal in cluster) / total_confidence
+                weighted_x = weighted_sum_x / total_weight
+                weighted_y = weighted_sum_y / total_weight
                 
+                # Confidence calculation
                 num_methods = len(cluster)
+                has_zero_shot = any(method == 'zero_shot' for method, _ in cluster)
+                has_color = any(method == 'color' for method, _ in cluster)
                 base_confidence = np.mean([goal.confidence for _, goal in cluster])
                 consensus_boost = min(0.15, num_methods * 0.05)
-                final_confidence = min(1.0, base_confidence + consensus_boost)
+                zero_shot_boost = 0.15 if has_zero_shot else 0
+                color_boost = 0.1 if has_color else 0
+                final_confidence = min(1.0, base_confidence + consensus_boost + zero_shot_boost + color_boost)
                 
                 fused.append(PitchKeypoint(
                     image_point=(float(weighted_x), float(weighted_y)),
@@ -1273,11 +1578,53 @@ class PitchKeypointDetector:
                     confidence=final_confidence
                 ))
         
+        # Step 5: Final deduplication - remove any remaining duplicates
+        # Check for goals that are too close to each other (within 20 pixels)
+        if len(fused) > 1:
+            deduplicated = []
+            used = set()
+            for i, goal1 in enumerate(fused):
+                if i in used:
+                    continue
+                
+                g1x, g1y = goal1.image_point
+                keep_goal = goal1
+                
+                # Check for nearby goals
+                for j, goal2 in enumerate(fused[i+1:], start=i+1):
+                    if j in used:
+                        continue
+                    
+                    g2x, g2y = goal2.image_point
+                    dist = np.sqrt((g1x - g2x)**2 + (g1y - g2y)**2)
+                    
+                    if dist < 20:  # Very close, likely duplicate
+                        # Keep the one with higher confidence
+                        if goal2.confidence > keep_goal.confidence:
+                            keep_goal = goal2
+                        used.add(j)
+                
+                deduplicated.append(keep_goal)
+            
+            fused = deduplicated
+        
+        # Step 6: Final filtering - ensure we have at most 4 goals total (2 per side)
+        if len(fused) > 4:
+            # Sort by confidence and keep top 4
+            fused.sort(key=lambda g: g.confidence, reverse=True)
+            fused = fused[:4]
+        
         return fused
     
     def _validate_goal_geometry(self, goal: PitchKeypoint, image: np.ndarray) -> bool:
         """
         Comprehensive geometric validation for goal detections.
+        
+        Stricter validation to reduce false positives:
+        - Goals must be near image edges (left/right)
+        - Minimum confidence threshold
+        - Reasonable vertical position
+        - Valid pitch coordinates
         
         Args:
             goal: Goal keypoint to validate
@@ -1294,39 +1641,329 @@ class PitchKeypointDetector:
         if not (0 <= gx <= w and 0 <= gy <= h):
             return False
         
+        # Minimum confidence threshold
+        if goal.confidence < 0.5:
+            return False
+        
         # Validate pitch coordinates
         expected_x_left = -self.pitch_length / 2
         expected_x_right = self.pitch_length / 2
         
         if pitch_x < 0:
-            # Left goal
+            # Left goal - must be on left side of image
             if abs(pitch_x - expected_x_left) > 10.0:  # Within 10m
                 return False
-            # Should be near left edge
-            if gx > w * 0.35:
+            # Stricter: left goal should be in left 40% of image
+            if gx > w * 0.4:
                 return False
         else:
-            # Right goal
+            # Right goal - must be on right side of image
             if abs(pitch_x - expected_x_right) > 10.0:
                 return False
-            # Should be near right edge
-            if gx < w * 0.65:
+            # Stricter: right goal should be in right 40% of image
+            if gx < w * 0.6:
                 return False
         
         # Pitch y should be near 0 (center line)
         if abs(pitch_y) > 5.0:
             return False
         
-        # Goal should be near center vertically (y near h/2, with tolerance)
-        if abs(gy - h / 2) > h * 0.3:
+        # Goal should be in reasonable vertical position
+        # Not at extreme top/bottom (stricter: within 25% of center)
+        if abs(gy - h / 2) > h * 0.25:
             return False
         
         # All validations passed
         return True
     
+    def _validate_goal_post_geometry(self, goal: PitchKeypoint, image: np.ndarray) -> bool:
+        """
+        Validation for individual goal posts (more relaxed than goal centers).
+        
+        Args:
+            goal: Goal post keypoint to validate
+            image: Input image for reference
+        
+        Returns:
+            True if goal post passes validation, False otherwise
+        """
+        h, w = image.shape[:2]
+        gx, gy = goal.image_point
+        pitch_x, pitch_y = goal.pitch_point
+        
+        # Basic bounds check
+        if not (0 <= gx <= w and 0 <= gy <= h):
+            return False
+        
+        # Validate pitch coordinates
+        expected_x_left = -self.pitch_length / 2
+        expected_x_right = self.pitch_length / 2
+        
+        if pitch_x < 0:
+            # Left goal side
+            if abs(pitch_x - expected_x_left) > 10.0:  # Within 10m
+                return False
+        else:
+            # Right goal side
+            if abs(pitch_x - expected_x_right) > 10.0:
+                return False
+        
+        # Pitch y should be near 0 (center line)
+        if abs(pitch_y) > 5.0:
+            return False
+        
+        # Posts can be anywhere vertically (more relaxed than goal centers)
+        # Just ensure they're not at extreme edges
+        if gy < h * 0.05 or gy > h * 0.95:
+            return False
+        
+        return True
+    
+    def _deduplicate_regions(self, regions: List[Tuple], w: int, h: int, 
+                            distance_threshold: float = 30.0) -> List[Tuple]:
+        """
+        Deduplicate regions from multi-scale detection.
+        
+        Args:
+            regions: List of (center_x, center_y, width, height, aspect_ratio) tuples
+            w: Image width
+            h: Image height
+            distance_threshold: Maximum distance for considering regions as duplicates (pixels)
+        
+        Returns:
+            Deduplicated list of regions
+        """
+        if len(regions) == 0:
+            return []
+        
+        # Sort by area (largest first) to keep best detections
+        regions_sorted = sorted(regions, key=lambda r: r[2] * r[3], reverse=True)
+        
+        deduplicated = []
+        used = set()
+        
+        for i, region in enumerate(regions_sorted):
+            if i in used:
+                continue
+            
+            center_x, center_y = region[0], region[1]
+            deduplicated.append(region)
+            
+            # Mark nearby regions as duplicates
+            for j, other_region in enumerate(regions_sorted[i+1:], start=i+1):
+                if j in used:
+                    continue
+                
+                other_x, other_y = other_region[0], other_region[1]
+                distance = np.sqrt((center_x - other_x)**2 + (center_y - other_y)**2)
+                
+                if distance < distance_threshold:
+                    used.add(j)
+        
+        return deduplicated
+    
+    def _apply_temporal_smoothing(self, current_goals: List[PitchKeypoint], 
+                                  image: np.ndarray) -> List[PitchKeypoint]:
+        """
+        Apply temporal smoothing and multi-frame fusion for goal positions.
+        
+        Uses Kalman filtering principles to predict goal positions during occlusion
+        and aggregates detections across multiple frames for robustness.
+        
+        Args:
+            current_goals: Current frame's goal detections
+            image: Current image (for reference)
+        
+        Returns:
+            Temporally smoothed goal keypoints
+        """
+        h, w = image.shape[:2]
+        
+        # Add current detections to history
+        self._goal_history.append({
+            'goals': current_goals.copy(),
+            'frame_time': len(self._goal_history)  # Simple frame counter
+        })
+        
+        # Keep only recent history
+        if len(self._goal_history) > self._max_history_size:
+            self._goal_history.pop(0)
+        
+        if len(self._goal_history) < 2:
+            # Not enough history yet, return current detections
+            return current_goals
+        
+        # Group goals by side (left vs right) across frames
+        left_goals_history = []
+        right_goals_history = []
+        
+        for frame_data in self._goal_history:
+            for goal in frame_data['goals']:
+                pitch_x = goal.pitch_point[0]
+                if pitch_x < 0:
+                    left_goals_history.append(goal)
+                else:
+                    right_goals_history.append(goal)
+        
+        # Temporal fusion: aggregate positions across frames
+        smoothed_goals = []
+        
+        # Process left goals
+        if left_goals_history:
+            # Cluster nearby detections across frames
+            left_clusters = self._cluster_goals_temporal(left_goals_history, w, h)
+            for cluster in left_clusters:
+                if len(cluster) >= 2:  # Need at least 2 detections across frames
+                    # Weighted average position (more recent = higher weight)
+                    weighted_x = 0
+                    weighted_y = 0
+                    total_weight = 0
+                    
+                    for i, goal in enumerate(cluster):
+                        # More recent detections get higher weight
+                        weight = goal.confidence * (i + 1) / len(cluster)
+                        weighted_x += goal.image_point[0] * weight
+                        weighted_y += goal.image_point[1] * weight
+                        total_weight += weight
+                    
+                    if total_weight > 0:
+                        avg_x = weighted_x / total_weight
+                        avg_y = weighted_y / total_weight
+                        avg_confidence = np.mean([g.confidence for g in cluster])
+                        
+                        smoothed_goals.append(PitchKeypoint(
+                            image_point=(float(avg_x), float(avg_y)),
+                            pitch_point=(-self.pitch_length / 2, 0.0),
+                            landmark_type="goal",
+                            confidence=min(1.0, avg_confidence * 1.1)  # Boost confidence from consensus
+                        ))
+        
+        # Process right goals
+        if right_goals_history:
+            right_clusters = self._cluster_goals_temporal(right_goals_history, w, h)
+            for cluster in right_clusters:
+                if len(cluster) >= 2:
+                    weighted_x = 0
+                    weighted_y = 0
+                    total_weight = 0
+                    
+                    for i, goal in enumerate(cluster):
+                        weight = goal.confidence * (i + 1) / len(cluster)
+                        weighted_x += goal.image_point[0] * weight
+                        weighted_y += goal.image_point[1] * weight
+                        total_weight += weight
+                    
+                    if total_weight > 0:
+                        avg_x = weighted_x / total_weight
+                        avg_y = weighted_y / total_weight
+                        avg_confidence = np.mean([g.confidence for g in cluster])
+                        
+                        smoothed_goals.append(PitchKeypoint(
+                            image_point=(float(avg_x), float(avg_y)),
+                            pitch_point=(self.pitch_length / 2, 0.0),
+                            landmark_type="goal",
+                            confidence=min(1.0, avg_confidence * 1.1)
+                        ))
+        
+        # If temporal smoothing found goals, use them; otherwise use current detections
+        if len(smoothed_goals) > 0:
+            return smoothed_goals
+        else:
+            return current_goals
+    
+    def _cluster_goals_temporal(self, goals: List[PitchKeypoint], w: int, h: int,
+                                distance_threshold: float = 50.0) -> List[List[PitchKeypoint]]:
+        """
+        Cluster goal detections across frames that are spatially close.
+        
+        Args:
+            goals: List of goal detections from multiple frames
+            w: Image width
+            h: Image height
+            distance_threshold: Maximum distance for clustering (pixels)
+        
+        Returns:
+            List of clusters, each containing spatially close goals
+        """
+        if len(goals) == 0:
+            return []
+        
+        clusters = []
+        
+        for goal in goals:
+            gx, gy = goal.image_point
+            
+            # Find existing cluster
+            found_cluster = False
+            for cluster in clusters:
+                for c_goal in cluster:
+                    cx, cy = c_goal.image_point
+                    dist = np.sqrt((gx - cx)**2 + (gy - cy)**2)
+                    if dist < distance_threshold:
+                        cluster.append(goal)
+                        found_cluster = True
+                        break
+                if found_cluster:
+                    break
+            
+            if not found_cluster:
+                clusters.append([goal])
+        
+        return clusters
+    
+    def _detect_goals_zero_shot(self, image: np.ndarray) -> List[PitchKeypoint]:
+        """
+        Detect goals using zero-shot vision-language models (Grounding DINO/OWL-ViT).
+        
+        This method provides semantic understanding of goals without requiring
+        labeled training data. Uses Apache 2.0 licensed models.
+        
+        Args:
+            image: Input image
+        
+        Returns:
+            List of detected goal keypoints
+        """
+        if not self.enable_zero_shot:
+            return []
+        
+        # Lazy load zero-shot detector
+        if self._zero_shot_detector is None:
+            try:
+                from src.analysis.zero_shot_goal_detector import ZeroShotGoalDetector
+                self._zero_shot_detector = ZeroShotGoalDetector(
+                    model_name="grounding-dino-base",
+                    box_threshold=0.35,
+                    text_threshold=0.25,
+                    enable_fp16=True
+                )
+            except ImportError:
+                # transformers not available, disable zero-shot
+                self.enable_zero_shot = False
+                return []
+            except Exception as e:
+                print(f"Warning: Could not initialize zero-shot detector: {e}")
+                self.enable_zero_shot = False
+                return []
+        
+        # Run zero-shot detection
+        try:
+            goals = self._zero_shot_detector.detect_goals(
+                image,
+                pitch_length=self.pitch_length,
+                pitch_width=self.pitch_width
+            )
+            return goals
+        except Exception as e:
+            print(f"Warning: Zero-shot detection failed: {e}")
+            return []
+    
     def _detect_goals_by_color(self, image: np.ndarray) -> List[PitchKeypoint]:
         """
-        Detect goal posts using color-based detection (white goal posts).
+        Detect goal posts using enhanced color-based detection with adaptive thresholds.
+        
+        Uses adaptive thresholding based on image statistics and multi-scale processing
+        for better robustness to varying lighting conditions.
         
         Args:
             image: Input image (BGR format)
@@ -1340,62 +1977,226 @@ class PitchKeypointDetector:
         # Convert to HSV for better color detection
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         
-        # Define white color range in HSV
-        # White has low saturation and high value
-        lower_white = np.array([0, 0, 200])  # Low S, high V
-        upper_white = np.array([180, 30, 255])  # Allow some saturation for off-white
+        # Adaptive thresholding: analyze image statistics
+        v_channel = hsv[:, :, 2]  # Value channel
+        v_mean = np.mean(v_channel)
+        v_std = np.std(v_channel)
         
-        # Create mask for white regions
-        white_mask = cv2.inRange(hsv, lower_white, upper_white)
+        # Adaptive white detection: adjust thresholds based on image brightness
+        # For bright images, use higher thresholds; for dark images, use lower
+        if v_mean > 150:  # Bright image
+            base_v_low = 200
+            base_v_high = 255
+        elif v_mean > 100:  # Medium brightness
+            base_v_low = max(150, v_mean - v_std)
+            base_v_high = min(255, v_mean + 2 * v_std)
+        else:  # Dark image
+            base_v_low = max(120, v_mean - 0.5 * v_std)
+            base_v_high = min(255, v_mean + 2.5 * v_std)
         
-        # Apply morphological operations to clean up
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        white_mask = cv2.morphologyEx(white_mask, cv2.MORPH_CLOSE, kernel)
-        white_mask = cv2.morphologyEx(white_mask, cv2.MORPH_OPEN, kernel)
+        # Define adaptive white color range in HSV
+        lower_white = np.array([0, 0, int(base_v_low)])
+        upper_white = np.array([180, 30, int(base_v_high)])
         
-        # Find contours of white regions
-        contours, _ = cv2.findContours(white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Multi-scale detection: process at different scales
+        scales = [1.0, 0.75, 1.25]  # Original, smaller, larger
+        all_goal_regions = []
         
-        # Filter for vertical rectangular shapes (goal posts)
-        goal_regions = []
-        for contour in contours:
-            # Get bounding box
-            x, y, cw, ch = cv2.boundingRect(contour)
+        for scale in scales:
+            if scale != 1.0:
+                scaled_h = int(h * scale)
+                scaled_w = int(w * scale)
+                scaled_hsv = cv2.resize(hsv, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA)
+            else:
+                scaled_hsv = hsv
             
-            # Filter by aspect ratio (goal posts are tall and narrow)
-            if ch > 0:
-                aspect_ratio = cw / ch
-                # Goal posts should be narrow (width < height/3)
-                if aspect_ratio < 0.3 and ch > h * 0.05:  # At least 5% of image height
-                    # Check if in goal regions (left or right 20% of image)
-                    if x < w * 0.2 or x > w * 0.8:
-                        goal_regions.append((x + cw / 2, y + ch / 2, cw, ch))
+            # Create mask for white regions
+            white_mask = cv2.inRange(scaled_hsv, lower_white, upper_white)
+            
+            # Enhanced morphological operations
+            kernel_small = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+            kernel_medium = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+            
+            # Close small gaps
+            white_mask = cv2.morphologyEx(white_mask, cv2.MORPH_CLOSE, kernel_small)
+            # Remove noise
+            white_mask = cv2.morphologyEx(white_mask, cv2.MORPH_OPEN, kernel_medium)
+            
+            # Find contours
+            contours, _ = cv2.findContours(white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            # Scale back coordinates if needed
+            for contour in contours:
+                if scale != 1.0:
+                    # Scale contour coordinates back to original size
+                    contour = (contour / scale).astype(np.int32)
+                
+                x, y, cw, ch = cv2.boundingRect(contour)
+                if ch > 0:
+                    aspect_ratio = cw / ch
+                    area = cw * ch
+                    
+                    # Filter for goal-like structures
+                    # Goal posts: tall and narrow (aspect_ratio < 0.4)
+                    # Crossbars: wide and short (aspect_ratio > 2.0)
+                    # Large structures: entire goal frame
+                    is_vertical_post = aspect_ratio < 0.4 and ch > h * 0.03
+                    is_crossbar = aspect_ratio > 2.0 and cw > w * 0.02
+                    is_large_structure = area > (h * w * 0.001) and 0.3 < aspect_ratio < 3.0
+                    
+                    if is_vertical_post or is_crossbar or is_large_structure:
+                        center_x = x + cw / 2
+                        center_y = y + ch / 2
+                        all_goal_regions.append((center_x, center_y, cw, ch, aspect_ratio))
+        
+        # Deduplicate regions from multi-scale detection
+        goal_regions = self._deduplicate_regions(all_goal_regions, w, h)
         
         # Group goal posts by region (left vs right)
-        left_posts = [p for p in goal_regions if p[0] < w / 2]
-        right_posts = [p for p in goal_regions if p[0] > w / 2]
+        # goal_regions format: (center_x, center_y, width, height, aspect_ratio)
+        # Extract just (x, y) for pair finding
+        left_posts = [(p[0], p[1]) for p in goal_regions if p[0] < w / 2]
+        right_posts = [(p[0], p[1]) for p in goal_regions if p[0] > w / 2]
         
-        # Left goal: use median x position of left posts
-        if left_posts:
-            left_x = np.median([p[0] for p in left_posts])
-            left_y = np.median([p[1] for p in left_posts])
-            keypoints.append(PitchKeypoint(
-                image_point=(float(left_x), float(left_y)),
-                pitch_point=(-self.pitch_length / 2, 0.0),
-                landmark_type="goal",
-                confidence=0.7
-            ))
+        # Look for goal structures: pairs of posts (two vertical posts)
+        # Goals typically have two posts, so look for pairs of posts close together
+        def find_goal_posts(posts, pitch_x):
+            """
+            Find goal post pairs and return individual left and right posts.
+            
+            Args:
+                posts: List of post positions (x, y) tuples
+                pitch_x: Pitch x coordinate for this goal side (negative for left, positive for right)
+            
+            Returns:
+                List of (left_post, right_post) tuples, or empty list if no pairs found
+            """
+            if len(posts) < 2:
+                return []  # Need at least 2 posts to form a pair
+            
+            # Sort by x position
+            sorted_posts = sorted(posts, key=lambda p: p[0])
+            pairs = []
+            
+            # Find pairs that are close together (goal width ~7.32m, but in pixels)
+            # Typical goal width in image: roughly 30-500 pixels depending on distance and camera angle
+            for i in range(len(sorted_posts) - 1):
+                p1 = sorted_posts[i]  # Left post (smaller x)
+                p2 = sorted_posts[i + 1]  # Right post (larger x)
+                dist = abs(p1[0] - p2[0])
+                
+                # Goal posts should be roughly 30-500 pixels apart
+                if 30 < dist < 500:
+                    pairs.append((p1, p2))
+            
+            return pairs
         
-        # Right goal: use median x position of right posts
-        if right_posts:
-            right_x = np.median([p[0] for p in right_posts])
-            right_y = np.median([p[1] for p in right_posts])
-            keypoints.append(PitchKeypoint(
-                image_point=(float(right_x), float(right_y)),
-                pitch_point=(self.pitch_length / 2, 0.0),
-                landmark_type="goal",
-                confidence=0.7
-            ))
+        # Find left goal post pairs
+        left_goal_pairs = find_goal_posts(left_posts, -self.pitch_length / 2)
+        
+        # Score and sort pairs by quality (prefer pairs closer to expected goal position)
+        # Goals should be near the left edge and in reasonable vertical position
+        scored_left_pairs = []
+        for left_post, right_post in left_goal_pairs:
+            goal_y = (left_post[1] + right_post[1]) / 2
+            goal_x = (left_post[0] + right_post[0]) / 2
+            post_distance = abs(left_post[0] - right_post[0])
+            
+            # Score: prefer goals near left edge, reasonable vertical position, reasonable post distance
+            edge_score = 1.0 / (1.0 + goal_x / (w * 0.1))  # Closer to left edge = higher score
+            vertical_score = 1.0 - abs(goal_y - h / 2) / (h / 2)  # Closer to center = higher score
+            distance_score = 1.0 if 50 < post_distance < 300 else 0.5  # Reasonable goal width
+            
+            score = edge_score * vertical_score * distance_score
+            scored_left_pairs.append((score, left_post, right_post))
+        
+        # Sort by score and keep only top 1-2 pairs
+        scored_left_pairs.sort(key=lambda x: x[0], reverse=True)
+        for score, left_post, right_post in scored_left_pairs[:2]:  # Max 2 pairs
+            goal_y = (left_post[1] + right_post[1]) / 2
+            # Additional validation: reasonable vertical position
+            if h * 0.1 < goal_y < h * 0.9:
+                # Left post of the goal (smaller x coordinate)
+                keypoints.append(PitchKeypoint(
+                    image_point=(float(left_post[0]), float(left_post[1])),
+                    pitch_point=(-self.pitch_length / 2, 0.0),
+                    landmark_type="goal_post_left",
+                    confidence=0.8
+                ))
+                # Right post of the goal (larger x coordinate)
+                keypoints.append(PitchKeypoint(
+                    image_point=(float(right_post[0]), float(right_post[1])),
+                    pitch_point=(-self.pitch_length / 2, 0.0),
+                    landmark_type="goal_post_right",
+                    confidence=0.8
+                ))
+        
+        # Find right goal post pairs
+        right_goal_pairs = find_goal_posts(right_posts, self.pitch_length / 2)
+        
+        # Score and sort pairs by quality
+        scored_right_pairs = []
+        for left_post, right_post in right_goal_pairs:
+            goal_y = (left_post[1] + right_post[1]) / 2
+            goal_x = (left_post[0] + right_post[0]) / 2
+            post_distance = abs(left_post[0] - right_post[0])
+            
+            # Score: prefer goals near right edge, reasonable vertical position, reasonable post distance
+            edge_score = 1.0 / (1.0 + (w - goal_x) / (w * 0.1))  # Closer to right edge = higher score
+            vertical_score = 1.0 - abs(goal_y - h / 2) / (h / 2)  # Closer to center = higher score
+            distance_score = 1.0 if 50 < post_distance < 300 else 0.5  # Reasonable goal width
+            
+            score = edge_score * vertical_score * distance_score
+            scored_right_pairs.append((score, left_post, right_post))
+        
+        # Sort by score and keep only top 1-2 pairs
+        scored_right_pairs.sort(key=lambda x: x[0], reverse=True)
+        for score, left_post, right_post in scored_right_pairs[:2]:  # Max 2 pairs
+            goal_y = (left_post[1] + right_post[1]) / 2
+            # Additional validation: goal should be in reasonable vertical position
+            if h * 0.1 < goal_y < h * 0.9:  # Between 10% and 90% of image height
+                # Left post of the goal (smaller x coordinate)
+                keypoints.append(PitchKeypoint(
+                    image_point=(float(left_post[0]), float(left_post[1])),
+                    pitch_point=(self.pitch_length / 2, 0.0),
+                    landmark_type="goal_post_left",
+                    confidence=0.8
+                ))
+                # Right post of the goal (larger x coordinate)
+                keypoints.append(PitchKeypoint(
+                    image_point=(float(right_post[0]), float(right_post[1])),
+                    pitch_point=(self.pitch_length / 2, 0.0),
+                    landmark_type="goal_post_right",
+                    confidence=0.8
+                ))
+        
+        # If no goals found by posts, try finding large white structures (entire goal frame)
+        if not keypoints:
+            # Look for large white rectangular structures that could be goals
+            large_structures = []
+            for contour in contours:
+                x, y, cw, ch = cv2.boundingRect(contour)
+                area = cw * ch
+                aspect_ratio = cw / ch if ch > 0 else 0
+                
+                # Look for reasonably large structures in goal regions
+                # Right side: x > w * 0.4, reasonable size, not too extreme aspect ratio
+                if x > w * 0.4 and area > (h * w * 0.001) and 0.3 < aspect_ratio < 3.0:
+                    center_y = y + ch / 2
+                    # Prefer structures in middle-upper region (not at very bottom)
+                    if h * 0.1 < center_y < h * 0.85:
+                        large_structures.append((x + cw / 2, center_y, area))
+            
+            # Use the largest structure in reasonable position
+            if large_structures:
+                large_structures.sort(key=lambda s: s[2], reverse=True)  # Sort by area
+                best_goal = large_structures[0]
+                keypoints.append(PitchKeypoint(
+                    image_point=(float(best_goal[0]), float(best_goal[1])),
+                    pitch_point=(self.pitch_length / 2, 0.0),
+                    landmark_type="goal",
+                    confidence=0.7
+                ))
         
         return keypoints
     
@@ -1427,6 +2228,85 @@ class PitchKeypointDetector:
         for goal in color_goals:
             all_detections.append(('color', goal))
         
+        # Check if color-based detection found individual posts
+        color_posts = [g for method, g in all_detections if method == 'color' and g.landmark_type in ('goal_post_left', 'goal_post_right')]
+        
+        # If we have individual posts from color detection, validate and pair them properly
+        if len(color_posts) > 0:
+            # Apply validation to individual posts
+            validated_posts = []
+            for goal in color_posts:
+                # Use relaxed validation for individual posts
+                if self._validate_goal_post_geometry(goal, image):
+                    validated_posts.append(goal)
+            
+            if len(validated_posts) > 0:
+                # Group by side
+                left_side_posts = [g for g in validated_posts if g.pitch_point[0] < 0]
+                right_side_posts = [g for g in validated_posts if g.pitch_point[0] > 0]
+                
+                # Pair posts on each side - only keep posts that are part of a valid pair
+                paired_posts = []
+                
+                # Pair left side posts
+                for i, post1 in enumerate(left_side_posts):
+                    for post2 in left_side_posts[i+1:]:
+                        # Check if these two posts could be from the same goal
+                        dist = np.sqrt((post1.image_point[0] - post2.image_point[0])**2 + 
+                                      (post1.image_point[1] - post2.image_point[1])**2)
+                        # Goal posts should be 30-500 pixels apart horizontally
+                        # And roughly at similar vertical positions (within 300 pixels for perspective)
+                        h_dist = abs(post1.image_point[0] - post2.image_point[0])
+                        v_dist = abs(post1.image_point[1] - post2.image_point[1])
+                        
+                        # More flexible: allow larger vertical distance for perspective views
+                        # But ensure horizontal distance is reasonable for goal width
+                        if 30 < h_dist < 500 and v_dist < 300:  # Valid goal pair
+                            # Determine which is left and which is right post
+                            if post1.image_point[0] < post2.image_point[0]:
+                                left_post, right_post = post1, post2
+                            else:
+                                left_post, right_post = post2, post1
+                            
+                            # Only add if not already added
+                            if left_post not in paired_posts:
+                                paired_posts.append(left_post)
+                            if right_post not in paired_posts:
+                                paired_posts.append(right_post)
+                            break  # Found a pair for post1
+                
+                # Pair right side posts
+                for i, post1 in enumerate(right_side_posts):
+                    for post2 in right_side_posts[i+1:]:
+                        dist = np.sqrt((post1.image_point[0] - post2.image_point[0])**2 + 
+                                      (post1.image_point[1] - post2.image_point[1])**2)
+                        h_dist = abs(post1.image_point[0] - post2.image_point[0])
+                        v_dist = abs(post1.image_point[1] - post2.image_point[1])
+                        
+                        # More flexible: allow larger vertical distance for perspective views
+                        if 30 < h_dist < 500 and v_dist < 300:  # Valid goal pair
+                            if post1.image_point[0] < post2.image_point[0]:
+                                left_post, right_post = post1, post2
+                            else:
+                                left_post, right_post = post2, post1
+                            
+                            if left_post not in paired_posts:
+                                paired_posts.append(left_post)
+                            if right_post not in paired_posts:
+                                paired_posts.append(right_post)
+                            break
+                
+                # Only return if we have properly paired posts (at least 2 posts forming a pair)
+                if len(paired_posts) >= 2:
+                    # Limit to max 4 posts (2 pairs: one per side)
+                    if len(paired_posts) <= 4:
+                        return paired_posts
+                    else:
+                        # If too many, keep the best pairs (by confidence and position)
+                        paired_posts.sort(key=lambda g: (g.confidence, -abs(g.image_point[0] - image.shape[1]/2)), reverse=True)
+                        return paired_posts[:4]
+        
+        # Otherwise, use other methods and fuse
         # Method 2: Improved vertical line detection
         line_goals = self._detect_goals_improved_lines(image, lines)
         for goal in line_goals:
@@ -1437,7 +2317,13 @@ class PitchKeypointDetector:
         for goal in pair_goals:
             all_detections.append(('pairs', goal))
         
-        # Method 4: Crossbar detection (enhances existing detections)
+        # Method 4: Zero-shot detection (semantic understanding)
+        if self.enable_zero_shot:
+            zero_shot_goals = self._detect_goals_zero_shot(image)
+            for goal in zero_shot_goals:
+                all_detections.append(('zero_shot', goal))
+        
+        # Method 5: Crossbar detection (enhances existing detections)
         crossbar_goals = self._detect_goal_crossbar(image, all_detections)
         for goal in crossbar_goals:
             all_detections.append(('crossbar', goal))
@@ -1450,6 +2336,11 @@ class PitchKeypointDetector:
         for goal in fused_goals:
             if self._validate_goal_geometry(goal, image):
                 validated_goals.append(goal)
+        
+        # Apply temporal smoothing and multi-frame fusion
+        if len(validated_goals) > 0:
+            smoothed_goals = self._apply_temporal_smoothing(validated_goals, image)
+            return smoothed_goals
         
         return validated_goals
     
@@ -1539,15 +2430,20 @@ class PitchKeypointDetector:
         
         return keypoints
     
-    def _detect_center_circle_enhanced(self, image: np.ndarray, lines: List[np.ndarray], num_points: int = 8) -> List[PitchKeypoint]:
+    def _detect_center_circle_enhanced(self, image: np.ndarray, lines: List[np.ndarray], num_points: int = 8, 
+                                      frame_buffer: Optional[List[np.ndarray]] = None) -> List[PitchKeypoint]:
         """
         Enhanced center circle detection with radius validation.
         Samples multiple points evenly spaced around the circle for better homography accuracy.
+        
+        Uses segmentation mask first (better for off-white circles), then falls back to grayscale.
+        Supports temporal averaging if frame_buffer is provided (static camera).
         
         Args:
             image: Input image
             lines: Detected field lines
             num_points: Number of points to sample around circle (default: 8, range: 4-16)
+            frame_buffer: Optional list of recent frames for temporal averaging (static camera)
         
         Returns:
             List of center circle keypoints (center + num_points evenly spaced around circle)
@@ -1558,36 +2454,73 @@ class PitchKeypointDetector:
         # Clamp num_points to reasonable range
         num_points = max(4, min(16, num_points))
         
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # Method 1: Try HoughCircles on segmentation mask (better for off-white circles)
+        # Use temporal averaging if available (static camera)
+        segmentation_mask = None
+        if self.use_semantic_segmentation and self._line_segmenter is not None:
+            try:
+                if frame_buffer is not None and len(frame_buffer) >= 3:
+                    # Use averaged mask for better stability (static camera)
+                    segmentation_mask = self._line_segmenter.segment_pitch_lines_averaged(frame_buffer)
+                else:
+                    # Single frame detection
+                    segmentation_mask = self._line_segmenter.segment_pitch_lines(image)
+            except:
+                pass
         
         # Optimize: Downscale large images for HoughCircles (much faster)
-        # HoughCircles is O(n²) so downscaling dramatically improves speed
-        # Use aggressive downscaling for very large images
         if max(h, w) > 3000:
-            scale_factor = 0.25  # 4x downscale for very large images (faster)
+            scale_factor = 0.25
         elif max(h, w) > 2000:
-            scale_factor = 0.4   # 2.5x downscale for large images (faster)
+            scale_factor = 0.4
         else:
-            scale_factor = 1.0   # No downscale for smaller images
-        if scale_factor < 1.0:
-            small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
-            small_h, small_w = small_gray.shape[:2]
-        else:
-            small_gray = gray
-            small_h, small_w = h, w
+            scale_factor = 1.0
         
-        # Detect circles with optimized parameters (on downscaled image)
-        # dp=2 is faster than dp=1 with minimal accuracy loss
-        circles = cv2.HoughCircles(
-            small_gray,
-            cv2.HOUGH_GRADIENT,
-            dp=2,  # Increased from 1 for speed (2x faster)
-            minDist=int(min(small_h, small_w) / 3),
-            param1=50,
-            param2=25,  # Lowered from 30 for speed (still accurate)
-            minRadius=int(min(small_h, small_w) / 25),
-            maxRadius=int(min(small_h, small_w) / 8)
-        )
+        circles = None
+        
+        # Try detection on segmentation mask first (where circle appears as white pixels)
+        if segmentation_mask is not None:
+            if scale_factor < 1.0:
+                small_mask = cv2.resize(segmentation_mask, None, fx=scale_factor, fy=scale_factor)
+                small_h, small_w = small_mask.shape[:2]
+            else:
+                small_mask = segmentation_mask
+                small_h, small_w = h, w
+            
+            # HoughCircles on mask - circle should appear as white pixels
+            # Lower param2 to detect weaker circles (20 instead of 25)
+            circles = cv2.HoughCircles(
+                small_mask,
+                cv2.HOUGH_GRADIENT,
+                dp=2,
+                minDist=int(min(small_h, small_w) / 3),
+                param1=50,
+                param2=20,  # Lowered to 20 for weaker circle detection
+                minRadius=int(min(small_h, small_w) / 25),
+                maxRadius=int(min(small_h, small_w) / 8)
+            )
+        
+        # Fallback: Try on grayscale if mask detection failed
+        if circles is None:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            if scale_factor < 1.0:
+                small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
+                small_h, small_w = small_gray.shape[:2]
+            else:
+                small_gray = gray
+                small_h, small_w = h, w
+            
+            # Detect circles with optimized parameters (on downscaled image)
+            circles = cv2.HoughCircles(
+                small_gray,
+                cv2.HOUGH_GRADIENT,
+                dp=2,
+                minDist=int(min(small_h, small_w) / 3),
+                param1=50,
+                param2=20,  # Lowered to 20 for weaker circle detection
+                minRadius=int(min(small_h, small_w) / 25),
+                maxRadius=int(min(small_h, small_w) / 8)
+            )
         
         if circles is not None:
             circles = np.uint16(np.around(circles))
@@ -1619,15 +2552,18 @@ class PitchKeypointDetector:
                 expected_radius_range = (min(h, w) / 20, min(h, w) / 8)
                 if expected_radius_range[0] <= r <= expected_radius_range[1]:
                     # Center of circle
+                    # Higher confidence if detected from segmentation mask
+                    mask_confidence = 0.85 if segmentation_mask is not None else 0.8
                     keypoints.append(PitchKeypoint(
                         image_point=(float(cx), float(cy)),
                         pitch_point=(0.0, 0.0),
                         landmark_type="center_circle",
-                        confidence=0.8
+                        confidence=mask_confidence
                     ))
                     
                     # Sample num_points evenly spaced around the circle
                     # Angle 0 is at top (negative y in pitch coordinates)
+                    point_confidence = 0.75 if segmentation_mask is not None else 0.7
                     for i in range(num_points):
                         angle = 2 * np.pi * i / num_points
                         # Image coordinates: angle 0 is at top (negative y)
@@ -1642,7 +2578,7 @@ class PitchKeypointDetector:
                             image_point=(float(img_x), float(img_y)),
                             pitch_point=(pitch_x, pitch_y),
                             landmark_type="center_circle",
-                            confidence=0.7
+                            confidence=point_confidence
                         ))
         
         # Fallback to basic detection
@@ -2330,7 +3266,9 @@ def detect_pitch_keypoints_auto(image: np.ndarray,
                                 pitch_length: float = 105.0,
                                 pitch_width: float = 68.0,
                                 min_points: int = 4,
-                                max_points: int = 25) -> Optional[Dict]:
+                                max_points: int = 25,
+                                use_semantic_segmentation: bool = False,
+                                segmentation_config: Optional[Dict] = None) -> Optional[Dict]:
     """
     Convenience function to automatically detect pitch keypoints
     
@@ -2340,11 +3278,18 @@ def detect_pitch_keypoints_auto(image: np.ndarray,
         pitch_width: Pitch width in meters
         min_points: Minimum points required (default: 4)
         max_points: Maximum points to use (default: 25 for comprehensive system)
+        use_semantic_segmentation: Enable semantic segmentation for line detection
+        segmentation_config: Configuration dict for segmentation (model_path, model_type, etc.)
     
     Returns:
         Dictionary with 'image_points' and 'pitch_points' arrays, or None if insufficient points
     """
-    detector = PitchKeypointDetector(pitch_length, pitch_width)
+    detector = PitchKeypointDetector(
+        pitch_length=pitch_length,
+        pitch_width=pitch_width,
+        use_semantic_segmentation=use_semantic_segmentation,
+        segmentation_config=segmentation_config
+    )
     keypoints = detector.detect_all_keypoints(image)
     # Pass image for y-axis reliability calculation
     selected = detector.select_best_keypoints(
