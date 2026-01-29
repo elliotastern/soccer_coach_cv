@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
 Simple HTTP server to view annotations
-Run this and open http://localhost:8000/view_annotations.html in your browser
+Run this and open http://localhost:6851/view_annotations.html in your browser (default port 6851)
 """
+import argparse
 import http.server
 import socketserver
 import os
 import json
 from pathlib import Path
 
-PORT = 8000
+PORT = 6851
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -108,25 +109,34 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 def main():
+    parser = argparse.ArgumentParser(description="HTTP server for annotation/viewer HTML")
+    parser.add_argument("--port", "-p", type=int, default=PORT,
+                        help=f"Port to listen on (default: {PORT})")
+    args = parser.parse_args()
+    port = args.port
+
     os.chdir(Path(__file__).parent)
-    
+
     # Allow socket reuse to avoid "Address already in use" errors
     socketserver.TCPServer.allow_reuse_address = True
-    httpd = socketserver.TCPServer(("", PORT), MyHTTPRequestHandler)
+    httpd = socketserver.TCPServer(("", port), MyHTTPRequestHandler)
     print("=" * 60)
     print("🌐 Annotation Viewer Server Started")
     print("=" * 60)
-    print(f"📍 Server running at: http://localhost:{PORT}")
-    print(f"📄 Open in browser: http://localhost:{PORT}/view_annotations_editor.html")
+    print(f"📍 Server running at: http://localhost:{port}")
+    print(f"📄 Open in browser: http://localhost:{port}/view_annotations_editor.html")
+    print(f"📄 37a results: http://localhost:{port}/data/output/37a_20frames/viewer.html")
+    print(f"📄 37a frames+bboxes: http://localhost:{port}/data/output/37a_20frames/viewer_with_frames.html")
     print("=" * 60)
     print("Press Ctrl+C to stop")
     print()
-    
+
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\n\nServer stopped.")
         httpd.shutdown()
+
 
 if __name__ == "__main__":
     main()

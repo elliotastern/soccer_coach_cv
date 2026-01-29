@@ -46,6 +46,7 @@ pip install -r requirements.txt
 ```
 
 **Key Dependencies:**
+- **RF-DETR** ([roboflow/rf-detr](https://github.com/roboflow/rf-detr)) – detection model (`pip install rfdetr`)
 - PyTorch & Torchvision (training)
 - Transformers (DETR model)
 - MLflow (experiment tracking)
@@ -75,6 +76,24 @@ roboflow:
 
 ```bash
 python main.py --video path/to/video.mp4 --config configs/default.yaml --output data/output
+```
+
+### Player detection on 37a (20 frames)
+
+Uses the person model `models/checkpoint_best_total_after_100_epochs.pth` and video `data/raw/37CAE053-841F-4851-956E-CBF17A51C506.mp4`. Output: `data/output/37a_20frames/`.
+
+```bash
+./run_player_detection_37a_20frames.sh
+```
+
+Or manually:
+
+```bash
+python scripts/process_video_pipeline.py \
+  "data/raw/37CAE053-841F-4851-956E-CBF17A51C506.mp4" \
+  --model models/checkpoint_best_total_after_100_epochs.pth \
+  --output data/output/37a_20frames \
+  --max-frames 20
 ```
 
 ### Review Dashboard

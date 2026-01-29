@@ -22,8 +22,10 @@ pycocotools
 tensorboard
 pillow
 mlflow
+# RF-DETR from Roboflow (https://github.com/roboflow/rf-detr)
 rfdetr>=1.3.0
-byte-track>=1.0.0
+# Or install latest from GitHub: pip install "rfdetr @ git+https://github.com/roboflow/rf-detr.git"
+# ByteTrack: main pipeline uses supervision's built-in ByteTrack (no separate package)
 
 # RF-DETR additional dependencies (from pyproject.toml)
 tqdm
