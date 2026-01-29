@@ -19,6 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # --- CONFIGURATION ---
 DISTORTION_K = -0.32  # TUNE THIS: -0.2 (slight curve) to -0.5 (heavy curve)
+ALPHA = 0.5  # 0=crop to valid (no black), 1=full frame (black edges), 0.5=compromise (shows more sides)
 NET_MASK_HEIGHT = 0.15  # Mask out the bottom 15% of the screen (the net)
 
 
@@ -96,7 +97,7 @@ def main():
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             continue
         frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
-        straight_frame = defish_frame(frame, k=current_k[0])
+        straight_frame = defish_frame(frame, k=current_k[0], alpha=ALPHA)
         line_view = isolate_lines(straight_frame)
         cv2.imshow("1. Defished Reality", straight_frame)
         cv2.imshow("2. Extracted Lines (No Lights/Net)", line_view)

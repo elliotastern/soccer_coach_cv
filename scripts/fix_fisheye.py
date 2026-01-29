@@ -56,11 +56,15 @@ def main():
         sys.exit(1)
 
     current_k = args.k
+    current_alpha = args.alpha
     print("--- FISHEYE FIXER TOOL ---")
     print("Press '=' to STRAIGHTEN MORE (more negative)")
     print("Press '-' to STRAIGHTEN LESS (closer to 0)")
+    print("Press 'a' to INCREASE alpha (show more sides, may have black edges)")
+    print("Press 'z' to DECREASE alpha (crop more, no black edges)")
     print("Press 'q' to QUIT")
     print("--------------------------")
+    print(f"Current k: {current_k:.3f}, alpha: {current_alpha:.2f}")
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -68,23 +72,30 @@ def main():
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             continue
         frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
-        fixed_frame = defish_frame(frame, current_k, alpha=args.alpha)
+        fixed_frame = defish_frame(frame, current_k, alpha=current_alpha)
         h, w = fixed_frame.shape[:2]
         cv2.line(fixed_frame, (0, h // 2), (w, h // 2), (0, 0, 255), 1)
-        cv2.imshow("Fisheye Fixer (Use + and - to tune)", fixed_frame)
+        title = f"Fisheye Fixer | k={current_k:.3f} alpha={current_alpha:.2f} | =/-: k, a/z: alpha, q: quit"
+        cv2.imshow(title, fixed_frame)
         key = cv2.waitKey(10) & 0xFF
         if key == ord("q"):
             break
         elif key == ord("="):
             current_k -= 0.01
-            print(f"Current k: {current_k:.3f}")
+            print(f"k: {current_k:.3f}, alpha: {current_alpha:.2f}")
         elif key == ord("-"):
             current_k += 0.01
-            print(f"Current k: {current_k:.3f}")
+            print(f"k: {current_k:.3f}, alpha: {current_alpha:.2f}")
+        elif key == ord("a"):
+            current_alpha = min(1.0, current_alpha + 0.1)
+            print(f"k: {current_k:.3f}, alpha: {current_alpha:.2f} (more sides visible)")
+        elif key == ord("z"):
+            current_alpha = max(0.0, current_alpha - 0.1)
+            print(f"k: {current_k:.3f}, alpha: {current_alpha:.2f} (more cropped)")
 
     cap.release()
     cv2.destroyAllWindows()
-    print(f"\nFINAL VALUES SAVED: k = {current_k:.3f}")
+    print(f"\nFINAL VALUES SAVED: k = {current_k:.3f}, alpha = {current_alpha:.2f}")
 
 
 if __name__ == "__main__":
