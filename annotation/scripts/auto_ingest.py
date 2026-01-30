@@ -6,16 +6,20 @@ generates CVAT XML annotations with events, and uploads to CVAT.
 """
 import os
 import sys
+from pathlib import Path
+_workspace_root = Path(__file__).resolve().parent.parent.parent
+_annotation_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_workspace_root))
+sys.path.insert(0, str(_workspace_root / 'soccer_coach_cv'))
+
 import time
 import logging
 import shutil
-from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from dotenv import load_dotenv
 import yaml
 import cv2
 import numpy as np
-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -33,7 +37,7 @@ from src.perception.tracker import Tracker
 from src.analysis.events import EventDetector
 from src.analysis.mapping import PitchMapper
 from src.types import TrackedObject, Event
-from cvat_xml_generator import create_cvat_xml
+from annotation.cvat_xml_generator import create_cvat_xml
 
 
 # Configure logging
@@ -41,7 +45,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('auto_ingest.log'),
+        logging.FileHandler(str(_annotation_root / 'auto_ingest.log')),
         logging.StreamHandler()
     ]
 )
@@ -433,16 +437,15 @@ class VideoHandler(FileSystemEventHandler):
             raise
 
 
-def load_config(config_path: str = "configs/auto_ingest.yaml") -> dict:
-    """Load configuration from YAML file"""
+def load_config(config_path=None):
+    """Load configuration from YAML file. Default: annotation/configs/auto_ingest.yaml"""
+    if config_path is None:
+        config_path = str(Path(__file__).resolve().parent.parent / "configs" / "auto_ingest.yaml")
     if not os.path.exists(config_path):
         logger.warning(f"Config file not found: {config_path}, using defaults")
         return get_default_config()
-    
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
-    
-    # Override with environment variables if present
     if 'CVAT_URL' in os.environ:
         config['cvat']['url'] = os.environ['CVAT_URL']
     if 'CVAT_USER' in os.environ:
@@ -451,82 +454,42 @@ def load_config(config_path: str = "configs/auto_ingest.yaml") -> dict:
         config['cvat']['password'] = os.environ['CVAT_PASS']
     if 'MODEL_PATH' in os.environ:
         config['model']['checkpoint_path'] = os.environ['MODEL_PATH']
-    
     return config
 
 
 def get_default_config() -> dict:
     """Get default configuration"""
     return {
-        'paths': {
-            'watch_dir': './incoming_videos',
-            'processed_dir': './processed'
-        },
-        'model': {
-            'checkpoint_path': './models/checkpoints/latest_checkpoint.pth',
-            'use_cuda': True
-        },
-        'detection': {
-            'confidence_threshold': 0.5
-        },
-        'tracker': {
-            'track_thresh': 0.5,
-            'high_thresh': 0.6,
-            'track_buffer': 30,
-            'match_thresh': 0.8,
-            'frame_rate': 30
-        },
-        'mapping': {
-            'pitch_length': 105.0,
-            'pitch_width': 68.0
-        },
-        'events': {
-            'pass_velocity_threshold': 5.0,
-            'dribble_distance_threshold': 2.0,
-            'shot_velocity_threshold': 15.0,
-            'recovery_proximity': 1.0
-        },
-        'cvat': {
-            'url': 'http://localhost:8080',
-            'username': 'admin',
-            'password': 'admin'
-        }
+        'paths': {'watch_dir': './incoming_videos', 'processed_dir': './processed'},
+        'model': {'checkpoint_path': './models/checkpoints/latest_checkpoint.pth', 'use_cuda': True},
+        'detection': {'confidence_threshold': 0.5},
+        'tracker': {'track_thresh': 0.5, 'high_thresh': 0.6, 'track_buffer': 30, 'match_thresh': 0.8, 'frame_rate': 30},
+        'mapping': {'pitch_length': 105.0, 'pitch_width': 68.0},
+        'events': {'pass_velocity_threshold': 5.0, 'dribble_distance_threshold': 2.0, 'shot_velocity_threshold': 15.0, 'recovery_proximity': 1.0},
+        'cvat': {'url': 'http://localhost:8080', 'username': 'admin', 'password': 'admin'}
     }
 
 
 def main():
     """Main entry point"""
-    # Load environment variables
     load_dotenv()
-    
-    # Load configuration
     config = load_config()
-    
-    # Create watch directory if it doesn't exist
     watch_dir = Path(config['paths']['watch_dir'])
     watch_dir.mkdir(parents=True, exist_ok=True)
-    
     logger.info(f"Starting watchdog on directory: {watch_dir}")
     logger.info(f"Model: {config['model']['checkpoint_path']}")
     logger.info(f"CVAT: {config['cvat']['url']}")
-    
-    # Create event handler
     event_handler = VideoHandler(config)
-    
-    # Create observer
     observer = Observer()
     observer.schedule(event_handler, str(watch_dir), recursive=False)
     observer.start()
-    
     logger.info("Watchdog started. Press Ctrl+C to stop.")
-    
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
         logger.info("Stopping watchdog...")
         observer.stop()
-    
     observer.join()
     logger.info("Watchdog stopped.")
 

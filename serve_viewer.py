@@ -45,6 +45,33 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self.send_response(500)
                 self.end_headers()
+        elif self.path.endswith('.html'):
+            # Handle large HTML files by streaming in chunks
+            try:
+                file_path = self.path.lstrip('/')
+                if os.path.exists(file_path):
+                    file_size = os.path.getsize(file_path)
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.send_header('Content-Length', str(file_size))
+                    self.send_header('Connection', 'keep-alive')
+                    self.end_headers()
+                    
+                    # Stream file in chunks to avoid memory issues
+                    chunk_size = 8192  # 8KB chunks
+                    with open(file_path, 'rb') as f:
+                        while True:
+                            chunk = f.read(chunk_size)
+                            if not chunk:
+                                break
+                            self.wfile.write(chunk)
+                            self.wfile.flush()
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
         else:
             # Use parent class to serve other files normally
             super().do_GET()

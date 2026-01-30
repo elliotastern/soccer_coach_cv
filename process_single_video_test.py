@@ -14,9 +14,11 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+_workspace_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_workspace_root))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from cvat_xml_generator import create_cvat_xml
+from annotation.cvat_xml_generator import create_cvat_xml
 from src.types import TrackedObject, Detection, Event, EventType, Location
 
 

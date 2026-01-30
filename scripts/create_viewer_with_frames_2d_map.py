@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Create HTML viewer that shows frame images with bounding boxes overlaid.
+Validation viewer: Shows bounding boxes and 2D pitch maps side-by-side.
+Focuses on validating bbox accuracy and 2D mapping correctness.
 Extracts frames from video and generates viewer that loads frame_data.json.
 """
 import argparse
@@ -39,9 +40,9 @@ def create_viewer_html(
     frame_data_path: str,
     output_html: str,
     output_dir: Path,
-    title: str = "Results with frames",
+    title: str = "Validation: Bbox + 2D Map",
 ) -> Path:
-    """Generate HTML that shows 2D pitch map + each frame image with bboxes from frame_data.json (same model as pipeline)."""
+    """Generate HTML validation viewer: frame image with bboxes (left) + 2D pitch map (right)."""
     with open(frame_data_path, "r") as f:
         results = json.load(f)
 
@@ -72,21 +73,21 @@ def create_viewer_html(
         """</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .container { max-width: 1600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         h1 { color: #333; border-bottom: 3px solid #4CAF50; padding-bottom: 10px; }
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
         .stat-card { background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #4CAF50; }
         .stat-card h3 { margin: 0 0 10px 0; color: #666; font-size: 14px; }
         .stat-card .value { font-size: 24px; font-weight: bold; color: #333; }
-        .pitch-map { width: 100%; height: 500px; border: 2px solid #333; background: #2d5016; position: relative; margin: 20px 0; border-radius: 5px; }
         .frame-pitch-map { width: 100%; height: 100%; min-width: 0; border: 2px solid #333; background: #2d5016; position: relative; border-radius: 5px; }
-        .player-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; border: 2px solid white; }
+        .player-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
         .player-dot.team-0 { background: #ff4444; }
         .player-dot.team-1 { background: #4444ff; }
         .player-dot.unassigned { background: #ffff44; }
+        .player-dot:hover { transform: scale(1.5); z-index: 10; }
         .frame-results { margin: 20px 0; }
         .frame-card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #2196F3; }
-        .frame-header { font-weight: bold; color: #2196F3; margin-bottom: 10px; }
+        .frame-header { font-weight: bold; color: #2196F3; margin-bottom: 10px; font-size: 16px; }
         .frame-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: stretch; }
         .frame-row .img-wrap { width: 100%; min-height: 0; }
         .img-wrap { position: relative; display: block; line-height: 0; }
@@ -95,6 +96,8 @@ def create_viewer_html(
         .bbox-overlay.team-0 { border-color: #ff4444; }
         .bbox-overlay.team-1 { border-color: #4444ff; }
         .bbox-overlay.unassigned { border-color: #ffff44; }
+        .validation-info { margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px; font-size: 12px; color: #1976d2; }
+        .validation-info strong { color: #0d47a1; }
     </style>
 </head>
 <body>
@@ -105,9 +108,10 @@ def create_viewer_html(
         <div class="stats">
             <div class="stat-card"><h3>Frames</h3><div class="value" id="numFrames">0</div></div>
             <div class="stat-card"><h3>Total detections</h3><div class="value" id="totalDet">0</div></div>
+            <div class="stat-card"><h3>Pitch bounds (m)</h3><div class="value" id="pitchBounds">-</div></div>
             <div class="stat-card"><h3>Model</h3><div class="value">person (trained)</div></div>
         </div>
-        <h2>Frame-by-frame (image + 2D map)</h2>
+        <h2>Frame-by-frame validation (bbox + 2D map)</h2>
         <div class="frame-results" id="frameList"></div>
     <script>
         const results = """,
@@ -129,6 +133,7 @@ def create_viewer_html(
         results.forEach((r) => { if (r.players) totalDet += r.players.length; });
         document.getElementById('numFrames').textContent = results.length;
         document.getElementById('totalDet').textContent = totalDet;
+        document.getElementById('pitchBounds').textContent = `x:[${pitchBounds.x_min.toFixed(1)}, ${pitchBounds.x_max.toFixed(1)}] y:[${pitchBounds.y_min.toFixed(1)}, ${pitchBounds.y_max.toFixed(1)}]`;
 
         const pad = 20;
         const xR = pitchBounds.x_max - pitchBounds.x_min;
@@ -148,7 +153,7 @@ def create_viewer_html(
                 dot.className = 'player-dot ' + (p.team_id === 0 ? 'team-0' : p.team_id === 1 ? 'team-1' : 'unassigned');
                 dot.style.left = x + 'px';
                 dot.style.top = y + 'px';
-                dot.title = 'Team ' + (p.team_id != null ? p.team_id : '?') + ' | (' + px.toFixed(2) + ', ' + py.toFixed(2) + ') m';
+                dot.title = 'ID: ' + (p.object_id != null ? p.object_id : '?') + ' | Team: ' + (p.team_id != null && p.team_id >= 0 ? p.team_id : 'unassigned') + ' | (' + px.toFixed(2) + ', ' + py.toFixed(2) + ') m';
                 mapEl.appendChild(dot);
             });
         }
@@ -199,6 +204,16 @@ def create_viewer_html(
             fillPitchMap(mapEl, frameData.players || []);
             row.appendChild(mapEl);
             sec.appendChild(row);
+            const info = document.createElement('div');
+            info.className = 'validation-info';
+            const teamCounts = {};
+            (frameData.players || []).forEach(p => {
+                const tid = p.team_id != null && p.team_id >= 0 ? p.team_id : 'unassigned';
+                teamCounts[tid] = (teamCounts[tid] || 0) + 1;
+            });
+            const teamStr = Object.entries(teamCounts).map(([t, c]) => `Team ${t}: ${c}`).join(', ');
+            info.innerHTML = '<strong>Validation:</strong> ' + numPlayers + ' detections | ' + teamStr + ' | Pitch range: x=[' + pitchBounds.x_min.toFixed(1) + ', ' + pitchBounds.x_max.toFixed(1) + ']m, y=[' + pitchBounds.y_min.toFixed(1) + ', ' + pitchBounds.y_max.toFixed(1) + ']m';
+            sec.appendChild(info);
             list.appendChild(sec);
         });
     </script>
@@ -217,13 +232,13 @@ def create_viewer_html(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract video frames and create HTML viewer with bounding boxes"
+        description="Extract video frames and create validation viewer (bbox + 2D map)"
     )
     parser.add_argument("video", type=str, help="Input video path")
     parser.add_argument("frame_data", type=str, help="Path to frame_data.json")
     parser.add_argument("--output-dir", "-o", type=str, required=True, help="Output directory")
     parser.add_argument("--num-frames", "-n", type=int, default=20, help="Number of frames")
-    parser.add_argument("--title", "-t", type=str, default="Player detection – frames with bboxes")
+    parser.add_argument("--title", "-t", type=str, default="Validation: Bbox + 2D Map")
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -232,7 +247,7 @@ def main():
     extract_frames(args.video, output_dir, args.num_frames)
     create_viewer_html(
         args.frame_data,
-        str(output_dir / "viewer_with_frames.html"),
+        str(output_dir / "viewer_with_frames_2d_maps.html"),
         output_dir,
         title=args.title,
     )

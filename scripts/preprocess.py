@@ -23,17 +23,69 @@ ALPHA = 0.5  # 0=crop to valid (no black), 1=full frame (black edges), 0.5=compr
 NET_MASK_HEIGHT = 0.15  # Mask out the bottom 15% of the screen (the net)
 
 
+def crop_black_borders(frame, black_thresh=15, margin_pct=0.02, non_black_min=0.99):
+    """Crop to the largest axis-aligned rectangle with (almost) no black pixels.
+    Rows/cols need >= non_black_min proportion non-black. x1/x2 from band y1:y2."""
+    h, w = frame.shape[:2]
+    if h == 0 or w == 0:
+        return frame
+    gray = np.mean(frame, axis=2) if len(frame.shape) == 3 else frame.astype(np.float64)
+    is_black = gray < black_thresh
+    y1 = 0
+    for y in range(h):
+        if (1 - np.mean(is_black[y, :])) >= non_black_min:
+            y1 = y
+            break
+    y2 = h
+    for y in range(h - 1, -1, -1):
+        if (1 - np.mean(is_black[y, :])) >= non_black_min:
+            y2 = y + 1
+            break
+    band = is_black[y1:y2, :]
+    x1 = 0
+    for x in range(w):
+        if (1 - np.mean(band[:, x])) >= non_black_min:
+            x1 = x
+            break
+    x2 = w
+    for x in range(w - 1, -1, -1):
+        if (1 - np.mean(band[:, x])) >= non_black_min:
+            x2 = x + 1
+            break
+    if x2 <= x1 or y2 <= y1:
+        return frame
+    if (x2 - x1) * (y2 - y1) < 0.1 * h * w:
+        return frame
+    inset = max(1, int(min(w, h) * margin_pct))
+    x1 = min(x1 + inset, x2 - 1)
+    y1 = min(y1 + inset, y2 - 1)
+    x2 = max(x2 - inset, x1 + 1)
+    y2 = max(y2 - inset, y1 + 1)
+    return frame[y1:y2, x1:x2]
+
+
 def defish_frame(frame, k, alpha=0.0):
     """
     Blindly attempts to undistort the fisheye effect.
     alpha=0: crop to valid region (no black voids). alpha=1: full frame (black edges).
+    Uses content-based crop so output has no black borders.
     """
     h, w = frame.shape[:2]
     K = np.array([[w, 0, w / 2], [0, w, h / 2], [0, 0, 1]])
     D = np.array([k, 0, 0, 0, 0])
     new_K, _ = cv2.getOptimalNewCameraMatrix(K, D, (w, h), alpha, (w, h))
     map1, map2 = cv2.initUndistortRectifyMap(K, D, None, new_K, (w, h), 5)
-    return cv2.remap(frame, map1, map2, cv2.INTER_LINEAR)
+    remapped = cv2.remap(frame, map1, map2, cv2.INTER_LINEAR)
+    return crop_black_borders(remapped)
+
+
+def crop_to_square(frame):
+    """Center-crop to square: bare minimum crop using shorter dimension as side."""
+    h, w = frame.shape[:2]
+    s = min(w, h)
+    x = (w - s) // 2
+    y = (h - s) // 2
+    return frame[y : y + s, x : x + s]
 
 
 def isolate_lines(frame):
@@ -98,6 +150,7 @@ def main():
             continue
         frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
         straight_frame = defish_frame(frame, k=current_k[0], alpha=ALPHA)
+        straight_frame = crop_to_square(straight_frame)
         line_view = isolate_lines(straight_frame)
         cv2.imshow("1. Defished Reality", straight_frame)
         cv2.imshow("2. Extracted Lines (No Lights/Net)", line_view)

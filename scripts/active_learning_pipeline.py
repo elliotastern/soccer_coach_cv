@@ -16,11 +16,12 @@ from pathlib import Path
 import tempfile
 
 # Add parent directory to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.utils.extract_frame import extract_frame
-from src.utils.cvat_to_coco import convert_frame_to_coco
-from src.utils.merge_annotations import merge_annotations
+from annotation.utils.cvat_to_coco import convert_frame_to_coco
+from annotation.utils.merge_annotations import merge_annotations
 
 # Import training and inference functions
 # Add scripts directory to path to import modules
