@@ -10,7 +10,7 @@ import os
 import json
 from pathlib import Path
 
-PORT = 6851
+PORT = 5005
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):

@@ -25,7 +25,7 @@ except ImportError:
     print("   Falling back to basic server...")
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-PORT = 8080
+PORT = 5005
 
 if FLASK_AVAILABLE:
     app = Flask(__name__, static_folder=None)
@@ -110,6 +110,7 @@ if FLASK_AVAILABLE:
                 <li><a href="/data/output/fisheye_test/test_fisheye.html">Fisheye Test</a></li>
                 <li><a href="/data/output/homography_test/test_homography.html">Homography Test</a></li>
                 <li><a href="/data/output/landmark_test/test_landmarks.html">Landmark Test</a></li>
+                <li><a href="/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html">2D Map Check (picture vs map)</a></li>
                 <li><a href="/data/output/2d_map.mp4">2D Map Video</a></li>
             </ul>
         </body>
@@ -136,6 +137,7 @@ if FLASK_AVAILABLE:
         print(f"📄 Fisheye test: http://localhost:{args.port}/data/output/fisheye_test/test_fisheye.html")
         print(f"📄 Homography test: http://localhost:{args.port}/data/output/homography_test/test_homography.html")
         print(f"📄 Landmark test: http://localhost:{args.port}/data/output/landmark_test/test_landmarks.html")
+        print(f"📄 2D map check: http://localhost:{args.port}/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
         print(f"📄 2D map video: http://localhost:{args.port}/data/output/2d_map.mp4")
         print("=" * 60)
         print("Press Ctrl+C to stop")
