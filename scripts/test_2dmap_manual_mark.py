@@ -87,35 +87,60 @@ def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.3):
 
 
 def _make_diagram_background(w_map, h_map, center_map_xy=None):
-    """Create a green pitch diagram. If center_map_xy given, pitch center line and circle use a clamped center so the circle fits inside."""
+    """
+    Create 2D pitch diagram: standard 105m x 68m at 10 px/m.
+    Tries assets/pitch_template.png first; else draws outline, center line, center circle, penalty boxes.
+    """
+    template_path = PROJECT_ROOT / "assets" / "pitch_template.png"
+    if template_path.exists():
+        diagram = cv2.imread(str(template_path))
+        if diagram is not None and diagram.shape[1] == w_map and diagram.shape[0] == h_map:
+            return diagram.copy()
     diagram = np.zeros((h_map, w_map, 3), dtype=np.uint8)
     diagram[:, :] = (34, 139, 34)  # pitch green
     cv2.rectangle(diagram, (0, 0), (w_map - 1, h_map - 1), (255, 255, 255), 2)
-    r = min(w_map, h_map) // 8
+    # Standard dimensions at 10 px/m: center line, center circle 9.15m, penalty box 16.5m deep, 40.32m wide
+    mid_x = w_map // 2
+    center_circle_r = int(9.15 * PIXELS_PER_METER)
+    pen_depth = int(16.5 * PIXELS_PER_METER)
+    pen_width = int(40.32 * PIXELS_PER_METER)
+    pen_y1 = (h_map - pen_width) // 2
+    pen_y2 = pen_y1 + pen_width
+    cv2.line(diagram, (mid_x, 0), (mid_x, h_map - 1), (255, 255, 255), 1)
     if center_map_xy is not None:
         cx = int(center_map_xy[0])
         cy = int(center_map_xy[1])
-        cx = max(r, min(w_map - 1 - r, cx))
-        cy = max(r, min(h_map - 1 - r, cy))
+        cx = max(center_circle_r, min(w_map - 1 - center_circle_r, cx))
+        cy = max(center_circle_r, min(h_map - 1 - center_circle_r, cy))
     else:
-        cx, cy = w_map // 2, h_map // 2
-    cv2.line(diagram, (cx, 0), (cx, h_map - 1), (255, 255, 255), 1)
-    cv2.circle(diagram, (cx, cy), r, (255, 255, 255), 1)
+        cx, cy = mid_x, h_map // 2
+    cv2.circle(diagram, (cx, cy), center_circle_r, (255, 255, 255), 1)
+    cv2.rectangle(diagram, (0, pen_y1), (pen_depth, pen_y2), (255, 255, 255), 1)
+    cv2.rectangle(diagram, (w_map - pen_depth, pen_y1), (w_map - 1, pen_y2), (255, 255, 255), 1)
     return diagram
 
 
+def _bbox_feet_xy(bbox):
+    """Bottom-center of bbox (feet position). bbox = [x_min, y_min, x_max, y_max]."""
+    x_min, y_min, x_max, y_max = bbox[0], bbox[1], bbox[2], bbox[3]
+    foot_x = (x_min + x_max) / 2
+    foot_y = y_max
+    return (foot_x, foot_y)
+
+
 def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_image, center_image_xy, marked_corner_indices=None):
-    """Draw warped player boxes, center point, and only the corners that were actually marked."""
+    """Draw player feet (bottom-center) on map via homography; center and marked corners."""
     if marked_corner_indices is None:
         marked_corner_indices = [0, 1, 2, 3]
-    # Warp boxes to map; draw only player positions (yellow dots), not green rectangles
-    if _torch is not None and _transform_boxes is not None and boxes_xyxy_image:
-        boxes_t = _torch.tensor(boxes_xyxy_image, dtype=_torch.float32)
-        map_boxes = _transform_boxes(H, boxes_t).numpy()
-        for box in map_boxes:
-            cx = (box[0] + box[2]) / 2
-            cy = (box[1] + box[3]) / 2
-            cv2.circle(map_frame, (int(cx), int(cy)), 5, (255, 255, 0), -1)
+    # Map player feet (bottom-center of bbox) to pitch; draw dots (R-003 / R001-Person)
+    if _transform_point is not None and boxes_xyxy_image:
+        for box in boxes_xyxy_image:
+            foot_x, foot_y = _bbox_feet_xy(box)
+            mx, my = _transform_point(H, (foot_x, foot_y))
+            ix, iy = int(mx), int(my)
+            if 0 <= ix < w_map and 0 <= iy < h_map:
+                cv2.circle(map_frame, (ix, iy), 8, (255, 255, 0), -1)
+                cv2.circle(map_frame, (ix, iy), 8, (0, 0, 0), 1)
     # Pitch center (from manual mark) – where the user placed center
     if _transform_point is not None and center_image_xy is not None:
         cx, cy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
@@ -135,7 +160,9 @@ DEFAULT_VIDEO = PROJECT_ROOT / "data/raw/37CAE053-841F-4851-956E-CBF17A51C506.mp
 DEFAULT_CALIB = PROJECT_ROOT / "data/output/homography_calibration.json"
 MARKS_PATH = PROJECT_ROOT / "data/output/2dmap_manual_mark/manual_marks.json"
 NUM_FRAMES = 10
-DEFAULT_MAP_W, DEFAULT_MAP_H = 600, 800
+# Standard pitch 105m x 68m at 10 px/m (R-003 / create_viewer_with_frames_2d_map)
+DEFAULT_MAP_W, DEFAULT_MAP_H = 1050, 680
+PIXELS_PER_METER = 10
 
 # Click order: 1=TL, 2=TR, 3=BR, 4=BL, 5=Center. 3 and 4 optional (press 's' to skip).
 LABELS = ["Corner 1 (Top-Left)", "Corner 2 (Top-Right)", "Corner 3 (Bottom-Right)", "Corner 4 (Bottom-Left)", "Center"]
