@@ -785,30 +785,87 @@ def _get_two_distinct_corners(src_corners, dist_thresh=5.0):
     return tuple(distinct[0]), tuple(distinct[1])
 
 
+def _get_two_valid_corners(src_corners, invalid_xy=(0, 0), dist_thresh=5.0):
+    """Filter out invalid_xy; return (pt_a, pt_b) if exactly 2 distinct remain, else (None, None)."""
+    if src_corners is None or len(src_corners) < 2:
+        return None, None
+    ix, iy = float(invalid_xy[0]), float(invalid_xy[1])
+    pts = np.asarray(src_corners, dtype=np.float64)
+    valid = [p for p in pts if np.hypot(p[0] - ix, p[1] - iy) >= dist_thresh]
+    if len(valid) < 2:
+        return None, None
+    distinct = [valid[0]]
+    for i in range(1, len(valid)):
+        pi = valid[i]
+        if all(np.hypot(pi[0] - d[0], pi[1] - d[1]) >= dist_thresh for d in distinct):
+            distinct.append(pi)
+    if len(distinct) != 2:
+        return None, None
+    return tuple(distinct[0]), tuple(distinct[1])
+
+
 def _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, image_shape):
     """
     Build 4-point quad [TL, TR, BR, BL] from two distinct corners using the image boundary.
-    If the two points are in the lower half of the frame, use frame top (y=0) as top edge
-    and the two points as the bottom edge so the full pitch is included. Otherwise use
-    the two points as top edge and frame bottom as bottom edge.
+    Handles: horizontal edge (top/bottom), vertical edge (left/right), or diagonal (one side).
     """
     h, w = int(image_shape[0]), int(image_shape[1])
     ax, ay = float(pt_a[0]), float(pt_a[1])
     bx, by = float(pt_b[0]), float(pt_b[1])
     y_bottom = h - 1
+    x_right = w - 1
+    same_thresh = 30.0
+    mid_x = (ax + bx) / 2
     mid_y = (ay + by) / 2
-    if mid_y > h / 2:
-        # Points in lower half: top edge at frame top, bottom edge through the two points
-        tl = np.array([ax, 0], dtype=np.float32)
-        tr = np.array([bx, 0], dtype=np.float32)
-        br = np.array([bx, by], dtype=np.float32)
-        bl = np.array([ax, ay], dtype=np.float32)
+    if abs(ay - by) <= same_thresh:
+        # Horizontal edge: two points form top or bottom edge
+        if mid_y > h / 2:
+            tl = np.array([ax, 0], dtype=np.float32)
+            tr = np.array([bx, 0], dtype=np.float32)
+            br = np.array([bx, by], dtype=np.float32)
+            bl = np.array([ax, ay], dtype=np.float32)
+        else:
+            tl = np.array([ax, ay], dtype=np.float32)
+            tr = np.array([bx, by], dtype=np.float32)
+            br = np.array([bx, y_bottom], dtype=np.float32)
+            bl = np.array([ax, y_bottom], dtype=np.float32)
+        return np.float32([tl, tr, br, bl])
+    if abs(ax - bx) <= same_thresh:
+        # Vertical edge: two points form left or right edge
+        if ay <= by:
+            top_pt = (ax, ay)
+            bot_pt = (bx, by)
+        else:
+            top_pt = (bx, by)
+            bot_pt = (ax, ay)
+        if mid_x < w / 2:
+            tl = np.array([top_pt[0], top_pt[1]], dtype=np.float32)
+            bl = np.array([bot_pt[0], bot_pt[1]], dtype=np.float32)
+            tr = np.array([x_right, top_pt[1]], dtype=np.float32)
+            br = np.array([x_right, bot_pt[1]], dtype=np.float32)
+        else:
+            tl = np.array([0, top_pt[1]], dtype=np.float32)
+            tr = np.array([top_pt[0], top_pt[1]], dtype=np.float32)
+            br = np.array([bot_pt[0], bot_pt[1]], dtype=np.float32)
+            bl = np.array([0, bot_pt[1]], dtype=np.float32)
+        return np.float32([tl, tr, br, bl])
+    # Diagonal: order by y (top, bottom); extend to opposite frame edge
+    if ay <= by:
+        top_pt = np.array([ax, ay], dtype=np.float32)
+        bottom_pt = np.array([bx, by], dtype=np.float32)
     else:
-        # Points in upper half: top edge through the two points, bottom at frame bottom
-        tl = np.array([ax, ay], dtype=np.float32)
-        tr = np.array([bx, by], dtype=np.float32)
-        br = np.array([bx, y_bottom], dtype=np.float32)
-        bl = np.array([ax, y_bottom], dtype=np.float32)
+        top_pt = np.array([bx, by], dtype=np.float32)
+        bottom_pt = np.array([ax, ay], dtype=np.float32)
+    if mid_x < w / 2:
+        tl = top_pt
+        tr = np.array([x_right, top_pt[1]], dtype=np.float32)
+        br = np.array([x_right, bottom_pt[1]], dtype=np.float32)
+        bl = bottom_pt
+    else:
+        tl = np.array([0, top_pt[1]], dtype=np.float32)
+        tr = top_pt
+        br = bottom_pt
+        bl = np.array([0, bottom_pt[1]], dtype=np.float32)
     return np.float32([tl, tr, br, bl])
 
 
@@ -938,6 +995,8 @@ def main():
     # When only 1–2 distinct corners (others skipped), use frame boundary; do not infer off-frame corners
     if _count_unique_corners(src_corners) < 3 or _quad_area(src_corners) < 100.0:
         pt_a, pt_b = _get_two_distinct_corners(src_corners)
+        if pt_a is None or pt_b is None:
+            pt_a, pt_b = _get_two_valid_corners(src_corners)
         if pt_a is not None and pt_b is not None:
             built = _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, defished0.shape)
             if built is not None:
