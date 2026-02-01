@@ -434,25 +434,25 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
     <span style="color: #888;">Click on the image for each point in order. Drag red dots to adjust. Skipped corners (3 and 4) appear below; drag them onto the frame to place later.</span>
   </div>
   <div class="mark-diagram">
-    <div class="diagram-title">Where to click (top-down view, pitch 105m x 68m):</div>
-    <svg viewBox="-75 -20 370 345" xmlns="http://www.w3.org/2000/svg">
-      <rect x="28" y="34" width="163" height="252" fill="#2d5a27" stroke="#fff" stroke-width="2"/>
-      <line x1="28" y1="160" x2="191" y2="160" stroke="#fff" stroke-width="2"/>
-      <circle cx="109.5" cy="160" r="22" fill="none" stroke="#fff" stroke-width="2"/>
-      <rect x="94.5" y="34" width="30" height="8" fill="none" stroke="#fff" stroke-width="1.5"/>
-      <rect x="94.5" y="278" width="30" height="8" fill="none" stroke="#fff" stroke-width="1.5"/>
-      <circle cx="28" cy="34" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
-      <text x="28" y="56" class="landmark-label">Top-left corner</text>
-      <circle cx="191" cy="34" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
-      <text x="191" y="56" class="landmark-label">Top-right corner</text>
-      <circle cx="191" cy="286" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
-      <text x="191" y="278" class="landmark-label">Bottom-right corner</text>
-      <circle cx="28" cy="286" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
-      <text x="28" y="278" class="landmark-label">Bottom-left corner</text>
-      <circle cx="28" cy="160" r="6" fill="#ffeb3b" stroke="#fff" stroke-width="1.5"/>
-      <text x="28" y="182" class="landmark-label">Halfway line (left end)</text>
-      <circle cx="191" cy="160" r="6" fill="#ffeb3b" stroke="#fff" stroke-width="1.5"/>
-      <text x="191" y="182" class="landmark-label">Halfway line (right end)</text>
+    <div class="diagram-title">Where to click (side view, pitch 105m x 68m):</div>
+    <svg viewBox="-75 -25 470 235" xmlns="http://www.w3.org/2000/svg">
+      <rect x="34" y="28" width="252" height="163" fill="#2d5a27" stroke="#fff" stroke-width="2"/>
+      <line x1="160" y1="28" x2="160" y2="191" stroke="#fff" stroke-width="2"/>
+      <circle cx="160" cy="109.5" r="22" fill="none" stroke="#fff" stroke-width="2"/>
+      <rect x="34" y="94.5" width="8" height="30" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <rect x="278" y="94.5" width="8" height="30" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="34" cy="28" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="34" y="50" class="landmark-label">Top-left corner</text>
+      <circle cx="286" cy="28" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="286" y="50" class="landmark-label">Top-right corner</text>
+      <circle cx="286" cy="191" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="286" y="183" class="landmark-label">Bottom-right corner</text>
+      <circle cx="34" cy="191" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="34" y="183" class="landmark-label">Bottom-left corner</text>
+      <circle cx="34" cy="109.5" r="6" fill="#ffeb3b" stroke="#fff" stroke-width="1.5"/>
+      <text x="34" y="132" class="landmark-label">Halfway line (left end)</text>
+      <circle cx="286" cy="109.5" r="6" fill="#ffeb3b" stroke="#fff" stroke-width="1.5"/>
+      <text x="286" y="132" class="landmark-label">Halfway line (right end)</text>
     </svg>
   </div>
   <div class="skipped-container" id="skippedContainer">
