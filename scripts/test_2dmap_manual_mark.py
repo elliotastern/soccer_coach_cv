@@ -115,34 +115,33 @@ def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.25):
 def _make_diagram_background(w_map, h_map, center_map_xy=None):
     """
     Create 2D pitch diagram: standard 105m x 68m at 10 px/m.
-    Tries assets/pitch_template.png first; else draws outline, center line, center circle, penalty boxes.
+    Always drawn in code: outline, center line, center circle, penalty boxes, goals.
     """
-    template_path = PROJECT_ROOT / "assets" / "pitch_template.png"
-    if template_path.exists():
-        diagram = cv2.imread(str(template_path))
-        if diagram is not None and diagram.shape[1] == w_map and diagram.shape[0] == h_map:
-            return diagram.copy()
     diagram = np.zeros((h_map, w_map, 3), dtype=np.uint8)
     diagram[:, :] = (34, 139, 34)  # pitch green
     cv2.rectangle(diagram, (0, 0), (w_map - 1, h_map - 1), (255, 255, 255), 2)
-    # Standard dimensions at 10 px/m: center line, center circle 9.15m, penalty box 16.5m deep, 40.32m wide
+    # Standard dimensions at 10 px/m: center line, center circle 9.15m, penalty box 16.5m deep, 40.32m wide, goal 7.32m
     mid_x = w_map // 2
+    center_y = h_map // 2
     center_circle_r = int(9.15 * PIXELS_PER_METER)
     pen_depth = int(16.5 * PIXELS_PER_METER)
     pen_width = int(40.32 * PIXELS_PER_METER)
     pen_y1 = (h_map - pen_width) // 2
     pen_y2 = pen_y1 + pen_width
-    cv2.line(diagram, (mid_x, 0), (mid_x, h_map - 1), (255, 255, 255), 1)
-    if center_map_xy is not None:
-        cx = int(center_map_xy[0])
-        cy = int(center_map_xy[1])
-        cx = max(center_circle_r, min(w_map - 1 - center_circle_r, cx))
-        cy = max(center_circle_r, min(h_map - 1 - center_circle_r, cy))
-    else:
-        cx, cy = mid_x, h_map // 2
-    cv2.circle(diagram, (cx, cy), center_circle_r, (255, 255, 255), 1)
+    goal_width_px = int(7.32 * PIXELS_PER_METER)
+    goal_depth_px = int(3.0 * PIXELS_PER_METER)
+    goal_half = goal_width_px // 2
+    gy1 = max(0, center_y - goal_half)
+    gy2 = min(h_map - 1, center_y + goal_half)
+    cv2.line(diagram, (mid_x, 0), (mid_x, h_map - 1), (255, 255, 255), 2)
+    cx, cy = mid_x, center_y
+    cv2.circle(diagram, (cx, cy), center_circle_r, (255, 255, 255), 2)
     cv2.rectangle(diagram, (0, pen_y1), (pen_depth, pen_y2), (255, 255, 255), 1)
     cv2.rectangle(diagram, (w_map - pen_depth, pen_y1), (w_map - 1, pen_y2), (255, 255, 255), 1)
+    cv2.rectangle(diagram, (0, gy1), (goal_depth_px, gy2), (255, 255, 255), 3)
+    cv2.rectangle(diagram, (w_map - goal_depth_px, gy1), (w_map - 1, gy2), (255, 255, 255), 3)
+    cv2.line(diagram, (0, 0), (0, h_map - 1), (255, 255, 255), 2)
+    cv2.line(diagram, (w_map - 1, 0), (w_map - 1, h_map - 1), (255, 255, 255), 2)
     return diagram
 
 
@@ -1060,6 +1059,7 @@ def main():
         img { max-width: 100%; height: auto; border: 2px solid #444; border-radius: 5px; }
         .col-picture { width: 50%; }
         .col-map { width: 50%; }
+        .col-map img { aspect-ratio: 1050/680; object-fit: contain; }
     </style>
 </head>
 <body>
