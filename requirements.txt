@@ -3,6 +3,8 @@ roboflow
 supervision
 opencv-python-headless
 streamlit
+flask
+flask-cors
 scipy
 scikit-learn
 scikit-image

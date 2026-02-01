@@ -69,4 +69,6 @@ git push origin main
 - **Frames:** `data/output/2dmap_manual_mark/frames/frame_*_picture.jpg`, `frame_*_map.jpg`
 - **Marks:** `data/output/2dmap_manual_mark/manual_marks.json`
 
+**Viewing the report:** Start the server from project root (`python serve_viewer_flask.py` or `python serve_viewer.py`), then open http://localhost:8080/2dmap. Full runbook: [docs/VIEWING_2DMAP_REPORT.md](VIEWING_2DMAP_REPORT.md).
+
 Open the HTML in a browser: left column = frame with bboxes + center (red) + marked corners (blue); right column = 2D pitch with feet dots (yellow), center (red), marked corners (blue). With your current marks (Center + 2:TR only), only one blue dot (TR) and the red center.

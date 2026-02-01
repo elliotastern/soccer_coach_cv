@@ -16,3 +16,18 @@
 - Max 3 parameters per function
 - Single responsibility principle
 - Fail fast with clear error messages
+
+## Running anything on a port
+- **Check before binding:** Before listening, check if the chosen port is free (e.g. try to bind a socket). If the default port is in use and the user did not pass `--port N`, try fallback ports in order (e.g. 8081, 8082, 9000, 3000) and use the first that is free. If the user explicitly passed a port and it is in use, exit with a clear message; do not auto-pick another.
+- **Print the real URL:** After the server binds, print the actual host and port used. Any printed links or "Open in browser" messages must use that host and port so the user can copy a working URL.
+- **No port free:** If default plus fallbacks are all in use, exit with a short message listing what was tried and suggest `--port N`.
+- **Default bind:** Prefer 127.0.0.1 (localhost only) as default host to avoid firewall prompts; use 0.0.0.0 only when LAN access is needed. Allow override via `--host` and `--port`.
+
+## 2D Map Viewer
+- Viewer must be running for the 2dmap URL to load; "connection reset" = nothing listening or firewall blocking. Start from project root; leave the terminal open.
+- Short path: /2dmap. Runbook: docs/VIEWING_2DMAP_REPORT.md
+
+## 2D map / RF-DETR detection (bounding boxes)
+- **Do not filter by class_id when drawing detections from the 2-class checkpoint.** The model outputs player/ball; the exact class_id encoding (0/1 vs 1/2) can vary. Filtering by a fixed set (e.g. 0, 1, 2, 37) can hide all boxes. Accept every detection from the model for visualization so boxes always show.
+- **rfdetr predict** returns `supervision.detection.core.Detections` with `class_id`, `xyxy`, `confidence`. Use `min(len(class_ids), len(raw.xyxy))` when iterating; normalize xyxy to four floats (e.g. flatten/slice) before appending.
+- **If no boxes appear:** Add one-time diagnostic when boxes are empty: log raw detection count and the set of class_ids present. First-frame retry with a lower threshold (e.g. 0.1) can recover detections when the default is too high.

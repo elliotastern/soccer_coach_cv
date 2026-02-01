@@ -8,7 +8,24 @@ Run this and open http://localhost:6851/view_annotations.html in your browser (d
 import argparse
 import os
 import json
+import socket
 from pathlib import Path
+
+def _port_is_free(host, port):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, port))
+            return True
+    except OSError:
+        return False
+
+def _first_available_port(host, preferred, fallbacks=(8081, 8082, 9000, 3000)):
+    if _port_is_free(host, preferred):
+        return preferred
+    for p in fallbacks:
+        if _port_is_free(host, p):
+            return p
+    return None
 
 try:
     import sys
@@ -16,7 +33,7 @@ try:
     import site
     site.addsitedir('/root/.local/lib/python3.11/site-packages')
     
-    from flask import Flask, send_from_directory, send_file, request, jsonify
+    from flask import Flask, send_from_directory, send_file, request, jsonify, redirect
     from flask_cors import CORS
     FLASK_AVAILABLE = True
 except ImportError:
@@ -25,7 +42,7 @@ except ImportError:
     print("   Falling back to basic server...")
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-PORT = 5005
+PORT = 8080
 
 if FLASK_AVAILABLE:
     app = Flask(__name__, static_folder=None)
@@ -66,6 +83,11 @@ if FLASK_AVAILABLE:
         except Exception as e:
             return jsonify({'success': False, 'error': str(e)}), 500
     
+    @app.route('/2dmap')
+    def serve_2dmap():
+        """Short URL: redirect to the 2D map manual-mark report."""
+        return redirect('/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html', code=302)
+    
     @app.route('/<path:filepath>')
     def serve_file(filepath):
         """Serve static files from project root."""
@@ -104,13 +126,14 @@ if FLASK_AVAILABLE:
             <h1>Annotation Viewer Server</h1>
             <p>Server is running. Available files:</p>
             <ul>
+                <li><a href="/2dmap">2D Map Report (short)</a></li>
                 <li><a href="/view_annotations_editor.html">View Annotations Editor</a></li>
                 <li><a href="/data/output/37a_20frames/viewer.html">37a Results Viewer</a></li>
                 <li><a href="/data/output/37a_20frames/viewer_with_frames.html">37a Frames + Bboxes</a></li>
                 <li><a href="/data/output/fisheye_test/test_fisheye.html">Fisheye Test</a></li>
                 <li><a href="/data/output/homography_test/test_homography.html">Homography Test</a></li>
                 <li><a href="/data/output/landmark_test/test_landmarks.html">Landmark Test</a></li>
-                <li><a href="/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html">2D Map Check (picture vs map)</a></li>
+                <li><a href="/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html">2D Map (long URL)</a></li>
                 <li><a href="/data/output/2d_map.mp4">2D Map Video</a></li>
             </ul>
         </body>
@@ -121,24 +144,40 @@ if FLASK_AVAILABLE:
         parser = argparse.ArgumentParser(description="Flask HTTP server for annotation/viewer HTML")
         parser.add_argument("--port", "-p", type=int, default=PORT,
                             help=f"Port to listen on (default: {PORT})")
-        parser.add_argument("--host", type=str, default="0.0.0.0",
-                            help="Host to bind to (default: 0.0.0.0)")
+        parser.add_argument("--host", type=str, default="127.0.0.1",
+                            help="Host to bind to (default: 127.0.0.1; use 0.0.0.0 to allow LAN)")
         parser.add_argument("--debug", action="store_true",
                             help="Enable debug mode")
         args = parser.parse_args()
+        port = args.port
+        if port == PORT:
+            avail = _first_available_port(args.host, PORT)
+            if avail is None:
+                print(f"Port {PORT} and fallbacks (8081, 8082, 9000, 3000) are in use. Use --port N to try another.")
+                import sys
+                sys.exit(1)
+            if avail != PORT:
+                print(f"Port {PORT} in use, using port {avail}")
+            port = avail
+        else:
+            if not _port_is_free(args.host, port):
+                print(f"Port {port} is in use. Choose another with --port N.")
+                import sys
+                sys.exit(1)
         
         print("=" * 60)
         print("🌐 Flask Annotation Viewer Server")
         print("=" * 60)
-        print(f"📍 Server running at: http://localhost:{args.port}")
-        print(f"📄 Open in browser: http://localhost:{args.port}/view_annotations_editor.html")
-        print(f"📄 37a results: http://localhost:{args.port}/data/output/37a_20frames/viewer.html")
-        print(f"📄 37a frames+bboxes: http://localhost:{args.port}/data/output/37a_20frames/viewer_with_frames.html")
-        print(f"📄 Fisheye test: http://localhost:{args.port}/data/output/fisheye_test/test_fisheye.html")
-        print(f"📄 Homography test: http://localhost:{args.port}/data/output/homography_test/test_homography.html")
-        print(f"📄 Landmark test: http://localhost:{args.port}/data/output/landmark_test/test_landmarks.html")
-        print(f"📄 2D map check: http://localhost:{args.port}/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
-        print(f"📄 2D map video: http://localhost:{args.port}/data/output/2d_map.mp4")
+        print(f"📍 Server running at: http://localhost:{port}")
+        print(f"📄 2D map (short): http://localhost:{port}/2dmap")
+        print(f"📄 Open in browser: http://localhost:{port}/view_annotations_editor.html")
+        print(f"📄 37a results: http://localhost:{port}/data/output/37a_20frames/viewer.html")
+        print(f"📄 37a frames+bboxes: http://localhost:{port}/data/output/37a_20frames/viewer_with_frames.html")
+        print(f"📄 Fisheye test: http://localhost:{port}/data/output/fisheye_test/test_fisheye.html")
+        print(f"📄 Homography test: http://localhost:{port}/data/output/homography_test/test_homography.html")
+        print(f"📄 Landmark test: http://localhost:{port}/data/output/landmark_test/test_landmarks.html")
+        print(f"📄 2D map check: http://localhost:{port}/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
+        print(f"📄 2D map video: http://localhost:{port}/data/output/2d_map.mp4")
         print("=" * 60)
         print("Press Ctrl+C to stop")
         print()
@@ -146,7 +185,7 @@ if FLASK_AVAILABLE:
         # Run Flask development server
         app.run(
             host=args.host,
-            port=args.port,
+            port=port,
             debug=args.debug,
             threaded=True,  # Handle multiple requests
             use_reloader=False  # Disable reloader for stability

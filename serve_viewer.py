@@ -8,9 +8,27 @@ import http.server
 import socketserver
 import os
 import json
+import socket
 from pathlib import Path
 
-PORT = 5005
+PORT = 8080
+FALLBACK_PORTS = (8081, 8082, 9000, 3000)
+
+def _port_is_free(host, port):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, port))
+            return True
+    except OSError:
+        return False
+
+def _first_available_port(host, preferred, fallbacks=FALLBACK_PORTS):
+    if _port_is_free(host, preferred):
+        return preferred
+    for p in fallbacks:
+        if _port_is_free(host, p):
+            return p
+    return None
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -25,6 +43,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        # Short URL for 2D map report
+        if self.path == '/2dmap' or self.path == '/2dmap/':
+            self.send_response(302)
+            self.send_header('Location', '/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html')
+            self.end_headers()
+            return
         # Handle GET requests with cache control for XML files
         if self.path.endswith('.xml'):
             try:
@@ -141,6 +165,18 @@ def main():
                         help=f"Port to listen on (default: {PORT})")
     args = parser.parse_args()
     port = args.port
+    if port == PORT:
+        avail = _first_available_port("", PORT)
+        if avail is None:
+            print(f"Port {PORT} and fallbacks {FALLBACK_PORTS} are in use. Use --port N to try another.")
+            return
+        if avail != PORT:
+            print(f"Port {PORT} in use, using port {avail}")
+        port = avail
+    else:
+        if not _port_is_free("", port):
+            print(f"Port {port} is in use. Choose another with --port N.")
+            return
 
     os.chdir(Path(__file__).parent)
 
@@ -151,6 +187,8 @@ def main():
     print("🌐 Annotation Viewer Server Started")
     print("=" * 60)
     print(f"📍 Server running at: http://localhost:{port}")
+    print(f"📄 2D map (short): http://localhost:{port}/2dmap")
+    print(f"📄 2D map (long): http://localhost:{port}/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
     print(f"📄 Open in browser: http://localhost:{port}/view_annotations_editor.html")
     print(f"📄 37a results: http://localhost:{port}/data/output/37a_20frames/viewer.html")
     print(f"📄 37a frames+bboxes: http://localhost:{port}/data/output/37a_20frames/viewer_with_frames.html")

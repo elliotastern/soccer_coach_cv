@@ -4,7 +4,10 @@ Manual homography: mark up to 4 corners + center on one frame, then build 2D map
 Often only 2 corners + center are marked; the other two corners are inferred from the center.
 Creates test_2dmap_manual_mark.html: picture left (with player bboxes), 2D map right (warped bboxes, center, corners).
 Uses 99-epoch weights for player bounding boxes when --model is provided.
-Run from project root. View: http://localhost:5005/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html
+Run from project root. View: http://localhost:8080/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html
+
+For best 2D positions, mark all 4 pitch corners (TL, TR, BR, BL). With only 2 corners + center, the inferred
+quad may not cover the full field and some players may appear clamped at the map edge.
 """
 import argparse
 import base64
@@ -71,18 +74,43 @@ def _load_detector_no_weights():
         return None, None
 
 
-def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.3):
+_logged_empty_detection = False
+
+
+def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.25):
     """Run player detection on defished frame; return list of [x_min, y_min, x_max, y_max] in image coords."""
+    global _logged_empty_detection
     frame_rgb = cv2.cvtColor(defished_bgr, cv2.COLOR_BGR2RGB)
-    raw = detector.predict(frame_rgb, threshold=threshold)
+    try:
+        from PIL import Image
+        pil_image = Image.fromarray(frame_rgb)
+        raw = detector.predict(pil_image, threshold=threshold)
+    except Exception:
+        raw = detector.predict(frame_rgb, threshold=threshold)
     boxes = []
-    if hasattr(raw, "class_id"):
-        for i in range(len(raw.class_id)):
-            cid = int(raw.class_id[i])
-            # 0 = player (trained 1/2-class), 1 = COCO person
-            if cid in (0, 1):
-                xyxy = raw.xyxy[i]
-                boxes.append([float(xyxy[0]), float(xyxy[1]), float(xyxy[2]), float(xyxy[3])])
+    class_ids = getattr(raw, "class_id", None)
+    if class_ids is None:
+        class_ids = getattr(raw, "class_ids", None)
+    raw_count = len(class_ids) if class_ids is not None else 0
+    xyxy_len = len(raw.xyxy) if hasattr(raw, "xyxy") else 0
+    if class_ids is not None and hasattr(raw, "xyxy"):
+        n = min(len(class_ids), xyxy_len)
+        for i in range(n):
+            cid = int(class_ids[i])
+            xyxy = raw.xyxy[i]
+            if hasattr(xyxy, "tolist"):
+                coords = xyxy.tolist()[:4]
+            else:
+                coords = np.asarray(xyxy).flatten()[:4].tolist()
+            if len(coords) != 4:
+                continue
+            boxes.append([float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3])])
+    if len(boxes) == 0 and not _logged_empty_detection:
+        _logged_empty_detection = True
+        print(f"[2dmap] Detection diagnostic: raw count={raw_count}, xyxy len={xyxy_len}, boxes kept=0")
+        if raw_count > 0 and class_ids is not None:
+            unique_cids = set(int(class_ids[i]) for i in range(min(raw_count, len(class_ids))))
+            print(f"[2dmap] Raw class_ids present: {sorted(unique_cids)}")
     return boxes
 
 
@@ -129,18 +157,29 @@ def _bbox_feet_xy(bbox):
 
 
 def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_image, center_image_xy, marked_corner_indices=None):
-    """Draw player feet (bottom-center) on map via homography; center and marked corners."""
+    """Draw player feet (bottom-center) on map via homography; center and marked corners.
+    Draws all players: in-bounds as cyan with white outline; out-of-bounds clamped to map edge with distinct style.
+    Returns (in_bounds_count, out_of_bounds_count)."""
     if marked_corner_indices is None:
         marked_corner_indices = [0, 1, 2, 3]
+    in_bounds, out_of_bounds = 0, 0
     # Map player feet (bottom-center of bbox) to pitch; draw dots (R-003 / R001-Person)
     if _transform_point is not None and boxes_xyxy_image:
         for box in boxes_xyxy_image:
             foot_x, foot_y = _bbox_feet_xy(box)
             mx, my = _transform_point(H, (foot_x, foot_y))
             ix, iy = int(mx), int(my)
-            if 0 <= ix < w_map and 0 <= iy < h_map:
-                cv2.circle(map_frame, (ix, iy), 8, (255, 255, 0), -1)
-                cv2.circle(map_frame, (ix, iy), 8, (0, 0, 0), 1)
+            in_map = 0 <= ix < w_map and 0 <= iy < h_map
+            if in_map:
+                in_bounds += 1
+                cv2.circle(map_frame, (ix, iy), 10, (255, 255, 0), -1)
+                cv2.circle(map_frame, (ix, iy), 10, (255, 255, 255), 2)
+            else:
+                out_of_bounds += 1
+                cx = max(0, min(w_map - 1, ix))
+                cy = max(0, min(h_map - 1, iy))
+                cv2.circle(map_frame, (cx, cy), 6, (255, 255, 0), -1)
+                cv2.circle(map_frame, (cx, cy), 6, (128, 128, 128), 2)
     # Pitch center (from manual mark) – where the user placed center
     if _transform_point is not None and center_image_xy is not None:
         cx, cy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
@@ -153,6 +192,7 @@ def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_imag
             pt = map_corner_pts[idx]
             cv2.circle(map_frame, pt, 8, (255, 0, 0), 2)
             cv2.circle(map_frame, pt, 2, (255, 0, 0), -1)
+    return (in_bounds, out_of_bounds)
 
 MARK_SERVER_PORT = 5006
 
@@ -761,16 +801,27 @@ def _get_two_distinct_corners(src_corners, dist_thresh=5.0):
 def _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, image_shape):
     """
     Build 4-point quad [TL, TR, BR, BL] from two distinct corners using the image boundary.
-    Does not infer off-frame corners: the bottom edge is the bottom of the frame.
+    If the two points are in the lower half of the frame, use frame top (y=0) as top edge
+    and the two points as the bottom edge so the full pitch is included. Otherwise use
+    the two points as top edge and frame bottom as bottom edge.
     """
     h, w = int(image_shape[0]), int(image_shape[1])
     ax, ay = float(pt_a[0]), float(pt_a[1])
     bx, by = float(pt_b[0]), float(pt_b[1])
     y_bottom = h - 1
-    tl = np.array([ax, ay], dtype=np.float32)
-    tr = np.array([bx, by], dtype=np.float32)
-    br = np.array([bx, y_bottom], dtype=np.float32)
-    bl = np.array([ax, y_bottom], dtype=np.float32)
+    mid_y = (ay + by) / 2
+    if mid_y > h / 2:
+        # Points in lower half: top edge at frame top, bottom edge through the two points
+        tl = np.array([ax, 0], dtype=np.float32)
+        tr = np.array([bx, 0], dtype=np.float32)
+        br = np.array([bx, by], dtype=np.float32)
+        bl = np.array([ax, ay], dtype=np.float32)
+    else:
+        # Points in upper half: top edge through the two points, bottom at frame bottom
+        tl = np.array([ax, ay], dtype=np.float32)
+        tr = np.array([bx, by], dtype=np.float32)
+        br = np.array([bx, y_bottom], dtype=np.float32)
+        bl = np.array([ax, y_bottom], dtype=np.float32)
     return np.float32([tl, tr, br, bl])
 
 
@@ -804,6 +855,7 @@ def main():
     parser.add_argument("--use-saved", action="store_true", help="Use saved manual_marks.json only (no GUI)")
     default_model = str(PROJECT_ROOT / "models" / "checkpoints" / "checkpoint_epoch_99_lightweight.pth")
     parser.add_argument("--model", "-m", type=str, default=default_model, help=f"Player detection weights (99-epoch); default: {default_model}")
+    parser.add_argument("--threshold", type=float, default=0.25, help="Detection confidence threshold (default 0.25)")
     args = parser.parse_args()
 
     k_value = -0.32
@@ -900,7 +952,7 @@ def main():
     if _transform_point is not None and center_image_xy is not None:
         center_map_xy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
 
-    # Optional: load player detector (99-epoch, then alternate, then COCO fallback)
+    # Optional: load player detector (99-epoch, then alternate, then any .pth in models/, then COCO)
     detector = None
     model_path = Path(args.model)
     alternate_model = PROJECT_ROOT / "models" / "checkpoint_best_total_after_100_epochs.pth"
@@ -912,6 +964,14 @@ def main():
         detector, _ = _load_detector_with_weights(str(alternate_model))
         if detector:
             print(f"Using player detection: {alternate_model}")
+    if detector is None:
+        models_dir = PROJECT_ROOT / "models"
+        if models_dir.exists():
+            for p in sorted(models_dir.rglob("*.pth")):
+                detector, _ = _load_detector_with_weights(str(p))
+                if detector:
+                    print(f"Using player detection: {p}")
+                    break
     if detector is None:
         detector, _ = _load_detector_no_weights()
         if detector:
@@ -964,6 +1024,7 @@ def main():
         </tr>""",
     ]
 
+    _logged_shape = False
     for frame_num in range(n_frames):
         ret, frame = cap.read()
         if not ret:
@@ -974,17 +1035,34 @@ def main():
 
         boxes_xyxy = []
         if detector:
-            boxes_xyxy = _get_player_boxes_xyxy(defished, detector, threshold=0.3)
+            if not _logged_shape:
+                _logged_shape = True
+                print(f"[2dmap] First frame defished shape: {defished.shape}")
+            boxes_xyxy = _get_player_boxes_xyxy(defished, detector, threshold=args.threshold)
+            if frame_num == 0 and len(boxes_xyxy) == 0:
+                boxes_xyxy = _get_player_boxes_xyxy(defished, detector, threshold=0.1)
+                if boxes_xyxy:
+                    print("[2dmap] First frame: got boxes with threshold=0.1")
+            h_img, w_img = defished.shape[:2]
             for box in boxes_xyxy:
-                x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+                x1 = max(0, min(int(box[0]), w_img - 1))
+                y1 = max(0, min(int(box[1]), h_img - 1))
+                x2 = max(0, min(int(box[2]), w_img - 1))
+                y2 = max(0, min(int(box[3]), h_img - 1))
+                if x1 > x2:
+                    x1, x2 = x2, x1
+                if y1 > y2:
+                    y1, y2 = y2, y1
+                if x2 - x1 < 2 or y2 - y1 < 2:
+                    continue
                 cv2.rectangle(defished, (x1, y1), (x2, y2), (0, 255, 0), 2)
             for box in boxes_xyxy:
                 x1, y1, x2, y2 = box[0], box[1], box[2], box[3]
-                for pt in [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]:
-                    cv2.circle(defished, (int(pt[0]), int(pt[1])), 3, (0, 255, 255), -1)
                 cx = (x1 + x2) / 2
                 cy = (y1 + y2) / 2
-                cv2.circle(defished, (int(cx), int(cy)), 4, (255, 255, 0), -1)
+                ix, iy = int(cx), int(cy)
+                if 0 <= ix < w_img and 0 <= iy < h_img:
+                    cv2.circle(defished, (ix, iy), 4, (255, 255, 0), -1)
 
         # Landmarks on frame: pitch center (red) and marked corners (blue)
         if center_image_xy is not None:
@@ -999,7 +1077,10 @@ def main():
 
         # Right: 2D diagram (pitch aligned to user's center + corners; player positions)
         map_frame = _make_diagram_background(w_map, h_map, center_map_xy)
-        _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices)
+        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices)
+        total_players = in_bounds + out_bounds
+        if total_players > 0:
+            print(f"[2dmap] Frame {frame_num}: {in_bounds}/{total_players} players in map bounds")
 
         _, buf_pic = cv2.imencode(".jpg", defished, [cv2.IMWRITE_JPEG_QUALITY, 85])
         _, buf_map = cv2.imencode(".jpg", map_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
@@ -1027,7 +1108,8 @@ def main():
     cap.release()
 
     print(f"Created: {out_path}")
-    print(f"  Open: http://localhost:5005/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
+    print(f"  Open: http://localhost:8080/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
+    print(f"  Open (short): http://localhost:8080/2dmap")
 
 
 if __name__ == "__main__":
