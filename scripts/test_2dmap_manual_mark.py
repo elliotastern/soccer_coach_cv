@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """
-Manual homography: mark up to 4 corners + center on one frame, then build 2D map for first 10 frames.
-Often only 2 corners + center are marked; the other two corners are inferred from the center.
-Creates test_2dmap_manual_mark.html: picture left (with player bboxes), 2D map right (warped bboxes, center, corners).
+Manual homography: mark 4 pitch corners and the two ends of the halfway line on one frame, then build 2D map.
+Creates test_2dmap_manual_mark.html: picture left (with player bboxes), 2D map right (warped bboxes, corners).
+Marks: Corner 1 (TL), Corner 2 (TR), Corner 3 (BR), Corner 4 (BL), Halfway line (left end), Halfway line (right end).
+Saves manual_marks.json with src_corners_xy (4 corners) and halfway_line_xy (two image points).
 Uses 99-epoch weights for player bounding boxes when --model is provided.
 Run from project root. View: http://localhost:8080/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html
-
-For best 2D positions, mark all 4 pitch corners (TL, TR, BR, BL). With only 2 corners + center, the inferred
-quad may not cover the full field and some players may appear clamped at the map edge.
 """
 import argparse
 import base64
@@ -196,7 +194,7 @@ def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_imag
 
 MARK_SERVER_PORT = 5006
 
-DEFAULT_VIDEO = PROJECT_ROOT / "data/raw/37CAE053-841F-4851-956E-CBF17A51C506.mp4"
+DEFAULT_VIDEO = PROJECT_ROOT / "data/raw/E806151B-8C90-41E3-AFD1-1F171968A0D9.mp4"
 DEFAULT_CALIB = PROJECT_ROOT / "data/output/homography_calibration.json"
 MARKS_PATH = PROJECT_ROOT / "data/output/2dmap_manual_mark/manual_marks.json"
 NUM_FRAMES = 10
@@ -204,8 +202,15 @@ NUM_FRAMES = 10
 DEFAULT_MAP_W, DEFAULT_MAP_H = 1050, 680
 PIXELS_PER_METER = 10
 
-# Click order: 1=TL, 2=TR, 3=BR, 4=BL, 5=Center. 3 and 4 optional (press 's' to skip).
-LABELS = ["Corner 1 (Top-Left)", "Corner 2 (Top-Right)", "Corner 3 (Bottom-Right)", "Corner 4 (Bottom-Left)", "Center"]
+# Click order: 1=TL, 2=TR, 3=BR, 4=BL, 5=Halfway left, 6=Halfway right.
+LABELS = [
+    "Corner 1 (Top-Left)",
+    "Corner 2 (Top-Right)",
+    "Corner 3 (Bottom-Right)",
+    "Corner 4 (Bottom-Left)",
+    "Halfway line (left end)",
+    "Halfway line (right end)",
+]
 
 
 def crop_black_borders(frame, black_thresh=15, margin_pct=0.02, non_black_min=0.99):
@@ -266,97 +271,59 @@ def defish_frame(frame, k, alpha=0.0):
 
 
 def collect_marks_interactive(frame_display, marks_path):
-    """User clicks: C1 (TL), C2 (TR), [C3 (BR) skip with 's'], [C4 (BL) skip with 's'], Center."""
-    points = []  # list of {"role": "corner1"|...|"center", "image_xy": [x,y], "inferred": bool}
+    """User clicks: C1 (TL), C2 (TR), C3 (BR), C4 (BL), halfway left, halfway right."""
+    points = []  # list of {"role": "corner1"|...|"halfway_left"|"halfway_right", "image_xy": [x,y], "inferred": bool}
     step = 0
-    center_im = None
 
     def mouse_cb(event, x, y, flags, param):
-        nonlocal step, center_im
-        if event != cv2.EVENT_LBUTTONDOWN or step >= 5:
+        nonlocal step
+        if event != cv2.EVENT_LBUTTONDOWN or step >= 6:
             return
-        if step == 0:
-            points.append({"role": "corner1", "image_xy": [int(x), int(y)], "inferred": False})
-            step = 1
-        elif step == 1:
-            points.append({"role": "corner2", "image_xy": [int(x), int(y)], "inferred": False})
-            step = 2
-        elif step == 2:
-            points.append({"role": "corner3", "image_xy": [int(x), int(y)], "inferred": False})
-            step = 3
-        elif step == 3:
-            points.append({"role": "corner4", "image_xy": [int(x), int(y)], "inferred": False})
-            step = 4
-        elif step == 4:
-            points.append({"role": "center", "image_xy": [int(x), int(y)], "inferred": False})
-            center_im = (x, y)
-            step = 5
+        roles = ["corner1", "corner2", "corner3", "corner4", "halfway_left", "halfway_right"]
+        points.append({"role": roles[step], "image_xy": [int(x), int(y)], "inferred": False})
+        step += 1
 
-    win = "Mark corners and center (1=TL, 2=TR, 3=BR, 4=BL, 5=Center; S=skip 3/4)"
+    win = "Mark 4 corners + halfway line (1=TL, 2=TR, 3=BR, 4=BL, 5=Halfway L, 6=Halfway R)"
     cv2.namedWindow(win)
     cv2.setMouseCallback(win, mouse_cb)
 
-    print("Click in order: Corner 1 (Top-Left), Corner 2 (Top-Right), then optionally Corner 3 (Bottom-Right), Corner 4 (Bottom-Left), then Center.")
-    print("Press S to skip Corner 3 and/or 4 (only 2 corners + center). Press Q to cancel.")
+    print("Click in order: Corner 1 (TL), Corner 2 (TR), Corner 3 (BR), Corner 4 (BL), Halfway line (left end), Halfway line (right end). Press Q to cancel.")
 
-    while step < 5:
+    while step < 6:
         disp = frame_display.copy()
         for i, p in enumerate(points):
             pt = tuple(p["image_xy"])
-            if p.get("inferred") and pt == (0, 0):
-                continue
+            label = p["role"].replace("corner", "C").replace("halfway_left", "H-L").replace("halfway_right", "H-R")
             color = (0, 255, 0) if p.get("inferred") else (0, 0, 255)
             cv2.circle(disp, pt, 8, color, -1)
-            cv2.putText(disp, p["role"].replace("corner", "C").replace("center", "M"), (pt[0] + 10, pt[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+            cv2.putText(disp, label, (pt[0] + 10, pt[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
         if len(points) >= 2:
             for i in range(len(points) - 1):
                 if "corner" in points[i]["role"] and "corner" in points[i + 1]["role"]:
                     p1, p2 = tuple(points[i]["image_xy"]), tuple(points[i + 1]["image_xy"])
-                    if p1 != (0, 0) and p2 != (0, 0):
-                        cv2.line(disp, p1, p2, (0, 255, 0), 1)
-        msg = LABELS[step] if step < 5 else "Done"
+                    cv2.line(disp, p1, p2, (0, 255, 0), 1)
+        if len(points) == 6 and "halfway_left" in points[4]["role"] and "halfway_right" in points[5]["role"]:
+            p5, p6 = tuple(points[4]["image_xy"]), tuple(points[5]["image_xy"])
+            cv2.line(disp, p5, p6, (255, 255, 0), 2)
+        msg = LABELS[step] if step < 6 else "Done"
         cv2.putText(disp, msg, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         cv2.imshow(win, disp)
         key = cv2.waitKey(50) & 0xFF
         if key == ord("q"):
             cv2.destroyWindow(win)
             return None
-        if key == ord("s") or key == ord("S"):
-            if step == 2:
-                points.append({"role": "corner3", "image_xy": [0, 0], "inferred": True})
-                step = 3
-            elif step == 3:
-                points.append({"role": "corner4", "image_xy": [0, 0], "inferred": True})
-                step = 4
 
     cv2.destroyWindow(win)
 
-    # If we have only C1, C2, Center: infer C3 and C4 (or overwrite placeholders)
-    corner1 = next((p["image_xy"] for p in points if p["role"] == "corner1"), None)
-    corner2 = next((p["image_xy"] for p in points if p["role"] == "corner2"), None)
-    corner3_p = next((p for p in points if p["role"] == "corner3"), None)
-    corner4_p = next((p for p in points if p["role"] == "corner4"), None)
-    center_pt = next((p["image_xy"] for p in points if p["role"] == "center"), None)
-    if not center_pt:
-        return None
-    cx, cy = center_pt
-
-    if corner3_p and corner3_p.get("inferred"):
-        # BR = 2*center - TL
-        corner3_p["image_xy"] = [2 * cx - corner1[0], 2 * cy - corner1[1]]
-    if corner4_p and corner4_p.get("inferred"):
-        # BL = 2*center - TR
-        corner4_p["image_xy"] = [2 * cx - corner2[0], 2 * cy - corner2[1]]
-
-    # Build 4 corners in order TL, TR, BR, BL for homography
-    c1 = corner1
-    c2 = corner2
+    c1 = next((p["image_xy"] for p in points if p["role"] == "corner1"), None)
+    c2 = next((p["image_xy"] for p in points if p["role"] == "corner2"), None)
     c3 = next((p["image_xy"] for p in points if p["role"] == "corner3"), None)
     c4 = next((p["image_xy"] for p in points if p["role"] == "corner4"), None)
-    if c3 is None:
-        c3 = [2 * cx - c1[0], 2 * cy - c1[1]]
-    if c4 is None:
-        c4 = [2 * cx - c2[0], 2 * cy - c2[1]]
+    if not all([c1, c2, c3, c4]):
+        return None
+    halfway_left = next((p["image_xy"] for p in points if p["role"] == "halfway_left"), None)
+    halfway_right = next((p["image_xy"] for p in points if p["role"] == "halfway_right"), None)
+    halfway_line_xy = [halfway_left, halfway_right] if halfway_left and halfway_right else []
 
     src_corners = np.float32([c1, c2, c3, c4])
     marks_data = {
@@ -364,12 +331,12 @@ def collect_marks_interactive(frame_display, marks_path):
         "points": points,
         "src_corners_order": "TL, TR, BR, BL",
         "src_corners_xy": [c1, c2, c3, c4],
+        "halfway_line_xy": halfway_line_xy,
     }
     marks_path.parent.mkdir(parents=True, exist_ok=True)
     with open(marks_path, "w") as f:
         json.dump(marks_data, f, indent=2)
     print(f"Saved marks to {marks_path}")
-
     return src_corners
 
 
@@ -412,7 +379,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Mark corners and center</title>
+  <title>Mark 4 corners and halfway line</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #eee; }
     h1 { color: #4CAF50; }
@@ -421,8 +388,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
     .current-mark span { color: #4CAF50; }
     .skip-row { margin: 0 0 16px 0; text-align: center; }
     .skip-btn { padding: 18px 48px; font-size: 22px; font-weight: bold; cursor: pointer; background: #d32f2f; color: #fff; border: 3px solid #fff; border-radius: 8px; min-width: 220px; }
-    .skip-btn:hover:not(:disabled) { background: #f44336; }
-    .skip-btn:disabled { background: #8b0000; color: #ccc; border-color: #a00; cursor: not-allowed; opacity: 0.9; }
+    .skip-btn:hover { background: #f44336; }
     #imgWrap { position: relative; display: inline-block; cursor: crosshair; margin: 10px 0; }
     #imgWrap img { max-width: 100%; height: auto; display: block; vertical-align: top; }
     #marksLayer { position: absolute; left: 0; top: 0; pointer-events: none; }
@@ -443,17 +409,52 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
     .skipped-chip:hover { background: #666; }
     .skipped-chip .chip-dot { width: 12px; height: 12px; border-radius: 50%; background: #0f0; flex-shrink: 0; }
     .skipped-chip .chip-label { font-size: 12px; font-weight: bold; color: #fff; }
+    .mark-diagram { margin: 12px auto; padding: 14px; background: #1a1a1a; border-radius: 8px; max-width: 420px; }
+    .mark-diagram svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .mark-diagram .diagram-title { font-size: 13px; color: #4CAF50; margin-bottom: 8px; font-weight: bold; text-align: center; }
+    .mark-diagram .landmark-label { fill: #fff; font-size: 9px; text-anchor: middle; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>Mark corners and center</h1>
+  <h1>Mark 4 corners and halfway line</h1>
   <div class="top-bar">
     <div class="current-mark">Current mark: <span id="currentMarkText">Corner 1 (Top-Left)</span></div>
   </div>
   <div class="skip-row">
     <button type="button" class="skip-btn" id="skipBtn">Skip (—)</button>
   </div>
-  <p style="color:#aaa;">Click on the image to place each mark. Drag red dots to adjust. Skipped marks appear below; drag them onto the frame to place.</p>
+  <div style="margin: 12px 0; padding: 14px; background: #2d2d2d; border-radius: 8px; font-size: 14px; color: #ccc; line-height: 1.5;">
+    <strong style="color: #4CAF50;">What to mark (in order):</strong><br>
+    <strong>1. Corner 1 (Top-Left)</strong> — The top-left corner of the pitch where you see it in the image (where the left touchline meets the goal line at the top of the frame).<br>
+    <strong>2. Corner 2 (Top-Right)</strong> — The top-right corner of the pitch (where the right touchline meets the goal line at the top).<br>
+    <strong>3. Corner 3 (Bottom-Right)</strong> — The bottom-right corner of the pitch (where the right touchline meets the goal line at the bottom). You can skip this with the Skip button.<br>
+    <strong>4. Corner 4 (Bottom-Left)</strong> — The bottom-left corner of the pitch (where the left touchline meets the goal line at the bottom). You can skip this with the Skip button.<br>
+    <strong>5. Halfway line (left end)</strong> — Where the halfway line meets the left touchline (one end of the center line).<br>
+    <strong>6. Halfway line (right end)</strong> — Where the halfway line meets the right touchline (the other end of the center line).<br>
+    <span style="color: #888;">Click on the image for each point in order. Drag red dots to adjust. Skipped corners (3 and 4) appear below; drag them onto the frame to place later.</span>
+  </div>
+  <div class="mark-diagram">
+    <div class="diagram-title">Where to click (top-down view, pitch 105m x 68m):</div>
+    <svg viewBox="-75 -20 370 345" xmlns="http://www.w3.org/2000/svg">
+      <rect x="28" y="34" width="163" height="252" fill="#2d5a27" stroke="#fff" stroke-width="2"/>
+      <line x1="28" y1="160" x2="191" y2="160" stroke="#fff" stroke-width="2"/>
+      <circle cx="109.5" cy="160" r="22" fill="none" stroke="#fff" stroke-width="2"/>
+      <rect x="94.5" y="34" width="30" height="8" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <rect x="94.5" y="278" width="30" height="8" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="28" cy="34" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="28" y="56" class="landmark-label">Top-left corner</text>
+      <circle cx="191" cy="34" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="191" y="56" class="landmark-label">Top-right corner</text>
+      <circle cx="191" cy="286" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="191" y="278" class="landmark-label">Bottom-right corner</text>
+      <circle cx="28" cy="286" r="7" fill="#f44336" stroke="#fff" stroke-width="1.5"/>
+      <text x="28" y="278" class="landmark-label">Bottom-left corner</text>
+      <circle cx="28" cy="160" r="6" fill="#ffeb3b" stroke="#fff" stroke-width="1.5"/>
+      <text x="28" y="182" class="landmark-label">Halfway line (left end)</text>
+      <circle cx="191" cy="160" r="6" fill="#ffeb3b" stroke="#fff" stroke-width="1.5"/>
+      <text x="191" y="182" class="landmark-label">Halfway line (right end)</text>
+    </svg>
+  </div>
   <div class="skipped-container" id="skippedContainer">
     <span class="skipped-label">Skipped (drag onto frame to place):</span>
     <div id="skippedChips"></div>
@@ -468,14 +469,12 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
   </div>
   <p id="status"></p>
   <script>
-    const labels = ['Corner 1 (Top-Left)', 'Corner 2 (Top-Right)', 'Corner 3 (Bottom-Right)', 'Corner 4 (Bottom-Left)', 'Center'];
-    const shortLabels = ['1: TL', '2: TR', '3: BR', '4: BL', 'Center'];
+    const labels = ['Corner 1 (Top-Left)', 'Corner 2 (Top-Right)', 'Corner 3 (Bottom-Right)', 'Corner 4 (Bottom-Left)', 'Halfway line (left end)', 'Halfway line (right end)'];
+    const shortLabels = ['1: TL', '2: TR', '3: BR', '4: BL', 'H-L', 'H-R'];
     let points = [];
     let step = 0;
     let dragIdx = null;
     let dragStart = null;
-    let chipDragIdx = null;
-    let justDroppedChip = false;
     const img = document.getElementById('img');
     const layer = document.getElementById('marksLayer');
     const skippedChipsEl = document.getElementById('skippedChips');
@@ -484,6 +483,8 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
     const resetBtn = document.getElementById('reset');
     const skipBtn = document.getElementById('skipBtn');
     const currentMarkEl = document.getElementById('currentMarkText');
+    let chipDragIdx = null;
+    let justDroppedChip = false;
 
     function clientToImage(x, y) {
       const rect = img.getBoundingClientRect();
@@ -496,16 +497,13 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
     }
 
     function updateCurrentMark() {
-      currentMarkEl.textContent = step < 5 ? labels[step] : 'All done';
-      if (step < 5) skipBtn.textContent = 'Skip ' + labels[step];
+      currentMarkEl.textContent = step < 6 ? labels[step] : 'All done';
+      if (step < 6) skipBtn.textContent = 'Skip ' + labels[step];
       else skipBtn.textContent = 'Skip (—)';
-      if (step >= 0 && step <= 3) {
-        skipBtn.disabled = false;
-        skipBtn.removeAttribute('disabled');
-      } else {
-        skipBtn.disabled = true;
-        skipBtn.setAttribute('disabled', 'disabled');
-      }
+    }
+
+    function isInSkippedContainer(p) {
+      return p.inferred && p.image_xy[0] === 0 && p.image_xy[1] === 0;
     }
 
     img.src = 'data:image/jpeg;base64,""" + img_b64 + """';
@@ -513,20 +511,17 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
       document.getElementById('imgWrap').addEventListener('click', function(e) {
         if (e.target !== img) return;
         if (justDroppedChip) return;
-        if (step >= 5) return;
+        if (step >= 6) return;
         const [x, y] = clientToImage(e.clientX, e.clientY);
-        const role = step === 0 ? 'corner1' : step === 1 ? 'corner2' : step === 2 ? 'corner3' : step === 3 ? 'corner4' : 'center';
+        const roles = ['corner1', 'corner2', 'corner3', 'corner4', 'halfway_left', 'halfway_right'];
+        const role = roles[step];
         points.push({ role, image_xy: [x, y], inferred: false });
         step++;
         redraw();
         updateCurrentMark();
-        if (step === 5) saveBtn.disabled = false;
+        if (step === 6) saveBtn.disabled = false;
       });
     };
-
-    function isInSkippedContainer(p) {
-      return p.inferred && p.image_xy[0] === 0 && p.image_xy[1] === 0;
-    }
 
     function redraw() {
       layer.innerHTML = '';
@@ -576,7 +571,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
           layer.appendChild(wrap);
         }
       });
-      statusEl.textContent = step < 5 ? 'Click on the image for: ' + labels[step] : 'All marks placed. Drag dots to adjust, then click Save positions.';
+      statusEl.textContent = step < 6 ? 'Click on the image for: ' + labels[step] : 'All marks placed. Drag dots to adjust, then click Save positions.';
     }
 
     document.addEventListener('mousemove', function(e) {
@@ -610,42 +605,26 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
 
     skipBtn.addEventListener('click', function(ev) {
       if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-      if (step === 0) {
-        points.push({ role: 'corner1', image_xy: [0, 0], inferred: true });
-        step = 1;
-        updateCurrentMark();
-        redraw();
-      } else if (step === 1) {
-        points.push({ role: 'corner2', image_xy: [0, 0], inferred: true });
-        step = 2;
-        updateCurrentMark();
-        redraw();
-      } else if (step === 2) {
-        points.push({ role: 'corner3', image_xy: [0, 0], inferred: true });
-        step = 3;
-        updateCurrentMark();
-        redraw();
-      } else if (step === 3) {
-        points.push({ role: 'corner4', image_xy: [0, 0], inferred: true });
-        step = 4;
-        updateCurrentMark();
-        redraw();
-      }
-      if (step === 5) saveBtn.disabled = false;
+      if (step >= 6) return;
+      const roles = ['corner1', 'corner2', 'corner3', 'corner4', 'halfway_left', 'halfway_right'];
+      points.push({ role: roles[step], image_xy: [0, 0], inferred: true });
+      step++;
+      updateCurrentMark();
+      redraw();
+      if (step === 6) saveBtn.disabled = false;
     });
+    skipBtn.removeAttribute('disabled');
 
     saveBtn.onclick = function() {
-      const cx = points.find(p => p.role === 'center').image_xy[0];
-      const cy = points.find(p => p.role === 'center').image_xy[1];
       let c1 = points.find(p => p.role === 'corner1').image_xy;
       let c2 = points.find(p => p.role === 'corner2').image_xy;
       let c3 = points.find(p => p.role === 'corner3').image_xy;
       let c4 = points.find(p => p.role === 'corner4').image_xy;
-      if (points.find(p => p.role === 'corner1').inferred) c1 = [2*cx - c2[0], 2*cy - c2[1]];
-      if (points.find(p => p.role === 'corner2').inferred) c2 = [2*cx - c1[0], 2*cy - c1[1]];
-      if (points.find(p => p.role === 'corner3').inferred) c3 = [2*cx - c1[0], 2*cy - c1[1]];
-      if (points.find(p => p.role === 'corner4').inferred) c4 = [2*cx - c2[0], 2*cy - c2[1]];
-      const marks = { frame_index: 0, points, src_corners_order: 'TL, TR, BR, BL', src_corners_xy: [c1, c2, c3, c4] };
+      if (points.find(p => p.role === 'corner3').inferred) c3 = c1.slice();
+      if (points.find(p => p.role === 'corner4').inferred) c4 = c2.slice();
+      const halfway_left = points.find(p => p.role === 'halfway_left').image_xy;
+      const halfway_right = points.find(p => p.role === 'halfway_right').image_xy;
+      const marks = { frame_index: 0, points, src_corners_order: 'TL, TR, BR, BL', src_corners_xy: [c1, c2, c3, c4], halfway_line_xy: [halfway_left, halfway_right] };
       fetch('/save_marks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(marks) })
         .then(r => r.json()).then(d => { statusEl.textContent = d.ok ? 'Saved. You can close this tab.' : (d.error || 'Save failed'); })
         .catch(e => { statusEl.textContent = 'Error: ' + e.message; });
@@ -714,9 +693,17 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
 
-    print("No display available. Open in your browser to mark:")
+    print("")
+    print("Marking UI server is running. Open in your browser:")
     print(f"  http://localhost:{MARK_SERVER_PORT}/mark_ui.html")
-    print("Mark: 1=TL, 2=TR, (3=BR or Skip), (4=BL or Skip), 5=Center. Then click Save marks.")
+    print("")
+    print("To avoid 'Unable to connect' (recommended for remote Cursor/VS Code):")
+    print("  1. Start the viewer server: python serve_viewer_flask.py  (or serve_viewer.py)")
+    print("  2. Forward port 8080: View -> Ports -> Forward a Port -> 8080")
+    print("  3. Open: http://localhost:8080/mark_ui")
+    print("  (One port 8080 for report + mark UI; no need to forward 5006.)")
+    print("")
+    print("Mark: 1=TL, 2=TR, 3=BR, 4=BL, 5=Halfway left, 6=Halfway right. Then click Save positions.")
     print("Waiting for you to save marks...")
     marks_saved.wait(timeout=600)
     server.shutdown()
@@ -844,7 +831,7 @@ def save_frame_image(frame_jpg_bytes, output_dir, frame_id, suffix):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Mark up to 4 corners + center on one frame; build 2D map for first 10 frames and HTML."
+        description="Mark 4 corners and two ends of halfway line on one frame; build 2D map for first 10 frames and HTML."
     )
     parser.add_argument("video", nargs="?", default=str(DEFAULT_VIDEO), help="Input video path")
     parser.add_argument("--calibration", "-c", type=str, default=str(DEFAULT_CALIB), help="Optional: homography_calibration.json for k, alpha, map_size")
@@ -870,9 +857,16 @@ def main():
         if "map_size" in calib:
             w_map, h_map = calib["map_size"][0], calib["map_size"][1]
 
-    video_path = Path(args.video)
+    video_path = Path(args.video).resolve()
     if not video_path.exists():
         print(f"Error: Video not found: {video_path}")
+        default_video = (PROJECT_ROOT / "data/raw/E806151B-8C90-41E3-AFD1-1F171968A0D9.mp4").resolve()
+        if video_path == default_video:
+            raw_dir = PROJECT_ROOT / "data/raw"
+            if raw_dir.exists():
+                mp4s = list(raw_dir.glob("*.mp4"))
+                if mp4s:
+                    print(f"  Videos in data/raw: {[p.name for p in mp4s[:5]]}. Use: --video path/to/video.mp4")
         sys.exit(1)
 
     cap = cv2.VideoCapture(str(video_path))
@@ -918,10 +912,10 @@ def main():
             marks_data = json.load(f)
         src_corners = np.float32(marks_data.get("src_corners_xy", []))
         if len(src_corners) != 4:
-            print("Run with --mark to mark corners and center on the first frame.")
+            print("Run with --mark to mark 4 corners and halfway line on the first frame.")
             sys.exit(1)
 
-    # Center point and which corners were actually placed (from saved points)
+    # Center point (from halfway line midpoint or legacy "center" role) and which corners were placed
     marks_data_path = MARKS_PATH if MARKS_PATH.exists() else None
     center_image_xy = None
     points_from_file = []
@@ -929,10 +923,16 @@ def main():
         with open(marks_data_path, "r") as f:
             _md = json.load(f)
         points_from_file = _md.get("points", [])
-        for p in points_from_file:
-            if p.get("role") == "center":
-                center_image_xy = p.get("image_xy")
-                break
+        halfway_line_xy = _md.get("halfway_line_xy", [])
+        if len(halfway_line_xy) >= 2:
+            cx = (halfway_line_xy[0][0] + halfway_line_xy[1][0]) / 2
+            cy = (halfway_line_xy[0][1] + halfway_line_xy[1][1]) / 2
+            center_image_xy = [cx, cy]
+        else:
+            for p in points_from_file:
+                if p.get("role") == "center":
+                    center_image_xy = p.get("image_xy")
+                    break
     marked_corner_indices = _marked_corner_indices_from_points(points_from_file) if points_from_file else [0, 1, 2, 3]
 
     # When only 1–2 distinct corners (others skipped), use frame boundary; do not infer off-frame corners
