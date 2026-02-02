@@ -3,7 +3,15 @@
 Manual homography: mark up to 4 corners + center on one frame, then build 2D map for first 10 frames.
 Often only 2 corners + center are marked; the other two corners are inferred from the center.
 Creates test_2dmap_manual_mark.html: picture left (with player bboxes), 2D map right (warped bboxes, center, corners).
-Uses 99-epoch weights for player bounding boxes when --model is provided.
+
+To regenerate the report without opening the mark UI, run: python scripts/test_2dmap_manual_mark.py --use-saved
+Default model: models/checkpoint_best_total_after_100_epochs.pth (fallback: other .pth in models/, then COCO).
+
+Player bounding boxes (left column): Require pip install rfdetr (and torch). Either (1) place a trained
+checkpoint in models/ (e.g. checkpoint_best_total_after_100_epochs.pth, see README) or (2) rely on rfdetr
+COCO weights (no checkpoint). If the report shows "Player bounding boxes: not available", install dependencies
+and ensure a model is available, then re-run this script so frames/frame_*_picture.jpg are regenerated with boxes.
+
 Run from project root. View: http://localhost:8080/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html
 
 For best 2D positions, mark all 4 pitch corners (TL, TR, BR, BL). With only 2 corners + center, the inferred
@@ -12,6 +20,7 @@ quad may not cover the full field and some players may appear clamped at the map
 import argparse
 import base64
 import json
+import os
 import sys
 import threading
 import time
@@ -54,7 +63,7 @@ def _load_detector_with_weights(model_path: str):
         _detector = RFDETRMedium(pretrain_weights=model_path)
         return _detector, _tb
     except Exception as e:
-        print(f"Optional detection unavailable: {e}")
+        print(f"Optional detection unavailable (load failed): {e}")
         return None, None
 
 
@@ -70,11 +79,26 @@ def _load_detector_no_weights():
         _detector = RFDETRMedium()
         return _detector, _tb
     except Exception as e:
-        print(f"Optional detection unavailable: {e}")
+        print(f"Optional detection unavailable (COCO load failed): {e}")
         return None, None
 
 
 _logged_empty_detection = False
+
+
+def _raw_class_ids_array(raw):
+    """Resolve class IDs from raw (class_id, class_ids, or labels). Returns list of int or None."""
+    arr = getattr(raw, "class_id", None)
+    if arr is None:
+        arr = getattr(raw, "class_ids", None)
+    if arr is None:
+        arr = getattr(raw, "labels", None)
+    if arr is None:
+        return None
+    if hasattr(arr, "cpu") and hasattr(arr, "numpy"):
+        arr = arr.cpu().numpy()
+    arr = np.asarray(arr).flatten()
+    return [int(arr[i]) for i in range(len(arr))]
 
 
 def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.25):
@@ -88,36 +112,51 @@ def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.25):
     except Exception:
         raw = detector.predict(frame_rgb, threshold=threshold)
     boxes = []
-    class_ids = getattr(raw, "class_id", None)
-    if class_ids is None:
-        class_ids = getattr(raw, "class_ids", None)
-    raw_count = len(class_ids) if class_ids is not None else 0
-    xyxy_len = len(raw.xyxy) if hasattr(raw, "xyxy") else 0
-    if class_ids is not None and hasattr(raw, "xyxy"):
-        n = min(len(class_ids), xyxy_len)
-        for i in range(n):
-            cid = int(class_ids[i])
-            xyxy = raw.xyxy[i]
-            if hasattr(xyxy, "tolist"):
-                coords = xyxy.tolist()[:4]
-            else:
-                coords = np.asarray(xyxy).flatten()[:4].tolist()
-            if len(coords) != 4:
+    class_ids = _raw_class_ids_array(raw)
+    xyxy_arr = getattr(raw, "xyxy", None)
+    if xyxy_arr is None:
+        xyxy_len = 0
+    else:
+        xyxy_len = len(xyxy_arr)
+    if xyxy_len == 0:
+        if not _logged_empty_detection:
+            _logged_empty_detection = True
+            has_ci = hasattr(raw, "class_id")
+            has_cis = hasattr(raw, "class_ids")
+            has_lb = hasattr(raw, "labels")
+            print(f"[2dmap] Detection diagnostic: type={type(raw).__name__}, class_id={has_ci}, class_ids={has_cis}, labels={has_lb}, xyxy len=0")
+        return boxes
+    n = min(len(class_ids), xyxy_len) if class_ids is not None else xyxy_len
+    for i in range(n):
+        if class_ids is not None:
+            cid = class_ids[i]
+            if cid not in (0, 1):
                 continue
-            boxes.append([float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3])])
+        xyxy = xyxy_arr[i]
+        if hasattr(xyxy, "tolist"):
+            coords = xyxy.tolist()[:4]
+        else:
+            coords = np.asarray(xyxy).flatten()[:4].tolist()
+        if len(coords) != 4:
+            continue
+        boxes.append([float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3])])
     if len(boxes) == 0 and not _logged_empty_detection:
         _logged_empty_detection = True
-        print(f"[2dmap] Detection diagnostic: raw count={raw_count}, xyxy len={xyxy_len}, boxes kept=0")
-        if raw_count > 0 and class_ids is not None:
-            unique_cids = set(int(class_ids[i]) for i in range(min(raw_count, len(class_ids))))
+        has_ci = hasattr(raw, "class_id")
+        has_cis = hasattr(raw, "class_ids")
+        has_lb = hasattr(raw, "labels")
+        print(f"[2dmap] Detection diagnostic: type={type(raw).__name__}, class_id={has_ci}, class_ids={has_cis}, labels={has_lb}, xyxy len={xyxy_len}, boxes kept=0")
+        if class_ids is not None:
+            unique_cids = set(class_ids[:n]) if n else set()
             print(f"[2dmap] Raw class_ids present: {sorted(unique_cids)}")
     return boxes
 
 
 def _make_diagram_background(w_map, h_map, center_map_xy=None):
     """
-    Create 2D pitch diagram: standard 105m x 68m at 10 px/m.
-    Tries assets/pitch_template.png first; else draws outline, center line, center circle, penalty boxes.
+    Create 2D pitch diagram: 105m x 68m at 10 px/m. Touchlines, goal lines, halfway line,
+    center mark, center circle (9.15m), penalty boxes, goals with nets off pitch,
+    corner arcs (1m), corner flags at 45 deg.
     """
     template_path = PROJECT_ROOT / "assets" / "pitch_template.png"
     if template_path.exists():
@@ -127,14 +166,19 @@ def _make_diagram_background(w_map, h_map, center_map_xy=None):
     diagram = np.zeros((h_map, w_map, 3), dtype=np.uint8)
     diagram[:, :] = (34, 139, 34)  # pitch green
     cv2.rectangle(diagram, (0, 0), (w_map - 1, h_map - 1), (255, 255, 255), 2)
-    # Standard dimensions at 10 px/m: center line, center circle 9.15m, penalty box 16.5m deep, 40.32m wide
     mid_x = w_map // 2
     center_circle_r = int(9.15 * PIXELS_PER_METER)
     pen_depth = int(16.5 * PIXELS_PER_METER)
     pen_width = int(40.32 * PIXELS_PER_METER)
     pen_y1 = (h_map - pen_width) // 2
     pen_y2 = pen_y1 + pen_width
-    cv2.line(diagram, (mid_x, 0), (mid_x, h_map - 1), (255, 255, 255), 1)
+    goal_width_px = int(7.32 * PIXELS_PER_METER)
+    goal_depth_px = int(2.5 * PIXELS_PER_METER)
+    corner_arc_r = int(1 * PIXELS_PER_METER)
+    flag_len = 15
+    white = (255, 255, 255)
+    net_fill = (220, 240, 220)
+    cv2.line(diagram, (mid_x, 0), (mid_x, h_map - 1), white, 2)
     if center_map_xy is not None:
         cx = int(center_map_xy[0])
         cy = int(center_map_xy[1])
@@ -142,9 +186,25 @@ def _make_diagram_background(w_map, h_map, center_map_xy=None):
         cy = max(center_circle_r, min(h_map - 1 - center_circle_r, cy))
     else:
         cx, cy = mid_x, h_map // 2
-    cv2.circle(diagram, (cx, cy), center_circle_r, (255, 255, 255), 1)
-    cv2.rectangle(diagram, (0, pen_y1), (pen_depth, pen_y2), (255, 255, 255), 1)
-    cv2.rectangle(diagram, (w_map - pen_depth, pen_y1), (w_map - 1, pen_y2), (255, 255, 255), 1)
+    cv2.circle(diagram, (cx, cy), center_circle_r, white, 2)
+    cv2.circle(diagram, (cx, cy), 4, white, -1)
+    cv2.rectangle(diagram, (0, pen_y1), (pen_depth, pen_y2), white, 1)
+    cv2.rectangle(diagram, (w_map - pen_depth, pen_y1), (w_map - 1, pen_y2), white, 1)
+    goal_half = goal_width_px // 2
+    gy1 = max(0, h_map // 2 - goal_half)
+    gy2 = min(h_map - 1, h_map // 2 + goal_half)
+    cv2.rectangle(diagram, (0, gy1), (goal_depth_px, gy2), white, 2)
+    cv2.rectangle(diagram, (0, gy1), (goal_depth_px, gy2), net_fill, -1)
+    cv2.rectangle(diagram, (w_map - goal_depth_px, gy1), (w_map - 1, gy2), white, 2)
+    cv2.rectangle(diagram, (w_map - goal_depth_px, gy1), (w_map - 1, gy2), net_fill, -1)
+    cv2.ellipse(diagram, (corner_arc_r, corner_arc_r), (corner_arc_r, corner_arc_r), 0, 180, 270, white, 1)
+    cv2.ellipse(diagram, (w_map - 1 - corner_arc_r, corner_arc_r), (corner_arc_r, corner_arc_r), 0, 270, 360, white, 1)
+    cv2.ellipse(diagram, (w_map - 1 - corner_arc_r, h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 0, 90, white, 1)
+    cv2.ellipse(diagram, (corner_arc_r, h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 90, 180, white, 1)
+    cv2.line(diagram, (0, 0), (min(flag_len, w_map), min(flag_len, h_map)), white, 2)
+    cv2.line(diagram, (w_map - 1, 0), (max(0, w_map - 1 - flag_len), min(flag_len, h_map)), white, 2)
+    cv2.line(diagram, (w_map - 1, h_map - 1), (max(0, w_map - 1 - flag_len), max(0, h_map - 1 - flag_len)), white, 2)
+    cv2.line(diagram, (0, h_map - 1), (min(flag_len, w_map), max(0, h_map - 1 - flag_len)), white, 2)
     return diagram
 
 
@@ -196,7 +256,7 @@ def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_imag
 
 MARK_SERVER_PORT = 5006
 
-DEFAULT_VIDEO = PROJECT_ROOT / "data/raw/37CAE053-841F-4851-956E-CBF17A51C506.mp4"
+DEFAULT_VIDEO = PROJECT_ROOT / "data/raw/E806151B-8C90-41E3-AFD1-1F171968A0D9.mp4"
 DEFAULT_CALIB = PROJECT_ROOT / "data/output/homography_calibration.json"
 MARKS_PATH = PROJECT_ROOT / "data/output/2dmap_manual_mark/manual_marks.json"
 NUM_FRAMES = 10
@@ -265,7 +325,7 @@ def defish_frame(frame, k, alpha=0.0):
     return crop_black_borders(remapped)
 
 
-def collect_marks_interactive(frame_display, marks_path):
+def collect_marks_interactive(frame_display, marks_path, video_path):
     """User clicks: C1 (TL), C2 (TR), [C3 (BR) skip with 's'], [C4 (BL) skip with 's'], Center."""
     points = []  # list of {"role": "corner1"|...|"center", "image_xy": [x,y], "inferred": bool}
     step = 0
@@ -364,6 +424,7 @@ def collect_marks_interactive(frame_display, marks_path):
         "points": points,
         "src_corners_order": "TL, TR, BR, BL",
         "src_corners_xy": [c1, c2, c3, c4],
+        "video_path": str(video_path),
     }
     marks_path.parent.mkdir(parents=True, exist_ok=True)
     with open(marks_path, "w") as f:
@@ -399,7 +460,7 @@ def _points_to_src_corners(points):
     return np.float32([c1, c2, c3, c4]), marks_data
 
 
-def collect_marks_web_fallback(frame_bgr, marks_path):
+def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
     """No GUI: save frame, serve mark UI in browser, wait for POST to save marks, then return src_corners."""
     marks_path.parent.mkdir(parents=True, exist_ok=True)
     frame_path = marks_path.parent / "mark_frame.jpg"
@@ -670,6 +731,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
 
     marks_saved = threading.Event()
     marks_file_path = str(marks_path)
+    saved_video_path = str(video_path)
 
     class MarkHandler(BaseHTTPRequestHandler):
         def do_GET(self):
@@ -692,6 +754,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path):
                 body = self.rfile.read(length)
                 try:
                     data = json.loads(body.decode("utf-8"))
+                    data["video_path"] = saved_video_path
                     with open(marks_file_path, "w") as f:
                         json.dump(data, f, indent=2)
                     self.send_response(200)
@@ -853,8 +916,8 @@ def main():
     parser.add_argument("--mark", action="store_true", help="Force re-mark even if manual_marks.json exists")
     parser.add_argument("--web", action="store_true", help="Use web marking UI only (skip OpenCV window)")
     parser.add_argument("--use-saved", action="store_true", help="Use saved manual_marks.json only (no GUI)")
-    default_model = str(PROJECT_ROOT / "models" / "checkpoints" / "checkpoint_epoch_99_lightweight.pth")
-    parser.add_argument("--model", "-m", type=str, default=default_model, help=f"Player detection weights (99-epoch); default: {default_model}")
+    default_model = str(PROJECT_ROOT / "models" / "checkpoint_best_total_after_100_epochs.pth")
+    parser.add_argument("--model", "-m", type=str, default=default_model, help=f"Player detection weights; default: {default_model}")
     parser.add_argument("--threshold", type=float, default=0.25, help="Detection confidence threshold (default 0.25)")
     args = parser.parse_args()
 
@@ -874,6 +937,33 @@ def main():
     if not video_path.exists():
         print(f"Error: Video not found: {video_path}")
         sys.exit(1)
+
+    # When we will use saved marks (not re-marking), use the video stored in marks so report and marks align.
+    will_use_saved_marks = args.use_saved or (MARKS_PATH.exists() and not args.mark)
+    if will_use_saved_marks and MARKS_PATH.exists():
+        with open(MARKS_PATH, "r") as f:
+            marks_data = json.load(f)
+        stored_path = marks_data.get("video_path")
+        if stored_path:
+            resolved = Path(stored_path)
+            if not resolved.is_absolute():
+                resolved = PROJECT_ROOT / stored_path
+            if not resolved.exists() and resolved.name:
+                fallback = PROJECT_ROOT / "data" / "raw" / resolved.name
+                if fallback.exists():
+                    resolved = fallback
+            if resolved.exists():
+                video_path = resolved
+                print(f"Using video from marks: {video_path}")
+            else:
+                print(f"Warning: Stored video_path not found: {stored_path}. Using {video_path} - marks may misalign.")
+        else:
+            if Path(args.video) == DEFAULT_VIDEO:
+                print("Error: manual_marks.json has no video_path (marks were saved before that was stored).")
+                print("Pass the video you marked explicitly so the report uses the correct video:")
+                print("  python scripts/test_2dmap_manual_mark.py --use-saved path/to/video/you/marked.mp4")
+                sys.exit(1)
+            print(f"Note: manual_marks.json has no video_path; using video: {video_path}")
 
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -904,12 +994,12 @@ def main():
             print(f"Using saved marks from {MARKS_PATH}")
     if src_corners is None and (args.mark or not MARKS_PATH.exists()):
         if args.web:
-            src_corners = collect_marks_web_fallback(defished0, MARKS_PATH)
+            src_corners = collect_marks_web_fallback(defished0, MARKS_PATH, video_path)
         else:
             try:
-                src_corners = collect_marks_interactive(defished0, MARKS_PATH)
+                src_corners = collect_marks_interactive(defished0, MARKS_PATH, video_path)
             except cv2.error:
-                src_corners = collect_marks_web_fallback(defished0, MARKS_PATH)
+                src_corners = collect_marks_web_fallback(defished0, MARKS_PATH, video_path)
         if src_corners is None:
             print("Marking cancelled or failed.")
             sys.exit(1)
@@ -933,6 +1023,12 @@ def main():
             if p.get("role") == "center":
                 center_image_xy = p.get("image_xy")
                 break
+        if center_image_xy is None:
+            halfway_line_xy = _md.get("halfway_line_xy", [])
+            if len(halfway_line_xy) >= 2:
+                cx = (halfway_line_xy[0][0] + halfway_line_xy[1][0]) / 2
+                cy = (halfway_line_xy[0][1] + halfway_line_xy[1][1]) / 2
+                center_image_xy = [cx, cy]
     marked_corner_indices = _marked_corner_indices_from_points(points_from_file) if points_from_file else [0, 1, 2, 3]
 
     # When only 1–2 distinct corners (others skipped), use frame boundary; do not infer off-frame corners
@@ -952,10 +1048,10 @@ def main():
     if _transform_point is not None and center_image_xy is not None:
         center_map_xy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
 
-    # Optional: load player detector (99-epoch, then alternate, then any .pth in models/, then COCO)
+    # Optional: load player detector (default 100-epoch, then alternate 99-epoch, then any .pth in models/, then COCO)
     detector = None
     model_path = Path(args.model)
-    alternate_model = PROJECT_ROOT / "models" / "checkpoint_best_total_after_100_epochs.pth"
+    alternate_model = PROJECT_ROOT / "models" / "checkpoints" / "checkpoint_epoch_99_lightweight.pth"
     if model_path.exists():
         detector, _ = _load_detector_with_weights(str(model_path))
         if detector:
@@ -1025,6 +1121,8 @@ def main():
     ]
 
     _logged_shape = False
+    cache_bust = int(time.time())
+    # Frame 0 in the report is from the same cap after reset below; do not introduce a second video/cap.
     for frame_num in range(n_frames):
         ret, frame = cap.read()
         if not ret:
@@ -1087,13 +1185,15 @@ def main():
 
         pic_path = save_frame_image(buf_pic.tobytes(), out_dir, frame_num, "picture")
         map_path = save_frame_image(buf_map.tobytes(), out_dir, frame_num, "map")
+        pic_path_busted = f"{pic_path}?v={cache_bust}"
+        map_path_busted = f"{map_path}?v={cache_bust}"
 
         html_parts.append(
             f"""
         <tr>
             <td><strong>Frame {frame_num}</strong></td>
-            <td class="col-picture"><img src="{pic_path}" alt="Picture" loading="lazy" /></td>
-            <td class="col-map"><img src="{map_path}" alt="2D map" loading="lazy" /></td>
+            <td class="col-picture"><img src="{pic_path_busted}" alt="Picture" loading="lazy" /></td>
+            <td class="col-map"><img src="{map_path_busted}" alt="2D map" loading="lazy" /></td>
         </tr>"""
         )
 
@@ -1107,9 +1207,11 @@ def main():
     out_path.write_text("".join(html_parts), encoding="utf-8")
     cap.release()
 
+    view_port = os.environ.get("PORT", "8080")
     print(f"Created: {out_path}")
-    print(f"  Open: http://localhost:8080/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
-    print(f"  Open (short): http://localhost:8080/2dmap")
+    print(f"  Open: http://localhost:{view_port}/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
+    print(f"  Open (short): http://localhost:{view_port}/2dmap")
+    print("  If bounding boxes don't appear, try hard refresh (Ctrl+Shift+R) or clear cache.")
 
 
 if __name__ == "__main__":
