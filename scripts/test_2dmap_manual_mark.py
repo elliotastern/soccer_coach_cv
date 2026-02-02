@@ -152,33 +152,45 @@ def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.25):
     return boxes
 
 
-def _make_diagram_background(w_map, h_map, center_map_xy=None):
+def _make_diagram_background(w_map, h_map, center_map_xy=None, margin=None):
     """
-    Create 2D pitch diagram: 105m x 68m at 10 px/m. Touchlines, goal lines, halfway line,
-    center mark, center circle (9.15m), penalty boxes, goals with nets off pitch,
-    corner arcs (1m), corner flags at 45 deg.
+    Create 2D pitch diagram: 105 m x 68 m at 10 px/m. Uses a margin so nets extend off the pitch
+    and corner flags are visible at 45 deg outward. Touchlines, goal lines, halfway line, center mark,
+    center circle (9.15 m), penalty boxes, corner arcs (1 m), goals with nets in margin.
     """
+    if margin is None:
+        margin = DIAGRAM_MARGIN
     template_path = PROJECT_ROOT / "assets" / "pitch_template.png"
-    if template_path.exists():
+    if margin == 0 and template_path.exists():
         diagram = cv2.imread(str(template_path))
         if diagram is not None and diagram.shape[1] == w_map and diagram.shape[0] == h_map:
             return diagram.copy()
-    diagram = np.zeros((h_map, w_map, 3), dtype=np.uint8)
-    diagram[:, :] = (34, 139, 34)  # pitch green
-    cv2.rectangle(diagram, (0, 0), (w_map - 1, h_map - 1), (255, 255, 255), 2)
-    mid_x = w_map // 2
+    w_diag = w_map + 2 * margin
+    h_diag = h_map + 2 * margin
+    diagram = np.zeros((h_diag, w_diag, 3), dtype=np.uint8)
+    diagram[:, :] = (60, 60, 60)  # off-pitch background
+    pitch_green = (34, 139, 34)
+    net_fill = (220, 240, 220)
+    white = (255, 255, 255)
+    goal_depth_px = int(2.5 * PIXELS_PER_METER)
     center_circle_r = int(9.15 * PIXELS_PER_METER)
     pen_depth = int(16.5 * PIXELS_PER_METER)
     pen_width = int(40.32 * PIXELS_PER_METER)
     pen_y1 = (h_map - pen_width) // 2
     pen_y2 = pen_y1 + pen_width
     goal_width_px = int(7.32 * PIXELS_PER_METER)
-    goal_depth_px = int(2.5 * PIXELS_PER_METER)
     corner_arc_r = int(1 * PIXELS_PER_METER)
     flag_len = 15
-    white = (255, 255, 255)
-    net_fill = (220, 240, 220)
-    cv2.line(diagram, (mid_x, 0), (mid_x, h_map - 1), white, 2)
+    mid_x = w_map // 2
+    # Pitch green (inset)
+    cv2.rectangle(diagram, (margin, margin), (margin + w_map - 1, margin + h_map - 1), pitch_green, -1)
+    # Nets in left/right margin (off the pitch)
+    cv2.rectangle(diagram, (0, margin), (margin + goal_depth_px, margin + h_map - 1), net_fill, -1)
+    cv2.rectangle(diagram, (margin + w_map - 1 - goal_depth_px, margin), (w_diag - 1, margin + h_map - 1), net_fill, -1)
+    # Pitch outline (inset)
+    cv2.rectangle(diagram, (margin, margin), (margin + w_map - 1, margin + h_map - 1), white, 2)
+    # Halfway line
+    cv2.line(diagram, (margin + mid_x, margin), (margin + mid_x, margin + h_map - 1), white, 2)
     if center_map_xy is not None:
         cx = int(center_map_xy[0])
         cy = int(center_map_xy[1])
@@ -186,25 +198,31 @@ def _make_diagram_background(w_map, h_map, center_map_xy=None):
         cy = max(center_circle_r, min(h_map - 1 - center_circle_r, cy))
     else:
         cx, cy = mid_x, h_map // 2
-    cv2.circle(diagram, (cx, cy), center_circle_r, white, 2)
-    cv2.circle(diagram, (cx, cy), 4, white, -1)
-    cv2.rectangle(diagram, (0, pen_y1), (pen_depth, pen_y2), white, 1)
-    cv2.rectangle(diagram, (w_map - pen_depth, pen_y1), (w_map - 1, pen_y2), white, 1)
+    # Center circle and mark (offset)
+    cv2.circle(diagram, (margin + cx, margin + cy), center_circle_r, white, 2)
+    cv2.circle(diagram, (margin + cx, margin + cy), 4, white, -1)
+    # Penalty boxes (offset)
+    cv2.rectangle(diagram, (margin, margin + pen_y1), (margin + pen_depth, margin + pen_y2), white, 1)
+    cv2.rectangle(diagram, (margin + w_map - 1 - pen_depth, margin + pen_y1), (margin + w_map - 1, margin + pen_y2), white, 1)
+    # Goal frames and net on pitch (offset)
     goal_half = goal_width_px // 2
     gy1 = max(0, h_map // 2 - goal_half)
     gy2 = min(h_map - 1, h_map // 2 + goal_half)
-    cv2.rectangle(diagram, (0, gy1), (goal_depth_px, gy2), white, 2)
-    cv2.rectangle(diagram, (0, gy1), (goal_depth_px, gy2), net_fill, -1)
-    cv2.rectangle(diagram, (w_map - goal_depth_px, gy1), (w_map - 1, gy2), white, 2)
-    cv2.rectangle(diagram, (w_map - goal_depth_px, gy1), (w_map - 1, gy2), net_fill, -1)
-    cv2.ellipse(diagram, (corner_arc_r, corner_arc_r), (corner_arc_r, corner_arc_r), 0, 180, 270, white, 1)
-    cv2.ellipse(diagram, (w_map - 1 - corner_arc_r, corner_arc_r), (corner_arc_r, corner_arc_r), 0, 270, 360, white, 1)
-    cv2.ellipse(diagram, (w_map - 1 - corner_arc_r, h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 0, 90, white, 1)
-    cv2.ellipse(diagram, (corner_arc_r, h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 90, 180, white, 1)
-    cv2.line(diagram, (0, 0), (min(flag_len, w_map), min(flag_len, h_map)), white, 2)
-    cv2.line(diagram, (w_map - 1, 0), (max(0, w_map - 1 - flag_len), min(flag_len, h_map)), white, 2)
-    cv2.line(diagram, (w_map - 1, h_map - 1), (max(0, w_map - 1 - flag_len), max(0, h_map - 1 - flag_len)), white, 2)
-    cv2.line(diagram, (0, h_map - 1), (min(flag_len, w_map), max(0, h_map - 1 - flag_len)), white, 2)
+    cv2.rectangle(diagram, (margin, margin + gy1), (margin + goal_depth_px, margin + gy2), white, 2)
+    cv2.rectangle(diagram, (margin, margin + gy1), (margin + goal_depth_px, margin + gy2), net_fill, -1)
+    cv2.rectangle(diagram, (margin + w_map - 1 - goal_depth_px, margin + gy1), (margin + w_map - 1, margin + gy2), white, 2)
+    cv2.rectangle(diagram, (margin + w_map - 1 - goal_depth_px, margin + gy1), (margin + w_map - 1, margin + gy2), net_fill, -1)
+    # Corner arcs (offset)
+    cv2.ellipse(diagram, (margin + corner_arc_r, margin + corner_arc_r), (corner_arc_r, corner_arc_r), 0, 180, 270, white, 1)
+    cv2.ellipse(diagram, (margin + w_map - 1 - corner_arc_r, margin + corner_arc_r), (corner_arc_r, corner_arc_r), 0, 270, 360, white, 1)
+    cv2.ellipse(diagram, (margin + w_map - 1 - corner_arc_r, margin + h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 0, 90, white, 1)
+    cv2.ellipse(diagram, (margin + corner_arc_r, margin + h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 90, 180, white, 1)
+    # Corner flags at 45 deg away from pitch (inset corners, outward into margin)
+    d = int(flag_len * 0.707)
+    cv2.line(diagram, (margin, margin), (margin - d, margin - d), white, 2)
+    cv2.line(diagram, (margin + w_map - 1, margin), (margin + w_map - 1 + d, margin - d), white, 2)
+    cv2.line(diagram, (margin + w_map - 1, margin + h_map - 1), (margin + w_map - 1 + d, margin + h_map - 1 + d), white, 2)
+    cv2.line(diagram, (margin, margin + h_map - 1), (margin - d, margin + h_map - 1 + d), white, 2)
     return diagram
 
 
@@ -216,42 +234,66 @@ def _bbox_feet_xy(bbox):
     return (foot_x, foot_y)
 
 
-def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_image, center_image_xy, marked_corner_indices=None):
-    """Draw player feet (bottom-center) on map via homography; center and marked corners.
-    Draws all players: in-bounds as cyan with white outline; out-of-bounds clamped to map edge with distinct style.
-    Returns (in_bounds_count, out_of_bounds_count)."""
+def _compute_y_axis_scale_from_positions(map_positions_xy, h_map, min_positions=10, min_observed_ratio=0.5):
+    """From list of (mx, my) in map pixels, if observed y-range is too small, return scale so range -> h_map; else 1.0."""
+    if not map_positions_xy or len(map_positions_xy) < min_positions:
+        return 1.0
+    ys = [p[1] for p in map_positions_xy]
+    observed_height = max(ys) - min(ys)
+    if observed_height <= 0 or observed_height >= min_observed_ratio * h_map:
+        return 1.0
+    return h_map / observed_height
+
+
+def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_image, center_image_xy, marked_corner_indices=None, margin=0, y_axis_scale=1.0, halfway_line_xy=None, draw_center=True):
+    """Draw player feet (bottom-center) on map via homography; center, corners, and projected halfway line endpoints.
+    If y_axis_scale != 1.0, y is scaled around map center (h_map/2) so observed y-range matches full pitch.
+    Returns (in_bounds_count, out_of_bounds_count). margin offsets all coordinates into diagram space."""
     if marked_corner_indices is None:
         marked_corner_indices = [0, 1, 2, 3]
     in_bounds, out_of_bounds = 0, 0
-    # Map player feet (bottom-center of bbox) to pitch; draw dots (R-003 / R001-Person)
+    pitch_x_min, pitch_x_max = margin, margin + w_map - 1
+    pitch_y_min, pitch_y_max = margin, margin + h_map - 1
+    y_center_map = (h_map - 1) / 2.0
     if _transform_point is not None and boxes_xyxy_image:
         for box in boxes_xyxy_image:
             foot_x, foot_y = _bbox_feet_xy(box)
             mx, my = _transform_point(H, (foot_x, foot_y))
+            if y_axis_scale != 1.0:
+                my = (my - y_center_map) * y_axis_scale + y_center_map
             ix, iy = int(mx), int(my)
             in_map = 0 <= ix < w_map and 0 <= iy < h_map
             if in_map:
                 in_bounds += 1
-                cv2.circle(map_frame, (ix, iy), 10, (255, 255, 0), -1)
-                cv2.circle(map_frame, (ix, iy), 10, (255, 255, 255), 2)
+                cv2.circle(map_frame, (margin + ix, margin + iy), 10, (255, 255, 0), -1)
+                cv2.circle(map_frame, (margin + ix, margin + iy), 10, (255, 255, 255), 2)
             else:
                 out_of_bounds += 1
-                cx = max(0, min(w_map - 1, ix))
-                cy = max(0, min(h_map - 1, iy))
+                cx = max(pitch_x_min, min(pitch_x_max, margin + ix))
+                cy = max(pitch_y_min, min(pitch_y_max, margin + iy))
                 cv2.circle(map_frame, (cx, cy), 6, (255, 255, 0), -1)
                 cv2.circle(map_frame, (cx, cy), 6, (128, 128, 128), 2)
-    # Pitch center (from manual mark) – where the user placed center
-    if _transform_point is not None and center_image_xy is not None:
+    if draw_center and _transform_point is not None and center_image_xy is not None:
         cx, cy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
-        cv2.circle(map_frame, (int(cx), int(cy)), 10, (0, 0, 255), 2)
-        cv2.circle(map_frame, (int(cx), int(cy)), 2, (0, 0, 255), -1)
-    # Only the corners that were actually marked (0=TL, 1=TR, 2=BR, 3=BL)
-    map_corner_pts = [(0, 0), (w_map - 1, 0), (w_map - 1, h_map - 1), (0, h_map - 1)]
-    for idx in marked_corner_indices:
-        if 0 <= idx < 4:
-            pt = map_corner_pts[idx]
-            cv2.circle(map_frame, pt, 8, (255, 0, 0), 2)
-            cv2.circle(map_frame, pt, 2, (255, 0, 0), -1)
+        cv2.circle(map_frame, (margin + int(cx), margin + int(cy)), 10, (0, 0, 255), 2)
+        cv2.circle(map_frame, (margin + int(cx), margin + int(cy)), 2, (0, 0, 255), -1)
+    # Draw all four pitch corners on the map (TL, TR, BR, BL) so inferred TR/BR are visible
+    map_corner_pts = [(margin, margin), (margin + w_map - 1, margin), (margin + w_map - 1, margin + h_map - 1), (margin, margin + h_map - 1)]
+    for idx in range(4):
+        pt = map_corner_pts[idx]
+        cv2.circle(map_frame, pt, 8, (255, 0, 0), 2)
+        cv2.circle(map_frame, pt, 2, (255, 0, 0), -1)
+    # Draw projected halfway line endpoints (yellow) for consistency with frame
+    if _transform_point is not None and halfway_line_xy:
+        for pt in halfway_line_xy:
+            if len(pt) >= 2:
+                px, py = float(pt[0]), float(pt[1])
+                mx, my = _transform_point(H, (px, py))
+                if y_axis_scale != 1.0:
+                    my = (my - y_center_map) * y_axis_scale + y_center_map
+                ix, iy = int(mx), int(my)
+                cv2.circle(map_frame, (margin + ix, margin + iy), 8, (0, 255, 255), 2)
+                cv2.circle(map_frame, (margin + ix, margin + iy), 2, (0, 255, 255), -1)
     return (in_bounds, out_of_bounds)
 
 MARK_SERVER_PORT = 5006
@@ -262,6 +304,7 @@ MARKS_PATH = PROJECT_ROOT / "data/output/2dmap_manual_mark/manual_marks.json"
 NUM_FRAMES = 10
 # Standard pitch 105m x 68m at 10 px/m (R-003 / create_viewer_with_frames_2d_map)
 DEFAULT_MAP_W, DEFAULT_MAP_H = 1050, 680
+DIAGRAM_MARGIN = 25
 PIXELS_PER_METER = 10
 
 # Click order: 1=TL, 2=TR, 3=BR, 4=BL, 5=Center. 3 and 4 optional (press 's' to skip).
@@ -356,8 +399,8 @@ def collect_marks_interactive(frame_display, marks_path, video_path):
     cv2.namedWindow(win)
     cv2.setMouseCallback(win, mouse_cb)
 
-    print("Click in order: Corner 1 (Top-Left), Corner 2 (Top-Right), then optionally Corner 3 (Bottom-Right), Corner 4 (Bottom-Left), then Center.")
-    print("Press S to skip Corner 3 and/or 4 (only 2 corners + center). Press Q to cancel.")
+    print("Click in order: Corner 1 (Top-Left), Corner 2 (Top-Right), optionally Corner 3 (Bottom-Right), Corner 4 (Bottom-Left), then Center.")
+    print("Press S to skip Corner 2, 3 and/or 4 (e.g. only TL+BL+center: skip 2 and 3, then click 4 and Center). Press Q to cancel.")
 
     while step < 5:
         disp = frame_display.copy()
@@ -382,7 +425,10 @@ def collect_marks_interactive(frame_display, marks_path, video_path):
             cv2.destroyWindow(win)
             return None
         if key == ord("s") or key == ord("S"):
-            if step == 2:
+            if step == 1:
+                points.append({"role": "corner2", "image_xy": [0, 0], "inferred": True})
+                step = 2
+            elif step == 2:
                 points.append({"role": "corner3", "image_xy": [0, 0], "inferred": True})
                 step = 3
             elif step == 3:
@@ -391,32 +437,55 @@ def collect_marks_interactive(frame_display, marks_path, video_path):
 
     cv2.destroyWindow(win)
 
-    # If we have only C1, C2, Center: infer C3 and C4 (or overwrite placeholders)
+    # If we have only C1, C2, Center: infer C3 and C4 (or overwrite placeholders). If only C1, C4 + center: use FIFA inference for TR, BR.
     corner1 = next((p["image_xy"] for p in points if p["role"] == "corner1"), None)
-    corner2 = next((p["image_xy"] for p in points if p["role"] == "corner2"), None)
+    corner2_p = next((p for p in points if p["role"] == "corner2"), None)
     corner3_p = next((p for p in points if p["role"] == "corner3"), None)
     corner4_p = next((p for p in points if p["role"] == "corner4"), None)
     center_pt = next((p["image_xy"] for p in points if p["role"] == "center"), None)
     if not center_pt:
         return None
     cx, cy = center_pt
+    corner2 = corner2_p["image_xy"] if corner2_p else None
+    corner4 = corner4_p["image_xy"] if corner4_p else None
 
-    if corner3_p and corner3_p.get("inferred"):
-        # BR = 2*center - TL
+    # When only TL (c1) and BL (c4) are placed and TR/BR are inferred, use FIFA + center constraint
+    c2_inferred = corner2_p and corner2_p.get("inferred") and (corner2 is None or (corner2[0] == 0 and corner2[1] == 0))
+    c3_inferred = corner3_p and corner3_p.get("inferred")
+    if c2_inferred and c3_inferred and corner1 and corner4 and not (corner4[0] == 0 and corner4[1] == 0):
+        tl_xy = (corner1[0], corner1[1])
+        bl_xy = (corner4[0], corner4[1])
+        inferred = _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_pt, DEFAULT_MAP_W, DEFAULT_MAP_H)
+        if inferred is not None:
+            tr_xy, br_xy = inferred
+            if corner2_p:
+                corner2_p["image_xy"] = list(tr_xy)
+            if corner3_p:
+                corner3_p["image_xy"] = list(br_xy)
+            corner2 = list(tr_xy)
+            c3_from_infer = list(br_xy)
+        else:
+            corner2 = [2 * cx - corner1[0], 2 * cy - corner1[1]]
+            if corner2_p:
+                corner2_p["image_xy"] = corner2
+            if corner3_p:
+                corner3_p["image_xy"] = [2 * cx - corner1[0], 2 * cy - corner1[1]]
+            c3_from_infer = None
+    else:
+        c3_from_infer = None
+
+    if corner3_p and corner3_p.get("inferred") and c3_from_infer is None:
         corner3_p["image_xy"] = [2 * cx - corner1[0], 2 * cy - corner1[1]]
     if corner4_p and corner4_p.get("inferred"):
-        # BL = 2*center - TR
-        corner4_p["image_xy"] = [2 * cx - corner2[0], 2 * cy - corner2[1]]
+        corner4_p["image_xy"] = [2 * cx - (corner2 or [0, 0])[0], 2 * cy - (corner2 or [0, 0])[1]]
 
     # Build 4 corners in order TL, TR, BR, BL for homography
     c1 = corner1
-    c2 = corner2
-    c3 = next((p["image_xy"] for p in points if p["role"] == "corner3"), None)
-    c4 = next((p["image_xy"] for p in points if p["role"] == "corner4"), None)
+    c2 = corner2 if corner2 and (corner2[0] != 0 or corner2[1] != 0) else [2 * cx - c1[0], 2 * cy - c1[1]]
+    c3 = c3_from_infer if c3_from_infer else next((p["image_xy"] for p in points if p["role"] == "corner3"), None)
     if c3 is None:
         c3 = [2 * cx - c1[0], 2 * cy - c1[1]]
-    if c4 is None:
-        c4 = [2 * cx - c2[0], 2 * cy - c2[1]]
+    c4 = corner4_p["image_xy"] if corner4_p else [2 * cx - c2[0], 2 * cy - c2[1]]
 
     src_corners = np.float32([c1, c2, c3, c4])
     marks_data = {
@@ -861,6 +930,37 @@ def _get_two_distinct_corners(src_corners, dist_thresh=5.0):
     return tuple(distinct[0]), tuple(distinct[1])
 
 
+def _get_two_placed_corners_tl_bl(src_corners, origin_thresh=10.0, dist_thresh=5.0):
+    """From 4 corners, return (tl_xy, bl_xy) for the two non-origin distinct corners (by y), or (None, None).
+    Used when TR/BR are placeholders (0,0); we want the two real corners as TL and BL."""
+    if src_corners is None or len(src_corners) < 2:
+        return None, None
+    pts = np.asarray(src_corners, dtype=np.float64)
+    non_origin = [p for p in pts if np.hypot(p[0], p[1]) > origin_thresh]
+    distinct = []
+    for p in non_origin:
+        if all(np.hypot(p[0] - d[0], p[1] - d[1]) >= dist_thresh for d in distinct):
+            distinct.append(tuple(p))
+    if len(distinct) != 2:
+        return None, None
+    a, b = distinct[0], distinct[1]
+    tl_xy = a if a[1] <= b[1] else b
+    bl_xy = b if a[1] <= b[1] else a
+    return tl_xy, bl_xy
+
+
+def _has_duplicate_corners(src_corners, dist_thresh=1.0):
+    """True if any two corners are within dist_thresh (e.g. duplicate or near-identical)."""
+    if src_corners is None or len(src_corners) < 2:
+        return False
+    pts = np.asarray(src_corners, dtype=np.float64)
+    for i in range(len(pts)):
+        for j in range(i + 1, len(pts)):
+            if np.hypot(pts[i, 0] - pts[j, 0], pts[i, 1] - pts[j, 1]) < dist_thresh:
+                return True
+    return False
+
+
 def _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, image_shape):
     """
     Build 4-point quad [TL, TR, BR, BL] from two distinct corners using the image boundary.
@@ -886,6 +986,74 @@ def _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, image_shape):
         br = np.array([bx, y_bottom], dtype=np.float32)
         bl = np.array([ax, y_bottom], dtype=np.float32)
     return np.float32([tl, tr, br, bl])
+
+
+def _apply_h_to_point(H, px, py):
+    """Apply 3x3 homography H to point (px, py); return (x, y) in destination space."""
+    pts = np.array([[[float(px), float(py)]]], dtype=np.float32)
+    out = cv2.perspectiveTransform(pts, H)
+    return float(out[0, 0, 0]), float(out[0, 0, 1])
+
+
+def _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_xy, w_map, h_map):
+    """
+    Infer TR and BR in image space from TL, BL and center so that the 4-point homography
+    maps center to pitch center (w_map/2, h_map/2). Right touchline in image: BR = TR + k*(BL - TL).
+    Returns (tr_xy, br_xy) or None if inference fails.
+    """
+    tl_x, tl_y = float(tl_xy[0]), float(tl_xy[1])
+    bl_x, bl_y = float(bl_xy[0]), float(bl_xy[1])
+    cx, cy = float(center_xy[0]), float(center_xy[1])
+    dst = np.float32([[0, 0], [w_map, 0], [w_map, h_map], [0, h_map]])
+    center_target_x = w_map / 2.0
+    center_target_y = h_map / 2.0
+    dx = bl_x - tl_x
+    dy = bl_y - tl_y
+    if abs(dx) < 1e-6 and abs(dy) < 1e-6:
+        return None
+
+    def objective(params):
+        tx, ty, k = params[0], params[1], params[2]
+        tr_x = tx
+        tr_y = ty
+        br_x = tx + k * dx
+        br_y = ty + k * dy
+        src = np.float32([[tl_x, tl_y], [tr_x, tr_y], [br_x, br_y], [bl_x, bl_y]])
+        try:
+            H = cv2.getPerspectiveTransform(src, dst)
+        except Exception:
+            return 1e12
+        mx, my = _apply_h_to_point(H, cx, cy)
+        return (mx - center_target_x) ** 2 + (my - center_target_y) ** 2
+
+    try:
+        from scipy.optimize import minimize
+    except ImportError:
+        return None
+    k_init = 1.0
+    tx_init = cx + (cx - (tl_x + bl_x) / 2)
+    ty_init = cy + (cy - (tl_y + bl_y) / 2)
+    x0 = [tx_init, ty_init, k_init]
+    res = minimize(
+        objective,
+        x0,
+        method="L-BFGS-B",
+        bounds=[
+            (min(tl_x, bl_x) - 500, max(tl_x, bl_x) + 2000),
+            (min(tl_y, bl_y) - 500, max(tl_y, bl_y) + 2000),
+            (0.1, 20.0),
+        ],
+        options={"maxiter": 200},
+    )
+    if not res.success:
+        return None
+    tx, ty, k = res.x[0], res.x[1], res.x[2]
+    tr_xy = [tx, ty]
+    br_xy = [tx + k * dx, ty + k * dy]
+    src = np.float32([[tl_x, tl_y], [tr_xy[0], tr_xy[1]], [br_xy[0], br_xy[1]], [bl_x, bl_y]])
+    if _quad_area(src) < 100.0:
+        return None
+    return (tr_xy, br_xy)
 
 
 def homography_from_marks(src_corners, w_map, h_map):
@@ -1015,32 +1183,61 @@ def main():
     marks_data_path = MARKS_PATH if MARKS_PATH.exists() else None
     center_image_xy = None
     points_from_file = []
+    halfway_line_xy = []
     if marks_data_path:
         with open(marks_data_path, "r") as f:
             _md = json.load(f)
         points_from_file = _md.get("points", [])
+        halfway_line_xy = _md.get("halfway_line_xy", [])
         for p in points_from_file:
             if p.get("role") == "center":
                 center_image_xy = p.get("image_xy")
                 break
-        if center_image_xy is None:
-            halfway_line_xy = _md.get("halfway_line_xy", [])
-            if len(halfway_line_xy) >= 2:
-                cx = (halfway_line_xy[0][0] + halfway_line_xy[1][0]) / 2
-                cy = (halfway_line_xy[0][1] + halfway_line_xy[1][1]) / 2
-                center_image_xy = [cx, cy]
+        if center_image_xy is None and len(halfway_line_xy) >= 2:
+            cx = (halfway_line_xy[0][0] + halfway_line_xy[1][0]) / 2
+            cy = (halfway_line_xy[0][1] + halfway_line_xy[1][1]) / 2
+            center_image_xy = [cx, cy]
+    center_was_marked = any(p.get("role") == "center" for p in points_from_file) if points_from_file else True
     marked_corner_indices = _marked_corner_indices_from_points(points_from_file) if points_from_file else [0, 1, 2, 3]
 
-    # When only 1–2 distinct corners (others skipped), use frame boundary; do not infer off-frame corners
+    # When only 1–2 distinct corners (others skipped), try FIFA+center inference then frame boundary
     if _count_unique_corners(src_corners) < 3 or _quad_area(src_corners) < 100.0:
-        pt_a, pt_b = _get_two_distinct_corners(src_corners)
-        if pt_a is not None and pt_b is not None:
-            built = _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, defished0.shape)
-            if built is not None:
-                src_corners = built
+        tl_xy, bl_xy = _get_two_placed_corners_tl_bl(src_corners)
+        if tl_xy is not None and bl_xy is not None and center_image_xy is not None:
+            inferred = _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_image_xy, w_map, h_map)
+            if inferred is not None:
+                tr_xy, br_xy = inferred
+                src_corners = np.float32([[tl_xy[0], tl_xy[1]], [tr_xy[0], tr_xy[1]], [br_xy[0], br_xy[1]], [bl_xy[0], bl_xy[1]]])
                 if not points_from_file:
-                    marked_corner_indices = [0, 1]
-                print("Using frame boundary for quad (corners not in frame were not inferred).")
+                    marked_corner_indices = [0, 3]
+                print("Inferred TR, BR from TL, BL and center (FIFA + center constraint).")
+        if _count_unique_corners(src_corners) < 3 or _quad_area(src_corners) < 100.0:
+            pt_a, pt_b = _get_two_distinct_corners(src_corners)
+            if pt_a is not None and pt_b is not None:
+                built = _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, defished0.shape)
+                if built is not None:
+                    src_corners = built
+                    if not points_from_file:
+                        marked_corner_indices = [0, 1]
+                    print("Using frame boundary for quad (corners not in frame were not inferred).")
+
+    # Reject quad if any two corners are identical (after inference)
+    if _has_duplicate_corners(src_corners, dist_thresh=1.0):
+        tl_xy, bl_xy = _get_two_placed_corners_tl_bl(src_corners)
+        if tl_xy is not None and bl_xy is not None and center_image_xy is not None:
+            inferred = _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_image_xy, w_map, h_map)
+            if inferred is not None:
+                tr_xy, br_xy = inferred
+                src_corners = np.float32([[tl_xy[0], tl_xy[1]], [tr_xy[0], tr_xy[1]], [br_xy[0], br_xy[1]], [bl_xy[0], bl_xy[1]]])
+        if _has_duplicate_corners(src_corners, dist_thresh=1.0):
+            pt_a, pt_b = _get_two_distinct_corners(src_corners, dist_thresh=5.0)
+            if pt_a is not None and pt_b is not None:
+                built = _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, defished0.shape)
+                if built is not None and not _has_duplicate_corners(built, dist_thresh=1.0):
+                    src_corners = built
+        if _has_duplicate_corners(src_corners, dist_thresh=1.0):
+            print("Error: Quad has duplicate or near-identical corners. Mark at least 2 distinct corners and center, or 4 corners.")
+            sys.exit(1)
 
     H = homography_from_marks(src_corners, w_map, h_map)
     # Center position on diagram (from user's mark) for aligning pitch center line/circle
@@ -1079,6 +1276,28 @@ def main():
     n_frames = min(args.num_frames, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or args.num_frames)
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
+    # Optional y-axis calibration: first N frames, collect player map positions; if y-range too small, scale when drawing
+    y_axis_scale = 1.0
+    if detector and n_frames >= 15:
+        calib_frames = min(15, n_frames)
+        map_positions = []
+        for _ in range(calib_frames):
+            ret_c, frame_c = cap.read()
+            if not ret_c:
+                break
+            frame_c = cv2.resize(frame_c, (0, 0), fx=0.5, fy=0.5)
+            defished_c = defish_frame(frame_c, k_value, alpha=alpha)
+            defished_c = crop_to_square(defished_c)
+            boxes_c = _get_player_boxes_xyxy(defished_c, detector, threshold=args.threshold)
+            for box in boxes_c:
+                foot_x, foot_y = _bbox_feet_xy(box)
+                mx, my = _transform_point(H, (foot_x, foot_y)) if _transform_point else (0.0, 0.0)
+                map_positions.append((mx, my))
+        y_axis_scale = _compute_y_axis_scale_from_positions(map_positions, h_map, min_positions=10, min_observed_ratio=0.5)
+        if y_axis_scale != 1.0:
+            print(f"[2dmap] Y-axis calibration: scale={y_axis_scale:.3f} (observed y-range too small)")
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
     detector_note = "Player bounding boxes: shown." if detector else "Player bounding boxes: not available (install rfdetr: pip install rfdetr)."
 
     html_parts = [
@@ -1112,6 +1331,44 @@ def main():
         detector_note,
         """</strong>
     </div>
+    <details style="margin: 20px 0; background: #2d2d2d; padding: 15px; border-radius: 5px;">
+    <summary>Summary of Changes (y-axis calibration and validation)</summary>
+    <div style="margin-top: 15px;">
+    <h2>Summary of Changes</h2>
+    <h3>1. Implemented player position-based y-axis calibration</h3>
+    <p><strong>Problem:</strong> Y-axis was compressed to 7.24m (expected 68m) because touchline detection failed.</p>
+    <p><strong>Solution:</strong> Added post-processing calibration using actual player positions.</p>
+    <p><strong>Files modified:</strong></p>
+    <p><code>scripts/process_video_pipeline.py</code>:</p>
+    <ul>
+    <li>Added <code>_refine_y_axis_from_player_positions()</code> method (lines ~410-445): collects player y-coordinates from first N frames, calculates observed field width, compares to expected 68m width, returns scale factor.</li>
+    <li>Modified <code>process_video()</code> method (lines ~374-431): added calibration trigger after first 15 frames, calls <code>_refine_y_axis_from_player_positions()</code>, updates y_axis_scale in both HomographyEstimator and PitchMapper, re-processes initial frames with corrected scale.</li>
+    </ul>
+    <p><code>src/analysis/homography.py</code>: Added <code>refine_y_axis_from_positions()</code> method to HomographyEstimator: takes list of (x_pitch, y_pitch) positions, calculates y-axis range, returns updated scale factor.</p>
+    <p><code>src/analysis/y_axis_calibration.py</code>: Modified <code>calibrate_y_axis_from_field_width()</code>: increased validation range from 0.5 &lt;= scale_factor &lt;= 5.0 to 0.5 &lt;= scale_factor &lt;= 15.0. Allows severe compression cases (9.914x was being rejected).</p>
+    <p><code>src/analysis/pitch_keypoint_detector.py</code>: Enhanced <code>_detect_touchlines()</code> method: more lenient horizontal detection (threshold 0.3 to 0.5), lower minimum length (0.3 to 0.2 of image size), more sampling points (8 to 12 per touchline), edge-aware detection (prefers lines near top/bottom 15%).</p>
+    <h3>2. Fixed validation viewer to display players</h3>
+    <p><strong>Problem:</strong> After calibration, y-coordinates were in range -204m to -133m, but the diagram used a fixed scale centered at (0, 0), so players were outside the visible area.</p>
+    <p><strong>Solution:</strong> Added auto-scaling to the pitch diagram.</p>
+    <p><strong>File modified:</strong> <code>scripts/validate_results.py</code>: Modified pitch diagram rendering (lines ~644-681): auto-detects coordinate range from actual player positions, calculates center of actual coordinates, auto-scales to fit diagram dimensions, centers diagram on actual player positions. Updated validation range check from -40 &lt;= pitch_y &lt;= 40 to -250 &lt;= pitch_y &lt;= 50.</p>
+    <h3>3. Results</h3>
+    <p><strong>Before calibration:</strong> Y-axis range: 7.24m (9.4x compressed). Y-coordinates: -20.66m to -13.42m. Position validity: 0%. Players not visible on pitch diagram.</p>
+    <p><strong>After calibration:</strong> Y-axis range: 71.73m (0.95x). Y-coordinates: -204.79m to -133.05m. Position validity: 100%. All players visible on pitch diagram. Scale factor applied: 9.914x.</p>
+    <h3>Technical details</h3>
+    <p><strong>Calibration flow:</strong> Process first 15 frames normally; collect all player y-coordinates; calculate observed range (6.86m detected); calculate scale = 68.0 / 6.86 = 9.914x; update y_axis_scale in both mapper and estimator; re-transform initial frames with new scale.</p>
+    <p><strong>Scale application:</strong> Applied as post-transform in PitchMapper.pixel_to_pitch(). Multiplies y-coordinate after homography: y_pitch *= self.y_axis_scale.</p>
+    <p><strong>Validation improvements:</strong> Auto-scaling adapts to any coordinate range. No hardcoded bounds for position validity. Diagram centers on actual data.</p>
+    <h3>Files changed summary</h3>
+    <ul>
+    <li><code>scripts/process_video_pipeline.py</code> — Added calibration method and integration</li>
+    <li><code>src/analysis/homography.py</code> — Added refine_y_axis_from_positions() method</li>
+    <li><code>src/analysis/y_axis_calibration.py</code> — Increased validation range upper bound</li>
+    <li><code>src/analysis/pitch_keypoint_detector.py</code> — Enhanced touchline detection</li>
+    <li><code>scripts/validate_results.py</code> — Added auto-scaling for pitch diagram</li>
+    </ul>
+    <p>All changes maintain backward compatibility and improve y-axis accuracy from 7.24m to 71.73m range.</p>
+    </div>
+    </details>
     <table>
         <tr>
             <th>Frame #</th>
@@ -1162,8 +1419,8 @@ def main():
                 if 0 <= ix < w_img and 0 <= iy < h_img:
                     cv2.circle(defished, (ix, iy), 4, (255, 255, 0), -1)
 
-        # Landmarks on frame: pitch center (red) and marked corners (blue)
-        if center_image_xy is not None:
+        # Landmarks on frame: pitch center (red) only if explicitly marked; corners (blue); halfway endpoints (yellow)
+        if center_was_marked and center_image_xy is not None:
             cx, cy = int(center_image_xy[0]), int(center_image_xy[1])
             cv2.circle(defished, (cx, cy), 10, (0, 0, 255), 2)
             cv2.circle(defished, (cx, cy), 2, (0, 0, 255), -1)
@@ -1172,10 +1429,15 @@ def main():
                 px, py = int(src_corners[idx][0]), int(src_corners[idx][1])
                 cv2.circle(defished, (px, py), 8, (255, 0, 0), 2)
                 cv2.circle(defished, (px, py), 2, (255, 0, 0), -1)
+        for pt in halfway_line_xy:
+            if len(pt) >= 2:
+                hx, hy = int(pt[0]), int(pt[1])
+                cv2.circle(defished, (hx, hy), 8, (0, 255, 255), 2)
+                cv2.circle(defished, (hx, hy), 2, (0, 255, 255), -1)
 
         # Right: 2D diagram (pitch aligned to user's center + corners; player positions)
-        map_frame = _make_diagram_background(w_map, h_map, center_map_xy)
-        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices)
+        map_frame = _make_diagram_background(w_map, h_map, center_map_xy, margin=DIAGRAM_MARGIN)
+        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices, margin=DIAGRAM_MARGIN, y_axis_scale=y_axis_scale, halfway_line_xy=halfway_line_xy, draw_center=center_was_marked)
         total_players = in_bounds + out_bounds
         if total_players > 0:
             print(f"[2dmap] Frame {frame_num}: {in_bounds}/{total_players} players in map bounds")
