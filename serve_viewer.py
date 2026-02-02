@@ -16,6 +16,7 @@ FALLBACK_PORTS = (8081, 8082, 9000, 3000)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 MARK_UI_RELPATH = 'data/output/2dmap_manual_mark/mark_ui.html'
+PITCH_DIAGRAM_RELPATH = 'data/output/2dmap_manual_mark/pitch_diagram_reference.html'
 MARK_UI_HELP_HTML = (
     b'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mark UI – generate first</title></head>'
     b'<body style="font-family:sans-serif;margin:2em;max-width:40em;">'
@@ -24,6 +25,16 @@ MARK_UI_HELP_HTML = (
     b'<pre style="background:#eee;padding:1em;">python scripts/test_2dmap_manual_mark.py --mark --web</pre>'
     b'<p>You can Ctrl+C after it prints the URL. Then refresh this page.</p>'
     b'<p>Expected file: <code>data/output/2dmap_manual_mark/mark_ui.html</code></p>'
+    b'</body></html>'
+)
+PITCH_DIAGRAM_HELP_HTML = (
+    b'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pitch diagram – generate first</title></head>'
+    b'<body style="font-family:sans-serif;margin:2em;max-width:40em;">'
+    b'<h1>Pitch diagram not generated yet</h1>'
+    b'<p>From the project root run:</p>'
+    b'<pre style="background:#eee;padding:1em;">python scripts/test_pitch_diagram.py</pre>'
+    b'<p>Then refresh this page.</p>'
+    b'<p>Expected file: <code>data/output/2dmap_manual_mark/pitch_diagram_reference.html</code></p>'
     b'</body></html>'
 )
 
@@ -62,6 +73,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Location', '/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html')
             self.end_headers()
             return
+        # Pitch diagram reference (FIFA terminology)
+        if self.path == '/pitch_diagram' or self.path == '/pitch_diagram/':
+            self.send_response(302)
+            self.send_header('Location', '/' + PITCH_DIAGRAM_RELPATH)
+            self.end_headers()
+            return
         # Marking UI (4 corners + halfway line) – use port 8080 to avoid "Unable to connect"
         if self.path == '/mark_ui' or self.path == '/mark_ui.html' or self.path == '/mark_ui/':
             self.send_response(302)
@@ -89,13 +106,15 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(500)
                 self.end_headers()
         elif self.path.endswith('.html'):
-            # Handle large HTML files by streaming in chunks
+            # Handle large HTML files by streaming in chunks. Resolve from script dir (project root) per cursorrules.
             try:
                 raw_path = self.path.lstrip('/')
                 if raw_path == MARK_UI_RELPATH:
                     file_path = SCRIPT_DIR / MARK_UI_RELPATH
+                elif raw_path == PITCH_DIAGRAM_RELPATH:
+                    file_path = SCRIPT_DIR / PITCH_DIAGRAM_RELPATH
                 else:
-                    file_path = Path(raw_path)
+                    file_path = SCRIPT_DIR / raw_path
                 if file_path.exists():
                     file_size = os.path.getsize(file_path)
                     self.send_response(200)
@@ -117,6 +136,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_header('Content-Length', str(len(MARK_UI_HELP_HTML)))
                     self.end_headers()
                     self.wfile.write(MARK_UI_HELP_HTML)
+                elif raw_path == PITCH_DIAGRAM_RELPATH:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html; charset=utf-8')
+                    self.send_header('Content-Length', str(len(PITCH_DIAGRAM_HELP_HTML)))
+                    self.end_headers()
+                    self.wfile.write(PITCH_DIAGRAM_HELP_HTML)
                 else:
                     self.send_response(404)
                     self.end_headers()
@@ -139,7 +164,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     return
                 post_data = self.rfile.read(content_length)
                 data = json.loads(post_data.decode('utf-8'))
-                marks_path = Path('data/output/2dmap_manual_mark/manual_marks.json')
+                marks_path = SCRIPT_DIR / 'data/output/2dmap_manual_mark/manual_marks.json'
                 marks_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(marks_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2)

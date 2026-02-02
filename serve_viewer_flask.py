@@ -88,6 +88,46 @@ if FLASK_AVAILABLE:
         """Short URL: redirect to the 2D map manual-mark report."""
         return redirect('/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html', code=302)
 
+    def _pitch_diagram_path():
+        """Return path to pitch_diagram_reference.html; resolve from project root (script dir), then cwd, then parent (per cursorrules)."""
+        rel = 'data/output/2dmap_manual_mark/pitch_diagram_reference.html'
+        candidates = [
+            PROJECT_ROOT / rel,
+            Path.cwd() / rel,
+            PROJECT_ROOT.parent / rel,
+        ]
+        for p in candidates:
+            if p.exists():
+                return p
+        return None
+
+    PITCH_DIAGRAM_HELP_PAGE = (
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pitch diagram – generate first</title></head>'
+        '<body style="font-family:sans-serif;margin:2em;max-width:40em;">'
+        '<h1>Pitch diagram not generated yet</h1>'
+        '<p>From the project root run:</p>'
+        '<pre style="background:#eee;padding:1em;">python scripts/test_pitch_diagram.py</pre>'
+        '<p>Then refresh this page.</p>'
+        '<p>Expected file: <code>data/output/2dmap_manual_mark/pitch_diagram_reference.html</code></p>'
+        '</body></html>'
+    )
+
+    @app.route('/pitch_diagram')
+    def serve_pitch_diagram():
+        """Short URL: serve pitch diagram reference (path from project root)."""
+        path = _pitch_diagram_path()
+        if path is not None:
+            return send_file(str(path), mimetype='text/html')
+        return PITCH_DIAGRAM_HELP_PAGE, 200, {'Content-Type': 'text/html; charset=utf-8'}
+
+    @app.route('/data/output/2dmap_manual_mark/pitch_diagram_reference.html')
+    def serve_pitch_diagram_long():
+        """Serve pitch diagram when requested via long path (path from project root)."""
+        path = _pitch_diagram_path()
+        if path is not None:
+            return send_file(str(path), mimetype='text/html')
+        return PITCH_DIAGRAM_HELP_PAGE, 200, {'Content-Type': 'text/html; charset=utf-8'}
+
     def _mark_ui_path():
         """Return path to mark_ui.html if it exists under project root, cwd, or parent."""
         candidates = [
@@ -161,13 +201,18 @@ if FLASK_AVAILABLE:
         
         file_path = PROJECT_ROOT / filepath
         
-        # If mark_ui or anything under 2dmap_manual_mark is missing, try _mark_ui_path or help page (never "File not found")
+        # If mark_ui or pitch_diagram under 2dmap_manual_mark is missing, serve help page (never "File not found")
         if '2dmap_manual_mark' in filepath and not file_path.exists():
             path = _mark_ui_path()
             if path is not None and filepath.endswith('mark_ui.html'):
                 return send_file(str(path), mimetype='text/html')
             if 'mark_ui' in filepath or filepath.endswith('mark_ui.html'):
                 return MARK_UI_HELP_PAGE, 200, {'Content-Type': 'text/html; charset=utf-8'}
+            if 'pitch_diagram_reference' in filepath:
+                path = _pitch_diagram_path()
+                if path is not None:
+                    return send_file(str(path), mimetype='text/html')
+                return PITCH_DIAGRAM_HELP_PAGE, 200, {'Content-Type': 'text/html; charset=utf-8'}
         # Any path that looks like mark_ui (e.g. mark_ui/, mark_ui/foo) – never return "File not found"
         if filepath == 'mark_ui' or filepath.startswith('mark_ui/'):
             path = _mark_ui_path()
@@ -205,6 +250,7 @@ if FLASK_AVAILABLE:
             <p>Server is running. Available files:</p>
             <ul>
                 <li><a href="/2dmap">2D Map Report (short)</a></li>
+                <li><a href="/pitch_diagram">Pitch diagram reference (FIFA terminology)</a></li>
                 <li><a href="/mark_ui">2D Map Marking UI (4 corners + halfway line)</a></li>
                 <li><a href="/view_annotations_editor.html">View Annotations Editor</a></li>
                 <li><a href="/data/output/37a_20frames/viewer.html">37a Results Viewer</a></li>
@@ -223,8 +269,8 @@ if FLASK_AVAILABLE:
         parser = argparse.ArgumentParser(description="Flask HTTP server for annotation/viewer HTML")
         parser.add_argument("--port", "-p", type=int, default=PORT,
                             help=f"Port to listen on (default: {PORT})")
-        parser.add_argument("--host", type=str, default="127.0.0.1",
-                            help="Host to bind to (default: 127.0.0.1; use 0.0.0.0 to allow LAN)")
+        parser.add_argument("--host", type=str, default="0.0.0.0",
+                            help="Host to bind to (default: 0.0.0.0 for port forwarding; use 127.0.0.1 for localhost only)")
         parser.add_argument("--debug", action="store_true",
                             help="Enable debug mode")
         args = parser.parse_args()
@@ -248,7 +294,10 @@ if FLASK_AVAILABLE:
         print("🌐 Flask Annotation Viewer Server")
         print("=" * 60)
         print(f"📍 Server running at: http://localhost:{port}")
+        if args.host == "0.0.0.0":
+            print(f"   (Binding 0.0.0.0 – use your IDE port-forward URL if you see 'connection reset')")
         print(f"📄 2D map (short): http://localhost:{port}/2dmap")
+        print(f"📄 Pitch diagram: http://localhost:{port}/pitch_diagram")
         print(f"📄 Mark UI (4 corners + halfway): http://localhost:{port}/mark_ui")
         print(f"📄 Open in browser: http://localhost:{port}/view_annotations_editor.html")
         print(f"📄 37a results: http://localhost:{port}/data/output/37a_20frames/viewer.html")
