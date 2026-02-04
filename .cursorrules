@@ -21,10 +21,11 @@
 - **Check before binding:** Before listening, check if the chosen port is free (e.g. try to bind a socket). If the default port is in use and the user did not pass `--port N`, try fallback ports in order (e.g. 8081, 8082, 9000, 3000) and use the first that is free. If the user explicitly passed a port and it is in use, exit with a clear message; do not auto-pick another.
 - **Print the real URL:** After the server binds, print the actual host and port used. Any printed links or "Open in browser" messages must use that host and port so the user can copy a working URL.
 - **No port free:** If default plus fallbacks are all in use, exit with a short message listing what was tried and suggest `--port N`.
-- **Default bind:** Prefer 127.0.0.1 (localhost only) as default host to avoid firewall prompts; use 0.0.0.0 only when LAN access is needed. Allow override via `--host` and `--port`.
+- **Default bind:** Prefer 127.0.0.1 (localhost only) as default host to avoid firewall prompts; use 0.0.0.0 only when LAN access is needed. Exception: the 2D map viewer server (serve_viewer_flask.py) defaults to 0.0.0.0 so Cursor/VS Code port forwarding works. Allow override via `--host` and `--port`.
 
 ## 2D Map Viewer
 - Viewer must be running for the 2dmap URL to load; "connection reset" = nothing listening or firewall blocking. Start from project root; leave the terminal open.
+- **Fix "connection reset" in Cursor/remote:** The viewer server binds to 0.0.0.0 by default so port forwarding works. Forward port 8080 (View → Ports), then open the URL the IDE shows for that port (e.g. "Open in Browser" on the forwarded port)—do not use plain http://localhost:8080 from the host until the port is forwarded.
 - Short path: /2dmap. Runbook: docs/VIEWING_2DMAP_REPORT.md
 
 ## 2D map / RF-DETR detection (bounding boxes)
