@@ -368,6 +368,74 @@ def defish_frame(frame, k, alpha=0.0):
     return crop_black_borders(remapped)
 
 
+def _crop_black_borders_bounds(frame, black_thresh=15, margin_pct=0.02, non_black_min=0.99):
+    """Return (x1, y1, x2, y2) for crop_black_borders; or (0, 0, w, h) if no crop."""
+    h, w = frame.shape[:2]
+    if h == 0 or w == 0:
+        return (0, 0, w, h)
+    gray = np.mean(frame, axis=2) if len(frame.shape) == 3 else frame.astype(np.float64)
+    is_black = gray < black_thresh
+    y1 = 0
+    for y in range(h):
+        if (1 - np.mean(is_black[y, :])) >= non_black_min:
+            y1 = y
+            break
+    y2 = h
+    for y in range(h - 1, -1, -1):
+        if (1 - np.mean(is_black[y, :])) >= non_black_min:
+            y2 = y + 1
+            break
+    band = is_black[y1:y2, :]
+    x1 = 0
+    for x in range(w):
+        if (1 - np.mean(band[:, x])) >= non_black_min:
+            x1 = x
+            break
+    x2 = w
+    for x in range(w - 1, -1, -1):
+        if (1 - np.mean(band[:, x])) >= non_black_min:
+            x2 = x + 1
+            break
+    if x2 <= x1 or y2 <= y1:
+        return (0, 0, w, h)
+    if (x2 - x1) * (y2 - y1) < 0.1 * h * w:
+        return (0, 0, w, h)
+    inset = max(1, int(min(w, h) * margin_pct))
+    x1 = min(x1 + inset, x2 - 1)
+    y1 = min(y1 + inset, y2 - 1)
+    x2 = max(x2 - inset, x1 + 1)
+    y2 = max(y2 - inset, y1 + 1)
+    return (x1, y1, x2, y2)
+
+
+def _defish_frame_with_raw_mapping(frame, k, alpha=0.0):
+    """Return (defished_cropped_image, get_raw_xy) where get_raw_xy(dx, dy) -> (rx, ry) or None."""
+    h, w = frame.shape[:2]
+    K = np.array([[w, 0, w / 2], [0, w, h / 2], [0, 0, 1]])
+    D = np.array([k, 0, 0, 0, 0])
+    new_K, _ = cv2.getOptimalNewCameraMatrix(K, D, (w, h), alpha, (w, h))
+    map1, map2 = cv2.initUndistortRectifyMap(K, D, None, new_K, (w, h), 5)
+    remapped = cv2.remap(frame, map1, map2, cv2.INTER_LINEAR)
+    x1, y1, x2, y2 = _crop_black_borders_bounds(remapped)
+    cropped = remapped[y1:y2, x1:x2]
+    c_h, c_w = cropped.shape[:2]
+    s = min(c_w, c_h)
+    ox = (c_w - s) // 2
+    oy = (c_h - s) // 2
+    defished_cropped = cropped[oy : oy + s, ox : ox + s].copy()
+
+    def get_raw_xy(dx, dy):
+        fx = dx + ox + x1
+        fy = dy + oy + y1
+        if not (0 <= fy < h and 0 <= fx < w):
+            return None
+        rx = map1[fy, fx]
+        ry = map2[fy, fx]
+        return (int(round(rx)), int(round(ry)))
+
+    return (defished_cropped, get_raw_xy)
+
+
 def collect_marks_interactive(frame_display, marks_path, video_path):
     """User clicks: C1 (TL), C2 (TR), [C3 (BR) skip with 's'], [C4 (BL) skip with 's'], Center."""
     points = []  # list of {"role": "corner1"|...|"center", "image_xy": [x,y], "inferred": bool}
@@ -1116,7 +1184,7 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.25, help="Detection confidence threshold (default 0.25)")
     args = parser.parse_args()
 
-    k_value = -0.32
+    k_value = -0.443
     alpha = 0.0
     w_map, h_map = DEFAULT_MAP_W, DEFAULT_MAP_H
     calib_path = Path(args.calibration)
@@ -1341,8 +1409,9 @@ def main():
         th { background: #1a1a1a; padding: 10px; text-align: left; color: #4CAF50; }
         td { padding: 10px; border-top: 1px solid #444; }
         img { max-width: 100%; height: auto; border: 2px solid #444; border-radius: 5px; }
-        .col-picture { width: 50%; }
-        .col-map { width: 50%; }
+        .col-label { width: 220px; vertical-align: middle; }
+        .col-photo { vertical-align: top; }
+        .photo-block { display: block; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -1350,10 +1419,11 @@ def main():
     <div class="info">
         <strong>First """,
         str(n_frames),
-        """ frames.</strong> Left: frame with player bounding boxes only. Right: 2D diagram (pitch outline + player positions on the plane).<br>
+        """ frames.</strong> Three pictures per frame: (1) raw frame with bboxes and marks, (2) defished (bboxes + marks), (3) 2D map (center, corners, players).<br>
         <strong>Video:</strong> """,
         video_path.name,
         """<br>
+        <strong>Weights:</strong> newest (checkpoint_best_total_after_100_epochs.pth).<br>
         <strong>""",
         detector_note,
         """</strong>
@@ -1399,21 +1469,25 @@ def main():
     <table>
         <tr>
             <th>Frame #</th>
-            <th class="col-picture">Frame (bboxes + marks)</th>
-            <th class="col-map">2D diagram (players on pitch)</th>
+            <th class="col-label">Photo</th>
+            <th class="col-photo">Image</th>
         </tr>""",
     ]
 
     _logged_shape = False
     cache_bust = int(time.time())
-    # Frame 0 in the report is from the same cap after reset below; do not introduce a second video/cap.
+    corner_labels = ["1: TL", "2: TR", "3: BR", "4: BL"]
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.6
+    thickness = 2
+    label_offset = 12
+
     for frame_num in range(n_frames):
         ret, frame = cap.read()
         if not ret:
             break
         frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
-        defished = defish_frame(frame, k_value, alpha=alpha)
-        defished = crop_to_square(defished)
+        defished, get_raw_xy = _defish_frame_with_raw_mapping(frame, k_value, alpha=alpha)
 
         boxes_xyxy = []
         if detector:
@@ -1446,12 +1520,6 @@ def main():
                 if 0 <= ix < w_img and 0 <= iy < h_img:
                     cv2.circle(defished, (ix, iy), 4, (255, 255, 0), -1)
 
-        # Landmarks on frame: pitch center (red) only if explicitly marked; corners (blue); halfway endpoints (yellow); all labelled
-        corner_labels = ["1: TL", "2: TR", "3: BR", "4: BL"]
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.6
-        thickness = 2
-        label_offset = 12
         if center_was_marked and center_image_xy is not None:
             cx, cy = int(center_image_xy[0]), int(center_image_xy[1])
             cv2.circle(defished, (cx, cy), 10, (0, 0, 255), 2)
@@ -1472,27 +1540,79 @@ def main():
                 hlbl = "5: Half L" if hi == 0 else "6: Half R"
                 cv2.putText(defished, hlbl, (hx + label_offset, hy - label_offset), font, font_scale, (0, 255, 255), thickness)
 
-        # Right: 2D diagram (pitch aligned to user's center + corners; player positions)
+        raw_img = frame.copy()
+        raw_h, raw_w = raw_img.shape[:2]
+        for box in boxes_xyxy:
+            pts_raw = []
+            for (bx, by) in [(box[0], box[1]), (box[2], box[1]), (box[2], box[3]), (box[0], box[3])]:
+                pt = get_raw_xy(int(bx), int(by))
+                if pt is None:
+                    break
+                pts_raw.append(pt)
+            if len(pts_raw) == 4:
+                x_min = max(0, min(p[0] for p in pts_raw))
+                x_max = min(raw_w - 1, max(p[0] for p in pts_raw))
+                y_min = max(0, min(p[1] for p in pts_raw))
+                y_max = min(raw_h - 1, max(p[1] for p in pts_raw))
+                if x_max > x_min and y_max > y_min:
+                    cv2.rectangle(raw_img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+        if center_was_marked and center_image_xy is not None:
+            pt = get_raw_xy(int(center_image_xy[0]), int(center_image_xy[1]))
+            if pt is not None and 0 <= pt[0] < raw_w and 0 <= pt[1] < raw_h:
+                cv2.circle(raw_img, pt, 10, (0, 0, 255), 2)
+                cv2.circle(raw_img, pt, 2, (0, 0, 255), -1)
+                cv2.putText(raw_img, "Center", (pt[0] + label_offset, pt[1] - label_offset), font, font_scale, (0, 0, 255), thickness)
+        for idx in marked_corner_indices:
+            if 0 <= idx < len(src_corners):
+                px, py = int(src_corners[idx][0]), int(src_corners[idx][1])
+                if (px, py) == (0, 0) and idx in (2, 3):
+                    continue
+                pt = get_raw_xy(px, py)
+                if pt is not None and 0 <= pt[0] < raw_w and 0 <= pt[1] < raw_h:
+                    cv2.circle(raw_img, pt, 8, (255, 0, 0), 2)
+                    cv2.circle(raw_img, pt, 2, (255, 0, 0), -1)
+                    lbl = corner_labels[idx] if idx < len(corner_labels) else f"C{idx+1}"
+                    cv2.putText(raw_img, lbl, (pt[0] + label_offset, pt[1] - label_offset), font, font_scale, (255, 0, 0), thickness)
+        for hi, pt in enumerate(halfway_line_xy):
+            if len(pt) >= 2:
+                hx, hy = int(pt[0]), int(pt[1])
+                raw_pt = get_raw_xy(hx, hy)
+                if raw_pt is not None and 0 <= raw_pt[0] < raw_w and 0 <= raw_pt[1] < raw_h:
+                    cv2.circle(raw_img, raw_pt, 8, (0, 255, 255), 2)
+                    cv2.circle(raw_img, raw_pt, 2, (0, 255, 255), -1)
+                    hlbl = "5: Half L" if hi == 0 else "6: Half R"
+                    cv2.putText(raw_img, hlbl, (raw_pt[0] + label_offset, raw_pt[1] - label_offset), font, font_scale, (0, 255, 255), thickness)
+
         map_frame = _make_diagram_background(w_map, h_map, center_map_xy, margin=DIAGRAM_MARGIN)
         in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices, margin=DIAGRAM_MARGIN, y_axis_scale=y_axis_scale, halfway_line_xy=halfway_line_xy, draw_center=center_was_marked)
         total_players = in_bounds + out_bounds
         if total_players > 0:
             print(f"[2dmap] Frame {frame_num}: {in_bounds}/{total_players} players in map bounds")
 
-        _, buf_pic = cv2.imencode(".jpg", defished, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        _, buf_raw = cv2.imencode(".jpg", raw_img, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        _, buf_defished = cv2.imencode(".jpg", defished, [cv2.IMWRITE_JPEG_QUALITY, 85])
         _, buf_map = cv2.imencode(".jpg", map_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-
-        pic_path = save_frame_image(buf_pic.tobytes(), out_dir, frame_num, "picture")
+        raw_path = save_frame_image(buf_raw.tobytes(), out_dir, frame_num, "raw")
+        defished_path = save_frame_image(buf_defished.tobytes(), out_dir, frame_num, "defished")
         map_path = save_frame_image(buf_map.tobytes(), out_dir, frame_num, "map")
-        pic_path_busted = f"{pic_path}?v={cache_bust}"
+        raw_path_busted = f"{raw_path}?v={cache_bust}"
+        defished_path_busted = f"{defished_path}?v={cache_bust}"
         map_path_busted = f"{map_path}?v={cache_bust}"
 
         html_parts.append(
             f"""
         <tr>
-            <td><strong>Frame {frame_num}</strong></td>
-            <td class="col-picture"><img src="{pic_path_busted}" alt="Picture" loading="lazy" /></td>
-            <td class="col-map"><img src="{map_path_busted}" alt="2D map" loading="lazy" /></td>
+            <td rowspan="3" style="vertical-align: middle;"><strong>Frame {frame_num}</strong></td>
+            <td class="col-label">1. Frame (bboxes + marks)</td>
+            <td class="col-photo"><img class="photo-block" src="{raw_path_busted}" alt="Raw (bboxes + marks)" loading="lazy" /></td>
+        </tr>
+        <tr>
+            <td class="col-label">2. Defished (bboxes + marks)</td>
+            <td class="col-photo"><img class="photo-block" src="{defished_path_busted}" alt="Defished (bboxes + marks)" loading="lazy" /></td>
+        </tr>
+        <tr>
+            <td class="col-label">3. 2D map (center, corners, players)</td>
+            <td class="col-photo"><img class="photo-block" src="{map_path_busted}" alt="2D map" loading="lazy" /></td>
         </tr>"""
         )
 
