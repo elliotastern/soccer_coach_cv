@@ -598,8 +598,8 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
   </div>
   <p id="status"></p>
   <script>
-    const labels = ['Corner 1 (Top-Left)', 'Corner 2 (Top-Right)', 'Corner 3 (Bottom-Right)', 'Corner 4 (Bottom-Left)', 'Center'];
-    const shortLabels = ['1: TL', '2: TR', '3: BR', '4: BL', 'Center'];
+    const labels = ['Corner 1 (Top-Left)', 'Corner 2 (Top-Right)', 'Corner 3 (Bottom-Right)', 'Corner 4 (Bottom-Left)', 'Halfway left', 'Halfway right'];
+    const shortLabels = ['1: TL', '2: TR', '3: BR', '4: BL', '5: Half L', '6: Half R'];
     let points = [];
     let step = 0;
     let dragIdx = null;
@@ -626,10 +626,10 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
     }
 
     function updateCurrentMark() {
-      currentMarkEl.textContent = step < 5 ? labels[step] : 'All done';
-      if (step < 5) skipBtn.textContent = 'Skip ' + labels[step];
+      currentMarkEl.textContent = step < 6 ? labels[step] : 'All done';
+      if (step >= 1 && step <= 3) skipBtn.textContent = 'Skip ' + labels[step];
       else skipBtn.textContent = 'Skip (—)';
-      if (step >= 0 && step <= 3) {
+      if (step >= 1 && step <= 3) {
         skipBtn.disabled = false;
         skipBtn.removeAttribute('disabled');
       } else {
@@ -643,14 +643,14 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
       document.getElementById('imgWrap').addEventListener('click', function(e) {
         if (e.target !== img) return;
         if (justDroppedChip) return;
-        if (step >= 5) return;
+        if (step >= 6) return;
         const [x, y] = clientToImage(e.clientX, e.clientY);
-        const role = step === 0 ? 'corner1' : step === 1 ? 'corner2' : step === 2 ? 'corner3' : step === 3 ? 'corner4' : 'center';
+        const role = step === 0 ? 'corner1' : step === 1 ? 'corner2' : step === 2 ? 'corner3' : step === 3 ? 'corner4' : step === 4 ? 'halfway_left' : 'halfway_right';
         points.push({ role, image_xy: [x, y], inferred: false });
         step++;
         redraw();
         updateCurrentMark();
-        if (step === 5) saveBtn.disabled = false;
+        if (step === 6) saveBtn.disabled = false;
       });
     };
 
@@ -706,7 +706,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
           layer.appendChild(wrap);
         }
       });
-      statusEl.textContent = step < 5 ? 'Click on the image for: ' + labels[step] : 'All marks placed. Drag dots to adjust, then click Save positions.';
+      statusEl.textContent = step < 6 ? 'Click on the image for: ' + labels[step] : 'All 6 marks placed. Drag dots to adjust, then click Save positions.';
     }
 
     document.addEventListener('mousemove', function(e) {
@@ -761,12 +761,14 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
         updateCurrentMark();
         redraw();
       }
-      if (step === 5) saveBtn.disabled = false;
+      if (step === 6) saveBtn.disabled = false;
     });
 
     saveBtn.onclick = function() {
-      const cx = points.find(p => p.role === 'center').image_xy[0];
-      const cy = points.find(p => p.role === 'center').image_xy[1];
+      const hleft = points.find(p => p.role === 'halfway_left').image_xy;
+      const hright = points.find(p => p.role === 'halfway_right').image_xy;
+      const cx = (hleft[0] + hright[0]) / 2;
+      const cy = (hleft[1] + hright[1]) / 2;
       let c1 = points.find(p => p.role === 'corner1').image_xy;
       let c2 = points.find(p => p.role === 'corner2').image_xy;
       let c3 = points.find(p => p.role === 'corner3').image_xy;
@@ -775,10 +777,35 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
       if (points.find(p => p.role === 'corner2').inferred) c2 = [2*cx - c1[0], 2*cy - c1[1]];
       if (points.find(p => p.role === 'corner3').inferred) c3 = [2*cx - c1[0], 2*cy - c1[1]];
       if (points.find(p => p.role === 'corner4').inferred) c4 = [2*cx - c2[0], 2*cy - c2[1]];
-      const marks = { frame_index: 0, points, src_corners_order: 'TL, TR, BR, BL', src_corners_xy: [c1, c2, c3, c4] };
+      const halfway_line_xy = [hleft, hright];
+      const marks = { frame_index: 0, points, src_corners_order: 'TL, TR, BR, BL', src_corners_xy: [c1, c2, c3, c4], halfway_line_xy };
+      function downloadMarksFallback() {
+        const blob = new Blob([JSON.stringify(marks, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'manual_marks.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        statusEl.textContent = 'Save endpoint not available. Downloaded manual_marks.json — save it to data/output/2dmap_manual_mark/manual_marks.json';
+      }
       fetch('/save_marks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(marks) })
-        .then(r => r.json()).then(d => { statusEl.textContent = d.ok ? 'Saved. You can close this tab.' : (d.error || 'Save failed'); })
-        .catch(e => { statusEl.textContent = 'Error: ' + e.message; });
+        .then(function(r) {
+          const ct = (r.headers.get('Content-Type') || '');
+          if (!r.ok || !ct.includes('application/json')) {
+            downloadMarksFallback();
+            return;
+          }
+          return r.text().then(function(text) {
+            try { return JSON.parse(text); } catch (e) { downloadMarksFallback(); }
+          });
+        })
+        .then(function(d) {
+          if (!d) return;
+          statusEl.textContent = d.ok ? 'Saved. You can close this tab.' : (d.error || 'Save failed');
+        })
+        .catch(function(e) {
+          downloadMarksFallback();
+        });
     };
 
     resetBtn.addEventListener('click', function() {
@@ -787,7 +814,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
       updateCurrentMark();
       redraw();
       saveBtn.disabled = true;
-      statusEl.textContent = 'Marks reset. Click on the image for: ' + labels[step];
+      statusEl.textContent = 'Marks reset. Click on the image for: ' + (step < 6 ? labels[step] : labels[0]);
     });
 
     updateCurrentMark();
@@ -848,7 +875,7 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
 
     print("No display available. Open in your browser to mark:")
     print(f"  http://localhost:{MARK_SERVER_PORT}/mark_ui.html")
-    print("Mark: 1=TL, 2=TR, (3=BR or Skip), (4=BL or Skip), 5=Center. Then click Save marks.")
+    print("Mark 6 spots: 1=TL, 2=TR, 3=BR, 4=BL, 5=Halfway left, 6=Halfway right. Then click Save positions.")
     print("Waiting for you to save marks...")
     marks_saved.wait(timeout=600)
     server.shutdown()
@@ -1419,21 +1446,31 @@ def main():
                 if 0 <= ix < w_img and 0 <= iy < h_img:
                     cv2.circle(defished, (ix, iy), 4, (255, 255, 0), -1)
 
-        # Landmarks on frame: pitch center (red) only if explicitly marked; corners (blue); halfway endpoints (yellow)
+        # Landmarks on frame: pitch center (red) only if explicitly marked; corners (blue); halfway endpoints (yellow); all labelled
+        corner_labels = ["1: TL", "2: TR", "3: BR", "4: BL"]
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.6
+        thickness = 2
+        label_offset = 12
         if center_was_marked and center_image_xy is not None:
             cx, cy = int(center_image_xy[0]), int(center_image_xy[1])
             cv2.circle(defished, (cx, cy), 10, (0, 0, 255), 2)
             cv2.circle(defished, (cx, cy), 2, (0, 0, 255), -1)
+            cv2.putText(defished, "Center", (cx + label_offset, cy - label_offset), font, font_scale, (0, 0, 255), thickness)
         for idx in marked_corner_indices:
             if 0 <= idx < len(src_corners):
                 px, py = int(src_corners[idx][0]), int(src_corners[idx][1])
                 cv2.circle(defished, (px, py), 8, (255, 0, 0), 2)
                 cv2.circle(defished, (px, py), 2, (255, 0, 0), -1)
-        for pt in halfway_line_xy:
+                lbl = corner_labels[idx] if idx < len(corner_labels) else f"C{idx+1}"
+                cv2.putText(defished, lbl, (px + label_offset, py - label_offset), font, font_scale, (255, 0, 0), thickness)
+        for hi, pt in enumerate(halfway_line_xy):
             if len(pt) >= 2:
                 hx, hy = int(pt[0]), int(pt[1])
                 cv2.circle(defished, (hx, hy), 8, (0, 255, 255), 2)
                 cv2.circle(defished, (hx, hy), 2, (0, 255, 255), -1)
+                hlbl = "5: Half L" if hi == 0 else "6: Half R"
+                cv2.putText(defished, hlbl, (hx + label_offset, hy - label_offset), font, font_scale, (0, 255, 255), thickness)
 
         # Right: 2D diagram (pitch aligned to user's center + corners; player positions)
         map_frame = _make_diagram_background(w_map, h_map, center_map_xy, margin=DIAGRAM_MARGIN)
