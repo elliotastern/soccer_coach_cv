@@ -152,11 +152,12 @@ def _get_player_boxes_xyxy(defished_bgr, detector, threshold=0.25):
     return boxes
 
 
-def _make_diagram_background(w_map, h_map, center_map_xy=None, margin=None):
+def _make_diagram_background(w_map, h_map, center_map_xy=None, margin=None, half_pitch=False):
     """
-    Create 2D pitch diagram: 105 m x 68 m at 10 px/m. Uses a margin so nets extend off the pitch
+    Create 2D pitch diagram: 105 m x 68 m at 10 px/m (or 52.5 m x 68 m when half_pitch). Uses a margin so nets extend off the pitch
     and corner flags are visible at 45 deg outward. Touchlines, goal lines, halfway line, center mark,
-    center circle (9.15 m), penalty boxes, corner arcs (1 m), goals with nets in margin.
+    center circle (9.15 m), corner arcs (1 m), goals with nets on the short sides (left/right) in margin.
+    When half_pitch is True, only left goal is drawn and right boundary is the halfway line.
     """
     if margin is None:
         margin = DIAGRAM_MARGIN
@@ -174,23 +175,32 @@ def _make_diagram_background(w_map, h_map, center_map_xy=None, margin=None):
     white = (255, 255, 255)
     goal_depth_px = int(2.5 * PIXELS_PER_METER)
     center_circle_r = int(9.15 * PIXELS_PER_METER)
-    pen_depth = int(16.5 * PIXELS_PER_METER)
-    pen_width = int(40.32 * PIXELS_PER_METER)
-    pen_y1 = (h_map - pen_width) // 2
-    pen_y2 = pen_y1 + pen_width
     goal_width_px = int(7.32 * PIXELS_PER_METER)
     corner_arc_r = int(1 * PIXELS_PER_METER)
-    flag_len = 15
+    flag_len = 58
     mid_x = w_map // 2
     # Pitch green (inset)
     cv2.rectangle(diagram, (margin, margin), (margin + w_map - 1, margin + h_map - 1), pitch_green, -1)
-    # Nets in left/right margin (off the pitch)
-    cv2.rectangle(diagram, (0, margin), (margin + goal_depth_px, margin + h_map - 1), net_fill, -1)
-    cv2.rectangle(diagram, (margin + w_map - 1 - goal_depth_px, margin), (w_diag - 1, margin + h_map - 1), net_fill, -1)
-    # Pitch outline (inset)
+    # Goals with nets in margin (off the pitch); fill then draw net pattern
+    def _draw_goal_net(x1, y1, x2, y2):
+        cv2.rectangle(diagram, (x1, y1), (x2, y2), net_fill, -1)
+        cv2.rectangle(diagram, (x1, y1), (x2, y2), white, 2)
+        step = max(4, goal_depth_px // 4)
+        for i in range(y1, y2, step):
+            cv2.line(diagram, (x1, i), (x2, i), (180, 200, 180), 1)
+        for i in range(x1, x2, step):
+            cv2.line(diagram, (i, y1), (i, y2), (180, 200, 180), 1)
+    _draw_goal_net(0, margin, margin + goal_depth_px, margin + h_map - 1)
+    # Pitch outline (inset) before right goal so goal can be drawn on top when full pitch
     cv2.rectangle(diagram, (margin, margin), (margin + w_map - 1, margin + h_map - 1), white, 2)
-    # Halfway line
-    cv2.line(diagram, (margin + mid_x, margin), (margin + mid_x, margin + h_map - 1), white, 2)
+    if not half_pitch:
+        _draw_goal_net(margin + w_map - 1 - goal_depth_px, margin, w_diag - 1, margin + h_map - 1)
+        # Emphasize right goal line so it is clearly visible (full-pitch / Option B)
+        right_x = margin + w_map - 1
+        cv2.line(diagram, (right_x, margin), (right_x, margin + h_map - 1), white, 3)
+    # Halfway line: at right edge when half_pitch, else at center
+    half_x = (margin + w_map - 1) if half_pitch else (margin + mid_x)
+    cv2.line(diagram, (half_x, margin), (half_x, margin + h_map - 1), white, 2)
     if center_map_xy is not None:
         cx = int(center_map_xy[0])
         cy = int(center_map_xy[1])
@@ -201,28 +211,34 @@ def _make_diagram_background(w_map, h_map, center_map_xy=None, margin=None):
     # Center circle and mark (offset)
     cv2.circle(diagram, (margin + cx, margin + cy), center_circle_r, white, 2)
     cv2.circle(diagram, (margin + cx, margin + cy), 4, white, -1)
-    # Penalty boxes (offset)
-    cv2.rectangle(diagram, (margin, margin + pen_y1), (margin + pen_depth, margin + pen_y2), white, 1)
-    cv2.rectangle(diagram, (margin + w_map - 1 - pen_depth, margin + pen_y1), (margin + w_map - 1, margin + pen_y2), white, 1)
-    # Goal frames and net on pitch (offset)
+    # Goal frames (posts) and net on short sides; net extends off pitch into margin
     goal_half = goal_width_px // 2
     gy1 = max(0, h_map // 2 - goal_half)
     gy2 = min(h_map - 1, h_map // 2 + goal_half)
-    cv2.rectangle(diagram, (margin, margin + gy1), (margin + goal_depth_px, margin + gy2), white, 2)
-    cv2.rectangle(diagram, (margin, margin + gy1), (margin + goal_depth_px, margin + gy2), net_fill, -1)
-    cv2.rectangle(diagram, (margin + w_map - 1 - goal_depth_px, margin + gy1), (margin + w_map - 1, margin + gy2), white, 2)
-    cv2.rectangle(diagram, (margin + w_map - 1 - goal_depth_px, margin + gy1), (margin + w_map - 1, margin + gy2), net_fill, -1)
-    # Corner arcs (offset)
-    cv2.ellipse(diagram, (margin + corner_arc_r, margin + corner_arc_r), (corner_arc_r, corner_arc_r), 0, 180, 270, white, 1)
-    cv2.ellipse(diagram, (margin + w_map - 1 - corner_arc_r, margin + corner_arc_r), (corner_arc_r, corner_arc_r), 0, 270, 360, white, 1)
-    cv2.ellipse(diagram, (margin + w_map - 1 - corner_arc_r, margin + h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 0, 90, white, 1)
-    cv2.ellipse(diagram, (margin + corner_arc_r, margin + h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 90, 180, white, 1)
-    # Corner flags at 45 deg away from pitch (inset corners, outward into margin)
+    goal_rects = [(margin, margin + goal_depth_px)]
+    if not half_pitch:
+        goal_rects.append((margin + w_map - 1 - goal_depth_px, margin + w_map - 1))
+    for i_goal, (gx1, gx2) in enumerate(goal_rects):
+        # Right goal (full pitch): thicker outline so it is visible
+        thick = 3 if (not half_pitch and i_goal == 1) else 2
+        cv2.rectangle(diagram, (gx1, margin + gy1), (gx2, margin + gy2), white, thick)
+        cv2.rectangle(diagram, (gx1, margin + gy1), (gx2, margin + gy2), net_fill, -1)
+        step = max(3, min(goal_width_px, goal_depth_px) // 5)
+        for i in range(margin + gy1, margin + gy2, step):
+            cv2.line(diagram, (gx1, i), (gx2, i), (180, 200, 180), 1)
+        for i in range(gx1, gx2, step):
+            cv2.line(diagram, (i, margin + gy1), (i, margin + gy2), (180, 200, 180), 1)
+    # Corner arcs (1 m radius quarter-circles at each corner)
+    cv2.ellipse(diagram, (margin + corner_arc_r, margin + corner_arc_r), (corner_arc_r, corner_arc_r), 0, 180, 270, white, 2)
+    cv2.ellipse(diagram, (margin + w_map - 1 - corner_arc_r, margin + corner_arc_r), (corner_arc_r, corner_arc_r), 0, 270, 360, white, 2)
+    cv2.ellipse(diagram, (margin + w_map - 1 - corner_arc_r, margin + h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 0, 90, white, 2)
+    cv2.ellipse(diagram, (margin + corner_arc_r, margin + h_map - 1 - corner_arc_r), (corner_arc_r, corner_arc_r), 0, 90, 180, white, 2)
+    # Corner flags at 45 deg away from pitch (outward into margin); thicker so visible when report is scaled
     d = int(flag_len * 0.707)
-    cv2.line(diagram, (margin, margin), (margin - d, margin - d), white, 2)
-    cv2.line(diagram, (margin + w_map - 1, margin), (margin + w_map - 1 + d, margin - d), white, 2)
-    cv2.line(diagram, (margin + w_map - 1, margin + h_map - 1), (margin + w_map - 1 + d, margin + h_map - 1 + d), white, 2)
-    cv2.line(diagram, (margin, margin + h_map - 1), (margin - d, margin + h_map - 1 + d), white, 2)
+    cv2.line(diagram, (margin, margin), (margin - d, margin - d), white, 3)
+    cv2.line(diagram, (margin + w_map - 1, margin), (margin + w_map - 1 + d, margin - d), white, 3)
+    cv2.line(diagram, (margin + w_map - 1, margin + h_map - 1), (margin + w_map - 1 + d, margin + h_map - 1 + d), white, 3)
+    cv2.line(diagram, (margin, margin + h_map - 1), (margin - d, margin + h_map - 1 + d), white, 3)
     return diagram
 
 
@@ -245,8 +261,10 @@ def _compute_y_axis_scale_from_positions(map_positions_xy, h_map, min_positions=
     return h_map / observed_height
 
 
-def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_image, center_image_xy, marked_corner_indices=None, margin=0, y_axis_scale=1.0, halfway_line_xy=None, draw_center=True):
-    """Draw player feet (bottom-center) on map via homography; center, corners, and projected halfway line endpoints.
+def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_image, center_image_xy, marked_corner_indices=None, margin=0, y_axis_scale=1.0, halfway_line_xy=None, draw_center=True, use_fixed_halfway_positions=False):
+    """Draw player feet (bottom-center of bbox) on map via homography; center, corners, and halfway line endpoints.
+    Positions are perspective-correct for the quad (TL,TR,BR,BL) -> (0,0)-(w_map,0)-(w_map,h_map)-(0,h_map); accuracy depends on marking quality.
+    If use_fixed_halfway_positions is True, draw halfway at fixed left/right mid-height instead of projecting.
     If y_axis_scale != 1.0, y is scaled around map center (h_map/2) so observed y-range matches full pitch.
     Returns (in_bounds_count, out_of_bounds_count). margin offsets all coordinates into diagram space."""
     if marked_corner_indices is None:
@@ -273,27 +291,63 @@ def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_imag
                 cy = max(pitch_y_min, min(pitch_y_max, margin + iy))
                 cv2.circle(map_frame, (cx, cy), 6, (255, 255, 0), -1)
                 cv2.circle(map_frame, (cx, cy), 6, (128, 128, 128), 2)
-    if draw_center and _transform_point is not None and center_image_xy is not None:
-        cx, cy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
-        cv2.circle(map_frame, (margin + int(cx), margin + int(cy)), 10, (0, 0, 255), 2)
-        cv2.circle(map_frame, (margin + int(cx), margin + int(cy)), 2, (0, 0, 255), -1)
-    # Draw all four pitch corners on the map (TL, TR, BR, BL) so inferred TR/BR are visible
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.45
+    thickness = 1
+    label_offset = 14
+
+    # Always draw Center at map geometric center so it is always labeled (not only when user marked it).
+    center_pt = (margin + w_map // 2, margin + h_map // 2)
+    cv2.circle(map_frame, center_pt, 10, (0, 0, 255), 2)
+    cv2.circle(map_frame, center_pt, 2, (0, 0, 255), -1)
+    _draw_landmark_label(map_frame, LANDMARK_CENTER_NAME, (center_pt[0] + label_offset, center_pt[1] - label_offset), font, font_scale, (0, 0, 255), thickness)
+    # Draw all four pitch corners: TL top-left, TR top-right, BR bottom-right, BL bottom-left
     map_corner_pts = [(margin, margin), (margin + w_map - 1, margin), (margin + w_map - 1, margin + h_map - 1), (margin, margin + h_map - 1)]
     for idx in range(4):
         pt = map_corner_pts[idx]
         cv2.circle(map_frame, pt, 8, (255, 0, 0), 2)
         cv2.circle(map_frame, pt, 2, (255, 0, 0), -1)
-    # Draw projected halfway line endpoints (yellow) for consistency with frame
-    if _transform_point is not None and halfway_line_xy:
-        for pt in halfway_line_xy:
+        name = LANDMARK_CORNER_NAMES[idx]
+        if idx == 0:
+            txt_pt = (pt[0] + label_offset, pt[1] + label_offset)
+        elif idx == 1:
+            txt_pt = (pt[0] - 120, pt[1] + label_offset)
+        elif idx == 2:
+            txt_pt = (pt[0] - 130, pt[1] - label_offset)
+        else:
+            txt_pt = (pt[0] + label_offset, pt[1] - label_offset)
+        _draw_landmark_label(map_frame, name, txt_pt, font, font_scale, (255, 0, 0), thickness)
+    # Corner arcs on top of landmarks: use larger radius (18 px) so arc extends outside blue circle (r=8) and is visible
+    corner_arc_r_map = 18
+    white = (255, 255, 255)
+    cv2.ellipse(map_frame, (margin + corner_arc_r_map, margin + corner_arc_r_map), (corner_arc_r_map, corner_arc_r_map), 0, 180, 270, white, 2)
+    cv2.ellipse(map_frame, (margin + w_map - 1 - corner_arc_r_map, margin + corner_arc_r_map), (corner_arc_r_map, corner_arc_r_map), 0, 270, 360, white, 2)
+    cv2.ellipse(map_frame, (margin + w_map - 1 - corner_arc_r_map, margin + h_map - 1 - corner_arc_r_map), (corner_arc_r_map, corner_arc_r_map), 0, 0, 90, white, 2)
+    cv2.ellipse(map_frame, (margin + corner_arc_r_map, margin + h_map - 1 - corner_arc_r_map), (corner_arc_r_map, corner_arc_r_map), 0, 90, 180, white, 2)
+    # Halfway line endpoints: fixed positions when quad was re-inferred, else project from image
+    if use_fixed_halfway_positions:
+        half_left_pt = (margin, margin + h_map // 2)
+        half_right_pt = (margin + w_map - 1, margin + h_map // 2)
+        for hi, draw_pt in enumerate([half_left_pt, half_right_pt]):
+            cv2.circle(map_frame, draw_pt, 8, (0, 255, 255), 2)
+            cv2.circle(map_frame, draw_pt, 2, (0, 255, 255), -1)
+            lbl = LANDMARK_HALFWAY_NAMES[hi] if hi < len(LANDMARK_HALFWAY_NAMES) else f"Halfway {hi + 1}"
+            half_y_offset = 32 if hi == 1 else label_offset
+            _draw_landmark_label(map_frame, lbl, (draw_pt[0] + label_offset, draw_pt[1] - half_y_offset), font, font_scale, (0, 255, 255), thickness)
+    elif _transform_point is not None and halfway_line_xy:
+        for hi, pt in enumerate(halfway_line_xy):
             if len(pt) >= 2:
                 px, py = float(pt[0]), float(pt[1])
                 mx, my = _transform_point(H, (px, py))
                 if y_axis_scale != 1.0:
                     my = (my - y_center_map) * y_axis_scale + y_center_map
                 ix, iy = int(mx), int(my)
-                cv2.circle(map_frame, (margin + ix, margin + iy), 8, (0, 255, 255), 2)
-                cv2.circle(map_frame, (margin + ix, margin + iy), 2, (0, 255, 255), -1)
+                draw_pt = (margin + ix, margin + iy)
+                cv2.circle(map_frame, draw_pt, 8, (0, 255, 255), 2)
+                cv2.circle(map_frame, draw_pt, 2, (0, 255, 255), -1)
+                lbl = LANDMARK_HALFWAY_NAMES[hi] if hi < len(LANDMARK_HALFWAY_NAMES) else f"Halfway {hi + 1}"
+                half_y_offset = 32 if hi == 1 else label_offset
+                _draw_landmark_label(map_frame, lbl, (draw_pt[0] + label_offset, draw_pt[1] - half_y_offset), font, font_scale, (0, 255, 255), thickness)
     return (in_bounds, out_of_bounds)
 
 MARK_SERVER_PORT = 5006
@@ -304,8 +358,29 @@ MARKS_PATH = PROJECT_ROOT / "data/output/2dmap_manual_mark/manual_marks.json"
 NUM_FRAMES = 10
 # Standard pitch 105m x 68m at 10 px/m (R-003 / create_viewer_with_frames_2d_map)
 DEFAULT_MAP_W, DEFAULT_MAP_H = 1050, 680
+# Half pitch (52.5m x 68m) when quad is built from TL, TR and halfway line
+HALF_PITCH_MAP_W, HALF_PITCH_MAP_H = 525, 680
 DIAGRAM_MARGIN = 25
 PIXELS_PER_METER = 10
+
+# Canonical landmark names (mark + label on raw, defished, and 2D map)
+LANDMARK_CORNER_NAMES = ("Top Left Corner", "Top Right Corner", "Bottom Right Corner", "Bottom Left Corner")
+LANDMARK_HALFWAY_NAMES = ("Halfway Left", "Halfway Right")
+LANDMARK_CENTER_NAME = "Center"
+
+
+def _draw_landmark_label(img, text, pt, font, font_scale, color, thickness=1):
+    """Draw text label with white background and border so the name is always readable."""
+    (tw, th), _ = cv2.getTextSize(text, font, font_scale, thickness)
+    x, y = int(pt[0]), int(pt[1])
+    pad = 2
+    x1 = max(0, x - pad)
+    y1 = max(0, y - th - pad)
+    x2 = min(img.shape[1], x + tw + pad)
+    y2 = min(img.shape[0], y + pad)
+    cv2.rectangle(img, (x1, y1), (x2, y2), (255, 255, 255), -1)
+    cv2.rectangle(img, (x1, y1), (x2, y2), color, 1)
+    cv2.putText(img, text, (x, y), font, font_scale, (0, 0, 0), thickness)
 
 # Click order: 1=TL, 2=TR, 3=BR, 4=BL, 5=Center. 3 and 4 optional (press 's' to skip).
 LABELS = ["Corner 1 (Top-Left)", "Corner 2 (Top-Right)", "Corner 3 (Bottom-Right)", "Corner 4 (Bottom-Left)", "Center"]
@@ -845,6 +920,11 @@ def collect_marks_web_fallback(frame_bgr, marks_path, video_path):
       if (points.find(p => p.role === 'corner2').inferred) c2 = [2*cx - c1[0], 2*cy - c1[1]];
       if (points.find(p => p.role === 'corner3').inferred) c3 = [2*cx - c1[0], 2*cy - c1[1]];
       if (points.find(p => p.role === 'corner4').inferred) c4 = [2*cx - c2[0], 2*cy - c2[1]];
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+      c3 = [clamp(c3[0], 0, w - 1), clamp(c3[1], 0, h - 1)];
+      c4 = [clamp(c4[0], 0, w - 1), clamp(c4[1], 0, h - 1)];
       const halfway_line_xy = [hleft, hright];
       const marks = { frame_index: 0, points, src_corners_order: 'TL, TR, BR, BL', src_corners_xy: [c1, c2, c3, c4], halfway_line_xy };
       function downloadMarksFallback() {
@@ -1056,6 +1136,54 @@ def _has_duplicate_corners(src_corners, dist_thresh=1.0):
     return False
 
 
+def _corners_out_of_bounds(src_corners, h, w):
+    """True if any of the four corners lies outside the frame (0 <= x < w, 0 <= y < h)."""
+    if src_corners is None or len(src_corners) != 4:
+        return False
+    for p in src_corners:
+        x, y = float(p[0]), float(p[1])
+        if x < 0 or x >= w or y < 0 or y >= h:
+            return True
+    return False
+
+
+def _get_two_in_bounds_corners(src_corners, h, w):
+    """From 4 corners, return (pt_a, pt_b) for the first two that are inside the frame, or (None, None)."""
+    if src_corners is None or len(src_corners) != 4:
+        return None, None
+    in_bounds = []
+    for p in src_corners:
+        x, y = float(p[0]), float(p[1])
+        if 0 <= x < w and 0 <= y < h:
+            in_bounds.append((x, y))
+    if len(in_bounds) >= 2:
+        return in_bounds[0], in_bounds[1]
+    return None, None
+
+
+def _build_quad_from_tl_tr_and_halfway(pt_a, pt_b, halfway_line_xy, h, w):
+    """
+    Build 4-point quad [TL, TR, BR, BL] from two in-bounds corners (TL, TR) and the
+    halfway line. Uses the rightmost x of the halfway line as the right edge of the
+    pitch so the quad spans the full visible pitch width. Bottom edge at frame bottom.
+    Returns np.float32([TL, TR, BR, BL]) or None if halfway_line_xy invalid.
+    """
+    if not halfway_line_xy or len(halfway_line_xy) < 2:
+        return None
+    h, w = int(h), int(w)
+    ax, ay = float(pt_a[0]), float(pt_a[1])
+    bx, by = float(pt_b[0]), float(pt_b[1])
+    x_left = min(ax, bx)
+    x_right_halfway = max(float(halfway_line_xy[0][0]), float(halfway_line_xy[1][0]))
+    x_right = min(w - 1, max(x_right_halfway, max(ax, bx)))
+    y_bottom = h - 1
+    tl = np.array([ax, ay], dtype=np.float32) if ax <= bx else np.array([bx, by], dtype=np.float32)
+    tr = np.array([bx, by], dtype=np.float32) if ax <= bx else np.array([ax, ay], dtype=np.float32)
+    bl = np.array([x_left, y_bottom], dtype=np.float32)
+    br = np.array([x_right, y_bottom], dtype=np.float32)
+    return np.float32([tl, tr, br, bl])
+
+
 def _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, image_shape):
     """
     Build 4-point quad [TL, TR, BR, BL] from two distinct corners using the image boundary.
@@ -1099,6 +1227,7 @@ def _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_xy, w_map, h_map):
     tl_x, tl_y = float(tl_xy[0]), float(tl_xy[1])
     bl_x, bl_y = float(bl_xy[0]), float(bl_xy[1])
     cx, cy = float(center_xy[0]), float(center_xy[1])
+    # Same orientation as homography_from_marks: goals left/right, touchlines top/bottom
     dst = np.float32([[0, 0], [w_map, 0], [w_map, h_map], [0, h_map]])
     center_target_x = w_map / 2.0
     center_target_y = h_map / 2.0
@@ -1152,7 +1281,9 @@ def _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_xy, w_map, h_map):
 
 
 def homography_from_marks(src_corners, w_map, h_map):
-    """dst: TL, TR, BR, BL in map pixels."""
+    """Build homography so touchlines are horizontal (top/bottom), goal lines left/right.
+    Assumes user marked: left goal line = TL,BL and right goal line = TR,BR."""
+    # dst: TL->(0,0), TR->(w,0), BR->(w,h), BL->(0,h) so map left/right = goal lines, top/bottom = touchlines
     dst = np.float32([[0, 0], [w_map, 0], [w_map, h_map], [0, h_map]])
     H = cv2.getPerspectiveTransform(src_corners, dst)
     return H
@@ -1182,6 +1313,9 @@ def main():
     default_model = str(PROJECT_ROOT / "models" / "checkpoint_best_total_after_100_epochs.pth")
     parser.add_argument("--model", "-m", type=str, default=default_model, help=f"Player detection weights; default: {default_model}")
     parser.add_argument("--threshold", type=float, default=0.25, help="Detection confidence threshold (default 0.25)")
+    parser.add_argument("--half-pitch-style", choices=["half_only", "left_half"], default="half_only", help="When quad from TL+TR+halfway: half_only=half-pitch diagram (A), left_half=full-pitch diagram with visible half in left (B).")
+    parser.add_argument("--verify", action="store_true", help="After generating the report, run verify_2dmap_report.py and exit with its code (0=pass).")
+    parser.add_argument("--until-valid", action="store_true", help="Run report then verify in a loop until verification passes (max 10 runs). Use with --use-saved and --verify.")
     args = parser.parse_args()
 
     k_value = -0.443
@@ -1294,6 +1428,27 @@ def main():
             center_image_xy = [cx, cy]
     center_was_marked = any(p.get("role") == "center" for p in points_from_file) if points_from_file else True
     marked_corner_indices = _marked_corner_indices_from_points(points_from_file) if points_from_file else [0, 1, 2, 3]
+    use_geometric_center_for_diagram = False
+    use_half_pitch = False
+
+    h0, w0 = int(defished0.shape[0]), int(defished0.shape[1])
+    if src_corners is not None and len(src_corners) == 4 and _corners_out_of_bounds(src_corners, h0, w0):
+        pt_a, pt_b = _get_two_in_bounds_corners(src_corners, h0, w0)
+        if pt_a is not None and pt_b is not None:
+            built = None
+            if len(halfway_line_xy) >= 2:
+                built = _build_quad_from_tl_tr_and_halfway(pt_a, pt_b, halfway_line_xy, h0, w0)
+                if built is not None:
+                    print("Re-inferred quad from TL, TR and halfway line (right edge from halfway).")
+                    use_half_pitch = True
+            if built is None:
+                built = _build_quad_from_two_corners_frame_boundary(pt_a, pt_b, defished0.shape)
+                if built is not None:
+                    print("Re-inferred quad from frame boundary (saved corners were out of bounds).")
+            if built is not None:
+                src_corners = built
+                marked_corner_indices = [0, 1]
+                use_geometric_center_for_diagram = True
 
     # When only 1–2 distinct corners (others skipped), try FIFA+center inference then frame boundary
     if _count_unique_corners(src_corners) < 3 or _quad_area(src_corners) < 100.0:
@@ -1314,6 +1469,7 @@ def main():
                     src_corners = built
                     if not points_from_file:
                         marked_corner_indices = [0, 1]
+                    use_geometric_center_for_diagram = True
                     print("Using frame boundary for quad (corners not in frame were not inferred).")
 
     # Reject quad if any two corners are identical (after inference)
@@ -1334,11 +1490,19 @@ def main():
             print("Error: Quad has duplicate or near-identical corners. Mark at least 2 distinct corners and center, or 4 corners.")
             sys.exit(1)
 
+    if use_half_pitch:
+        w_map, h_map = HALF_PITCH_MAP_W, HALF_PITCH_MAP_H
     H = homography_from_marks(src_corners, w_map, h_map)
-    # Center position on diagram (from user's mark) for aligning pitch center line/circle
-    center_map_xy = None
-    if _transform_point is not None and center_image_xy is not None:
-        center_map_xy = _transform_point(H, (center_image_xy[0], center_image_xy[1]))
+    # Always use geometric center for the diagram so the center circle and halfway line align with the red Center landmark.
+    # (Using the transformed image center could offset the white circle from the landmark and look like wrong orientation.)
+    center_map_xy = (w_map / 2.0, h_map / 2.0)
+    diagram_w, diagram_h = w_map, h_map
+    diagram_center_map_xy = center_map_xy
+    half_pitch_diagram = use_half_pitch
+    if use_half_pitch and args.half_pitch_style == "left_half":
+        diagram_w, diagram_h = DEFAULT_MAP_W, DEFAULT_MAP_H
+        diagram_center_map_xy = (525, 340)
+        half_pitch_diagram = False
 
     # Optional: load player detector (default 100-epoch, then alternate 99-epoch, then any .pth in models/, then COCO)
     detector = None
@@ -1476,7 +1640,6 @@ def main():
 
     _logged_shape = False
     cache_bust = int(time.time())
-    corner_labels = ["1: TL", "2: TR", "3: BR", "4: BL"]
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 0.6
     thickness = 2
@@ -1524,21 +1687,21 @@ def main():
             cx, cy = int(center_image_xy[0]), int(center_image_xy[1])
             cv2.circle(defished, (cx, cy), 10, (0, 0, 255), 2)
             cv2.circle(defished, (cx, cy), 2, (0, 0, 255), -1)
-            cv2.putText(defished, "Center", (cx + label_offset, cy - label_offset), font, font_scale, (0, 0, 255), thickness)
+            _draw_landmark_label(defished, LANDMARK_CENTER_NAME, (cx + label_offset, cy - label_offset), font, font_scale, (0, 0, 255), thickness)
         for idx in marked_corner_indices:
             if 0 <= idx < len(src_corners):
                 px, py = int(src_corners[idx][0]), int(src_corners[idx][1])
                 cv2.circle(defished, (px, py), 8, (255, 0, 0), 2)
                 cv2.circle(defished, (px, py), 2, (255, 0, 0), -1)
-                lbl = corner_labels[idx] if idx < len(corner_labels) else f"C{idx+1}"
-                cv2.putText(defished, lbl, (px + label_offset, py - label_offset), font, font_scale, (255, 0, 0), thickness)
+                lbl = LANDMARK_CORNER_NAMES[idx] if idx < len(LANDMARK_CORNER_NAMES) else f"C{idx+1}"
+                _draw_landmark_label(defished, lbl, (px + label_offset, py - label_offset), font, font_scale, (255, 0, 0), thickness)
         for hi, pt in enumerate(halfway_line_xy):
             if len(pt) >= 2:
                 hx, hy = int(pt[0]), int(pt[1])
                 cv2.circle(defished, (hx, hy), 8, (0, 255, 255), 2)
                 cv2.circle(defished, (hx, hy), 2, (0, 255, 255), -1)
-                hlbl = "5: Half L" if hi == 0 else "6: Half R"
-                cv2.putText(defished, hlbl, (hx + label_offset, hy - label_offset), font, font_scale, (0, 255, 255), thickness)
+                hlbl = LANDMARK_HALFWAY_NAMES[hi] if hi < len(LANDMARK_HALFWAY_NAMES) else f"Halfway {hi + 1}"
+                _draw_landmark_label(defished, hlbl, (hx + label_offset, hy - label_offset), font, font_scale, (0, 255, 255), thickness)
 
         raw_img = frame.copy()
         raw_h, raw_w = raw_img.shape[:2]
@@ -1561,7 +1724,7 @@ def main():
             if pt is not None and 0 <= pt[0] < raw_w and 0 <= pt[1] < raw_h:
                 cv2.circle(raw_img, pt, 10, (0, 0, 255), 2)
                 cv2.circle(raw_img, pt, 2, (0, 0, 255), -1)
-                cv2.putText(raw_img, "Center", (pt[0] + label_offset, pt[1] - label_offset), font, font_scale, (0, 0, 255), thickness)
+                _draw_landmark_label(raw_img, LANDMARK_CENTER_NAME, (pt[0] + label_offset, pt[1] - label_offset), font, font_scale, (0, 0, 255), thickness)
         for idx in marked_corner_indices:
             if 0 <= idx < len(src_corners):
                 px, py = int(src_corners[idx][0]), int(src_corners[idx][1])
@@ -1571,8 +1734,8 @@ def main():
                 if pt is not None and 0 <= pt[0] < raw_w and 0 <= pt[1] < raw_h:
                     cv2.circle(raw_img, pt, 8, (255, 0, 0), 2)
                     cv2.circle(raw_img, pt, 2, (255, 0, 0), -1)
-                    lbl = corner_labels[idx] if idx < len(corner_labels) else f"C{idx+1}"
-                    cv2.putText(raw_img, lbl, (pt[0] + label_offset, pt[1] - label_offset), font, font_scale, (255, 0, 0), thickness)
+                    lbl = LANDMARK_CORNER_NAMES[idx] if idx < len(LANDMARK_CORNER_NAMES) else f"C{idx+1}"
+                    _draw_landmark_label(raw_img, lbl, (pt[0] + label_offset, pt[1] - label_offset), font, font_scale, (255, 0, 0), thickness)
         for hi, pt in enumerate(halfway_line_xy):
             if len(pt) >= 2:
                 hx, hy = int(pt[0]), int(pt[1])
@@ -1580,11 +1743,11 @@ def main():
                 if raw_pt is not None and 0 <= raw_pt[0] < raw_w and 0 <= raw_pt[1] < raw_h:
                     cv2.circle(raw_img, raw_pt, 8, (0, 255, 255), 2)
                     cv2.circle(raw_img, raw_pt, 2, (0, 255, 255), -1)
-                    hlbl = "5: Half L" if hi == 0 else "6: Half R"
-                    cv2.putText(raw_img, hlbl, (raw_pt[0] + label_offset, raw_pt[1] - label_offset), font, font_scale, (0, 255, 255), thickness)
+                    hlbl = LANDMARK_HALFWAY_NAMES[hi] if hi < len(LANDMARK_HALFWAY_NAMES) else f"Halfway {hi + 1}"
+                    _draw_landmark_label(raw_img, hlbl, (raw_pt[0] + label_offset, raw_pt[1] - label_offset), font, font_scale, (0, 255, 255), thickness)
 
-        map_frame = _make_diagram_background(w_map, h_map, center_map_xy, margin=DIAGRAM_MARGIN)
-        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices, margin=DIAGRAM_MARGIN, y_axis_scale=y_axis_scale, halfway_line_xy=halfway_line_xy, draw_center=center_was_marked)
+        map_frame = _make_diagram_background(diagram_w, diagram_h, diagram_center_map_xy, margin=DIAGRAM_MARGIN, half_pitch=half_pitch_diagram)
+        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices, margin=DIAGRAM_MARGIN, y_axis_scale=y_axis_scale, halfway_line_xy=halfway_line_xy, draw_center=center_was_marked, use_fixed_halfway_positions=use_geometric_center_for_diagram)
         total_players = in_bounds + out_bounds
         if total_players > 0:
             print(f"[2dmap] Frame {frame_num}: {in_bounds}/{total_players} players in map bounds")
@@ -1632,6 +1795,22 @@ def main():
     print(f"  Open (short): http://localhost:{view_port}/2dmap")
     print("  If bounding boxes don't appear, try hard refresh (Ctrl+Shift+R) or clear cache.")
 
+
+    if args.verify or args.until_valid:
+        import subprocess
+        verify_cmd = [sys.executable, str(PROJECT_ROOT / "scripts" / "verify_2dmap_report.py"), "--half-pitch-style", args.half_pitch_style]
+        for attempt in range(10 if args.until_valid else 1):
+            result = subprocess.run(verify_cmd, cwd=str(PROJECT_ROOT))
+            if result.returncode == 0:
+                if args.until_valid and attempt > 0:
+                    print("Verification passed on attempt", attempt + 1)
+                sys.exit(0)
+            if not args.until_valid:
+                sys.exit(result.returncode)
+            subprocess.run([sys.executable, str(PROJECT_ROOT / "scripts" / "test_2dmap_manual_mark.py"), "--use-saved", args.video, "--half-pitch-style", args.half_pitch_style], cwd=str(PROJECT_ROOT))
+            print("Verification failed; re-running report...")
+        print("Verification did not pass after 10 attempts.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
