@@ -296,11 +296,11 @@ def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_imag
     thickness = 1
     label_offset = 14
 
-    # Always draw Center at map geometric center so it is always labeled (not only when user marked it).
-    center_pt = (margin + w_map // 2, margin + h_map // 2)
-    cv2.circle(map_frame, center_pt, 10, (0, 0, 255), 2)
-    cv2.circle(map_frame, center_pt, 2, (0, 0, 255), -1)
-    _draw_landmark_label(map_frame, LANDMARK_CENTER_NAME, (center_pt[0] + label_offset, center_pt[1] - label_offset), font, font_scale, (0, 0, 255), thickness)
+    if draw_center:
+        center_pt = (margin + w_map // 2, margin + h_map // 2)
+        cv2.circle(map_frame, center_pt, 10, (0, 0, 255), 2)
+        cv2.circle(map_frame, center_pt, 2, (0, 0, 255), -1)
+        _draw_landmark_label(map_frame, LANDMARK_CENTER_NAME, (center_pt[0] + label_offset, center_pt[1] - label_offset), font, font_scale, (0, 0, 255), thickness)
     # Draw all four pitch corners: TL top-left, TR top-right, BR bottom-right, BL bottom-left
     map_corner_pts = [(margin, margin), (margin + w_map - 1, margin), (margin + w_map - 1, margin + h_map - 1), (margin, margin + h_map - 1)]
     for idx in range(4):
@@ -1309,13 +1309,13 @@ def homography_from_marks(src_corners, w_map, h_map, halfway_line_xy=None):
         halfway_right_xy = halfway_line_xy[1]
 
         src = np.float32([tl_xy, tr_xy, halfway_left_xy, halfway_right_xy])
-        half_w = w_map // 2
 
+        # Halfway line is at the RIGHT EDGE of the half-pitch map (x = w_map), not w_map//2.
         dst = np.float32([
-            [0, 0],
-            [0, h_map],
-            [half_w, 0],
-            [half_w, h_map],
+            [0, 0],           # TL → goal line (x=0), NEAR touchline (TOP)
+            [0, h_map],       # TR → goal line (x=0), FAR touchline (BOTTOM)
+            [w_map, 0],       # Halfway Left → halfway line (x=w_map), NEAR touchline (TOP)
+            [w_map, h_map],   # Halfway Right → halfway line (x=w_map), FAR touchline (BOTTOM)
         ])
         H = cv2.getPerspectiveTransform(src, dst)
         return H
@@ -1791,7 +1791,7 @@ def main():
                     _draw_landmark_label(raw_img, hlbl, (raw_pt[0] + label_offset, raw_pt[1] - label_offset), font, font_scale, (0, 255, 255), thickness)
 
         map_frame = _make_diagram_background(diagram_w, diagram_h, diagram_center_map_xy, margin=DIAGRAM_MARGIN, half_pitch=half_pitch_diagram)
-        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices, margin=DIAGRAM_MARGIN, y_axis_scale=y_axis_scale, halfway_line_xy=halfway_line_xy, draw_center=center_was_marked, use_fixed_halfway_positions=use_geometric_center_for_diagram)
+        in_bounds, out_bounds = _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy, center_image_xy, marked_corner_indices, margin=DIAGRAM_MARGIN, y_axis_scale=y_axis_scale, halfway_line_xy=halfway_line_xy, draw_center=False, use_fixed_halfway_positions=use_geometric_center_for_diagram)
         total_players = in_bounds + out_bounds
         if total_players > 0:
             print(f"[2dmap] Frame {frame_num}: {in_bounds}/{total_players} players in map bounds")
