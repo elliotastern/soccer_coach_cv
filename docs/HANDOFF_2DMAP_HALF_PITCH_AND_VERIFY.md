@@ -5,6 +5,23 @@
 
 ---
 
+## Push to GitHub
+
+The latest commit (`48890b0`) is only local. Push from your machine (with GitHub auth):
+
+```bash
+cd /path/to/soccer_coach_cv
+git push origin main
+```
+
+If you use SSH, confirm `git remote -v` then run `git push origin main`. After a successful push, local and GitHub match.
+
+**Note:** You may have other uncommitted changes (e.g. `docs/VIEWING_2DMAP_REPORT.md`, `serve_viewer.py`, `tune_distortion_web.py`, untracked docs/scripts). Push first; commit those separately if needed.
+
+**Continue tomorrow:** Use this doc as the main reference. Sections below: What Was Done, How to Run, Key Files, Possible Next Steps.
+
+---
+
 ## What Was Done
 
 ### 1. Option A: Half-pitch map (already in place)
