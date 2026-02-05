@@ -1280,10 +1280,46 @@ def _infer_tr_br_from_tl_bl_center(tl_xy, bl_xy, center_xy, w_map, h_map):
     return (tr_xy, br_xy)
 
 
-def homography_from_marks(src_corners, w_map, h_map):
-    """Build homography so touchlines are horizontal (top/bottom), goal lines left/right.
-    Assumes user marked: left goal line = TL,BL and right goal line = TR,BR."""
-    # dst: TL->(0,0), TR->(w,0), BR->(w,h), BL->(0,h) so map left/right = goal lines, top/bottom = touchlines
+def homography_from_marks(src_corners, w_map, h_map, halfway_line_xy=None):
+    """
+    Build homography using keypoints with their CORRECT real-world coordinates.
+
+    For corner-mounted cameras that see half the pitch:
+    - TL (corner1) and TR (corner2) are both on the GOAL LINE (x=0)
+    - Halfway_Left and Halfway_Right are on the HALFWAY LINE (x=52.5m)
+
+    The camera sees a trapezoid that spans:
+        x: from 0 (goal line) to 52.5m (halfway line)
+        y: from 0 (near touchline) to 68m (far touchline)
+
+    Args:
+        src_corners: np.float32 array of 4 corners [TL, TR, BR, BL]
+        w_map: width of destination map (typically 525 for half-pitch)
+        h_map: height of destination map (typically 680 for 68m pitch)
+        halfway_line_xy: list of 2 points [[x,y], [x,y]] for halfway line endpoints
+                         [0] = Halfway Left (near touchline), [1] = Halfway Right (far touchline)
+
+    Returns:
+        H: 3x3 homography matrix
+    """
+    if halfway_line_xy is not None and len(halfway_line_xy) >= 2:
+        tl_xy = src_corners[0]
+        tr_xy = src_corners[1]
+        halfway_left_xy = halfway_line_xy[0]
+        halfway_right_xy = halfway_line_xy[1]
+
+        src = np.float32([tl_xy, tr_xy, halfway_left_xy, halfway_right_xy])
+        half_w = w_map // 2
+
+        dst = np.float32([
+            [0, 0],
+            [0, h_map],
+            [half_w, 0],
+            [half_w, h_map],
+        ])
+        H = cv2.getPerspectiveTransform(src, dst)
+        return H
+
     dst = np.float32([[0, 0], [w_map, 0], [w_map, h_map], [0, h_map]])
     H = cv2.getPerspectiveTransform(src_corners, dst)
     return H
@@ -1492,7 +1528,7 @@ def main():
 
     if use_half_pitch:
         w_map, h_map = HALF_PITCH_MAP_W, HALF_PITCH_MAP_H
-    H = homography_from_marks(src_corners, w_map, h_map)
+    H = homography_from_marks(src_corners, w_map, h_map, halfway_line_xy=halfway_line_xy)
     # Always use geometric center for the diagram so the center circle and halfway line align with the red Center landmark.
     # (Using the transformed image center could offset the white circle from the landmark and look like wrong orientation.)
     center_map_xy = (w_map / 2.0, h_map / 2.0)
@@ -1506,15 +1542,18 @@ def main():
 
     # Optional: load player detector (default 100-epoch, then alternate 99-epoch, then any .pth in models/, then COCO)
     detector = None
+    used_weights_name = None
     model_path = Path(args.model)
     alternate_model = PROJECT_ROOT / "models" / "checkpoints" / "checkpoint_epoch_99_lightweight.pth"
     if model_path.exists():
         detector, _ = _load_detector_with_weights(str(model_path))
         if detector:
+            used_weights_name = model_path.name
             print(f"Using player detection: {model_path}")
     if detector is None and alternate_model.exists():
         detector, _ = _load_detector_with_weights(str(alternate_model))
         if detector:
+            used_weights_name = alternate_model.name
             print(f"Using player detection: {alternate_model}")
     if detector is None:
         models_dir = PROJECT_ROOT / "models"
@@ -1522,11 +1561,13 @@ def main():
             for p in sorted(models_dir.rglob("*.pth")):
                 detector, _ = _load_detector_with_weights(str(p))
                 if detector:
+                    used_weights_name = p.name
                     print(f"Using player detection: {p}")
                     break
     if detector is None:
         detector, _ = _load_detector_no_weights()
         if detector:
+            used_weights_name = "COCO (no checkpoint)"
             print("Using player detection: RF-DETR COCO weights (no checkpoint).")
         else:
             print("Skipping player bboxes (no model or detection unavailable).")
@@ -1558,6 +1599,7 @@ def main():
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     detector_note = "Player bounding boxes: shown." if detector else "Player bounding boxes: not available (install rfdetr: pip install rfdetr)."
+    weights_label = used_weights_name if used_weights_name else "none"
 
     html_parts = [
         """<!DOCTYPE html>
@@ -1587,7 +1629,9 @@ def main():
         <strong>Video:</strong> """,
         video_path.name,
         """<br>
-        <strong>Weights:</strong> newest (checkpoint_best_total_after_100_epochs.pth).<br>
+        <strong>Weights:</strong> """,
+        weights_label,
+        """<br>
         <strong>""",
         detector_note,
         """</strong>

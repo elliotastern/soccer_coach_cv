@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Simple HTTP server to view annotations
-Run this and open http://localhost:6851/view_annotations.html in your browser (default port 6851)
+Run this and open http://localhost:8080/view_annotations.html in your browser (default port 8080)
 """
 import argparse
 import http.server
@@ -18,7 +18,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 MARK_UI_RELPATH = 'data/output/2dmap_manual_mark/mark_ui.html'
 PITCH_DIAGRAM_RELPATH = 'data/output/2dmap_manual_mark/pitch_diagram_reference.html'
 MARK_UI_HELP_HTML = (
-    b'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mark UI – generate first</title></head>'
+    b'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mark UI - generate first</title></head>'
     b'<body style="font-family:sans-serif;margin:2em;max-width:40em;">'
     b'<h1>Mark UI not generated yet</h1>'
     b'<p>Generate the marking UI first (from the project root):</p>'
@@ -28,7 +28,7 @@ MARK_UI_HELP_HTML = (
     b'</body></html>'
 )
 PITCH_DIAGRAM_HELP_HTML = (
-    b'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pitch diagram – generate first</title></head>'
+    b'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pitch diagram - generate first</title></head>'
     b'<body style="font-family:sans-serif;margin:2em;max-width:40em;">'
     b'<h1>Pitch diagram not generated yet</h1>'
     b'<p>From the project root run:</p>'
@@ -270,6 +270,9 @@ def main():
     print(f"📄 Open in browser: http://localhost:{port}/view_annotations_editor.html")
     print(f"📄 37a results: http://localhost:{port}/data/output/37a_20frames/viewer.html")
     print(f"📄 37a frames+bboxes: http://localhost:{port}/data/output/37a_20frames/viewer_with_frames.html")
+    print("=" * 60)
+    print("If using port forwarding (Cursor/VS Code), open the Forwarded Address from")
+    print("the Ports panel, e.g. http://localhost:62845/2dmap")
     print("=" * 60)
     print("Press Ctrl+C to stop")
     print()
