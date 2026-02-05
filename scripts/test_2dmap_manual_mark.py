@@ -325,9 +325,11 @@ def _draw_boxes_and_landmarks_on_map(map_frame, H, w_map, h_map, boxes_xyxy_imag
     cv2.ellipse(map_frame, (margin + w_map - 1 - corner_arc_r_map, margin + h_map - 1 - corner_arc_r_map), (corner_arc_r_map, corner_arc_r_map), 0, 0, 90, white, 2)
     cv2.ellipse(map_frame, (margin + corner_arc_r_map, margin + h_map - 1 - corner_arc_r_map), (corner_arc_r_map, corner_arc_r_map), 0, 90, 180, white, 2)
     # Halfway line endpoints: fixed positions when quad was re-inferred, else project from image
+    # Both points sit on the halfway line (right edge of mapped content at x = w_map), top and bottom.
     if use_fixed_halfway_positions:
-        half_left_pt = (margin, margin + h_map // 2)
-        half_right_pt = (margin + w_map - 1, margin + h_map // 2)
+        halfway_x = margin + w_map - 1
+        half_left_pt = (halfway_x, margin)
+        half_right_pt = (halfway_x, margin + h_map - 1)
         for hi, draw_pt in enumerate([half_left_pt, half_right_pt]):
             cv2.circle(map_frame, draw_pt, 8, (0, 255, 255), 2)
             cv2.circle(map_frame, draw_pt, 2, (0, 255, 255), -1)
