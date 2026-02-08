@@ -1,0 +1,37 @@
+# Verify 2D map report: runs verify_2dmap_report.py (requires report assets to exist).
+# To run full report + verify in CI, add the video and marks to the repo and run:
+#   python scripts/test_2dmap_manual_mark.py --use-saved <video_path> --half-pitch-style left_half --verify
+name: Verify 2D map report
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install blinker
+        run: pip install 'blinker>=1.5.0' --ignore-installed
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Verify 2D map report
+        run: |
+          if [ -f data/output/2dmap_manual_mark/frames/frame_0_map.jpg ]; then
+            python scripts/verify_2dmap_report.py --half-pitch-style left_half
+          else
+            echo "Report assets missing (data/ is gitignored). Skip verify. To run full report+verify in CI, add video and marks to the repo."
+          fi
+        env:
+          PYTHONPATH: .

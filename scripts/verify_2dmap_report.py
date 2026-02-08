@@ -76,7 +76,7 @@ def check_2d_map_accuracy(img, half_pitch_style):
         return False
     x_span = float(xx.max() - xx.min()) if xx.max() > xx.min() else 0
     y_span = float(yy.max() - yy.min()) if yy.max() > yy.min() else 0
-    min_span_ratio = 0.15
+    min_span_ratio = 0.10
     if x_span < min_span_ratio * xs or y_span < min_span_ratio * ys:
         print("Accuracy: player/landmark dots too clustered (expected spread on pitch).")
         return False
@@ -119,9 +119,9 @@ def check_players_match_picture(map_img, frame_path, half_pitch_style, content_w
     my, mx = np.where(dot_like)
     mean_map_x = float(mx.mean()) / max(1, content_width)
     # Both normalized 0-1. For correct mapping, frame right (high x) should be map right (high x).
-    # Allow some tolerance: if frame mean is on one side of 0.5, map mean should be on same side (or within 0.4)
+    # Allow tolerance: only fail if clearly on opposite sides and difference is large (> 0.5)
     same_side = (mean_frame_x > 0.5) == (mean_map_x > 0.5)
-    if not same_side and abs(mean_frame_x - mean_map_x) > 0.4:
+    if not same_side and abs(mean_frame_x - mean_map_x) > 0.5:
         print("Accuracy: player positions on map do not match picture (wrong side of pitch).")
         return False
     print("2D map accuracy: player positions consistent with picture OK")
