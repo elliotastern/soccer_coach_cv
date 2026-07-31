@@ -67,6 +67,12 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        # Short URL for gold100 correction editor
+        if self.path in ('/gold100', '/gold100/', '/gold100_editor.html'):
+            self.send_response(302)
+            self.send_header('Location', '/annotation/gold100_editor.html')
+            self.end_headers()
+            return
         # Short URL for 2D map report
         if self.path == '/2dmap' or self.path == '/2dmap/':
             self.send_response(302)

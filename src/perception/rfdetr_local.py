@@ -8,6 +8,63 @@ from PIL import Image
 
 from src.state.types import Detection
 
+_RFDETR_IMPORT_PATCHED = False
+
+
+def _patch_rfdetr_imports() -> None:
+    """Avoid peft→tensorflow hang on macOS when importing rfdetr."""
+    global _RFDETR_IMPORT_PATCHED
+    if _RFDETR_IMPORT_PATCHED:
+        return
+    import importlib.machinery
+    import os
+    import sys
+    import types
+
+    os.environ.setdefault("USE_TF", "0")
+    os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
+    os.environ.setdefault("USE_TORCH", "1")
+
+    def stub(name: str, **attrs):
+        module = types.ModuleType(name)
+        module.__spec__ = importlib.machinery.ModuleSpec(name, loader=None)
+        module.__file__ = f"<stub:{name}>"
+        for key, value in attrs.items():
+            setattr(module, key, value)
+        sys.modules[name] = module
+        return module
+
+    if "tensorflow" not in sys.modules:
+        class _GFile:
+            @staticmethod
+            def join(*parts):
+                return os.path.join(*parts)
+
+        class _IO:
+            gfile = _GFile()
+
+        stub("tensorflow", io=_IO())
+        stub("tensorflow_probability")
+        stub("tensorflow_text")
+
+    if "torch.utils.tensorboard" not in sys.modules:
+        class SummaryWriter:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def add_scalar(self, *args, **kwargs):
+                pass
+
+            def close(self):
+                pass
+
+        tb = stub("torch.utils.tensorboard", SummaryWriter=SummaryWriter, FileWriter=SummaryWriter)
+        stub("torch.utils.tensorboard.writer", SummaryWriter=SummaryWriter, FileWriter=SummaryWriter)
+        stub("torch.utils.tensorboard._embedding")
+        _ = tb
+
+    _RFDETR_IMPORT_PATCHED = True
+
 
 def _require_checkpoint(path: str, label: str) -> Path:
     checkpoint = Path(path)
@@ -48,6 +105,7 @@ def _parse_rfdetr_detections(detections_raw, class_id: int, class_name: str) -> 
 
 
 def load_people_model(checkpoint_path: str):
+    _patch_rfdetr_imports()
     from rfdetr import RFDETRMedium
 
     path = _require_checkpoint(checkpoint_path, "People")
@@ -58,6 +116,7 @@ def load_people_model(checkpoint_path: str):
 
 
 def load_ball_model(checkpoint_path: str):
+    _patch_rfdetr_imports()
     from rfdetr import RFDETRBase
 
     path = _require_checkpoint(checkpoint_path, "Ball")

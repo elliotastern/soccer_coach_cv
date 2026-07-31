@@ -47,6 +47,15 @@ Messy or occluded frames may be skipped to preserve data quality. Perfecting tho
 1. Successfully process **2 full matches** through the pipeline.
 2. Complete a **handover session** guiding the client through processing a **3rd match**.
 
+## 6. Golden test set (player + ball)
+
+**Match Gold100** is the canonical fixed benchmark for player and ball detection / classification on real Match 1 multi-cam frames.
+
+- Spec + workflow: [GOLD100_PLAYER_BALL.md](GOLD100_PLAYER_BALL.md)
+- Local pack: `data/processed/gold_sets/match1_1_100/` (rebuild via `scripts/gold_set/`; not stored in git)
+- Correct labels: `python serve_viewer.py` → http://localhost:8080/gold100
+- Eval: `python scripts/gold_set/eval_on_gold100.py --gold-dir data/processed/gold_sets/match1_1_100`
+
 ## Explicitly deferred to Product Phase 2+
 
 - Multi-view fusion and occlusion elimination across cameras

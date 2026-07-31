@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVAT Annotations Editor - Bounding Boxes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            background: #2a2a2a;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4CAF50;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            color: #4CAF50;
+            font-size: 20px;
+            margin: 0;
+        }
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .status-item {
+            display: flex;
+            gap: 5px;
+        }
+        .status-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .icon-button {
+            background: #333;
+            border: none;
+            color: #4CAF50;
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-button:hover {
+            background: #3a3a3a;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .video-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        #videoCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            cursor: grab;
+            object-fit: contain;
+            transform-origin: center;
+            touch-action: none;
+        }
+        .canvas-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 100;
+        }
+        .canvas-controls button {
+            background: rgba(42, 42, 42, 0.9);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .canvas-controls button:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+        video { display: none !important; pointer-events: none !important; }
+        #reviewImage { display: none !important; }
+        .timeline-container {
+            background: #2a2a2a;
+            padding: 15px;
+            border-top: 2px solid #333;
+            flex-shrink: 0;
+        }
+        .timeline-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        #frameSlider {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            outline: none;
+            position: relative;
+        }
+        .timeline-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            pointer-events: none;
+        }
+        .timeline-marker {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #4CAF50;
+            opacity: 0.6;
+        }
+        .timeline-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .frame-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            min-width: 150px;
+            text-align: center;
+        }
+        .playback-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .playback-speed {
+            background: #333;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .playback-speed:hover {
+            background: #3a3a3a;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.delete {
+            background: #f44336;
+        }
+        button.delete:hover {
+            background: #da190b;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .object-sidebar {
+            width: 250px;
+            background: #2a2a2a;
+            border-left: 2px solid #333;
+            padding: 15px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .object-sidebar h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .object-track-item {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            border-left: 4px solid #4CAF50;
+        }
+        .object-track-item:hover {
+            background: #3a3a3a;
+        }
+        .object-track-item.selected {
+            border-left-color: #FF9800;
+            background: #3a3a3a;
+        }
+        .object-track-item.player {
+            border-left-color: #2196F3;
+        }
+        .object-track-item.ball {
+            border-left-color: #FFC107;
+        }
+        .track-label {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .track-info {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .box-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .box-item {
+            background: #333;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            border-left: 3px solid #4CAF50;
+            font-size: 12px;
+        }
+        .box-item:hover {
+            background: #3a3a3a;
+        }
+        .box-item.selected {
+            border-left-color: #FF9800;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid #4CAF50;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            color: #4CAF50;
+        }
+        .close-modal {
+            background: #f44336;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 13px;
+        }
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: #333;
+            border-radius: 4px;
+        }
+        .shortcut-key {
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #FF9800;
+            font-weight: bold;
+        }
+        .debug-panel {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            z-index: 9999;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #0f0;
+        }
+        .debug-panel.collapsed {
+            max-height: 30px;
+            overflow: hidden;
+        }
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        .debug-toggle {
+            color: #0f0;
+            font-size: 12px;
+        }
+        .debug-content {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .debug-panel.collapsed .debug-content {
+            display: none;
+        }
+        #playOverlay {
+            display: none !important;
+            pointer-events: none !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 20px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+            z-index: 50;
+        }
+        #playOverlay div {
+            color: #4CAF50;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ CVAT Annotations Editor</h1>
+            <div class="status-bar" id="statusBar">
+                <div class="status-item">Frames: <span class="status-value" id="statFrames">0</span></div>
+                <div class="status-item">Tracks: <span class="status-value" id="statTracks">0</span></div>
+                <div class="status-item">Boxes: <span class="status-value" id="statBoxes">0</span></div>
+                <div class="status-item">Events: <span class="status-value" id="statEvents">0</span></div><div class="status-item">Mode: <span class="status-value" id="statMode">pan</span></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-button" onclick="toggleHelp()" title="Help">?</button>
+                <button class="icon-button" onclick="toggleShortcuts()" title="Keyboard Shortcuts">⌨</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-container">
+                <div class="video-wrapper" id="videoWrapper">
+                    <div class="canvas-controls">
+                        <button onclick="zoomIn()" title="Zoom In">+</button>
+                        <button onclick="zoomOut()" title="Zoom Out">-</button>
+                        <button onclick="resetZoom()" title="Reset Zoom">⌂</button>
+                    </div>
+                    <canvas id="videoCanvas"></canvas>
+                    <img id="reviewImage" alt="" style="display:none">
+                    <video id="video" crossorigin="anonymous" preload="metadata">
+                        <source src="/data/processed/gold_sets/match1_1_100/review/strip_100.mp4" type="video/mp4">
+                    </video>
+                    <div id="playOverlay">
+                        <div>▶ Click to Play Video</div>
+                    </div>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-wrapper">
+                        <div class="timeline-markers" id="timelineMarkers"></div>
+                        <input type="range" id="frameSlider" min="0" max="99" value="0" oninput="seekToFrame(this.value)">
+                    </div>
+                    <div class="timeline-controls">
+                        <button onclick="seekToFrame(0)">⏮ First</button>
+                        <button onclick="prevFrame()">⏪ Prev</button>
+                        <div class="frame-display">Frame: <span id="currentFrame">0</span> / 99</div>
+                        <button onclick="nextFrame()">⏩ Next</button>
+                        <button onclick="seekToFrame(99)">⏭ Last</button>
+                        <div class="playback-controls">
+                            <label style="color: #888; font-size: 12px;">Speed:</label>
+                            <select class="playback-speed" id="playbackSpeed" onchange="setPlaybackSpeed(this.value)">
+                                <option value="0.25">0.25x</option>
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button onclick="undoAction()" id="undoBtn" title="Undo (⌘+Z / Ctrl+Z)">↶ Undo</button>
+                            <button onclick="redoAction()" id="redoBtn" title="Redo (⌘+Y / Ctrl+Y)">↷ Redo</button>
+                            <button onclick="deleteSelectedBox()" class="delete">🗑️ Delete</button>
+                            <button onclick="saveAnnotations()">💾 Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="object-sidebar">
+                <h3>Object Tracks</h3>
+                <div id="objectTracksList"></div>
+                <h3 style="margin-top: 20px;">Boxes in Frame</h3>
+                <div class="box-list" id="boxesList"></div>
+                <div id="labelSelector" style="margin-top: 20px; padding: 12px; background: #2a2a2a; border: 2px solid #444; border-radius: 6px; display: none;">
+                    <h4 style="color: #fff; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;">✏️ Change Label</h4>
+                    <select id="labelDropdown" onchange="changeBoxLabel(this.value)" style="width: 100%; padding: 8px; background: #1a1a1a; color: #fff; border: 1px solid #666; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                        <option value="player">Player</option>
+                        <option value="person">Person</option>
+                        <option value="ball">Ball</option>
+                        <option value="referee">Referee</option>
+                        <option value="coach">Coach</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div style="color: #888; font-size: 11px; margin-top: 6px;">Select a box above to change its label</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 How to Edit</h2>
+                <button class="close-modal" onclick="toggleHelp()">×</button>
+            </div>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    Press <strong>N</strong> to enter new box mode, then <strong>Click & Drag</strong> to create bounding box
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Click</strong> existing box to select it
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Drag</strong> selected box corners to resize
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Delete</strong> button removes selected box
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Navigate frames</strong> with slider or buttons
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Zoom</strong> with +/- buttons or mouse wheel
+                </li>
+                <li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
+                    <span style="position: absolute; left: 0; color: #2196F3;">•</span>
+                    <strong>Pan</strong> by dragging when zoomed in
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Shortcuts Modal -->
+    <div class="modal" id="shortcutsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⌨️ Keyboard Shortcuts</h2>
+                <button class="close-modal" onclick="toggleShortcuts()">×</button>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <span>Play/Pause</span>
+                    <span class="shortcut-key">Space</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>New Box Mode</span>
+                    <span class="shortcut-key">N</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Delete Box</span>
+                    <span class="shortcut-key">Delete</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Toggle Overlay</span>
+                    <span class="shortcut-key">H</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Move Box (1px)</span>
+                    <span class="shortcut-key">← → ↑ ↓</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Move Box (10px)</span>
+                    <span class="shortcut-key">Shift + ← → ↑ ↓</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Previous Frame</span>
+                    <span class="shortcut-key">← (no box)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Next Frame</span>
+                    <span class="shortcut-key">→ (no box)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>First Frame</span>
+                    <span class="shortcut-key">Home</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Last Frame</span>
+                    <span class="shortcut-key">End</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Deselect</span>
+                    <span class="shortcut-key">Esc</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Undo</span>
+                    <span class="shortcut-key">⌘+Z / Ctrl+Z</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Redo</span>
+                    <span class="shortcut-key">⌘+Y / Ctrl+Y</span>
+                </div>
+                <div class="shortcut-item">
+                    <span>Save</span>
+                    <span class="shortcut-key">⌘+S / Ctrl+S</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        // ===== GOLD100 image-sequence boot =====
+        const GOLD100 = {
+            files: ["000.jpg", "001.jpg", "002.jpg", "003.jpg", "004.jpg", "005.jpg", "006.jpg", "007.jpg", "008.jpg", "009.jpg", "010.jpg", "011.jpg", "012.jpg", "013.jpg", "014.jpg", "015.jpg", "016.jpg", "017.jpg", "018.jpg", "019.jpg", "020.jpg", "021.jpg", "022.jpg", "023.jpg", "024.jpg", "025.jpg", "026.jpg", "027.jpg", "028.jpg", "029.jpg", "030.jpg", "031.jpg", "032.jpg", "033.jpg", "034.jpg", "035.jpg", "036.jpg", "037.jpg", "038.jpg", "039.jpg", "040.jpg", "041.jpg", "042.jpg", "043.jpg", "044.jpg", "045.jpg", "046.jpg", "047.jpg", "048.jpg", "049.jpg", "050.jpg", "051.jpg", "052.jpg", "053.jpg", "054.jpg", "055.jpg", "056.jpg", "057.jpg", "058.jpg", "059.jpg", "060.jpg", "061.jpg", "062.jpg", "063.jpg", "064.jpg", "065.jpg", "066.jpg", "067.jpg", "068.jpg", "069.jpg", "070.jpg", "071.jpg", "072.jpg", "073.jpg", "074.jpg", "075.jpg", "076.jpg", "077.jpg", "078.jpg", "079.jpg", "080.jpg", "081.jpg", "082.jpg", "083.jpg", "084.jpg", "085.jpg", "086.jpg", "087.jpg", "088.jpg", "089.jpg", "090.jpg", "091.jpg", "092.jpg", "093.jpg", "094.jpg", "095.jpg", "096.jpg", "097.jpg", "098.jpg", "099.jpg"],
+            base: '/data/processed/gold_sets/match1_1_100/review/frames/',
+            width: 1920,
+            height: 1080,
+            maxFrame: 99,
+        };
+        let reviewImage = null;
+        let _frameLoadToken = 0;
+        function loadReviewFrame(idx) {
+            if (!reviewImage) reviewImage = document.getElementById('reviewImage');
+            const token = ++_frameLoadToken;
+            const src = GOLD100.base + GOLD100.files[idx] + '?v=1';
+            return new Promise((resolve, reject) => {
+                const done = () => { if (token === _frameLoadToken) resolve(); };
+                reviewImage.onload = done;
+                reviewImage.onerror = () => reject(new Error('frame load failed: ' + src));
+                if (reviewImage.getAttribute('data-idx') === String(idx) && reviewImage.complete) {
+                    done();
+                    return;
+                }
+                reviewImage.setAttribute('data-idx', String(idx));
+                reviewImage.src = src;
+            });
+        }
+        // ===== end GOLD100 boot =====
+
+        let annotations = null;
+        let currentFrame = 0;
+        let video = null;
+        let canvas = null;
+        let ctx = null;
+        let videoWidth = 0;
+        let videoHeight = 0;
+        let scaleX = 1;
+        let scaleY = 1;
+        let boxes = {};
+        let selectedBox = null;
+        let isDrawing = false;
+        let drawStart = null;
+        let isDragging = false;
+        let newBoxMode = false; // Must press 'b' to enter new box mode
+        let dragHandle = null; // 'nw', 'ne', 'sw', 'se', or null for moving
+        let isResizing = false;
+        let showOverlay = true;
+        let zoomLevel = 1;
+        let panX = 0;
+        let panY = 0;
+        let isPanning = false;
+        let panStart = null;
+        let trackMap = {}; // trackId -> track info
+        let currentMousePos = {x: 0, y: 0}; // Store current mouse position for drawing
+        let originalBoxPos = null; // Store original box position when dragging starts
+        let historyStack = []; // Undo history
+        let historyIndex = -1; // Current position in history
+        const MAX_HISTORY = 50; // Maximum history entries
+
+        // Debug panel (collapsed by default)
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'debugPanel';
+        debugPanel.className = 'debug-panel collapsed';
+        debugPanel.innerHTML = `
+            <div class="debug-header" onclick="toggleDebugPanel()">
+                <span class="debug-toggle">▼ Debug</span>
+            </div>
+            <div class="debug-content" id="debugContent"></div>
+        `;
+        document.body.appendChild(debugPanel);
+        
+        function toggleDebugPanel() {
+            debugPanel.classList.toggle('collapsed');
+            const toggle = debugPanel.querySelector('.debug-toggle');
+            toggle.textContent = debugPanel.classList.contains('collapsed') ? '▼ Debug' : '▲ Debug';
+        }
+
+        function debugLog(msg) {
+            const content = document.getElementById('debugContent');
+            const time = new Date().toLocaleTimeString();
+            content.innerHTML += `<div>[${time}] ${msg}</div>`;
+            content.scrollTop = content.scrollHeight;
+            console.log('[DEBUG]', msg);
+        }
+
+        // Load image-sequence review + annotations
+        video = document.getElementById('video');
+        reviewImage = document.getElementById('reviewImage');
+        canvas = document.getElementById('videoCanvas');
+        ctx = canvas.getContext('2d');
+        debugLog('GOLD100 image editor init');
+
+        videoWidth = GOLD100.width;
+        videoHeight = GOLD100.height;
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+        const wrapperInit = canvas.parentElement;
+        const containerWidth = wrapperInit.clientWidth || 800;
+        const containerHeight = wrapperInit.clientHeight || 600;
+        scaleX = containerWidth / videoWidth;
+        scaleY = containerHeight / videoHeight;
+        const fit = Math.min(scaleX, scaleY);
+        canvas.style.width = (videoWidth * fit) + 'px';
+        canvas.style.height = (videoHeight * fit) + 'px';
+
+        const overlay = document.getElementById('playOverlay');
+        if (overlay) overlay.style.display = 'none';
+
+        loadAnnotations();
+        seekToFrame(0);
+        requestAnimationFrame(drawLoop);
+        updateTimelineMarkers();
+
+        function drawLoop() {
+            if (videoWidth > 0 && videoHeight > 0) {
+                drawFrame();
+            }
+            requestAnimationFrame(drawLoop);
+        }
+
+        function drawFrame() {
+            if (!video || !ctx || !canvas) return;
+            if (videoWidth === 0 || videoHeight === 0) {
+                // Video not loaded yet, just clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            
+            try {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Transform in canvas buffer space (matches screenToCanvas)
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                ctx.save();
+                ctx.translate(centerX + panX, centerY + panY);
+                ctx.scale(zoomLevel, zoomLevel);
+                ctx.translate(-videoWidth / 2, -videoHeight / 2);
+                
+                // Draw exact review JPG for this strip frame
+                if (reviewImage && reviewImage.complete && reviewImage.naturalWidth > 0) {
+                    ctx.drawImage(reviewImage, 0, 0, videoWidth, videoHeight);
+                } else {
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, videoWidth, videoHeight);
+                }
+                
+                // Draw bounding boxes if overlay is enabled
+                if (showOverlay) {
+                    if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
+                        boxes[currentFrame].forEach(box => {
+                            drawBox(box, box.id === selectedBox?.id);
+                        });
+                    } else {
+                        // Debug: log when no boxes for current frame
+                        if (currentFrame === 0) {
+                            console.log(`Frame ${currentFrame}: No boxes found. showOverlay=${showOverlay}, boxes object has ${Object.keys(boxes).length} frames`);
+                        }
+                    }
+                    
+                    if (isDrawing && drawStart) {
+                        const rect = getMouseRect(drawStart, currentMousePos);
+                        drawBox(rect, false, true);
+                    }
+                } else {
+                    // Overlay is hidden - log once
+                    if (currentFrame === 0 && !hasLoggedOverlayHidden) {
+                        console.log('Overlay is hidden (press H to toggle)');
+                        hasLoggedOverlayHidden = true;
+                    }
+                }
+                
+                ctx.restore();
+            } catch (e) {
+                debugLog('ERROR in drawFrame: ' + e.message);
+            }
+        }
+
+        function drawBox(box, isSelected = false, isTemporary = false) {
+            const x = box.xtl;
+            const y = box.ytl;
+            const w = box.xbr - box.xtl;
+            const h = box.ybr - box.ytl;
+            
+            // Get label from box or trackMap - prioritize box.label
+            const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+            
+            let color = '#4CAF50';
+            if (label === 'player') color = '#2196F3';
+            if (label === 'person') color = '#2196F3'; // Same as player
+            if (label === 'ball') color = '#FFC107';
+            if (label === 'referee') color = '#9C27B0';
+            if (label === 'coach') color = '#00BCD4';
+            if (label === 'other') color = '#795548';
+            
+            ctx.strokeStyle = isSelected ? '#FF9800' : color;
+            ctx.lineWidth = isSelected ? 3 : 2;
+            ctx.setLineDash(isTemporary ? [5, 5] : []);
+            
+            ctx.strokeRect(x, y, w, h);
+            
+            // Draw label text with background for better visibility
+            if (label && label !== 'undefined') {
+                const labelText = `${label} (${(box.confidence * 100).toFixed(0)}%)`;
+                ctx.font = 'bold 14px Arial';
+                const textMetrics = ctx.measureText(labelText);
+                const textWidth = textMetrics.width;
+                const textHeight = 16;
+                
+                // Draw semi-transparent background for text
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(x - 2, y - textHeight - 2, textWidth + 6, textHeight + 4);
+                
+                // Draw text with white outline for better visibility
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.lineWidth = 3;
+                ctx.strokeText(labelText, x + 1, y - 4);
+                
+                // Draw text
+                ctx.fillStyle = color;
+                ctx.fillText(labelText, x + 1, y - 4);
+            }
+            
+            if (isSelected && !isTemporary) {
+                // Handles are 3px × 3px - small and transparent
+                const baseHandleSize = 10;
+                const handleSize = Math.max(baseHandleSize, baseHandleSize / zoomLevel);
+                const handles = [
+                    {x: x, y: y, corner: 'nw'}, {x: x + w, y: y, corner: 'ne'},
+                    {x: x, y: y + h, corner: 'sw'}, {x: x + w, y: y + h, corner: 'se'}
+                ];
+                handles.forEach(handle => {
+                    // Draw handle - 3px, more transparent
+                    ctx.fillStyle = dragHandle === handle.corner ? 'rgba(255, 87, 34, 0.7)' : 'rgba(255, 152, 0, 0.5)';
+                    ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
+                });
+            }
+        }
+        
+        function getHandleAt(x, y, box) {
+            // Visual handle is 3px, but hit area is larger for easier grabbing
+            const hitRadius = Math.max(14, 14 / zoomLevel);
+            const edgeHitDistance = Math.max(10, 10 / zoomLevel);
+            
+            // Check corner handles first
+            const handles = [
+                {x: box.xtl, y: box.ytl, corner: 'nw'},
+                {x: box.xbr, y: box.ytl, corner: 'ne'},
+                {x: box.xtl, y: box.ybr, corner: 'sw'},
+                {x: box.xbr, y: box.ybr, corner: 'se'}
+            ];
+            
+            for (let i = handles.length - 1; i >= 0; i--) {
+                const handle = handles[i];
+                const dx = x - handle.x;
+                const dy = y - handle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance <= hitRadius) {
+                    return handle.corner;
+                }
+            }
+            
+            // Check if clicking near box edges (for easier selection)
+            const isNearLeftEdge = Math.abs(x - box.xtl) <= edgeHitDistance && y >= box.ytl && y <= box.ybr;
+            const isNearRightEdge = Math.abs(x - box.xbr) <= edgeHitDistance && y >= box.ytl && y <= box.ybr;
+            const isNearTopEdge = Math.abs(y - box.ytl) <= edgeHitDistance && x >= box.xtl && x <= box.xbr;
+            const isNearBottomEdge = Math.abs(y - box.ybr) <= edgeHitDistance && x >= box.xtl && x <= box.xbr;
+            
+            // If near an edge, return the closest corner for resizing
+            if (isNearLeftEdge || isNearRightEdge || isNearTopEdge || isNearBottomEdge) {
+                // Find closest corner
+                let minDist = Infinity;
+                let closestCorner = null;
+                for (let handle of handles) {
+                    const dx = x - handle.x;
+                    const dy = y - handle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < minDist) {
+                        minDist = distance;
+                        closestCorner = handle.corner;
+                    }
+                }
+                return closestCorner;
+            }
+            
+            return null;
+        }
+
+        function screenToCanvas(x, y) {
+            if (!canvas || videoWidth === 0 || videoHeight === 0) {
+                return { x: 0, y: 0 };
+            }
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width < 1 || rect.height < 1) return { x: 0, y: 0 };
+            // CSS pixels -> canvas buffer pixels, then inverse zoom/pan
+            const bufferX = (x - rect.left) * (canvas.width / rect.width);
+            const bufferY = (y - rect.top) * (canvas.height / rect.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            return {
+                x: (bufferX - centerX - panX) / zoomLevel + videoWidth / 2,
+                y: (bufferY - centerY - panY) / zoomLevel + videoHeight / 2,
+            };
+        }
+
+        function getMouseRect(start, end) {
+            const startPos = screenToCanvas(start.x, start.y);
+            const endPos = screenToCanvas(end.x, end.y);
+            
+            return {
+                xtl: Math.min(startPos.x, endPos.x),
+                ytl: Math.min(startPos.y, endPos.y),
+                xbr: Math.max(startPos.x, endPos.x),
+                ybr: Math.max(startPos.y, endPos.y),
+                label: 'player',
+                confidence: 0.8
+            };
+        }
+
+        // Canvas interaction
+        canvas.addEventListener('mousedown', (e) => {
+            // DEFAULT: Left click and drag = panning (unless clicking on a box)
+            // Priority order:
+            // 1. Box handle (resize) - highest priority
+            // 2. Box interior (select/drag) - second priority  
+            // 3. New box mode (draw) - third priority
+            // 4. Default: Panning - lowest priority
+            
+            const pos = screenToCanvas(e.clientX, e.clientY);
+            
+            // Priority 1: Check if clicking on a box handle (for resizing)
+            if (boxes[currentFrame]) {
+                for (let box of boxes[currentFrame]) {
+                    const handle = getHandleAt(pos.x, pos.y, box);
+                    if (handle) {
+                        selectedBox = box;
+                        updateLabelSelector();
+                        isResizing = true;
+                        dragHandle = handle;
+                        drawStart = {x: e.clientX, y: e.clientY};
+                        originalBoxPos = {
+                            xtl: box.xtl,
+                            ytl: box.ytl,
+                            xbr: box.xbr,
+                            ybr: box.ybr
+                        };
+                        updateBoxesList();
+                        drawFrame();
+                        return;
+                    }
+                }
+            }
+            
+            // Priority 2: Check if clicking inside an existing box (for selection and dragging)
+            if (boxes[currentFrame] && e.button === 0) {
+                // Iterate in reverse to select the topmost box
+                for (let i = boxes[currentFrame].length - 1; i >= 0; i--) {
+                    const box = boxes[currentFrame][i];
+                    if (pos.x >= box.xtl && pos.x <= box.xbr && 
+                        pos.y >= box.ytl && pos.y <= box.ybr) {
+                        selectedBox = box;
+                        updateLabelSelector();
+                        isDragging = true;
+                        isResizing = false;
+                        dragHandle = null;
+                        drawStart = {x: e.clientX, y: e.clientY};
+                        originalBoxPos = {
+                            xtl: box.xtl,
+                            ytl: box.ytl,
+                            xbr: box.xbr,
+                            ybr: box.ybr
+                        };
+                        updateBoxesList();
+                        drawFrame();
+                        return;
+                    }
+                }
+            }
+            
+            // Priority 3: If in new box mode, start drawing a new box
+            if (newBoxMode && e.button === 0) {
+                isDrawing = true;
+                drawStart = {x: e.clientX, y: e.clientY};
+                selectedBox = null;
+                updateBoxesList();
+                return;
+            }
+            
+            // Priority 4: DEFAULT BEHAVIOR - Panning (left click, middle click, or Ctrl/Shift + left)
+            if (e.button === 0 || e.button === 1 || (e.button === 0 && (e.ctrlKey || e.shiftKey))) {
+                isPanning = true;
+                panStart = {x: e.clientX, y: e.clientY};
+                canvas.style.cursor = 'grabbing';
+                // Deselect box when starting to pan
+                selectedBox = null;
+                updateBoxesList();
+                return;
+            }
+            
+            // Fallback: Deselect if clicking on empty space
+            selectedBox = null;
+            updateLabelSelector();
+            updateBoxesList();
+            drawFrame();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            // Store current mouse position for drawing temporary boxes
+            currentMousePos = {x: e.clientX, y: e.clientY};
+            
+            // Panning takes priority
+            if (isPanning && panStart) {
+                const rect = canvas.getBoundingClientRect();
+                const sx = canvas.width / Math.max(rect.width, 1);
+                const sy = canvas.height / Math.max(rect.height, 1);
+                panX += (e.clientX - panStart.x) * sx;
+                panY += (e.clientY - panStart.y) * sy;
+                panStart = {x: e.clientX, y: e.clientY};
+                drawFrame();
+                return;
+            }
+            
+            if (isDrawing && drawStart) {
+                drawFrame();
+            } else if (isResizing && selectedBox && originalBoxPos && dragHandle) {
+                // Resize box by dragging corner handle
+                const currentPos = screenToCanvas(e.clientX, e.clientY);
+                
+                switch(dragHandle) {
+                    case 'nw': // Top-left
+                        selectedBox.xtl = currentPos.x;
+                        selectedBox.ytl = currentPos.y;
+                        break;
+                    case 'ne': // Top-right
+                        selectedBox.xbr = currentPos.x;
+                        selectedBox.ytl = currentPos.y;
+                        break;
+                    case 'sw': // Bottom-left
+                        selectedBox.xtl = currentPos.x;
+                        selectedBox.ybr = currentPos.y;
+                        break;
+                    case 'se': // Bottom-right
+                        selectedBox.xbr = currentPos.x;
+                        selectedBox.ybr = currentPos.y;
+                        break;
+                }
+                
+                // Ensure box doesn't flip (min width/height)
+                if (selectedBox.xbr < selectedBox.xtl) {
+                    const temp = selectedBox.xtl;
+                    selectedBox.xtl = selectedBox.xbr;
+                    selectedBox.xbr = temp;
+                }
+                if (selectedBox.ybr < selectedBox.ytl) {
+                    const temp = selectedBox.ytl;
+                    selectedBox.ytl = selectedBox.ybr;
+                    selectedBox.ybr = temp;
+                }
+                
+                drawFrame();
+                updateBoxesList();
+            } else if (isDragging && selectedBox && originalBoxPos) {
+                // Calculate delta from original position to current mouse position
+                const originalPos = screenToCanvas(drawStart.x, drawStart.y);
+                const currentPos = screenToCanvas(e.clientX, e.clientY);
+                
+                const dx = currentPos.x - originalPos.x;
+                const dy = currentPos.y - originalPos.y;
+                
+                // Apply delta to original position (prevents accumulation errors)
+                selectedBox.xtl = originalBoxPos.xtl + dx;
+                selectedBox.ytl = originalBoxPos.ytl + dy;
+                selectedBox.xbr = originalBoxPos.xbr + dx;
+                selectedBox.ybr = originalBoxPos.ybr + dy;
+                
+                drawFrame();
+                updateBoxesList();
+            } else if (selectedBox && boxes[currentFrame]) {
+                // Update cursor when hovering over handles
+                const pos = screenToCanvas(e.clientX, e.clientY);
+                const handle = getHandleAt(pos.x, pos.y, selectedBox);
+                if (handle) {
+                    const cursors = {
+                        'nw': 'nw-resize',
+                        'ne': 'ne-resize',
+                        'sw': 'sw-resize',
+                        'se': 'se-resize'
+                    };
+                    canvas.style.cursor = cursors[handle] || 'grab';
+                } else if (pos.x >= selectedBox.xtl && pos.x <= selectedBox.xbr && 
+                          pos.y >= selectedBox.ytl && pos.y <= selectedBox.ybr) {
+                    canvas.style.cursor = 'move';
+                } else if (newBoxMode) {
+                    canvas.style.cursor = 'crosshair';
+                } else {
+                    // Default: show grab cursor for panning
+                    canvas.style.cursor = 'grab';
+                }
+            } else if (newBoxMode) {
+                canvas.style.cursor = 'crosshair';
+            } else {
+                // Default cursor when not hovering over anything - show pan cursor
+                canvas.style.cursor = 'grab';
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (isPanning) {
+                isPanning = false;
+                panStart = null;
+                canvas.style.cursor = 'grab'; // Default to grab cursor for panning
+                return;
+            }
+            
+            if (isDrawing && drawStart) {
+                const rect = getMouseRect(drawStart, {x: e.clientX, y: e.clientY});
+                if (!boxes[currentFrame]) boxes[currentFrame] = [];
+                rect.id = `new-${Date.now()}`;
+                rect.trackId = `track-${Date.now()}`;
+                const labelSel = document.getElementById('labelDropdown');
+                rect.label = (labelSel && labelSel.value) ? labelSel.value : 'player';
+                rect.confidence = 1.0;
+                trackMap[rect.trackId] = { label: rect.label };
+                
+                // Save state before adding box
+                saveState();
+                
+                boxes[currentFrame].push(rect);
+                selectedBox = rect;
+                isDrawing = false;
+                drawStart = null;
+                // Exit new box mode after creating a box
+                newBoxMode = false;
+                canvas.style.cursor = 'grab'; // Default to grab for panning
+                updateBoxesList();
+                updateObjectTracks();
+                updateTimelineMarkers();
+                drawFrame();
+            }
+            
+            // Save state after dragging or resizing ends
+            if ((isDragging || isResizing) && originalBoxPos) {
+                saveState();
+            }
+            
+            // Reset dragging/resizing state and clear original position
+            isDragging = false;
+            isResizing = false;
+            dragHandle = null;
+            originalBoxPos = null;
+            drawStart = null;
+            // Default cursor is grab (for panning), unless in new box mode
+            canvas.style.cursor = newBoxMode ? 'crosshair' : 'grab';
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Get mouse position in canvas coordinates before zoom
+            const beforeZoom = screenToCanvas(e.clientX, e.clientY);
+            
+            // Apply zoom
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const oldZoom = zoomLevel;
+            zoomLevel = Math.max(0.5, Math.min(5, zoomLevel * delta));
+            
+            // Get mouse position in canvas coordinates after zoom
+            const afterZoom = screenToCanvas(e.clientX, e.clientY);
+            
+            // Adjust pan to keep the point under the mouse in the same place
+            const dx = (beforeZoom.x - afterZoom.x) * zoomLevel;
+            const dy = (beforeZoom.y - afterZoom.y) * zoomLevel;
+            panX -= dx;
+            panY -= dy;
+            
+            drawFrame();
+        });
+
+        function zoomIn() {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const beforeZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
+            zoomLevel = Math.min(5, zoomLevel * 1.2);
+            const afterZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
+            
+            const dx = (beforeZoom.x - afterZoom.x) * zoomLevel;
+            const dy = (beforeZoom.y - afterZoom.y) * zoomLevel;
+            panX -= dx;
+            panY -= dy;
+            
+            drawFrame();
+        }
+
+        function zoomOut() {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const beforeZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
+            zoomLevel = Math.max(0.5, zoomLevel / 1.2);
+            const afterZoom = screenToCanvas(rect.left + centerX, rect.top + centerY);
+            
+            const dx = (beforeZoom.x - afterZoom.x) * zoomLevel;
+            const dy = (beforeZoom.y - afterZoom.y) * zoomLevel;
+            panX -= dx;
+            panY -= dy;
+            
+            drawFrame();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            panX = 0;
+            panY = 0;
+            drawFrame();
+        }
+
+        function seekToFrame(frameNum) {
+            currentFrame = Math.max(0, Math.min(parseInt(frameNum), GOLD100.maxFrame));
+            document.getElementById('frameSlider').value = currentFrame;
+            document.getElementById('currentFrame').textContent = currentFrame;
+            selectedBox = null;
+            updateLabelSelector();
+            updateBoxesList();
+            loadReviewFrame(currentFrame).then(() => {
+                drawFrame();
+            }).catch((e) => {
+                debugLog('ERROR seek: ' + e.message);
+                drawFrame();
+            });
+        }
+
+        function nextFrame() {
+            if (currentFrame < 99) seekToFrame(currentFrame + 1);
+        }
+
+        function prevFrame() {
+            if (currentFrame > 0) seekToFrame(currentFrame - 1);
+        }
+
+        function deleteSelectedBox() {
+            if (selectedBox && boxes[currentFrame]) {
+                // Save state before deleting
+                saveState();
+                
+                boxes[currentFrame] = boxes[currentFrame].filter(b => b.id !== selectedBox.id);
+                selectedBox = null;
+                updateLabelSelector();
+                drawFrame();
+                updateBoxesList();
+                updateObjectTracks();
+                updateTimelineMarkers();
+            }
+        }
+
+        function setPlaybackSpeed(speed) {
+            video.playbackRate = parseFloat(speed);
+        }
+
+        function updateBoxesList() {
+            const list = document.getElementById('boxesList');
+            list.innerHTML = '';
+            
+            if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
+                boxes[currentFrame].forEach(box => {
+                    const item = document.createElement('div');
+                    item.className = `box-item ${box.id === selectedBox?.id ? 'selected' : ''}`;
+                    const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+                    item.innerHTML = `${label} (Track ${box.trackId})`;
+                    item.onclick = () => {
+                        selectedBox = box;
+                        drawFrame();
+                        updateBoxesList();
+                        updateLabelSelector();
+                    };
+                    list.appendChild(item);
+                });
+            } else {
+                list.innerHTML = '<div style="color: #888; padding: 10px; text-align: center; font-size: 11px;">No boxes</div>';
+            }
+            
+            // Update label selector visibility
+            updateLabelSelector();
+        }
+        
+        function updateLabelSelector() {
+            const labelSelector = document.getElementById('labelSelector');
+            const labelDropdown = document.getElementById('labelDropdown');
+            
+            if (!labelSelector || !labelDropdown) {
+                console.warn('Label selector elements not found');
+                return;
+            }
+            
+            if (selectedBox) {
+                labelSelector.style.display = 'block';
+                // Set current label in dropdown
+                const currentLabel = selectedBox.label || (selectedBox.trackId && trackMap[selectedBox.trackId] && trackMap[selectedBox.trackId].label) || 'player';
+                labelDropdown.value = currentLabel;
+                // Update the hint text
+                const hint = labelSelector.querySelector('div[style*="color: #888"]');
+                if (hint) {
+                    hint.textContent = `Current label: ${currentLabel}`;
+                }
+            } else {
+                labelSelector.style.display = 'none';
+            }
+        }
+        
+        function changeBoxLabel(newLabel) {
+            if (!selectedBox) return;
+            
+            // Save state before changing label
+            saveState();
+            
+            // Update the box label
+            selectedBox.label = newLabel;
+            
+            // Update trackMap for all boxes with the same trackId
+            if (selectedBox.trackId && trackMap[selectedBox.trackId]) {
+                trackMap[selectedBox.trackId].label = newLabel;
+                
+                // Update all boxes in the same track across all frames
+                Object.keys(boxes).forEach(frameNum => {
+                    const frame = parseInt(frameNum);
+                    if (boxes[frame]) {
+                        boxes[frame].forEach(box => {
+                            if (box.trackId === selectedBox.trackId) {
+                                box.label = newLabel;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Redraw and update UI
+            drawFrame();
+            updateBoxesList();
+            updateObjectTracks();
+        }
+
+        function updateObjectTracks() {
+            const list = document.getElementById('objectTracksList');
+            list.innerHTML = '';
+            
+            Object.keys(trackMap).forEach(trackId => {
+                const track = trackMap[trackId];
+                const item = document.createElement('div');
+                item.className = `object-track-item ${track.label}`;
+                item.innerHTML = `
+                    <div class="track-label">${track.label} (ID: ${trackId})</div>
+                    <div class="track-info">Frames: ${track.frameCount}</div>
+                `;
+                item.onclick = () => {
+                    // Highlight boxes from this track
+                    selectedBox = null;
+                    drawFrame();
+                    updateBoxesList();
+                };
+                list.appendChild(item);
+            });
+        }
+
+        function updateTimelineMarkers() {
+            const markers = document.getElementById('timelineMarkers');
+            markers.innerHTML = '';
+            const slider = document.getElementById('frameSlider');
+            const sliderWidth = slider.offsetWidth;
+            const maxFrame = parseInt(slider.max);
+            
+            Object.keys(boxes).forEach(frame => {
+                if (boxes[frame] && boxes[frame].length > 0) {
+                    const position = (parseInt(frame) / maxFrame) * sliderWidth;
+                    const marker = document.createElement('div');
+                    marker.className = 'timeline-marker';
+                    marker.style.left = position + 'px';
+                    markers.appendChild(marker);
+                }
+            });
+        }
+
+        function updateStats() {
+            const task = annotations.querySelector('task');
+            const frames = task ? task.querySelector('size').textContent : '0';
+            const tracks = annotations.querySelectorAll('track');
+            const events = annotations.querySelectorAll('tag');
+            const totalBoxes = Object.values(boxes).reduce((sum, frameBoxes) => sum + frameBoxes.length, 0);
+            
+            document.getElementById('statFrames').textContent = frames;
+            document.getElementById('statTracks').textContent = tracks.length;
+            document.getElementById('statBoxes').textContent = totalBoxes;
+            document.getElementById('statEvents').textContent = events.length;
+        }
+
+        function loadAnnotations() {
+            // Add cache-busting timestamp to force fresh load
+            const timestamp = new Date().getTime();
+            fetch(`/data/processed/gold_sets/match1_1_100/prelabels/annotations.xml?t=${timestamp}`, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(xmlText => {
+                    const parser = new DOMParser();
+                    annotations = parser.parseFromString(xmlText, 'text/xml');
+                    
+                    // Check for parsing errors
+                    const parserError = annotations.querySelector('parsererror');
+                    if (parserError) {
+                        console.error('XML parsing error:', parserError.textContent);
+                        alert('Error parsing XML file. The file may be corrupted.');
+                        return;
+                    }
+                    
+                    parseAnnotations();
+                    updateStats();
+                    updateObjectTracks();
+                    updateTimelineMarkers();
+                    // Initialize history with initial state
+                    saveState();
+                    updateUndoRedoButtons();
+                    
+                    // Debug: log what was loaded
+                    console.log('Annotations loaded:', {
+                        tracks: annotations.querySelectorAll('track').length,
+                        boxes: Object.keys(boxes).length + ' frames',
+                        currentFrame: currentFrame,
+                        boxesInCurrentFrame: boxes[currentFrame] ? boxes[currentFrame].length : 0
+                    });
+                    
+                    // Force video to seek to current frame and redraw
+                    if (video && video.readyState >= 2) {
+                        // Seek to current frame to ensure video is at correct position
+                        video.currentTime = currentFrame / 60;
+                        video.pause();
+                        // Wait for seek to complete, then draw
+                        video.addEventListener('seeked', function onSeeked() {
+                            video.removeEventListener('seeked', onSeeked);
+                            console.log('Video seeked, drawing frame', currentFrame);
+                            drawFrame();
+                        }, { once: true });
+                        // Fallback: draw immediately if seek is instant
+                        setTimeout(() => {
+                            console.log('Fallback draw after timeout');
+                            drawFrame();
+                        }, 100);
+                    } else {
+                        // Video not ready yet, but still draw when it becomes ready
+                        console.log('Video not ready yet, will draw when ready');
+                        if (video) {
+                            video.addEventListener('seeked', function onSeeked() {
+                                video.removeEventListener('seeked', onSeeked);
+                                console.log('Video ready after load, drawing frame', currentFrame);
+                                drawFrame();
+                            }, { once: true });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annotations:', error);
+                    alert('Error loading annotations: ' + error.message);
+                });
+        }
+
+        function parseAnnotations() {
+            boxes = {};
+            trackMap = {};
+            
+            const tracks = annotations.querySelectorAll('track');
+            console.log(`parseAnnotations: Found ${tracks.length} tracks`);
+            
+            tracks.forEach(track => {
+                const trackId = track.getAttribute('id');
+                const label = track.getAttribute('label') || 'player'; // Ensure label is never null/empty
+                const trackBoxes = track.querySelectorAll('box');
+                
+                trackMap[trackId] = {
+                    label: label,
+                    frameCount: trackBoxes.length
+                };
+                
+                trackBoxes.forEach(box => {
+                    const frame = parseInt(box.getAttribute('frame'));
+                    const xtl = parseFloat(box.getAttribute('xtl'));
+                    const ytl = parseFloat(box.getAttribute('ytl'));
+                    const xbr = parseFloat(box.getAttribute('xbr'));
+                    const ybr = parseFloat(box.getAttribute('ybr'));
+                    const conf = box.querySelector('attribute[name="confidence"]');
+                    const confidence = conf ? parseFloat(conf.textContent) : 0.5;
+                    
+                    if (!boxes[frame]) boxes[frame] = [];
+                    
+                    boxes[frame].push({
+                        trackId: trackId,
+                        label: label || 'player', // Ensure label is always set
+                        xtl: xtl,
+                        ytl: ytl,
+                        xbr: xbr,
+                        ybr: ybr,
+                        confidence: confidence,
+                        id: `${trackId}-${frame}`
+                    });
+                });
+            });
+            
+            console.log(`parseAnnotations: Parsed ${Object.keys(boxes).length} frames with boxes`);
+            console.log(`parseAnnotations: Frame 0 has ${boxes[0] ? boxes[0].length : 0} boxes`);
+        }
+
+        function toggleHelp() {
+            document.getElementById('helpModal').classList.toggle('active');
+        }
+
+        function toggleShortcuts() {
+            document.getElementById('shortcutsModal').classList.toggle('active');
+        }
+
+        function saveState() {
+            // Deep clone the boxes object
+            const stateCopy = JSON.parse(JSON.stringify(boxes));
+            
+            // Remove any states after current index (when undoing then making new changes)
+            if (historyIndex < historyStack.length - 1) {
+                historyStack = historyStack.slice(0, historyIndex + 1);
+            }
+            
+            // Add new state
+            historyStack.push(stateCopy);
+            
+            // Limit history size
+            if (historyStack.length > MAX_HISTORY) {
+                historyStack.shift();
+            } else {
+                historyIndex++;
+            }
+            
+            updateUndoRedoButtons();
+        }
+
+        function undoAction() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState(historyStack[historyIndex]);
+            }
+        }
+
+        function redoAction() {
+            if (historyIndex < historyStack.length - 1) {
+                historyIndex++;
+                restoreState(historyStack[historyIndex]);
+            }
+        }
+
+        function restoreState(state) {
+            boxes = JSON.parse(JSON.stringify(state));
+            selectedBox = null;
+            updateLabelSelector();
+            drawFrame();
+            updateBoxesList();
+            updateObjectTracks();
+            updateTimelineMarkers();
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            
+            if (undoBtn) {
+                undoBtn.disabled = historyIndex <= 0;
+                undoBtn.style.opacity = historyIndex <= 0 ? '0.5' : '1';
+            }
+            
+            if (redoBtn) {
+                redoBtn.disabled = historyIndex >= historyStack.length - 1;
+                redoBtn.style.opacity = historyIndex >= historyStack.length - 1 ? '0.5' : '1';
+            }
+        }
+
+        function saveAnnotations() {
+            if (!annotations) {
+                alert('No annotations loaded. Cannot save.');
+                return;
+            }
+            
+            try {
+                // Create a copy of the original XML structure
+                const serializer = new XMLSerializer();
+                const xmlString = serializer.serializeToString(annotations);
+                const parser = new DOMParser();
+                const newDoc = parser.parseFromString(xmlString, 'text/xml');
+                
+                // Get the root annotations element
+                const annotationsRoot = newDoc.documentElement;
+                if (!annotationsRoot || annotationsRoot.nodeName !== 'annotations') {
+                    throw new Error('Invalid XML structure: annotations root not found');
+                }
+                
+                // CRITICAL: Preserve all existing boxes, only update/delete boxes that are in the current 'boxes' object
+                // This ensures frames 0 and 899 (and all other frames) are preserved
+                
+                // First, collect all frames that we're editing (in the boxes object)
+                const editedFrames = new Set(Object.keys(boxes).map(f => parseInt(f)));
+                
+                // For each track, update only boxes in edited frames, preserve others
+                const tracks = newDoc.querySelectorAll('track');
+                tracks.forEach(track => {
+                    const trackId = track.getAttribute('id');
+                    const trackBoxes = Array.from(track.querySelectorAll('box'));
+                    
+                    // Remove boxes from edited frames (we'll add them back from current state)
+                    trackBoxes.forEach(box => {
+                        const frame = parseInt(box.getAttribute('frame'));
+                        if (editedFrames.has(frame)) {
+                            box.remove();
+                        }
+                    });
+                });
+                
+                // Now add/update boxes from current state (only for edited frames)
+                Object.keys(boxes).forEach(frameNum => {
+                    const frame = parseInt(frameNum);
+                    if (boxes[frame] && boxes[frame].length > 0) {
+                        boxes[frame].forEach(box => {
+                            // Find or create the track element
+                            let track = Array.from(newDoc.querySelectorAll('track')).find(t => 
+                                t.getAttribute('id') === box.trackId.toString()
+                            );
+                            
+                            if (!track) {
+                                // Create new track if it doesn't exist
+                                // Get label from box or trackMap
+                                const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+                                
+                                // Find where to insert (after meta, before other tracks)
+                                const meta = annotationsRoot.querySelector('meta');
+                                track = newDoc.createElement('track');
+                                track.setAttribute('id', box.trackId.toString());
+                                track.setAttribute('label', label);
+                                track.setAttribute('source', 'manual');
+                                
+                                // Insert after meta, or append to root
+                                if (meta) {
+                                    // Find the next sibling after meta
+                                    let insertPoint = meta.nextSibling;
+                                    while (insertPoint && insertPoint.nodeType !== 1) {
+                                        insertPoint = insertPoint.nextSibling;
+                                    }
+                                    if (insertPoint) {
+                                        annotationsRoot.insertBefore(track, insertPoint);
+                                    } else {
+                                        annotationsRoot.appendChild(track);
+                                    }
+                                } else {
+                                    annotationsRoot.appendChild(track);
+                                }
+                            } else {
+                                // Update existing track label if box has a label and it's different
+                                const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label);
+                                if (label && track.getAttribute('label') !== label) {
+                                    track.setAttribute('label', label);
+                                }
+                            }
+                            
+                            // Create box element
+                            const boxElem = newDoc.createElement('box');
+                            boxElem.setAttribute('frame', frame.toString());
+                            boxElem.setAttribute('xtl', box.xtl.toFixed(2));
+                            boxElem.setAttribute('ytl', box.ytl.toFixed(2));
+                            boxElem.setAttribute('xbr', box.xbr.toFixed(2));
+                            boxElem.setAttribute('ybr', box.ybr.toFixed(2));
+                            boxElem.setAttribute('occluded', '0');
+                            boxElem.setAttribute('outside', '0');
+                            boxElem.setAttribute('keyframe', '1');
+                            
+                            // Add confidence attribute
+                            const confAttr = newDoc.createElement('attribute');
+                            confAttr.setAttribute('name', 'confidence');
+                            confAttr.textContent = (box.confidence || 0.8).toFixed(3);
+                            boxElem.appendChild(confAttr);
+                            
+                            track.appendChild(boxElem);
+                        });
+                    }
+                });
+                
+                // Serialize to string with proper formatting
+                let finalXml = serializer.serializeToString(newDoc);
+                
+                // Validate XML before formatting
+                const validationParser = new DOMParser();
+                const validationDoc = validationParser.parseFromString(finalXml, 'text/xml');
+                const validationError = validationDoc.querySelector('parsererror');
+                if (validationError) {
+                    throw new Error('Generated XML is invalid: ' + validationError.textContent);
+                }
+                
+                // Format the XML (this also validates it)
+                const formattedXml = formatXML(finalXml);
+                
+                // Final validation of formatted XML
+                const finalValidationParser = new DOMParser();
+                const finalValidationDoc = finalValidationParser.parseFromString(formattedXml, 'text/xml');
+                const finalValidationError = finalValidationDoc.querySelector('parsererror');
+                if (finalValidationError) {
+                    console.warn('Formatted XML has errors, using unformatted version:', finalValidationError.textContent);
+                    // Use unformatted but valid XML if formatting broke it
+                    finalXml = finalXml;
+                } else {
+                    finalXml = formattedXml;
+                }
+                
+                // Save to server
+                fetch('/save_annotations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        xml: finalXml, // Use validated XML
+                        file_path: 'data/processed/gold_sets/match1_1_100/prelabels/annotations.xml'
+                    })
+                })
+                .then(response => {
+                    // Check if response is actually JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        // If not JSON, read as text to see what we got
+                        return response.text().then(text => {
+                            throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Validate the saved XML by trying to reload it
+                        const validateParser = new DOMParser();
+                        const validateDoc = validateParser.parseFromString(finalXml, 'text/xml');
+                        const validateError = validateDoc.querySelector('parsererror');
+                        if (validateError) {
+                            console.error('Saved XML validation error:', validateError.textContent);
+                            alert('Warning: Saved XML may be corrupted. Please check the file.');
+                        }
+                        
+                        // Reload annotations to show the saved changes immediately
+                        loadAnnotations();
+                        // Force video seek and redraw
+                        if (video && video.readyState >= 2) {
+                            video.currentTime = currentFrame / 60;
+                            video.addEventListener('seeked', function onSeeked() {
+                                video.removeEventListener('seeked', onSeeked);
+                                drawFrame();
+                            }, { once: true });
+                            setTimeout(() => drawFrame(), 100);
+                        }
+                        alert('Annotations saved successfully! The XML file has been updated.');
+                    } else {
+                        alert('Error saving annotations: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving annotations:', error);
+                    alert('Error saving annotations: ' + error.message);
+                });
+            } catch (error) {
+                console.error('Error saving annotations:', error);
+                alert('Error saving annotations: ' + error.message);
+            }
+        }
+        
+        function formatXML(xml) {
+            // Use a proper XML formatter that preserves structure
+            // The previous string manipulation was corrupting the XML
+            try {
+                // Parse and re-serialize to ensure valid XML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(xml, 'text/xml');
+                
+                // Check for parsing errors
+                const parserError = doc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('XML parsing error in formatXML:', parserError.textContent);
+                    // Return original if parsing fails
+                    return xml;
+                }
+                
+                // Serialize with proper formatting
+                const serializer = new XMLSerializer();
+                let formatted = serializer.serializeToString(doc);
+                
+                // Add XML declaration if missing
+                if (!formatted.startsWith('<?xml')) {
+                    formatted = '<?xml version="1.0" encoding="UTF-8"?>\n' + formatted;
+                }
+                
+                return formatted;
+            } catch (e) {
+                console.error('Error formatting XML:', e);
+                // Return original if formatting fails
+                return xml;
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    break;
+                case 'h':
+                case 'H':
+                    e.preventDefault();
+                    showOverlay = !showOverlay;
+                    drawFrame();
+                    break;
+                case 'n':
+                case 'N':
+                    e.preventDefault();
+                    // Toggle new box mode
+                    newBoxMode = !newBoxMode;
+                    const modeEl = document.getElementById('statMode');
+                    if (newBoxMode) {
+                        debugLog('New box mode: ON - Click and drag to create box');
+                        canvas.style.cursor = 'crosshair';
+                        selectedBox = null;
+                        updateBoxesList();
+                        if (modeEl) modeEl.textContent = 'draw (N)';
+                    } else {
+                        debugLog('New box mode: OFF');
+                        canvas.style.cursor = 'grab';
+                        isDrawing = false;
+                        drawStart = null;
+                        drawFrame();
+                        if (modeEl) modeEl.textContent = 'pan';
+                    }
+                    break;
+                case 'Delete':
+                case 'Backspace':
+                    if (selectedBox) {
+                        e.preventDefault();
+                        deleteSelectedBox();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box left
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.xtl -= moveAmount;
+                        selectedBox.xbr -= moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    } else {
+                        prevFrame();
+                    }
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box right
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.xtl += moveAmount;
+                        selectedBox.xbr += moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    } else {
+                        nextFrame();
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box up
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.ytl -= moveAmount;
+                        selectedBox.ybr -= moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    }
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (selectedBox && boxes[currentFrame]) {
+                        // Move box down
+                        const moveAmount = e.shiftKey ? 10 : 1;
+                        saveState();
+                        selectedBox.ytl += moveAmount;
+                        selectedBox.ybr += moveAmount;
+                        drawFrame();
+                        updateBoxesList();
+                    }
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    seekToFrame(0);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    seekToFrame(99);
+                    break;
+                case 'Escape':
+                case 'Esc':
+                    e.preventDefault();
+                    selectedBox = null;
+                    drawFrame();
+                    updateBoxesList();
+                    break;
+            }
+
+            // Ctrl+Z (Windows/Linux) or Cmd+Z (Mac) to undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undoAction();
+            }
+            
+            // Ctrl+Y or Ctrl+Shift+Z (Windows/Linux) or Cmd+Y or Cmd+Shift+Z (Mac) to redo
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+                e.preventDefault();
+                redoAction();
+            }
+            
+            // Ctrl+S (Windows/Linux) or Cmd+S (Mac) to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveAnnotations();
+            }
+        });
+
+        video.addEventListener('timeupdate', () => {
+            const frame = Math.floor(video.currentTime * 60);
+            if (Math.abs(frame - currentFrame) > 1) {
+                currentFrame = frame;
+                document.getElementById('frameSlider').value = currentFrame;
+                document.getElementById('currentFrame').textContent = currentFrame;
+                updateBoxesList();
+            }
+        });
+
+        video.addEventListener('play', () => {
+            document.getElementById('playOverlay').style.display = 'none';
+        });
+
+        video.addEventListener('pause', () => {
+            if (video.readyState >= 2) {
+                /* playOverlay disabled */
+            }
+        });
+
+        canvas.setAttribute('tabindex', '0');
+        canvas.addEventListener('click', () => {
+            canvas.focus();
+        });
+
+        // Forward drag outside canvas; never re-bubble (avoids double-fire / loops)
+        document.addEventListener('mousemove', (e) => {
+            if (!(isDragging || isResizing || isDrawing || isPanning)) return;
+            if (e.target === canvas) return;
+            canvas.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: e.clientX, clientY: e.clientY, bubbles: false, buttons: e.buttons
+            }));
+        });
+        document.addEventListener('mouseup', (e) => {
+            if (!(isDragging || isResizing || isDrawing || isPanning)) return;
+            if (e.target === canvas) return;
+            canvas.dispatchEvent(new MouseEvent('mouseup', {
+                clientX: e.clientX, clientY: e.clientY, bubbles: false, button: e.button
+            }));
+        });
+
+        /* video.load disabled */
+    </script>
+</body>
+</html>

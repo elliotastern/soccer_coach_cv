@@ -15,7 +15,7 @@ soccer_coach_cv/
 │   ├── processed/             # Tracks, events, pitch coords
 │   └── external/              # Third-party commercial-safe datasets
 ├── docs/
-│   ├── product/               # Vision, phases, Phase 1 scope
+│   ├── product/               # Vision, phases, Phase 1 scope, Gold100 eval set
 │   ├── architecture/          # Constraints, deployment, mapping plans
 │   ├── runbooks/              # Operator / training guides
 │   └── ball_detection/        # Ball training notes (not product phases)
@@ -24,6 +24,7 @@ soccer_coach_cv/
 ├── notebooks/                 # Exploration only
 ├── reports/                   # Eval HTML / acceptance evidence
 ├── scripts/                   # One-off CLIs and experiments
+│   └── gold_set/              # Match Gold100 build / review / eval (player+ball)
 ├── src/
 │   ├── perception/            # Detect, track, team assign
 │   ├── mapping/               # Pixel → pitch (x, y)
