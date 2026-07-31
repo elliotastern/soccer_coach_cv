@@ -1,13 +1,21 @@
-# Roboflow Model Configuration
+# Optional Roboflow cloud backend (only when detection.backend=roboflow)
 roboflow:
   model_id: ""  # Set your RF-DETR model ID here
   api_key_env: "ROBOFLOW_API_KEY"
 
+# Gameplay gate / scene-cut (Phase 1 Step 1)
+camera:
+  green_threshold: 0.5
+  scene_cut_threshold: 0.7
+
 # Detection Settings
 detection:
+  backend: local_rfdetr  # local_rfdetr | roboflow
   confidence_threshold: 0.5
   player_class_id: 0
   ball_class_id: 1
+  player_checkpoint: models/people_after_100_epochs.pth
+  ball_checkpoint: models/ball_89.pth
 
 # Tracker Settings (ByteTrack)
 tracker:

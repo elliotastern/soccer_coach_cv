@@ -3,6 +3,16 @@ import cv2
 import numpy as np
 from typing import Optional
 
+_LOWER_GREEN = np.array([40, 50, 50])
+_UPPER_GREEN = np.array([80, 255, 255])
+
+
+def compute_green_ratio(frame: np.ndarray) -> float:
+    """Fraction of pixels in the green pitch HSV band."""
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, _LOWER_GREEN, _UPPER_GREEN)
+    return float(np.sum(mask > 0) / (frame.shape[0] * frame.shape[1]))
+
 
 def is_gameplay_view(frame: np.ndarray, green_threshold: float = 0.5) -> bool:
     """
@@ -15,17 +25,7 @@ def is_gameplay_view(frame: np.ndarray, green_threshold: float = 0.5) -> bool:
     Returns:
         True if gameplay view, False otherwise
     """
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
-    # Green pitch color range in HSV
-    # H: 40-80 (green), S: >50, V: >50
-    lower_green = np.array([40, 50, 50])
-    upper_green = np.array([80, 255, 255])
-    
-    mask = cv2.inRange(hsv, lower_green, upper_green)
-    green_ratio = np.sum(mask > 0) / (frame.shape[0] * frame.shape[1])
-    
-    return green_ratio >= green_threshold
+    return compute_green_ratio(frame) >= green_threshold
 
 
 def detect_scene_cut(frame: np.ndarray, prev_frame: Optional[np.ndarray], 

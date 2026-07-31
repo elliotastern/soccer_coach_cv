@@ -1,0 +1,146 @@
+"""Local dual RF-DETR detector: people + ball checkpoints."""
+from pathlib import Path
+from typing import List, Optional
+
+import cv2
+import numpy as np
+from PIL import Image
+
+from src.state.types import Detection
+
+
+def _require_checkpoint(path: str, label: str) -> Path:
+    checkpoint = Path(path)
+    if not checkpoint.is_file():
+        raise FileNotFoundError(f"{label} checkpoint not found: {checkpoint}")
+    return checkpoint
+
+
+def _xyxy_to_xywh(bbox_xyxy) -> Optional[tuple]:
+    x_min, y_min, x_max, y_max = map(float, bbox_xyxy)
+    width = x_max - x_min
+    height = y_max - y_min
+    if width <= 0 or height <= 0:
+        return None
+    return (x_min, y_min, width, height)
+
+
+def _frame_to_pil(frame: np.ndarray) -> Image.Image:
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    return Image.fromarray(frame_rgb)
+
+
+def _parse_rfdetr_detections(detections_raw, class_id: int, class_name: str) -> List[Detection]:
+    results = []
+    if not hasattr(detections_raw, "class_id"):
+        return results
+    for i in range(len(detections_raw.class_id)):
+        bbox = _xyxy_to_xywh(detections_raw.xyxy[i])
+        if bbox is None:
+            continue
+        results.append(Detection(
+            class_id=class_id,
+            confidence=float(detections_raw.confidence[i]),
+            bbox=bbox,
+            class_name=class_name,
+        ))
+    return results
+
+
+def load_people_model(checkpoint_path: str):
+    from rfdetr import RFDETRMedium
+
+    path = _require_checkpoint(checkpoint_path, "People")
+    print(f"Loading people RF-DETR from: {path}")
+    model = RFDETRMedium(pretrain_weights=str(path))
+    print("✅ People model loaded")
+    return model
+
+
+def load_ball_model(checkpoint_path: str):
+    from rfdetr import RFDETRBase
+
+    path = _require_checkpoint(checkpoint_path, "Ball")
+    print(f"Loading ball RF-DETR from: {path}")
+    # RFDETRBase(pretrain_weights=...) reads class_names from checkpoint args
+    # (ball_89.pth has class_names=['ball'], num_classes=2 = len(classes)+1)
+    model = RFDETRBase(pretrain_weights=str(path))
+    print("✅ Ball model loaded")
+    return model
+
+
+class LocalRFDETRDetector:
+    """People + ball RF-DETR with the same detect() interface as Detector."""
+
+    def __init__(
+        self,
+        player_checkpoint: str,
+        ball_checkpoint: str,
+        confidence_threshold: float = 0.5,
+        player_class_id: int = 0,
+        ball_class_id: int = 1,
+    ):
+        self.confidence_threshold = confidence_threshold
+        self.player_class_id = player_class_id
+        self.ball_class_id = ball_class_id
+        self.people_model = load_people_model(player_checkpoint)
+        self.ball_model = load_ball_model(ball_checkpoint)
+
+    def detect(self, frame: np.ndarray) -> List[Detection]:
+        pil_image = _frame_to_pil(frame)
+        threshold = self.confidence_threshold
+
+        people_raw = self.people_model.predict(pil_image, threshold=threshold)
+        ball_raw = self.ball_model.predict(pil_image, threshold=threshold)
+
+        detections = _parse_rfdetr_detections(
+            people_raw, self.player_class_id, "player"
+        )
+        detections.extend(_parse_rfdetr_detections(
+            ball_raw, self.ball_class_id, "ball"
+        ))
+        return detections
+
+
+def _checkpoint_from_config(detection: dict, key: str, env_key: str) -> str:
+    import os
+    path = os.getenv(env_key) or detection.get(key)
+    if not path:
+        raise ValueError(f"Missing {key} (or env {env_key}) for local_rfdetr")
+    return path
+
+
+def build_detector(config: dict):
+    """Build detector from config.detection backend."""
+    detection = config.get("detection", {})
+    backend = detection.get("backend", "local_rfdetr")
+    threshold = detection.get("confidence_threshold", 0.5)
+    player_class_id = detection.get("player_class_id", 0)
+    ball_class_id = detection.get("ball_class_id", 1)
+
+    if backend == "local_rfdetr":
+        return LocalRFDETRDetector(
+            player_checkpoint=_checkpoint_from_config(
+                detection, "player_checkpoint", "PLAYER_CHECKPOINT"
+            ),
+            ball_checkpoint=_checkpoint_from_config(
+                detection, "ball_checkpoint", "BALL_CHECKPOINT"
+            ),
+            confidence_threshold=threshold,
+            player_class_id=player_class_id,
+            ball_class_id=ball_class_id,
+        )
+
+    if backend == "roboflow":
+        import os
+        from src.perception.detector import Detector
+
+        api_key = os.getenv("ROBOFLOW_API_KEY")
+        if not api_key:
+            raise ValueError("ROBOFLOW_API_KEY required when detection.backend=roboflow")
+        model_id = config.get("roboflow", {}).get("model_id")
+        if not model_id:
+            raise ValueError("roboflow.model_id required when detection.backend=roboflow")
+        return Detector(model_id=model_id, api_key=api_key, confidence_threshold=threshold)
+
+    raise ValueError(f"Unknown detection.backend: {backend}")

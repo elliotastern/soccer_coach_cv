@@ -1,0 +1,25 @@
+{
+  "video": "/Volumes/LaCie/Projects/Soccer project data/soccer_track/videos/118575_panorama_1st_half-007.mp4",
+  "green_threshold": 0.5,
+  "scene_cut_threshold": 0.7,
+  "max_frames": 300,
+  "stride": 5,
+  "metadata": {
+    "fps": 25.0,
+    "frame_count": 71850,
+    "width": 4096,
+    "height": 1080
+  },
+  "sampled_frames": 60,
+  "keep_count": 60,
+  "skip_count": 0,
+  "scene_cut_count": 0,
+  "green_ratio_min": 0.5025358977141203,
+  "green_ratio_mean": 0.5063931538146219,
+  "green_ratio_max": 0.5083340115017361,
+  "keep_dumps": 10,
+  "skip_dumps": 0,
+  "scene_cut_dumps": 0,
+  "passed": true,
+  "pass_reason": "keep_rate=1.000 scene_cuts=0"
+}

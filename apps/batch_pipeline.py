@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from src.state.types import FrameData, Player, Ball, Location
 from src.perception.camera import is_gameplay_view, detect_scene_cut
-from src.perception.detector import Detector
+from src.perception.rfdetr_local import build_detector
 from src.perception.tracker import Tracker
 from src.perception.track_ball import create_ball_tracker_wrapper
 from src.perception.team import assign_teams
@@ -28,7 +28,7 @@ def load_config(config_path: str = "configs/default.yaml") -> dict:
 
 
 def process_frame(frame: np.ndarray, frame_id: int, timestamp: float,
-                  detector: Detector, tracker: Tracker, pitch_mapper: PitchMapper,
+                  detector, tracker: Tracker, pitch_mapper: PitchMapper,
                   prev_frame: Optional[np.ndarray], config: dict) -> Optional[FrameData]:
     """
     Process a single frame through the pipeline
@@ -37,11 +37,16 @@ def process_frame(frame: np.ndarray, frame_id: int, timestamp: float,
         FrameData if frame is valid, None if skipped
     """
     # Gatekeeper: Check if gameplay view
-    if not is_gameplay_view(frame):
+    camera_cfg = config.get("camera") or {}
+    green_threshold = float(camera_cfg.get("green_threshold", 0.5))
+    scene_cut_threshold = float(camera_cfg.get("scene_cut_threshold", 0.7))
+    if not is_gameplay_view(frame, green_threshold=green_threshold):
         return None
     
     # Scene cut detection
-    scene_cut = detect_scene_cut(frame, prev_frame)
+    scene_cut = detect_scene_cut(
+        frame, prev_frame, threshold=scene_cut_threshold
+    )
     if scene_cut:
         tracker.reset()
     
@@ -103,7 +108,8 @@ def process_frame(frame: np.ndarray, frame_id: int, timestamp: float,
     )
 
 
-def process_video(video_path: str, config: dict, output_dir: str = "data/processed"):
+def process_video(video_path: str, config: dict, output_dir: str = "data/processed",
+                  max_frames: Optional[int] = None):
     """
     Process video through the complete pipeline
     
@@ -111,19 +117,10 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/process
         video_path: Path to input video file
         config: Configuration dictionary
         output_dir: Output directory for results
+        max_frames: Optional cap for smoke tests
     """
-    # Load environment variables
     load_dotenv()
-    api_key = os.getenv('ROBOFLOW_API_KEY')
-    if not api_key:
-        raise ValueError("ROBOFLOW_API_KEY not found in environment")
-    
-    # Initialize components
-    detector = Detector(
-        model_id=config['roboflow']['model_id'],
-        api_key=api_key,
-        confidence_threshold=config['detection']['confidence_threshold']
-    )
+    detector = build_detector(config)
     
     base_tracker = Tracker(
         track_thresh=config['tracker']['track_thresh'],
@@ -164,8 +161,9 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/process
     
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frames_to_run = frame_count if max_frames is None else min(frame_count, max_frames)
     
-    print(f"Processing video: {frame_count} frames at {fps} fps")
+    print(f"Processing video: {frames_to_run}/{frame_count} frames at {fps} fps")
     
     # Process frames
     prev_frame = None
@@ -174,6 +172,8 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/process
     csv_rows = []
     
     while True:
+        if max_frames is not None and frame_id >= max_frames:
+            break
         ret, frame = cap.read()
         if not ret:
             break
@@ -202,7 +202,7 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/process
         frame_id += 1
         
         if frame_id % 100 == 0:
-            print(f"Processed {frame_id}/{frame_count} frames")
+            print(f"Processed {frame_id}/{frames_to_run} frames")
     
     cap.release()
     
@@ -233,6 +233,7 @@ def main():
     parser.add_argument("--video", type=str, required=True, help="Path to input video")
     parser.add_argument("--config", type=str, default="configs/default.yaml", help="Config file path")
     parser.add_argument("--output", type=str, default="data/processed", help="Output directory")
+    parser.add_argument("--max-frames", type=int, default=None, help="Optional frame cap for smoke tests")
     
     args = parser.parse_args()
     
@@ -240,7 +241,7 @@ def main():
     config = load_config(args.config)
     
     # Process video
-    process_video(args.video, config, args.output)
+    process_video(args.video, config, args.output, max_frames=args.max_frames)
 
 
 if __name__ == "__main__":
