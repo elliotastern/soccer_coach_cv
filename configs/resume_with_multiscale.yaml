@@ -1,0 +1,59 @@
+# Resume Training Configuration - Multi-scale Enabled
+# Enables multi-scale training to improve small object (ball) detection
+# WARNING: May increase memory usage - monitor GPU memory
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 2
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+training:
+  batch_size: 2  # Keep at 2 (already minimum)
+  learning_rate: 0.0002
+  epochs: 50  # Extended to 50 epochs
+  weight_decay: 0.0001
+  gradient_clip: 0.1
+  grad_accum_steps: 20  # Maintain effective batch size (2*20=40)
+  resolution: 1120  # Keep reduced resolution for memory
+  num_workers: 1
+  device: cuda
+  mixed_precision: true
+  # Enable multi-scale training for small object detection
+  multi_scale: true  # ENABLED - helps with small objects
+  expanded_scales: false  # Keep disabled to save memory
+  
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/train
+  coco_val_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/valid
+  category_name: "ball"
+  category_id: 0
+  ball_class_id: 1
+  pin_memory: false
+  prefetch_factor: 1
+  persistent_workers: false
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/checkpoint.pth
+  start_epoch: 40  # Update after epoch 40 completes
+  save_dir: models/checkpoints
+
+# Changes from base config:
+# - multi_scale: false -> true (enables multi-scale training)
+# - epochs: 40 -> 50 (extended training)
+# - start_epoch: 38 -> 40 (resume from epoch 40)
+#
+# Benefits:
+# - Multi-scale training helps model learn at multiple scales
+# - Particularly beneficial for small object (ball) detection
+# - May improve small objects mAP from 0.598 to >0.65
+#
+# Risks:
+# - May increase GPU memory usage
+# - Monitor memory and reduce batch_size if needed

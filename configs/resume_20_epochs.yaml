@@ -1,0 +1,20 @@
+model:
+  type: rf-detr-base
+  class_names:
+  - ball
+  num_classes: 2
+  encoder: dinov2_windowed_small
+  resolution: 1288
+training:
+  batch_size: 2
+  learning_rate: 0.0002
+  epochs: 20
+  weight_decay: 0.0001
+  gradient_clip: 0.1
+dataset:
+  train_path: /workspace/soccer_coach_cv/models/ball_detection_open_soccer_ball/dataset
+  val_path: /workspace/soccer_coach_cv/models/ball_detection_open_soccer_ball/dataset
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/soccer ball/checkpoint_20_soccer_ball.pth
+  start_epoch: 20
+  save_dir: models/checkpoints

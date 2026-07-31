@@ -1,1 +1,2 @@
-# Drawing the 2D Minimap
+# Compatibility shim
+from src.review.radar import *  # noqa: F401,F403

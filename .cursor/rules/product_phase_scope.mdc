@@ -1,0 +1,31 @@
+---
+description: Product Phase 1 delivery scope — do not pull Phase 2/3 work unless asked
+alwaysApply: true
+---
+
+# Product phase scope
+
+## Current focus
+
+Delivery focus is **Product Phase 1**: batch/offline vision, team assignment, pitch mapping, heuristic events, checkpointing, Streamlit review, and CSV/JSON export.
+
+Entrypoints: `apps/batch_pipeline.py`, `apps/review_dashboard.py`  
+Details: `docs/product/PHASE1_SCOPE.md`  
+Roadmap: `docs/product/PHASES.md`  
+Vision: `docs/product/VISION.md`  
+Layout: `docs/architecture/LAYOUT.md`
+
+Detection stack standards live in the soccer CV guardrails rule (RF-DETR, not YOLO; ByteTrack).
+
+## Do not start unless explicitly requested
+
+- Multi-camera temporal fusion / occlusion merge
+- Predictive RNN/Transformer coaching or pre-event signaling
+- Wearable PWM / hex guidance protocols or live haptic deployment
+- Replacing Phase 1 heuristic events with learned event models as a Phase 1 requirement
+
+## Quality bar (Phase 1)
+
+- High precision, lower recall
+- Confidence below ~80% → drop / do nothing
+- Prefer commercial-use-safe data only

@@ -13,7 +13,7 @@ except ImportError:
         ByteTrack = None
 
 from supervision.detection.core import Detections
-from src.types import Detection, TrackedObject
+from src.state.types import Detection, TrackedObject
 
 
 class Tracker:

@@ -36,9 +36,18 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data files (too large for git)
-data/
-!data/.gitkeep
+# Data files (too large for git) — keep folder markers only
+data/**
+!data/raw/
+!data/raw/.gitkeep
+!data/interim/
+!data/interim/.gitkeep
+!data/processed/
+!data/processed/.gitkeep
+!data/external/
+!data/external/.gitkeep
+# Legacy alias (symlink to processed); ignore contents
+data/output
 
 # Model files (too large for git)
 models/
@@ -55,6 +64,8 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+._*
+.AppleDouble
 
 # Environment variables
 .env
@@ -70,6 +81,9 @@ mlruns/
 # Datasets (too large for git)
 datasets/
 coco_annotations_only/
+
+# Nested git clone inside the tree (e.g. accidental HF snapshot)
+soccer-ball-detection/.git/
 
 # Large files
 *.tar.gz

@@ -1,0 +1,110 @@
+# RF-DETR Configuration for Ball-Only Detection
+# Includes soccersynth_sub_sub dataset (ball-only annotations)
+# Optimized for tiny ball objects (<15 pixels)
+
+# Model Architecture
+model:
+  architecture: "rfdetr"  # RF-DETR from Roboflow
+  backbone: "resnet50vd"  # ResNet50-VD backbone
+  rfdetr_size: "base"  # RF-DETR Base model (29M parameters)
+  num_classes: 1  # Ball only (class ID 0)
+  remap_mscoco_category: false  # Using custom SoccerSynth data, not COCO
+  pretrained: true  # Use pre-trained weights
+
+# Dataset Configuration
+dataset:
+  # Option 1: Use soccersynth_sub_sub directly (ball-only, already converted)
+  coco_train_path: "/workspace/datasets/soccersynth_sub_sub/train"
+  coco_val_path: "/workspace/datasets/soccersynth_sub_sub/val"
+  # COCO category name
+  category_name: "ball"
+  category_id: 0  # Single class, use ID 0
+  
+  # Option 2: Merge with other datasets (set use_combined_dataset: true)
+  # Uncomment below to merge with existing SoccerSynth dataset:
+  # use_combined_dataset: true
+  # yolo_train_path: "/workspace/soccer_coach_cv/data/raw/SoccerSynth_sub/train"
+  # yolo_val_path: "/workspace/soccer_coach_cv/data/raw/SoccerSynth_sub/test"
+  # ball_class_id: 1
+  # combined_train_path: "/workspace/datasets/combined_ball_detection/train"
+  # combined_val_path: "/workspace/datasets/combined_ball_detection/val"
+
+# Training Hyperparameters
+training:
+  epochs: 20  # Training epochs as requested
+  batch_size: 2  # Reduced for memory constraints (1288x1288 is larger, need smaller batch)
+  learning_rate: 0.0002  # 2e-4 - slightly higher for small objects
+  grad_accum_steps: 16  # Increased gradient accumulation to maintain effective batch size (2*16=32)
+  weight_decay: 0.0001  # 1e-4
+  warmup_epochs: 5
+  # RF-DETR specific training parameters
+  lr_encoder: null  # Use default encoder learning rate
+  resolution: 1288  # High resolution to preserve tiny balls (1288=23*56, divisible by 56, close to 1280)
+  device: "cuda"  # Use GPU if available
+  num_workers: 2  # Reduced data loading workers to save memory
+
+# Data Augmentation - Optimized for Tiny Objects (<15 pixels)
+augmentation:
+  # Resize augmentation - preserve tiny balls
+  resize:
+    min_size: 1288  # High resolution to preserve ball visibility (1288=23*56)
+    max_size: 1288  # Fixed high resolution (no downscaling to preserve tiny balls)
+    # Use less aggressive scaling to avoid shrinking balls to 0 pixels
+    scale_range: [1.0, 1.0]  # No scaling - keep full resolution
+  
+  # RandomCrop - DISABLED to avoid cropping out tiny balls
+  random_crop:
+    enabled: false  # Critical: tiny balls are easily cropped out
+  
+  # Mosaic augmentation - CAREFULLY implemented to avoid cutting balls
+  mosaic:
+    enabled: true  # Enable Mosaic for data augmentation
+    prob: 0.5  # Apply mosaic 50% of the time
+    # Careful implementation: ensure balls are fully within final image bounds
+    min_bbox_size: 5  # Minimum bbox size in pixels to keep (filter out cut-off balls)
+    border_margin: 10  # Margin from border to ensure balls aren't cut off
+  
+  # Horizontal flip - safe for balls
+  horizontal_flip:
+    enabled: true
+    prob: 0.5
+  
+  # Color jitter - reduced intensity for tiny objects
+  color_jitter:
+    enabled: true
+    brightness: 0.1  # Reduced from 0.2 (balls are small, color changes can make them disappear)
+    contrast: 0.1  # Reduced from 0.2
+    saturation: 0.1  # Reduced from 0.2
+    hue: 0.05  # Reduced from 0.1
+  
+  # Motion blur - DISABLED for training (balls are already small)
+  motion_blur:
+    enabled: false  # Disable to avoid further degrading tiny ball visibility
+  
+  # Multi-scale training - DISABLED to preserve resolution
+  multi_scale:
+    enabled: false  # Disable to keep full 1288x1288 resolution
+
+# Output Configuration
+output:
+  output_dir: "models/ball_detection_soccersynth_sub_sub"  # Directory for checkpoints and training artifacts
+  save_frequency: 5  # Save checkpoint every N epochs
+  save_best: true  # Save best model based on validation mAP
+  metric: "mAP"  # Use mAP for model selection
+
+# Evaluation Configuration
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP calculation
+  max_detections: 100  # Maximum detections per image
+  eval_frequency: 1  # Evaluate every N epochs (1 = every epoch)
+  test_video_path: "data/raw/real_data/F9D97C58-4877-4905-9A9F-6590FCC758FF.mp4"  # First 100 frames test set
+  num_test_frames: 100  # Number of frames to evaluate
+
+# Logging
+logging:
+  log_dir: "logs/ball_detection_soccersynth_sub_sub"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking
+  mlflow_experiment_name: "ball_detection_soccersynth_sub_sub"  # MLflow experiment name
+  print_frequency: 20  # Print training stats every N iterations

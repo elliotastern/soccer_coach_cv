@@ -1,0 +1,57 @@
+# Resume Training Configuration - 20% Memory Reduction
+# Optimized to reduce system memory requirements by ~20%
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 2
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+training:
+  batch_size: 2  # Keep at 2 (already minimum)
+  learning_rate: 0.0002
+  epochs: 40  # Total epochs (will resume from 20, train 20 more)
+  weight_decay: 0.0001
+  gradient_clip: 0.1
+  grad_accum_steps: 20  # Increased from 16 to maintain effective batch size (2*20=40 vs 2*16=32)
+  # Note: Higher grad_accum_steps doesn't increase memory, just computation time
+  resolution: 1120  # Reduced from 1288 (13% reduction, divisible by 56: 1120 = 56*20)
+  num_workers: 1  # Reduced from 2 (50% reduction in data loading memory)
+  device: cuda
+  mixed_precision: true  # Already enabled (AMP)
+  # Memory optimizations - these are passed to RF-DETR
+  multi_scale: false  # Disable multi-scale training (significant memory savings)
+  expanded_scales: false  # Disable expanded scales (memory savings)
+  
+dataset:
+  # Use existing COCO format dataset (skip YOLO conversion)
+  coco_train_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/train
+  coco_val_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/valid
+  # Category configuration (required even for COCO)
+  category_name: "ball"
+  category_id: 0
+  ball_class_id: 1  # Ball class ID (for reference)
+  # Data loading optimizations for memory
+  pin_memory: false  # Disable pin_memory to save RAM
+  prefetch_factor: 1  # Reduced from default (less prefetched data)
+  persistent_workers: false  # Disable persistent workers to save memory
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/checkpoint.pth
+  start_epoch: 38
+  save_dir: models/checkpoints
+
+# Memory reduction summary:
+# - Resolution: 1288 -> 1152 (20% reduction in image area = ~20% activation memory)
+# - Multi-scale: disabled (significant memory savings)
+# - Expanded scales: disabled (memory savings)
+# - num_workers: 2 -> 1 (reduces data loading memory)
+# - pin_memory: disabled (saves RAM)
+# - prefetch_factor: reduced (less prefetched data)
+# Expected total memory reduction: ~20-25%

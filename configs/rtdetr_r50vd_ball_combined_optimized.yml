@@ -1,0 +1,112 @@
+# RF-DETR Configuration for Combined Ball-Only Detection
+# Optimized for NVIDIA A40 (46GB VRAM) - Maximum Speed Configuration
+# Dataset: Combined Open Soccer Ball Dataset + SoccerSynth Sub Sub
+
+# Model Architecture
+model:
+  architecture: "rfdetr"  # RF-DETR from Roboflow
+  backbone: "resnet50vd"  # ResNet50-VD backbone
+  rfdetr_size: "base"  # RF-DETR Base model (29M parameters)
+  num_classes: 1  # Ball only (class ID 0)
+  remap_mscoco_category: false  # Using custom data, not COCO
+  pretrained: true  # Use pre-trained weights
+
+# Dataset Configuration
+dataset:
+  # Combined dataset (ball-only) - already in COCO format
+  coco_train_path: "/workspace/datasets/combined_ball_only/train"
+  coco_val_path: "/workspace/datasets/combined_ball_only/val"
+  # COCO category name
+  category_name: "ball"
+  category_id: 0  # Single class, use ID 0
+  use_combined_dataset: false  # Already combined and split
+  # For COCO format (not YOLO), these are not needed but set defaults to avoid errors
+  ball_class_id: 1  # Not used for COCO, but required by script
+  yolo_train_path: ""  # Empty - using COCO directly
+  yolo_val_path: ""  # Empty - using COCO directly
+
+# Training Hyperparameters - Optimized for A40 (46GB VRAM)
+training:
+  epochs: 20  # Training epochs as requested
+  batch_size: 16  # Large batch size for A40 (can go higher with 46GB VRAM)
+  learning_rate: 0.0002  # 2e-4 - slightly higher for small objects
+  grad_accum_steps: 4  # Gradient accumulation (effective batch: 16*4=64)
+  weight_decay: 0.0001  # 1e-4
+  warmup_epochs: 5
+  # RF-DETR specific training parameters
+  lr_encoder: null  # Use default encoder learning rate
+  resolution: 1288  # High resolution to preserve tiny balls
+  device: "cuda"  # Use GPU
+  num_workers: 8  # More workers for faster data loading (A40 has plenty of RAM)
+  
+  # Speed optimizations
+  mixed_precision: true  # FP16/FP32 mixed precision for 2x speed
+  channels_last: true  # Channels-last memory format for faster convolutions
+  tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
+  compile_model: false  # Disabled: causes recompilation overhead with variable-sized DETR inputs
+  cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
+  pin_memory: true  # Pin memory for faster GPU transfer
+  prefetch_factor: 4  # Prefetch more batches
+  persistent_workers: true  # Keep workers alive between epochs
+
+# Data Augmentation - Optimized for Tiny Objects (<15 pixels)
+augmentation:
+  # Resize augmentation - preserve tiny balls
+  resize:
+    min_size: 1288  # High resolution to preserve ball visibility
+    max_size: 1288  # Fixed high resolution
+    scale_range: [1.0, 1.0]  # No scaling - keep full resolution
+  
+  # RandomCrop - DISABLED to avoid cropping out tiny balls
+  random_crop:
+    enabled: false  # Critical: tiny balls are easily cropped out
+  
+  # Mosaic augmentation - CAREFULLY implemented to avoid cutting balls
+  mosaic:
+    enabled: true  # Enable Mosaic for data augmentation
+    prob: 0.5  # Apply mosaic 50% of the time
+    min_bbox_size: 5  # Minimum bbox size in pixels to keep
+    border_margin: 10  # Margin from border to ensure balls aren't cut off
+  
+  # Horizontal flip - safe for balls
+  horizontal_flip:
+    enabled: true
+    prob: 0.5
+  
+  # Color jitter - reduced intensity for tiny objects
+  color_jitter:
+    enabled: true
+    brightness: 0.1  # Reduced for tiny objects
+    contrast: 0.1
+    saturation: 0.1
+    hue: 0.05
+  
+  # Motion blur - DISABLED for training
+  motion_blur:
+    enabled: false
+  
+  # Multi-scale training - DISABLED to preserve resolution
+  multi_scale:
+    enabled: false
+
+# Output Configuration
+output:
+  output_dir: "models/ball_detection_combined_optimized"  # Directory for checkpoints
+  save_frequency: 5  # Save checkpoint every N epochs
+  save_best: true  # Save best model based on validation mAP
+  metric: "mAP"  # Use mAP for model selection
+
+# Evaluation Configuration
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP calculation
+  max_detections: 100  # Maximum detections per image
+  eval_frequency: 1  # Evaluate every N epochs (1 = every epoch)
+
+# Logging
+logging:
+  log_dir: "logs/ball_detection_combined_optimized"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking
+  mlflow_experiment_name: "ball_detection_combined_optimized"  # MLflow experiment name
+  print_frequency: 20  # Print training stats every N iterations

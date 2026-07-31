@@ -4,8 +4,8 @@ Team identification utilities and crop extraction
 from typing import List, Tuple, Optional
 import numpy as np
 import cv2
-from src.types import Detection, TrackedObject
-from src.logic.team_id import TeamClusterer, TeamAssignment
+from src.state.types import Detection, TrackedObject
+from src.perception.team_id import TeamClusterer, TeamAssignment
 
 
 def extract_player_crop(frame: np.ndarray, bbox: Tuple[float, float, float, float]) -> Optional[np.ndarray]:

@@ -3,7 +3,7 @@ import os
 from typing import List
 import numpy as np
 from roboflow import Roboflow
-from src.types import Detection
+from src.state.types import Detection
 
 
 class Detector:

@@ -1,0 +1,26 @@
+---
+description: Legal and technical guardrails for Soccer Coach CV
+globs: "**/*"
+---
+
+# Legal and technical guardrails
+
+## Data usage
+
+- Do not use licensed or proprietary match footage without permission.
+- Use only data that is free for commercial use (or explicitly licensed for this project).
+- Prefer synthetic datasets (for example SoccerSynth-Detection) for training and public examples.
+
+## Technical standards
+
+- Use RF-DETR (Roboflow DETR) for detection in this project, not YOLO.
+- Detections should align with COCO JSON conventions where applicable.
+- Use ByteTrack for multi-object tracking in the main pipeline.
+- Prefer high precision over high recall: if tracking confidence is below ~80%, drop the frame/event rather than guess.
+- Prefer modular product packages: perception → mapping/events → review/export (coach/guidance/hardware later).
+- Do not implement Product Phase 2/3 features (multi-view fusion, predictive coaching, wearable haptic protocols) unless the user explicitly asks. See `docs/product/PHASES.md`.
+- Prefer new package paths (`src.mapping`, `src.events`, `src.state`, `src.review`, `apps/…`). Legacy `src.analysis` / `src.visualization` shims exist for compatibility only.
+
+## Code quality
+
+- Prefer small, single-purpose functions and clear error messages.

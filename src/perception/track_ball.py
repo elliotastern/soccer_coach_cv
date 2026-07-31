@@ -7,7 +7,7 @@ import numpy as np
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 from dataclasses import dataclass
-from src.types import Detection, TrackedObject
+from src.state.types import Detection, TrackedObject
 
 # Try to import scipy, fallback to numpy polyfit
 try:

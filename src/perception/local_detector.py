@@ -8,7 +8,7 @@ from typing import List
 import numpy as np
 from PIL import Image
 import cv2
-from src.types import Detection
+from src.state.types import Detection
 
 
 class LocalDetector:

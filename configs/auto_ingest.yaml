@@ -1,0 +1,40 @@
+# Auto Ingest Configuration
+# Paths
+paths:
+  watch_dir: "./incoming_videos"  # Directory to watch for new videos
+  processed_dir: "./processed"     # Directory to move processed videos
+
+# Model Configuration
+model:
+  checkpoint_path: "./models/checkpoints/latest_checkpoint.pth"  # Path to trained RF-DETR model
+  use_cuda: true  # Use GPU acceleration
+
+# Detection Settings
+detection:
+  confidence_threshold: 0.5  # Minimum confidence for detections
+
+# Tracker Settings (ByteTrack)
+tracker:
+  track_thresh: 0.5      # Detection confidence threshold
+  high_thresh: 0.6       # High confidence threshold
+  track_buffer: 30       # Number of frames to keep lost tracks
+  match_thresh: 0.8      # Matching threshold for tracks
+  frame_rate: 30         # Video frame rate
+
+# Coordinate Mapping
+mapping:
+  pitch_length: 105.0    # meters
+  pitch_width: 68.0      # meters
+
+# Event Detection Thresholds
+events:
+  pass_velocity_threshold: 5.0      # m/s
+  dribble_distance_threshold: 2.0   # meters
+  shot_velocity_threshold: 15.0     # m/s
+  recovery_proximity: 1.0           # meters
+
+# CVAT Configuration
+cvat:
+  url: "http://localhost:8080"      # CVAT server URL
+  username: "admin"                  # CVAT username (override with CVAT_USER env var)
+  password: "admin"                   # CVAT password (override with CVAT_PASS env var)

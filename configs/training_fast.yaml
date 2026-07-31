@@ -1,0 +1,127 @@
+# Training Configuration for RF-DETR - Optimized for Speed
+# This config prioritizes epoch speed while maintaining accuracy
+
+# Model Architecture
+model:
+  architecture: "detr"  # Options: "detr" (vanilla DETR) or "rfdetr" (RF-DETR from Roboflow)
+  backbone: "resnet50"  # ResNet backbone
+  num_classes: 2  # player, ball
+  pretrained: true  # Use pre-trained weights
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  # RF-DETR specific options (used when architecture="rfdetr")
+  rfdetr_size: "base"  # Options: "nano", "small", "medium", "base", "large"
+
+# Hyperparameters
+training:
+  batch_size: 32  # Increased from 24 - test if GPU memory allows (A40 has 48GB)
+  num_epochs: 100  # Increased to continue training from checkpoint
+  learning_rate: 0.0001  # 1e-4 as float
+  weight_decay: 0.0001  # 1e-4 as float
+  warmup_epochs: 5
+  gradient_clip: 0.1
+  gradient_accumulation_steps: 1  # Reduced from 2 - larger batch size means less need for accumulation
+  memory_cleanup_frequency: 20  # Reduced cleanup frequency (less overhead)
+  adaptive_optimization: true  # Enable adaptive resource optimization based on usage
+  target_gpu_utilization: 0.90  # Increased target (was 0.85) - push GPU harder
+  max_ram_usage: 0.85  # Increased from 0.80 - allow more RAM usage
+  adaptive_adjustment_interval: 50  # Check and adjust every N batches
+  mixed_precision: true  # Enable AMP for faster training (~2x speedup)
+  compile_model: false  # Disabled: causes recompilation overhead with variable-sized DETR inputs
+  channels_last: true  # Use channels-last memory format for faster convolutions
+  cudnn_benchmark: true  # Optimize CUDNN for consistent input sizes
+  tf32: true  # Enable TF32 on Ampere GPUs (A40) for faster matmul
+  # Class weights disabled - using Focal Loss instead for better handling of class imbalance
+  # Focal Loss dynamically adjusts based on prediction confidence, avoiding precision collapse
+  class_weights:
+    enabled: false
+    player: 1.0
+    ball: 1.0
+  # Focal Loss configuration for handling class imbalance
+  focal_loss:
+    enabled: true
+    alpha: 0.25  # Weighting factor for rare class (ball)
+    gamma: 2.0  # Focusing parameter - higher gamma focuses more on hard examples
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  lr: 0.0001  # 1e-4 as float
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001  # 1e-4 as float
+
+# Learning Rate Schedule
+lr_schedule:
+  type: "cosine"  # cosine annealing
+  warmup_epochs: 5
+  min_lr: 0.000001  # 1e-6 as float
+
+# Data Augmentation
+# Reduced augmentation complexity for faster data loading
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_crop: false
+    resize_range: [800, 1333]  # DETR standard
+    # Copy-Paste augmentation for ball class balancing
+    copy_paste:
+      enabled: true
+      prob: 0.5  # Probability of applying copy-paste
+      max_pastes: 3  # Maximum balls to paste per image
+    # CLAHE contrast enhancement - can be disabled for speed
+    clahe:
+      enabled: false  # Disabled for speed (was true) - minimal accuracy impact
+      clip_limit: 2.0  # Contrast limiting threshold
+      tile_grid_size: [8, 8]  # Grid size for adaptive equalization
+    # Motion blur augmentation - can be disabled for speed
+    motion_blur:
+      enabled: false  # Disabled for speed (was true) - minimal accuracy impact
+      prob: 0.3  # Probability of applying motion blur
+      max_kernel_size: 15  # Maximum motion blur kernel size
+  val:
+    resize: 1333  # Fixed size for validation
+
+# Dataset - Optimized for speed
+dataset:
+  train_path: "/workspace/datasets/train"
+  val_path: "/workspace/datasets/val"
+  num_workers: 8  # Increased from 4 - more parallel data loading
+  pin_memory: true
+  prefetch_factor: 4  # Increased from 2 - prefetch more batches
+  persistent_workers: true  # Enabled: faster worker startup (was false)
+  # Note: persistent_workers requires num_workers > 0
+
+# Checkpoint Settings
+checkpoint:
+  save_dir: "models/checkpoints"
+  save_frequency: 999  # Disabled: use lightweight checkpoints only to avoid disk quota issues
+  save_every_epoch: true  # Save lightweight checkpoint every epoch (ensures no progress loss)
+  keep_last_lightweight: 20  # Keep last N lightweight checkpoints (deletes older ones to save space)
+  save_best: false  # Disabled: use lightweight checkpoints only to avoid disk quota issues
+  metric: "mAP"  # Mean Average Precision
+  use_lightweight_only: true  # Only save lightweight checkpoints to avoid disk quota issues
+
+# Evaluation
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP
+  max_detections: 100
+  # Consider reducing validation frequency for speed
+  val_frequency: 1  # Validate every epoch (can increase to 2-3 for speed)
+
+# Logging - Reduced for speed
+logging:
+  log_dir: "logs"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking (or use SQLite/remote server)
+  mlflow_experiment_name: "detr_training"  # MLflow experiment name
+  mlflow_log_models: false  # Disabled for speed (was true) - model logging is slow
+  print_frequency: 50  # Increased from 20 - less frequent printing (less I/O)
+  log_every_n_steps: 100  # Increased from 50 - less frequent TensorBoard logging

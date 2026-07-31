@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 8501
 
 # Default command (can be overridden)
-CMD ["streamlit", "run", "src/visualization/app.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+CMD ["streamlit", "run", "apps/review_dashboard.py", "--server.port", "8501", "--server.address", "0.0.0.0"]

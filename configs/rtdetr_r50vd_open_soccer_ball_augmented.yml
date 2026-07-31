@@ -1,0 +1,110 @@
+# RF-DETR Configuration for Ball-Only Detection on Open Soccer Ball Dataset
+# Based on rtdetr_r50vd_ball.yml, adapted for Open Soccer Ball Dataset
+# Dataset: Pascal VOC XML format (robot's fisheye perspective)
+
+# Model Architecture
+model:
+  architecture: "rfdetr"  # RF-DETR from Roboflow
+  backbone: "resnet50vd"  # ResNet50-VD backbone
+  rfdetr_size: "base"  # RF-DETR Base model (29M parameters)
+  num_classes: 1  # Ball only (class ID 0)
+  remap_mscoco_category: false  # Using custom data, not COCO
+  pretrained: true  # Use pre-trained weights
+
+# Dataset Configuration
+dataset:
+  # Source dataset in Pascal VOC XML format (will be converted to COCO)
+  voc_train_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training"
+  voc_train_annotations: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training/annotations"
+  voc_train_images: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training/images"
+  voc_val_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball"
+  voc_val_annotations: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball/annotations"
+  voc_val_images: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball/img"
+  # Output COCO format dataset (created during conversion)
+  coco_train_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training_coco"
+  coco_val_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball_coco"
+  # COCO category name
+  category_name: "ball"
+  category_id: 0  # Single class, use ID 0
+
+# Training Hyperparameters - Fresh Start with Augmentation (avoiding resume issues)
+training:
+  epochs: 7  # Train for 7 epochs with enhanced augmentations
+  # Removed resume parameter to avoid RF-DETR resume bugs
+  batch_size: 2  # Reduced for memory constraints (high resolution images)
+  learning_rate: 0.0002  # 2e-4 - slightly higher for small objects
+  grad_accum_steps: 16  # Increased gradient accumulation to maintain effective batch size (2*16=32)
+  weight_decay: 0.0001  # 1e-4
+  warmup_epochs: 1  # Short warmup for stability
+  # RF-DETR specific training parameters
+  lr_encoder: null  # Use default encoder learning rate
+  resolution: 1288  # High resolution to preserve tiny balls (1288=23*56, divisible by 56, close to 1280)
+  device: "cpu"  # Try CPU first to debug
+  num_workers: 2  # Reduced data loading workers to save memory
+
+# Data Augmentation - Enhanced for Real Soccer Game Generalization (RF-DETR Compatible)
+augmentation:
+  # Resize augmentation - preserve tiny balls
+  resize:
+    min_size: 1288  # High resolution to preserve ball visibility
+    max_size: 1288  # Fixed high resolution
+    scale_range: [1.0, 1.0]  # No scaling - keep full resolution
+
+  # RandomCrop - DISABLED to avoid cropping out tiny balls
+  random_crop:
+    enabled: false  # Critical: tiny balls are easily cropped out
+
+  # Enhanced Mosaic augmentation - Strongest tool for background generalization
+  mosaic:
+    enabled: true  # Enable Mosaic for data augmentation
+    prob: 1.0  # Apply mosaic 100% of the time (maximum variety)
+    # Careful implementation: ensure balls are fully within final image bounds
+    min_bbox_size: 5  # Minimum bbox size in pixels to keep
+    border_margin: 10  # Margin from border to ensure balls aren't cut off
+
+  # Horizontal flip - safe for balls (no vertical flip - gravity constraint)
+  horizontal_flip:
+    enabled: true
+    prob: 0.5
+
+  # Enhanced Color jitter - Simulate different soccer conditions
+  color_jitter:
+    enabled: true
+    brightness: 0.4  # Simulate shadows/sunlight (was 0.1)
+    contrast: 0.1    # Maintain contrast
+    saturation: 0.7  # Simulate wet vs dry pitch (was 0.1)
+    hue: 0.015       # Simulate different grass shades (was 0.05)
+
+  # Motion blur - ENABLED to simulate camera motion in games
+  motion_blur:
+    enabled: true  # Enable to simulate real game motion
+    prob: 0.3      # Apply 30% of the time
+
+  # Multi-scale training - ENABLED for distance generalization
+  multi_scale:
+    enabled: true  # Enable for balls at different distances
+    scale_range: [0.5, 1.5]  # Allow some scaling while preserving resolution
+
+# Output Configuration
+output:
+  output_dir: "models/ball_detection_open_soccer_ball"  # Directory for checkpoints and training artifacts
+  save_frequency: 5  # Save checkpoint every N epochs
+  save_best: true  # Save best model based on validation mAP
+  metric: "mAP"  # Use mAP for model selection
+
+# Evaluation Configuration
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP calculation
+  max_detections: 100  # Maximum detections per image
+  eval_frequency: 1  # Evaluate every N epochs (1 = every epoch)
+  test_video_path: "data/raw/real_data/F9D97C58-4877-4905-9A9F-6590FCC758FF.mp4"  # First 100 frames test set
+  num_test_frames: 100  # Number of frames to evaluate
+
+# Logging
+logging:
+  log_dir: "logs/ball_detection_open_soccer_ball"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking
+  mlflow_experiment_name: "ball_detection_open_soccer_ball"  # MLflow experiment name
+  print_frequency: 20  # Print training stats every N iterations

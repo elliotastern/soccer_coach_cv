@@ -1,0 +1,94 @@
+# Resume Training Configuration - High Resolution with Gradient Accumulation
+# Leverages RTX 5090 (32GB VRAM) to train at full 1288px resolution
+# Uses gradient accumulation to maintain stable effective batch size
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 2
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+training:
+  batch_size: 2  # Physical batch size (fits in VRAM)
+  learning_rate: 0.0002
+  epochs: 60  # Extended
+  weight_decay: 0.0001
+  gradient_clip: 0.1
+  grad_accum_steps: 16  # Effective batch = 2 * 16 = 32 (stable for BatchNorm)
+  resolution: 1288  # RESTORED - critical for <15px objects
+  num_workers: 1
+  device: cuda
+  mixed_precision: true
+  multi_scale: false  # Enable in Phase 3
+  expanded_scales: false
+
+# Include domain adaptation augmentations from Phase 1
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    motion_blur:
+      enabled: true
+      prob: 0.5
+      max_kernel_size: 15
+    gaussian_blur:
+      enabled: true
+      prob: 0.3
+      kernel_size_range: [3, 7]
+      sigma_range: [0.5, 2.0]
+    iso_noise:
+      enabled: true
+      prob: 0.3
+      noise_level: [5, 25]
+    jpeg_compression:
+      enabled: true
+      prob: 0.2
+      quality_range: [60, 95]
+    copy_paste:
+      enabled: true
+      prob: 0.5
+      max_pastes: 3
+    color_jitter:
+      brightness: 0.1
+      contrast: 0.1
+      saturation: 0.1
+      hue: 0.05
+
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/train
+  coco_val_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/valid
+  category_name: "ball"
+  category_id: 0
+  ball_class_id: 1
+  pin_memory: false
+  prefetch_factor: 1
+  persistent_workers: false
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/checkpoint.pth
+  start_epoch: 45  # Update after Phase 1 completes
+  save_dir: models/checkpoints
+
+# Changes from Phase 1:
+# - resolution: 1120 -> 1288 (15% increase, restores original)
+# - grad_accum_steps: 20 -> 16 (maintains effective batch ~32)
+# - epochs: 50 -> 60
+# - start_epoch: 40 -> 45
+#
+# Why This Works:
+# - Gradient accumulation decouples physical batch (VRAM) from effective batch (optimizer)
+# - Physical batch of 2 fits in VRAM even at 1288px
+# - Effective batch of 32 maintains BatchNorm stability
+# - RTX 5090 has 32GB VRAM - no OOM risk with proper setup
+#
+# Expected Impact:
+# - Higher resolution preserves <15px object details
+# - Expected: +0.02-0.03 improvement (0.63 -> 0.65-0.66)
+#
+# Risk: Low - gradient accumulation eliminates OOM concerns
+# Note: If OOM occurs, reduce batch_size to 1, increase grad_accum_steps to 32

@@ -6,11 +6,26 @@ Automated football analysis pipeline using RF-DETR detection, ByteTrack tracking
 
 ## Architecture
 
-The pipeline follows a modular architecture:
+Product-layer packages (see [docs/architecture/LAYOUT.md](docs/architecture/LAYOUT.md)):
 
-- **Perception Layer**: Frame filtering, detection, tracking, team assignment
-- **Analysis Layer**: Coordinate mapping, event detection, event aggregation
-- **Visualization Layer**: Review dashboard, annotation tools
+- **perception** — Frame filtering, detection, tracking, team assignment
+- **mapping** — Pixel → pitch `(x, y)` coordinates
+- **events** — Heuristic event detection and checkpoints
+- **review / export** — Streamlit review UI and CSV/JSON schemas
+- **ingest** — File batch (Phase 1) and RTSP live adapter (Phase 2+)
+- **coach / guidance / hardware** — Phase 2/3 stubs (predictive coach, haptics)
+
+## Product scope
+
+Long-term product vision (real-time AI coaching + haptics) and phased delivery:
+
+- [docs/product/VISION.md](docs/product/VISION.md) — Goal, system components, value props
+- [docs/product/PHASES.md](docs/product/PHASES.md) — Product Phase 1 / 2 / 3 roadmap
+- [docs/product/PHASE1_SCOPE.md](docs/product/PHASE1_SCOPE.md) — Current Phase 1 requirements and acceptance
+- [docs/architecture/CONSTRAINTS.md](docs/architecture/CONSTRAINTS.md) — Latency, RTSP, data policy
+- [docs/architecture/LAYOUT.md](docs/architecture/LAYOUT.md) — Repository layout
+
+Current repo focus is **Product Phase 1** (batch vision + heuristic events). Product Phase naming is separate from ball-detection training phases under `docs/ball_detection/`.
 
 ## Precision & Quantization Strategy
 
@@ -35,7 +50,8 @@ The pipeline follows a modular architecture:
 
 **Key Rule:** For tiny object detection, always use QAT for INT8, never PTQ.
 
-See `docs/DEPLOYMENT_STRATEGY.md` for detailed implementation guide.
+See [docs/architecture/DEPLOYMENT_STRATEGY.md](docs/architecture/DEPLOYMENT_STRATEGY.md) for detailed implementation guide.
+
 
 ## Setup
 
@@ -75,7 +91,8 @@ roboflow:
 ### Process Video
 
 ```bash
-python main.py --video path/to/video.mp4 --config configs/default.yaml --output data/output
+python apps/batch_pipeline.py --video path/to/video.mp4 --config configs/default.yaml --output data/processed
+# or: python main.py ...  (thin wrapper)
 ```
 
 ### Player detection on 37a (20 frames)
@@ -99,7 +116,7 @@ python scripts/process_video_pipeline.py \
 ### Review Dashboard
 
 ```bash
-streamlit run src/visualization/app.py
+streamlit run apps/review_dashboard.py
 ```
 
 Or use the RunPod script:
@@ -130,6 +147,20 @@ The pipeline generates:
 
 Defines tactical zones (Zone 14, Half-Spaces, Goal Area, etc.)
 
+## Ball model and training
+
+Ball-specific training, resume configs, and validation utilities live in the same repository.
+
+- **Train / resume / finetune**: `python scripts/train_ball.py` with `configs/training.yaml`, `configs/training_finetune.yaml`, or `configs/resume_*.yaml` (see [configs/RESUME_CONFIGS_README.md](configs/RESUME_CONFIGS_README.md)).
+- **100-frame validation (HTML)**: scripts in [scripts/ball_validation/](scripts/ball_validation/).
+- **Analysis variants (first N frames)**: [scripts/experiments/](scripts/experiments/).
+- **Operator notes**: [docs/ball_detection/](docs/ball_detection/) (training reports, MLflow notes, strategies).
+- **Hugging Face model card source** (YAML frontmatter for Hub): [docs/huggingface_model_card.md](docs/huggingface_model_card.md).
+- **Upload to Hub** (optional): `python scripts/push_to_huggingface.py --repo-id <your-org>/<model-repo>` (defaults to this repo root; does not overwrite the root `README.md`).
+- **COCO dataset archive (SCP / extract)**: [docs/runbooks/DOWNLOAD_INSTRUCTIONS.md](docs/runbooks/DOWNLOAD_INSTRUCTIONS.md).
+
+Published Hub example: [eeeeeeeeeeeeee3/soccer-ball-detection](https://huggingface.co/eeeeeeeeeeeeee3/soccer-ball-detection).
+
 ## Docker
 
 Build and run:
@@ -141,22 +172,50 @@ docker run -p 8501:8501 soccer-analysis
 
 ## Project Structure
 
-```
-soccer_coach_cv/
-├── main.py                 # Main orchestrator
-├── configs/               # Configuration files
-├── src/
-│   ├── perception/        # Detection, tracking, team assignment
-│   ├── analysis/         # Mapping, event detection
-│   ├── visualization/    # Streamlit dashboard
-│   ├── types.py          # Data classes
-│   └── schema.py        # Output schemas
-├── data/
-│   ├── raw/              # Input videos
-│   └── output/           # Generated outputs
-└── models/               # Model files
+Full tree: [docs/architecture/LAYOUT.md](docs/architecture/LAYOUT.md).
 
 ```
+soccer_coach_cv/
+├── apps/
+│   ├── batch_pipeline.py      # Phase 1 match processing
+│   ├── live_pipeline.py       # Phase 2+ RTSP stub
+│   └── review_dashboard.py    # Streamlit review
+├── main.py                    # Thin wrapper → apps/batch_pipeline.py
+├── configs/
+├── src/
+│   ├── perception/            # Detect, track, team assign
+│   ├── mapping/               # Pixel → pitch
+│   ├── events/                # Heuristic events
+│   ├── state/                 # Shared types
+│   ├── export/                # CSV/JSON schemas
+│   ├── ingest/                # File + RTSP adapters
+│   ├── review/                # Streamlit UI
+│   ├── coach/                 # Phase 2+ stubs
+│   ├── guidance/              # Phase 2+ haptic stubs
+│   ├── training/
+│   ├── analysis/              # Compatibility shims
+│   └── visualization/         # Compatibility shims → review
+├── scripts/                   # CLIs, experiments, training helpers
+├── docs/
+│   ├── product/
+│   ├── architecture/
+│   ├── runbooks/
+│   └── ball_detection/
+├── annotation/
+├── data/
+│   ├── raw/
+│   ├── interim/
+│   ├── processed/             # Preferred outputs
+│   ├── external/
+│   └── output -> processed    # Legacy alias
+├── models/
+├── notebooks/
+├── reports/
+├── tests/{unit,integration,latency}/
+└── hardware/                  # Phase 3 wearable notes
+```
+
+Editor-specific secrets (tokens, machine paths) stay **local** only. Optional team guardrails may live under `.cursor/rules/` (no credentials).
 
 ## Event Types
 

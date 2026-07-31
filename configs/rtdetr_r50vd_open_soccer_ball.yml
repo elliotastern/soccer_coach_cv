@@ -1,0 +1,82 @@
+# RF-DETR Configuration for Ball-Only Detection on Open Soccer Ball Dataset
+# Based on rtdetr_r50vd_ball.yml, adapted for Open Soccer Ball Dataset
+# Dataset: Pascal VOC XML format (robot's fisheye perspective)
+
+# Model Architecture
+model:
+  architecture: "rfdetr"  # RF-DETR from Roboflow
+  backbone: "resnet50vd"  # ResNet50-VD backbone
+  rfdetr_size: "base"  # RF-DETR Base model (29M parameters)
+  num_classes: 1  # Ball only (class ID 0)
+  remap_mscoco_category: false  # Using custom data, not COCO
+  pretrained: true  # Use pre-trained weights
+
+# Dataset Configuration
+dataset:
+  # Source dataset in Pascal VOC XML format (will be converted to COCO)
+  voc_train_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training"
+  voc_train_annotations: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training/annotations"
+  voc_train_images: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training/images"
+  voc_val_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball"
+  voc_val_annotations: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball/annotations"
+  voc_val_images: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball/img"
+  # Output COCO format dataset (created during conversion)
+  coco_train_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/training/training_coco"
+  coco_val_path: "/workspace/soccer_coach_cv/data/raw/Open Soccer Ball Dataset/test/ball_coco"
+  # COCO category name
+  category_name: "ball"
+  category_id: 0  # Single class, use ID 0
+
+# Training Hyperparameters
+training:
+  epochs: 20  # Training epochs (as requested)
+  batch_size: 2  # Reduced for memory constraints (high resolution images)
+  learning_rate: 0.0002  # 2e-4 - slightly higher for small objects
+  grad_accum_steps: 16  # Increased gradient accumulation to maintain effective batch size (2*16=32)
+  weight_decay: 0.0001  # 1e-4
+  warmup_epochs: 5
+  # RF-DETR specific training parameters
+  lr_encoder: null  # Use default encoder learning rate
+  resolution: 1288  # High resolution to preserve tiny balls (1288=23*56, divisible by 56, close to 1280)
+  device: "cuda"  # Use GPU if available
+  num_workers: 2  # Reduced data loading workers to save memory
+
+# Data Augmentation - Better Variation for Soccer Ball Detection
+augmentation:
+  hsv_h: 0.015       # Hue (Simulate different grass shades)
+  hsv_s: 0.7         # Saturation (Simulate wet vs dry pitch)
+  hsv_v: 0.4         # Value (Shadows/Sunlight)
+  degrees: 15.0      # Rotation
+  translate: 0.1     # Shift position
+  scale: 0.5         # Zoom in/out (ESSENTIAL for real games)
+  shear: 0.0         # Perspective
+  perspective: 0.0005 # Slight 3D tilt
+  flipud: 0.0        # Soccer balls don't usually flip upside down relative to gravity
+  fliplr: 0.5        # Left/Right flip is fine
+  mosaic: 1.0        # Strongest tool for background generalization
+  mixup: 0.1         # Helps with occlusion
+  copy_paste: 0.1    # Helps if you have segmentation data
+
+# Output Configuration
+output:
+  output_dir: "models/ball_detection_open_soccer_ball"  # Directory for checkpoints and training artifacts
+  save_frequency: 5  # Save checkpoint every N epochs
+  save_best: true  # Save best model based on validation mAP
+  metric: "mAP"  # Use mAP for model selection
+
+# Evaluation Configuration
+evaluation:
+  iou_thresholds: [0.5, 0.75]  # IoU thresholds for mAP calculation
+  max_detections: 100  # Maximum detections per image
+  eval_frequency: 1  # Evaluate every N epochs (1 = every epoch)
+  test_video_path: "data/raw/real_data/F9D97C58-4877-4905-9A9F-6590FCC758FF.mp4"  # First 100 frames test set
+  num_test_frames: 100  # Number of frames to evaluate
+
+# Logging
+logging:
+  log_dir: "logs/ball_detection_open_soccer_ball"
+  tensorboard: true
+  mlflow: true  # Enable MLflow tracking
+  mlflow_tracking_uri: "file:./mlruns"  # Local file-based tracking
+  mlflow_experiment_name: "ball_detection_open_soccer_ball"  # MLflow experiment name
+  print_frequency: 20  # Print training stats every N iterations

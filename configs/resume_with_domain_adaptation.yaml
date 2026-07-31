@@ -1,0 +1,107 @@
+# Resume Training Configuration - Domain Adaptation for Sim2Real
+# Addresses the 0% SAHI recall by teaching model to recognize motion-blurred, noisy balls
+# CRITICAL: This addresses the physics of high-velocity ball detection (100km/h = streak, not sphere)
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 2
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+training:
+  batch_size: 2  # Physical batch size
+  learning_rate: 0.0002
+  epochs: 50  # Extended to 50 epochs
+  weight_decay: 0.0001
+  gradient_clip: 0.1
+  grad_accum_steps: 20  # Effective batch size = 2 * 20 = 40
+  resolution: 1120  # Keep for Phase 1, increase to 1288 in Phase 1.5
+  num_workers: 1
+  device: cuda
+  mixed_precision: true
+  multi_scale: false  # Enable in Phase 3
+  expanded_scales: false
+
+# CRITICAL: Domain Adaptation Augmentations
+# These address the Sim2Real gap between clean synthetic data and noisy real video
+augmentation:
+  train:
+    horizontal_flip: 0.5
+    
+    # Motion Blur - Simulates ball velocities from 20-100km/h
+    # At 100km/h, ball travels its full diameter (22cm) in 1/120s exposure
+    # Result: Ball appears as streak, not sphere
+    motion_blur:
+      enabled: true
+      prob: 0.5  # Increased from 0.3 - more aggressive for fast balls
+      max_kernel_size: 15  # Simulates different velocities (3px = slow, 15px = fast)
+    
+    # Gaussian Blur - Simulates sensor noise and defocus
+    gaussian_blur:
+      enabled: true
+      prob: 0.3
+      kernel_size_range: [3, 7]
+      sigma_range: [0.5, 2.0]
+    
+    # ISO Noise - Simulates DJI Osmo Action 5 sensor noise in stadium lighting
+    iso_noise:
+      enabled: true
+      prob: 0.3
+      noise_level: [5, 25]  # Typical ISO grain levels
+    
+    # JPEG Compression - Simulates H.264/H.265 broadcast encoding artifacts
+    jpeg_compression:
+      enabled: true
+      prob: 0.2
+      quality_range: [60, 95]  # Broadcast quality range
+    
+    # Copy-Paste (Ball-Only) - Addresses class imbalance
+    # Artificially increases ball frequency to boost gradient magnitude
+    copy_paste:
+      enabled: true
+      prob: 0.5
+      max_pastes: 3  # Paste 2-4 balls per image (physically impossible but valid training)
+    
+    # Color Jitter - Reduced intensity for small objects
+    # High intensity can make small balls disappear
+    color_jitter:
+      brightness: 0.1  # Reduced from 0.2
+      contrast: 0.1
+      saturation: 0.1
+      hue: 0.05  # Reduced from 0.1
+
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/train
+  coco_val_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/valid
+  category_name: "ball"
+  category_id: 0
+  ball_class_id: 1
+  pin_memory: false
+  prefetch_factor: 1
+  persistent_workers: false
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/checkpoint.pth
+  start_epoch: 39  # Starting from epoch 39 checkpoint (will train epochs 40-50)
+  save_dir: models/checkpoints
+
+# Changes from base config:
+# - Added comprehensive augmentation section (was missing)
+# - Motion blur: enabled, prob=0.5 (was disabled/unknown)
+# - Added noise augmentations (Gaussian, ISO)
+# - Added compression artifacts (JPEG)
+# - Extended epochs: 40 -> 50
+#
+# Expected Impact:
+# - Addresses Sim2Real domain gap (clean synthetic -> noisy real)
+# - Teaches model that "streak" = ball (motion blur physics)
+# - Prevents overfitting to perfect synthetic textures
+# - Expected: +0.03-0.05 improvement in small objects mAP (0.598 -> 0.63-0.65)
+#
+# Risk: Low - augmentations already implemented in codebase

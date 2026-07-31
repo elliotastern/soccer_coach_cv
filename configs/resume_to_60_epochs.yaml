@@ -1,0 +1,43 @@
+# Resume Training Configuration - Extended to 60 Epochs
+# Continue training from epoch 50 to 60 (10 more epochs)
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 2
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+training:
+  batch_size: 2
+  learning_rate: 0.0002
+  epochs: 60  # Extended to 60 epochs
+  weight_decay: 0.0001
+  gradient_clip: 0.1
+  grad_accum_steps: 20
+  resolution: 1120
+  num_workers: 1
+  device: cuda
+  mixed_precision: true
+  multi_scale: false
+  expanded_scales: false
+  
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/train
+  coco_val_path: /workspace/soccer_cv_ball/models/ball_detection_combined_optimized/dataset/valid
+  category_name: "ball"
+  category_id: 0
+  ball_class_id: 1
+  pin_memory: false
+  prefetch_factor: 1
+  persistent_workers: false
+
+checkpoint:
+  resume_from: models/checkpoint.pth  # Will be updated after epoch 50
+  start_epoch: 50
+  save_dir: models/checkpoints
