@@ -94,3 +94,7 @@ python scripts/gold_set/export_gold_coco.py --gold-dir data/processed/gold_sets/
 - Prefer commercial-use-safe Match footage only.
 - High precision, lower recall: confidence below ~80% → drop / do nothing in product thresholds (eval may still report at other cutoffs).
 - After correction, treat `annotations.coco.json` from export as the frozen GT for model comparisons; note checkpoint paths and date in any report under `reports/`.
+
+## Results so far
+
+- **Frames 0–20 labelled** (2026-07-31): player P≈97% / R≈35% at IoU 0.5, conf ≥ 0.8 (**precision PASS**); ball **0** dets at conf ≥ 0.8. Full table: [`reports/gold100_frames0_20_eval.md`](../../reports/gold100_frames0_20_eval.md).
