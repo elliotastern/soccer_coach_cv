@@ -147,7 +147,7 @@
       </labels>
     </task>
   </meta>
-  <track id="track-1785542438872" label="ball" source="manual"><box frame="2" xtl="1439.95" ytl="133.31" xbr="1448.78" ybr="145.99" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542367922" label="player" source="manual"><box frame="5" xtl="1200.96" ytl="431.57" xbr="1254.69" ybr="555.76" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542333438" label="player" source="manual"><box frame="4" xtl="1730.12" ytl="460.77" xbr="1775.83" ybr="557.90" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542325438" label="player" source="manual"><box frame="4" xtl="1599.13" ytl="92.28" xbr="1615.45" ybr="133.50" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542221487" label="ball" source="manual"><box frame="1" xtl="605.11" ytl="85.75" xbr="613.27" ybr="97.17" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542200937" label="player" source="manual"><box frame="0" xtl="1872.10" ytl="294.95" xbr="1888.74" ybr="335.63" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542082121" label="ball" source="manual"><box frame="0" xtl="1564.34" ytl="272.27" xbr="1572.83" ybr="291.08" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785541797736" label="player" source="manual"><box frame="1" xtl="1294.11" ytl="366.62" xbr="1352.86" ybr="463.74" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="0" label="player" source="auto">
+  <track id="track-1785543707277" label="ball" source="manual"><box frame="20" xtl="1207.30" ytl="128.84" xbr="1218.18" ybr="144.33" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543641843" label="ball" source="manual"><box frame="18" xtl="1857.49" ytl="336.08" xbr="1867.46" ybr="349.09" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543613044" label="ball" source="manual"><box frame="17" xtl="1641.33" ytl="123.97" xbr="1652.60" ybr="139.14" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543561727" label="player" source="manual"><box frame="16" xtl="1814.63" ytl="259.08" xbr="1835.15" ybr="312.43" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543557460" label="player" source="manual"><box frame="16" xtl="1834.24" ytl="309.70" xbr="1861.60" ybr="377.64" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543451826" label="player" source="manual"><box frame="15" xtl="1184.13" ytl="83.40" xbr="1214.95" ybr="143.90" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543449160" label="player" source="manual"><box frame="15" xtl="909.37" ytl="164.45" xbr="949.33" ybr="235.24" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543425792" label="player" source="manual"><box frame="15" xtl="209.12" ytl="936.29" xbr="286.27" ybr="1023.26" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543384176" label="ball" source="manual"><box frame="15" xtl="1720.58" ytl="414.72" xbr="1769.94" ybr="516.52" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543363659" label="ball" source="manual"><box frame="14" xtl="585.65" ytl="234.35" xbr="632.88" ybr="316.53" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543304092" label="player" source="manual"><box frame="12" xtl="841.08" ytl="156.73" xbr="859.66" ybr="216.49" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543280125" label="player" source="manual"><box frame="12" xtl="1873.49" ytl="451.76" xbr="1900.24" ybr="525.55" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543256708" label="ball" source="manual"><box frame="12" xtl="1775.43" ytl="409.31" xbr="1789.23" ybr="420.01" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543251059" label="player" source="manual"><box frame="12" xtl="1738.13" ytl="336.25" xbr="1773.89" ybr="402.43" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543216675" label="ball" source="manual"><box frame="11" xtl="1232.97" ytl="97.82" xbr="1242.83" ybr="106.27" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543165558" label="ball" source="manual"><box frame="10" xtl="588.04" ytl="235.11" xbr="623.22" ybr="314.49" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543112608" label="ball" source="manual"><box frame="8" xtl="1126.05" ytl="79.35" xbr="1152.80" ybr="136.23" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543098142" label="player" source="manual"><box frame="8" xtl="410.31" ytl="291.40" xbr="454.31" ybr="372.89" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543069653" label="player" source="manual"><box frame="7" xtl="1828.22" ytl="300.66" xbr="1847.42" ybr="354.64" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543065619" label="player" source="manual"><box frame="7" xtl="1816.13" ytl="324.57" xbr="1838.97" ybr="375.95" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785543039369" label="player" source="manual"><box frame="7" xtl="583.79" ytl="240.92" xbr="619.47" ybr="332.81" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542766356" label="player" source="manual"><box frame="6" xtl="1731.76" ytl="378.80" xbr="1766.85" ybr="460.01" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542757756" label="ball" source="manual"><box frame="6" xtl="1736.65" ytl="371.46" xbr="1746.45" ybr="388.19" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542675507" label="ball" source="manual"><box frame="5" xtl="1450.50" ytl="152.18" xbr="1460.02" ybr="161.97" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542663622" label="player" source="manual"><box frame="5" xtl="1512.93" ytl="183.67" xbr="1513.93" ybr="184.67" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542438872" label="ball" source="manual"><box frame="2" xtl="1439.95" ytl="133.31" xbr="1448.78" ybr="145.99" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542367922" label="player" source="manual"><box frame="5" xtl="1200.96" ytl="431.57" xbr="1254.69" ybr="555.76" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542333438" label="player" source="manual"><box frame="4" xtl="1730.12" ytl="460.77" xbr="1775.83" ybr="557.90" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542325438" label="player" source="manual"><box frame="4" xtl="1599.13" ytl="92.28" xbr="1615.45" ybr="133.50" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542221487" label="ball" source="manual"><box frame="1" xtl="605.11" ytl="85.75" xbr="613.27" ybr="97.17" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542200937" label="player" source="manual"><box frame="0" xtl="1872.10" ytl="294.95" xbr="1888.74" ybr="335.63" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785542082121" label="ball" source="manual"><box frame="0" xtl="1564.34" ytl="272.27" xbr="1572.83" ybr="291.08" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="track-1785541797736" label="player" source="manual"><box frame="1" xtl="1294.11" ytl="366.62" xbr="1352.86" ybr="463.74" occluded="0" outside="0" keyframe="1"><attribute name="confidence">1.000</attribute></box></track><track id="0" label="player" source="auto">
     
   <box frame="0" xtl="577.26" ytl="217.47" xbr="602.83" ybr="300.70" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.857</attribute></box></track>
   <track id="1" label="player" source="auto">
@@ -398,7 +398,7 @@
   <box frame="5" xtl="1352.65" ytl="164.19" xbr="1379.57" ybr="236.17" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.815</attribute></box></track>
   <track id="83" label="player" source="auto">
     
-  <box frame="5" xtl="1449.79" ytl="164.30" xbr="1475.20" ybr="228.64" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.796</attribute></box></track>
+  <box frame="5" xtl="1450.90" ytl="163.67" xbr="1474.16" ybr="229.78" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.796</attribute></box></track>
   <track id="84" label="player" source="auto">
     
   <box frame="5" xtl="1704.29" ytl="265.15" xbr="1729.16" ybr="333.77" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.796</attribute></box></track>
@@ -440,19 +440,19 @@
   <box frame="6" xtl="1809.42" ytl="428.42" xbr="1848.12" ybr="509.29" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.801</attribute></box></track>
   <track id="97" label="player" source="auto">
     
-  <box frame="6" xtl="592.58" ytl="247.67" xbr="615.23" ybr="320.96" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.789</attribute></box></track>
+  <box frame="6" xtl="592.58" ytl="247.67" xbr="625.17" ybr="321.98" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.789</attribute></box></track>
   <track id="98" label="player" source="auto">
     
   <box frame="6" xtl="1393.55" ytl="127.90" xbr="1416.04" ybr="186.67" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.782</attribute></box></track>
   <track id="99" label="player" source="auto">
     
-  <box frame="6" xtl="1826.99" ytl="272.29" xbr="1854.15" ybr="337.04" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.758</attribute></box></track>
+  <box frame="6" xtl="1828.88" ytl="275.97" xbr="1854.15" ybr="337.04" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.758</attribute></box></track>
   <track id="100" label="player" source="auto">
     
   <box frame="6" xtl="1793.41" ytl="228.37" xbr="1818.50" ybr="287.63" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.725</attribute></box></track>
   <track id="101" label="player" source="auto">
     
-  <box frame="6" xtl="603.61" ytl="243.89" xbr="624.91" ybr="312.14" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.685</attribute></box></track>
+  </track>
   <track id="102" label="player" source="auto">
     
   <box frame="6" xtl="1862.91" ytl="327.99" xbr="1893.08" ybr="386.03" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.665</attribute></box></track>
@@ -467,13 +467,13 @@
   <box frame="6" xtl="1583.21" ytl="932.27" xbr="1614.24" ybr="960.12" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.621</attribute></box></track>
   <track id="106" label="player" source="auto">
     
-  <box frame="7" xtl="589.15" ytl="237.42" xbr="609.43" ybr="327.03" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.841</attribute></box></track>
+  </track>
   <track id="107" label="player" source="auto">
     
-  <box frame="7" xtl="1495.14" ytl="199.83" xbr="1520.44" ybr="263.81" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.707</attribute></box></track>
+  </track>
   <track id="108" label="player" source="auto">
     
-  <box frame="7" xtl="1480.81" ytl="154.03" xbr="1502.03" ybr="210.95" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.693</attribute></box></track>
+  <box frame="7" xtl="1480.81" ytl="154.03" xbr="1506.31" ybr="210.40" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.693</attribute></box></track>
   <track id="109" label="player" source="auto">
     
   <box frame="7" xtl="1714.58" ytl="193.12" xbr="1737.53" ybr="250.80" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.625</attribute></box></track>
@@ -482,25 +482,25 @@
   <box frame="7" xtl="1672.63" ytl="160.64" xbr="1695.39" ybr="217.83" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.613</attribute></box></track>
   <track id="111" label="player" source="auto">
     
-  <box frame="7" xtl="1491.26" ytl="212.23" xbr="1511.52" ybr="267.59" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.432</attribute></box></track>
+  <box frame="7" xtl="1491.26" ytl="212.23" xbr="1519.80" ybr="268.01" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.432</attribute></box></track>
   <track id="112" label="player" source="auto">
     
-  <box frame="7" xtl="234.68" ytl="475.99" xbr="267.29" ybr="583.76" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.427</attribute></box></track>
+  </track>
   <track id="113" label="player" source="auto">
     
-  <box frame="7" xtl="170.58" ytl="551.26" xbr="211.24" ybr="677.71" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.426</attribute></box></track>
+  </track>
   <track id="114" label="player" source="auto">
     
-  <box frame="7" xtl="99.93" ytl="684.54" xbr="165.33" ybr="885.29" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.422</attribute></box></track>
+  </track>
   <track id="115" label="player" source="auto">
     
-  <box frame="7" xtl="207.92" ytl="492.65" xbr="239.51" ybr="607.53" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.387</attribute></box></track>
+  </track>
   <track id="116" label="player" source="auto">
     
-  <box frame="7" xtl="149.54" ytl="583.90" xbr="190.19" ybr="722.12" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.328</attribute></box></track>
+  </track>
   <track id="117" label="ball" source="auto">
     
-  <box frame="7" xtl="584.10" ytl="237.25" xbr="611.77" ybr="319.34" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.336</attribute></box></track>
+  </track>
   <track id="118" label="player" source="auto">
     
   <box frame="8" xtl="1726.93" ytl="294.75" xbr="1758.94" ybr="372.88" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.840</attribute></box></track>
@@ -533,22 +533,22 @@
   <box frame="8" xtl="1647.31" ytl="238.92" xbr="1677.56" ybr="292.91" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.697</attribute></box></track>
   <track id="128" label="player" source="auto">
     
-  <box frame="8" xtl="1132.03" ytl="77.20" xbr="1150.32" ybr="133.61" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.649</attribute></box></track>
+  </track>
   <track id="129" label="player" source="auto">
     
-  <box frame="8" xtl="1128.83" ytl="86.54" xbr="1147.00" ybr="140.07" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.641</attribute></box></track>
+  </track>
   <track id="130" label="player" source="auto">
     
   <box frame="8" xtl="1590.46" ytl="242.18" xbr="1620.31" ybr="319.51" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.604</attribute></box></track>
   <track id="131" label="player" source="auto">
     
-  <box frame="8" xtl="172.67" ytl="550.97" xbr="214.03" ybr="670.50" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.317</attribute></box></track>
+  </track>
   <track id="132" label="player" source="auto">
     
-  <box frame="8" xtl="1132.37" ytl="75.64" xbr="1149.08" ybr="126.04" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.316</attribute></box></track>
+  </track>
   <track id="133" label="ball" source="auto">
     
-  <box frame="8" xtl="1129.24" ytl="106.43" xbr="1149.80" ybr="131.06" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.322</attribute></box></track>
+  </track>
   <track id="134" label="player" source="auto">
     
   <box frame="9" xtl="550.16" ytl="264.02" xbr="576.70" ybr="352.50" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.862</attribute></box></track>
@@ -608,7 +608,7 @@
   <box frame="10" xtl="1440.25" ytl="207.74" xbr="1466.16" ybr="283.19" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.845</attribute></box></track>
   <track id="153" label="player" source="auto">
     
-  <box frame="10" xtl="594.08" ytl="231.22" xbr="614.98" ybr="313.24" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.838</attribute></box></track>
+  </track>
   <track id="154" label="player" source="auto">
     
   <box frame="10" xtl="1542.70" ytl="115.85" xbr="1563.36" ybr="172.31" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.818</attribute></box></track>
@@ -638,7 +638,7 @@
   <box frame="10" xtl="1591.86" ytl="899.55" xbr="1737.88" ybr="1045.59" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.516</attribute></box></track>
   <track id="163" label="ball" source="auto">
     
-  <box frame="10" xtl="588.25" ytl="232.29" xbr="618.58" ybr="304.84" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.725</attribute></box></track>
+  </track>
   <track id="164" label="player" source="auto">
     
   <box frame="11" xtl="587.19" ytl="189.48" xbr="609.45" ybr="267.62" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.842</attribute></box></track>
@@ -647,10 +647,10 @@
   <box frame="11" xtl="782.44" ytl="28.92" xbr="795.83" ybr="80.96" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.831</attribute></box></track>
   <track id="166" label="player" source="auto">
     
-  <box frame="11" xtl="927.41" ytl="60.70" xbr="941.28" ybr="117.15" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.818</attribute></box></track>
+  <box frame="11" xtl="922.57" ytl="65.79" xbr="941.28" ybr="117.15" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.818</attribute></box></track>
   <track id="167" label="player" source="auto">
     
-  <box frame="11" xtl="1236.93" ytl="81.26" xbr="1257.66" ybr="141.41" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.812</attribute></box></track>
+  <box frame="11" xtl="1231.47" ytl="82.87" xbr="1262.17" ybr="141.41" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.812</attribute></box></track>
   <track id="168" label="player" source="auto">
     
   <box frame="11" xtl="1046.44" ytl="204.83" xbr="1076.09" ybr="287.86" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.812</attribute></box></track>
@@ -668,7 +668,7 @@
   <box frame="11" xtl="1152.80" ytl="28.27" xbr="1170.36" ybr="79.40" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.796</attribute></box></track>
   <track id="173" label="player" source="auto">
     
-  <box frame="11" xtl="920.08" ytl="14.52" xbr="931.97" ybr="67.98" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.796</attribute></box></track>
+  <box frame="11" xtl="920.08" ytl="19.52" xbr="947.86" ybr="67.98" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.796</attribute></box></track>
   <track id="174" label="player" source="auto">
     
   <box frame="11" xtl="1267.62" ytl="69.71" xbr="1286.47" ybr="129.84" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.790</attribute></box></track>
@@ -680,16 +680,16 @@
   <box frame="11" xtl="1085.13" ytl="64.59" xbr="1103.60" ybr="121.22" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.780</attribute></box></track>
   <track id="177" label="player" source="auto">
     
-  <box frame="11" xtl="994.27" ytl="245.11" xbr="1019.86" ybr="314.48" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.746</attribute></box></track>
+  <box frame="11" xtl="966.46" ytl="245.11" xbr="1039.45" ybr="327.68" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.746</attribute></box></track>
   <track id="178" label="player" source="auto">
     
   <box frame="11" xtl="1102.63" ytl="42.74" xbr="1118.02" ybr="91.49" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.717</attribute></box></track>
   <track id="179" label="player" source="auto">
     
-  <box frame="11" xtl="973.85" ytl="253.59" xbr="1003.76" ybr="330.50" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.712</attribute></box></track>
+  </track>
   <track id="180" label="player" source="auto">
     
-  <box frame="12" xtl="843.50" ytl="150.55" xbr="870.75" ybr="226.89" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.856</attribute></box></track>
+  <box frame="12" xtl="853.38" ytl="162.23" xbr="874.79" ybr="229.07" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.856</attribute></box></track>
   <track id="181" label="player" source="auto">
     
   <box frame="12" xtl="602.41" ytl="247.15" xbr="627.60" ybr="330.67" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.838</attribute></box></track>
@@ -701,7 +701,7 @@
   <box frame="12" xtl="1436.95" ytl="306.71" xbr="1473.06" ybr="392.06" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.750</attribute></box></track>
   <track id="184" label="player" source="auto">
     
-  <box frame="12" xtl="1292.37" ytl="529.61" xbr="1341.38" ybr="627.33" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.673</attribute></box></track>
+  <box frame="12" xtl="1274.87" ytl="529.61" xbr="1341.38" ybr="650.37" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.673</attribute></box></track>
   <track id="185" label="player" source="auto">
     
   <box frame="12" xtl="1169.98" ytl="46.31" xbr="1189.69" ybr="100.00" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.654</attribute></box></track>
@@ -722,7 +722,7 @@
   <box frame="12" xtl="1767.80" ytl="351.02" xbr="1803.82" ybr="424.49" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.457</attribute></box></track>
   <track id="191" label="player" source="auto">
     
-  <box frame="12" xtl="1853.12" ytl="435.59" xbr="1890.96" ybr="506.35" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.344</attribute></box></track>
+  <box frame="12" xtl="1853.12" ytl="435.59" xbr="1879.40" ybr="499.64" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.344</attribute></box></track>
   <track id="192" label="player" source="auto">
     
   <box frame="12" xtl="99.46" ytl="684.03" xbr="168.41" ybr="889.95" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.308</attribute></box></track>
@@ -767,13 +767,13 @@
   <box frame="13" xtl="1792.97" ytl="243.56" xbr="1812.54" ybr="298.60" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.701</attribute></box></track>
   <track id="206" label="player" source="auto">
     
-  <box frame="13" xtl="172.59" ytl="549.21" xbr="212.69" ybr="666.51" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.319</attribute></box></track>
+  </track>
   <track id="207" label="player" source="auto">
     
   <box frame="14" xtl="1443.75" ytl="289.68" xbr="1474.98" ybr="367.43" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.855</attribute></box></track>
   <track id="208" label="player" source="auto">
     
-  <box frame="14" xtl="596.60" ytl="228.96" xbr="622.42" ybr="312.86" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.848</attribute></box></track>
+  </track>
   <track id="209" label="player" source="auto">
     
   <box frame="14" xtl="1387.45" ytl="118.27" xbr="1409.14" ybr="177.93" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.816</attribute></box></track>
@@ -803,13 +803,13 @@
   <box frame="14" xtl="1718.30" ytl="180.51" xbr="1746.31" ybr="235.44" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.561</attribute></box></track>
   <track id="218" label="player" source="auto">
     
-  <box frame="14" xtl="232.86" ytl="478.15" xbr="267.84" ybr="580.59" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.346</attribute></box></track>
+  </track>
   <track id="219" label="player" source="auto">
     
-  <box frame="14" xtl="239.34" ytl="442.06" xbr="273.91" ybr="549.46" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.333</attribute></box></track>
+  </track>
   <track id="220" label="ball" source="auto">
     
-  <box frame="14" xtl="590.60" ytl="230.46" xbr="625.66" ybr="303.26" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.672</attribute></box></track>
+  </track>
   <track id="221" label="player" source="auto">
     
   <box frame="15" xtl="644.96" ytl="795.13" xbr="707.67" ybr="922.32" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.837</attribute></box></track>
@@ -824,10 +824,10 @@
   <box frame="15" xtl="1400.88" ytl="147.41" xbr="1430.38" ybr="213.23" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.813</attribute></box></track>
   <track id="225" label="player" source="auto">
     
-  <box frame="15" xtl="1191.05" ytl="82.19" xbr="1214.63" ybr="144.17" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.807</attribute></box></track>
+  </track>
   <track id="226" label="player" source="auto">
     
-  <box frame="15" xtl="919.52" ytl="109.12" xbr="940.76" ybr="171.69" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.789</attribute></box></track>
+  <box frame="15" xtl="919.52" ytl="109.12" xbr="942.10" ybr="162.55" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.789</attribute></box></track>
   <track id="227" label="player" source="auto">
     
   <box frame="15" xtl="1492.90" ytl="173.40" xbr="1520.84" ybr="244.07" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.787</attribute></box></track>
@@ -836,13 +836,13 @@
   <box frame="15" xtl="993.46" ytl="267.03" xbr="1024.20" ybr="350.80" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.781</attribute></box></track>
   <track id="229" label="player" source="auto">
     
-  <box frame="15" xtl="916.80" ytl="151.18" xbr="941.59" ybr="233.50" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.770</attribute></box></track>
+  </track>
   <track id="230" label="player" source="auto">
     
-  <box frame="15" xtl="1137.03" ytl="305.73" xbr="1169.47" ybr="378.94" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.764</attribute></box></track>
+  <box frame="15" xtl="1130.14" ytl="305.73" xbr="1171.48" ybr="406.70" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.764</attribute></box></track>
   <track id="231" label="player" source="auto">
     
-  <box frame="15" xtl="1132.68" ytl="328.53" xbr="1166.76" ybr="406.56" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.762</attribute></box></track>
+  </track>
   <track id="232" label="player" source="auto">
     
   <box frame="15" xtl="988.27" ytl="70.12" xbr="1009.40" ybr="130.75" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.759</attribute></box></track>
@@ -851,13 +851,13 @@
   <box frame="15" xtl="607.73" ytl="342.95" xbr="645.46" ybr="442.18" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.744</attribute></box></track>
   <track id="234" label="player" source="auto">
     
-  <box frame="15" xtl="1588.58" ytl="420.28" xbr="1629.73" ybr="513.44" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.693</attribute></box></track>
+  </track>
   <track id="235" label="player" source="auto">
     
   <box frame="15" xtl="1620.42" ytl="414.49" xbr="1650.49" ybr="493.13" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.692</attribute></box></track>
   <track id="236" label="player" source="auto">
     
-  <box frame="15" xtl="997.22" ytl="263.13" xbr="1023.97" ybr="333.87" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.394</attribute></box></track>
+  </track>
   <track id="237" label="player" source="auto">
     
   <box frame="15" xtl="160.60" ytl="554.44" xbr="210.16" ybr="693.81" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.362</attribute></box></track>
@@ -878,19 +878,19 @@
   <box frame="16" xtl="1710.71" ytl="189.19" xbr="1736.96" ybr="240.71" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.690</attribute></box></track>
   <track id="243" label="player" source="auto">
     
-  <box frame="16" xtl="664.54" ytl="245.62" xbr="685.47" ybr="319.01" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.460</attribute></box></track>
+  </track>
   <track id="244" label="player" source="auto">
     
-  <box frame="16" xtl="334.01" ytl="498.85" xbr="361.14" ybr="556.99" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.336</attribute></box></track>
+  </track>
   <track id="245" label="player" source="auto">
     
-  <box frame="16" xtl="94.54" ytl="527.39" xbr="114.11" ybr="592.23" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.330</attribute></box></track>
+  </track>
   <track id="246" label="player" source="auto">
     
-  <box frame="16" xtl="232.27" ytl="480.39" xbr="264.70" ybr="580.09" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.319</attribute></box></track>
+  </track>
   <track id="247" label="player" source="auto">
     
-  <box frame="16" xtl="105.10" ytl="691.60" xbr="168.86" ybr="885.39" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.308</attribute></box></track>
+  </track>
   <track id="248" label="player" source="auto">
     
   <box frame="17" xtl="670.09" ytl="233.77" xbr="690.16" ybr="319.71" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.846</attribute></box></track>
@@ -923,13 +923,13 @@
   <box frame="17" xtl="1741.97" ytl="183.98" xbr="1765.15" ybr="236.75" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.708</attribute></box></track>
   <track id="258" label="player" source="auto">
     
-  <box frame="17" xtl="166.64" ytl="556.29" xbr="213.14" ybr="688.95" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.451</attribute></box></track>
+  </track>
   <track id="259" label="player" source="auto">
     
   <box frame="17" xtl="1849.85" ytl="234.03" xbr="1875.59" ybr="295.52" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.364</attribute></box></track>
   <track id="260" label="player" source="auto">
     
-  <box frame="17" xtl="202.87" ytl="493.27" xbr="238.92" ybr="607.74" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.342</attribute></box></track>
+  </track>
   <track id="261" label="player" source="auto">
     
   <box frame="18" xtl="1510.43" ytl="239.30" xbr="1535.70" ybr="309.20" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.799</attribute></box></track>
@@ -953,7 +953,7 @@
   <box frame="18" xtl="1668.74" ytl="234.29" xbr="1692.36" ybr="297.25" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.738</attribute></box></track>
   <track id="268" label="player" source="auto">
     
-  <box frame="18" xtl="1823.88" ytl="280.36" xbr="1848.57" ybr="339.40" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.732</attribute></box></track>
+  <box frame="18" xtl="1823.88" ytl="280.36" xbr="1846.21" ybr="338.68" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.732</attribute></box></track>
   <track id="269" label="player" source="auto">
     
   <box frame="18" xtl="1707.14" ytl="236.94" xbr="1727.24" ybr="295.51" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.720</attribute></box></track>
@@ -965,25 +965,25 @@
   <box frame="18" xtl="1643.93" ytl="121.52" xbr="1662.59" ybr="171.01" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.700</attribute></box></track>
   <track id="272" label="player" source="auto">
     
-  <box frame="18" xtl="751.17" ytl="198.91" xbr="767.81" ybr="276.88" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.647</attribute></box></track>
+  </track>
   <track id="273" label="player" source="auto">
     
   <box frame="18" xtl="1744.94" ytl="398.79" xbr="1775.40" ybr="469.11" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.647</attribute></box></track>
   <track id="274" label="player" source="auto">
     
-  <box frame="18" xtl="745.17" ytl="197.45" xbr="761.51" ybr="266.97" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.582</attribute></box></track>
+  </track>
   <track id="275" label="player" source="auto">
     
-  <box frame="18" xtl="508.74" ytl="92.59" xbr="519.58" ybr="147.26" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.370</attribute></box></track>
+  </track>
   <track id="276" label="player" source="auto">
     
-  <box frame="18" xtl="506.26" ytl="73.40" xbr="518.12" ybr="129.14" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.338</attribute></box></track>
+  </track>
   <track id="277" label="player" source="auto">
     
-  <box frame="18" xtl="516.82" ytl="56.20" xbr="527.33" ybr="107.38" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.323</attribute></box></track>
+  </track>
   <track id="278" label="player" source="auto">
     
-  <box frame="18" xtl="752.01" ytl="197.40" xbr="767.27" ybr="266.99" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.319</attribute></box></track>
+  <box frame="18" xtl="745.55" ytl="197.40" xbr="767.27" ybr="282.83" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.319</attribute></box></track>
   <track id="279" label="player" source="auto">
     
   <box frame="19" xtl="1625.23" ytl="159.77" xbr="1645.15" ybr="216.06" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.830</attribute></box></track>
@@ -1013,19 +1013,19 @@
   <box frame="19" xtl="1364.70" ytl="178.88" xbr="1393.43" ybr="250.75" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.746</attribute></box></track>
   <track id="288" label="player" source="auto">
     
-  <box frame="19" xtl="234.87" ytl="480.77" xbr="268.49" ybr="575.44" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.456</attribute></box></track>
+  </track>
   <track id="289" label="player" source="auto">
     
-  <box frame="19" xtl="1894.41" ytl="611.37" xbr="1919.24" ybr="681.19" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.416</attribute></box></track>
+  <box frame="19" xtl="1878.33" ytl="611.37" xbr="1919.35" ybr="686.00" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.416</attribute></box></track>
   <track id="290" label="player" source="auto">
     
-  <box frame="19" xtl="108.05" ytl="304.99" xbr="139.23" ybr="377.37" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.316</attribute></box></track>
+  </track>
   <track id="291" label="player" source="auto">
     
-  <box frame="19" xtl="334.01" ytl="499.39" xbr="358.82" ybr="542.39" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.310</attribute></box></track>
+  </track>
   <track id="292" label="ball" source="auto">
     
-  <box frame="19" xtl="536.42" ytl="30.80" xbr="571.83" ybr="61.58" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.454</attribute></box></track>
+  </track>
   <track id="293" label="player" source="auto">
     
   <box frame="20" xtl="1524.76" ytl="223.03" xbr="1550.31" ybr="292.59" occluded="0" outside="0" keyframe="1"><attribute name="confidence">0.836</attribute></box></track>

@@ -134,21 +134,32 @@ def main():
                 n_boxes = page.evaluate("() => (boxes[0] || []).length")
                 failures.append(f"new box not created; boxes[0]={n_boxes}")
 
-        # Resize via SE corner drag + keyboard nudge
+        # Resize via SE corner drag + keyboard nudge (pick an in-bounds box)
         if frame_with_box >= 0:
             page.evaluate("f => seekToFrame(f)", frame_with_box)
             page.wait_for_timeout(300)
-            before_r = page.evaluate(
+            box_idx = page.evaluate(
                 """f => {
-                    const b = boxes[f][0];
-                    selectedBox = b;
-                    return {xbr: b.xbr, ybr: b.ybr, xtl: b.xtl};
+                    const list = boxes[f] || [];
+                    for (let i = 0; i < list.length; i++) {
+                        const b = list[i];
+                        if (b.xbr < videoWidth - 50 && b.ybr < videoHeight - 50 && b.xtl > 20 && b.ytl > 20) return i;
+                    }
+                    return 0;
                 }""",
                 frame_with_box,
             )
+            before_r = page.evaluate(
+                """([f, i]) => {
+                    const b = boxes[f][i];
+                    selectedBox = b;
+                    return {xbr: b.xbr, ybr: b.ybr, xtl: b.xtl};
+                }""",
+                [frame_with_box, box_idx],
+            )
             se = page.evaluate(
-                """f => {
-                    const b = boxes[f][0];
+                """([f, i]) => {
+                    const b = boxes[f][i];
                     const canvas = document.getElementById('videoCanvas');
                     const rect = canvas.getBoundingClientRect();
                     const bufferX = (b.xbr - videoWidth / 2) * zoomLevel + canvas.width / 2 + panX;
@@ -158,7 +169,7 @@ def main():
                         y: rect.top + bufferY * (rect.height / canvas.height),
                     };
                 }""",
-                frame_with_box,
+                [frame_with_box, box_idx],
             )
             page.mouse.move(se["x"], se["y"])
             page.mouse.down()
@@ -166,78 +177,96 @@ def main():
             page.mouse.up()
             page.wait_for_timeout(200)
             after_r = page.evaluate(
-                """f => {
-                    const b = boxes[f][0];
+                """([f, i]) => {
+                    const b = boxes[f][i];
                     return {xbr: b.xbr, ybr: b.ybr};
                 }""",
-                frame_with_box,
+                [frame_with_box, box_idx],
             )
             if abs(after_r["xbr"] - before_r["xbr"]) < 5 and abs(after_r["ybr"] - before_r["ybr"]) < 5:
                 failures.append(f"resize did not change box: before={before_r} after={after_r}")
 
             page.evaluate(
-                """f => { selectedBox = boxes[f][0]; }""",
-                frame_with_box,
+                """([f, i]) => { selectedBox = boxes[f][i]; }""",
+                [frame_with_box, box_idx],
             )
-            page.keyboard.press("ArrowRight")
-            page.wait_for_timeout(100)
-            nudged = page.evaluate(
-                """([f, xtl0]) => Math.abs(boxes[f][0].xtl - xtl0) >= 1""",
-                [frame_with_box, before_r["xtl"]],
-            )
-            # may have been moved by drag already; just ensure arrow moves when selected
-            xtl_before_arrow = page.evaluate("f => boxes[f][0].xtl", frame_with_box)
+            xtl_before_arrow = page.evaluate("([f, i]) => boxes[f][i].xtl", [frame_with_box, box_idx])
             page.keyboard.press("ArrowRight")
             page.wait_for_timeout(50)
-            xtl_after_arrow = page.evaluate("f => boxes[f][0].xtl", frame_with_box)
+            xtl_after_arrow = page.evaluate("([f, i]) => boxes[f][i].xtl", [frame_with_box, box_idx])
             if abs(xtl_after_arrow - xtl_before_arrow) < 0.5:
                 failures.append(f"arrow nudge failed: {xtl_before_arrow} -> {xtl_after_arrow}")
 
-        # Save to a temp XML (do not overwrite gold prelabels)
-        save_ok = page.evaluate(
-            """async () => {
-                if (typeof saveAnnotations !== 'function') return 'no-save-fn';
-                const orig = window.fetch;
-                let posted = null;
-                window.fetch = async (url, opts) => {
-                    if (url === '/save_annotations') {
-                        posted = JSON.parse(opts.body);
-                        posted.file_path = 'data/processed/gold_sets/match1_1_100/review/_test_save.xml';
-                        const res = await orig(url, { ...opts, body: JSON.stringify(posted) });
-                        return res;
-                    }
-                    return orig(url, opts);
-                };
-                try {
-                    // Call internal path by invoking save with patched fetch
-                    await (async () => {
-                        // reuse serializer path from saveAnnotations by calling it
-                        const btn = document.querySelector('button[onclick="saveAnnotations()"]');
-                        if (!btn) throw new Error('no save button');
-                        // Directly POST a minimal valid payload using current annotations
-                        const serializer = new XMLSerializer();
-                        const xml = serializer.serializeToString(annotations);
-                        const res = await fetch('/save_annotations', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({
-                                xml,
-                                file_path: 'data/processed/gold_sets/match1_1_100/review/_test_save.xml'
-                            })
+        # Save must not change in-memory box coords or currentFrame
+        if frame_with_box >= 0:
+            page.evaluate("f => seekToFrame(f)", frame_with_box)
+            page.wait_for_timeout(300)
+            page.evaluate(
+                """f => {
+                    const b = boxes[f][0];
+                    b.xtl += 17;
+                    b.xbr += 17;
+                    selectedBox = b;
+                }""",
+                frame_with_box,
+            )
+            before_save = page.evaluate(
+                """() => ({
+                    frame: currentFrame,
+                    box: {xtl: boxes[currentFrame][0].xtl, ytl: boxes[currentFrame][0].ytl},
+                    src: document.getElementById('reviewImage').src,
+                })"""
+            )
+            save_result = page.evaluate(
+                """async () => {
+                    const orig = window.fetch;
+                    window.fetch = async (url, opts) => {
+                        if (url === '/save_annotations') {
+                            const body = JSON.parse(opts.body);
+                            body.file_path = 'data/processed/gold_sets/match1_1_100/review/_test_save.xml';
+                            return orig(url, { ...opts, body: JSON.stringify(body) });
+                        }
+                        return orig(url, opts);
+                    };
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const _alert = window.alert;
+                            window.alert = (msg) => { if (String(msg).includes('Error')) reject(new Error(msg)); };
+                            const prev = debugLog;
+                            let saw = false;
+                            window.debugLog = (m) => { if (String(m).includes('without reload')) saw = true; prev(m); };
+                            saveAnnotations();
+                            setTimeout(() => {
+                                window.alert = _alert;
+                                window.debugLog = prev;
+                                if (saw) resolve('ok');
+                                else resolve('no-soft-save');
+                            }, 800);
                         });
-                        const data = await res.json();
-                        if (!data.success) throw new Error(data.error || 'save failed');
-                    })();
-                    return 'ok';
-                } catch (e) {
-                    return String(e);
-                } finally {
-                    window.fetch = orig;
-                }
-            }"""
-        )
-        if save_ok != "ok":
-            failures.append(f"save failed: {save_ok}")
+                        return 'ok';
+                    } catch (e) {
+                        return String(e);
+                    } finally {
+                        window.fetch = orig;
+                    }
+                }"""
+            )
+            page.wait_for_timeout(200)
+            after_save = page.evaluate(
+                """() => ({
+                    frame: currentFrame,
+                    box: {xtl: boxes[currentFrame][0].xtl, ytl: boxes[currentFrame][0].ytl},
+                    src: document.getElementById('reviewImage').src,
+                })"""
+            )
+            if save_result != "ok":
+                failures.append(f"save failed: {save_result}")
+            if after_save["frame"] != before_save["frame"]:
+                failures.append(f"save changed frame {before_save['frame']} -> {after_save['frame']}")
+            if abs(after_save["box"]["xtl"] - before_save["box"]["xtl"]) > 0.01:
+                failures.append(f"save moved box {before_save['box']} -> {after_save['box']}")
+            if before_save["src"].split("?")[0] != after_save["src"].split("?")[0]:
+                failures.append(f"save changed image {before_save['src']} -> {after_save['src']}")
 
         browser.close()
 

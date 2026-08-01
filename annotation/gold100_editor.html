@@ -1452,33 +1452,15 @@
                         boxesInCurrentFrame: boxes[currentFrame] ? boxes[currentFrame].length : 0
                     });
                     
-                    // Force video to seek to current frame and redraw
-                    if (video && video.readyState >= 2) {
-                        // Seek to current frame to ensure video is at correct position
-                        video.currentTime = currentFrame / 60;
-                        video.pause();
-                        // Wait for seek to complete, then draw
-                        video.addEventListener('seeked', function onSeeked() {
-                            video.removeEventListener('seeked', onSeeked);
-                            console.log('Video seeked, drawing frame', currentFrame);
-                            drawFrame();
-                        }, { once: true });
-                        // Fallback: draw immediately if seek is instant
-                        setTimeout(() => {
-                            console.log('Fallback draw after timeout');
-                            drawFrame();
-                        }, 100);
-                    } else {
-                        // Video not ready yet, but still draw when it becomes ready
-                        console.log('Video not ready yet, will draw when ready');
-                        if (video) {
-                            video.addEventListener('seeked', function onSeeked() {
-                                video.removeEventListener('seeked', onSeeked);
-                                console.log('Video ready after load, drawing frame', currentFrame);
-                                drawFrame();
-                            }, { once: true });
-                        }
-                    }
+                    // Keep the same review JPG + frame index; never seek hidden video
+                    selectedBox = null;
+                    loadReviewFrame(currentFrame).then(() => {
+                        updateBoxesList();
+                        drawFrame();
+                    }).catch(() => {
+                        updateBoxesList();
+                        drawFrame();
+                    });
                 })
                 .catch(error => {
                     console.error('Error loading annotations:', error);
@@ -1647,8 +1629,8 @@
                     if (boxes[frame] && boxes[frame].length > 0) {
                         boxes[frame].forEach(box => {
                             // Find or create the track element
-                            let track = Array.from(newDoc.querySelectorAll('track')).find(t => 
-                                t.getAttribute('id') === box.trackId.toString()
+                            let track = Array.from(newDoc.querySelectorAll('track')).find(t =>
+                                String(t.getAttribute('id')) === String(box.trackId)
                             );
                             
                             if (!track) {
@@ -1759,27 +1741,21 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Validate the saved XML by trying to reload it
-                        const validateParser = new DOMParser();
-                        const validateDoc = validateParser.parseFromString(finalXml, 'text/xml');
-                        const validateError = validateDoc.querySelector('parsererror');
-                        if (validateError) {
-                            console.error('Saved XML validation error:', validateError.textContent);
-                            alert('Warning: Saved XML may be corrupted. Please check the file.');
+                        // Keep in-memory boxes as-is (already correct). Only refresh XML DOM.
+                        const keepFrame = currentFrame;
+                        annotations = new DOMParser().parseFromString(finalXml, 'text/xml');
+                        selectedBox = null;
+                        updateLabelSelector();
+                        updateBoxesList();
+                        updateObjectTracks();
+                        drawFrame();
+                        const hint = document.getElementById('labelHint');
+                        if (hint) {
+                            const prev = hint.textContent;
+                            hint.textContent = 'Saved frame ' + keepFrame + ' ✓';
+                            setTimeout(() => { if (hint.textContent.startsWith('Saved')) hint.textContent = prev; }, 2000);
                         }
-                        
-                        // Reload annotations to show the saved changes immediately
-                        loadAnnotations();
-                        // Force video seek and redraw
-                        if (video && video.readyState >= 2) {
-                            video.currentTime = currentFrame / 60;
-                            video.addEventListener('seeked', function onSeeked() {
-                                video.removeEventListener('seeked', onSeeked);
-                                drawFrame();
-                            }, { once: true });
-                            setTimeout(() => drawFrame(), 100);
-                        }
-                        alert('Annotations saved successfully! The XML file has been updated.');
+                        debugLog('Saved annotations without reload (frame ' + keepFrame + ')');
                     } else {
                         alert('Error saving annotations: ' + (data.error || 'Unknown error'));
                     }
@@ -1960,13 +1936,7 @@
         });
 
         video.addEventListener('timeupdate', () => {
-            const frame = Math.floor(video.currentTime * 60);
-            if (Math.abs(frame - currentFrame) > 1) {
-                currentFrame = frame;
-                document.getElementById('frameSlider').value = currentFrame;
-                document.getElementById('currentFrame').textContent = currentFrame;
-                updateBoxesList();
-            }
+            // GOLD100: frame index comes only from seekToFrame / slider (image sequence)
         });
 
         video.addEventListener('play', () => {

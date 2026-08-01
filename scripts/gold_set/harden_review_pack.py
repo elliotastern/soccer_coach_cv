@@ -711,12 +711,134 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
         "change-label-default",
     )
 
+    # Save must NOT reload+seek video (timeupdate desyncs currentFrame vs review JPG → boxes jump)
+    html = _must_replace(
+        html,
+        """        video.addEventListener('timeupdate', () => {
+            const frame = Math.floor(video.currentTime * 60);
+            if (Math.abs(frame - currentFrame) > 1) {
+                currentFrame = frame;
+                document.getElementById('frameSlider').value = currentFrame;
+                document.getElementById('currentFrame').textContent = currentFrame;
+                updateBoxesList();
+            }
+        });""",
+        """        video.addEventListener('timeupdate', () => {
+            // GOLD100: frame index comes only from seekToFrame / slider (image sequence)
+        });""",
+        "no-timeupdate-frame",
+    )
+    html = _must_replace(
+        html,
+        """                    // Force video to seek to current frame and redraw
+                    if (video && video.readyState >= 2) {
+                        // Seek to current frame to ensure video is at correct position
+                        video.currentTime = currentFrame / 60;
+                        video.pause();
+                        // Wait for seek to complete, then draw
+                        video.addEventListener('seeked', function onSeeked() {
+                            video.removeEventListener('seeked', onSeeked);
+                            console.log('Video seeked, drawing frame', currentFrame);
+                            drawFrame();
+                        }, { once: true });
+                        // Fallback: draw immediately if seek is instant
+                        setTimeout(() => {
+                            console.log('Fallback draw after timeout');
+                            drawFrame();
+                        }, 100);
+                    } else {
+                        // Video not ready yet, but still draw when it becomes ready
+                        console.log('Video not ready yet, will draw when ready');
+                        if (video) {
+                            video.addEventListener('seeked', function onSeeked() {
+                                video.removeEventListener('seeked', onSeeked);
+                                console.log('Video ready after load, drawing frame', currentFrame);
+                                drawFrame();
+                            }, { once: true });
+                        }
+                    }""",
+        """                    // Keep the same review JPG + frame index; never seek hidden video
+                    selectedBox = null;
+                    loadReviewFrame(currentFrame).then(() => {
+                        updateBoxesList();
+                        drawFrame();
+                    }).catch(() => {
+                        updateBoxesList();
+                        drawFrame();
+                    });""",
+        "load-no-video-seek",
+    )
+    html = _must_replace(
+        html,
+        """                .then(data => {
+                    if (data.success) {
+                        // Validate the saved XML by trying to reload it
+                        const validateParser = new DOMParser();
+                        const validateDoc = validateParser.parseFromString(finalXml, 'text/xml');
+                        const validateError = validateDoc.querySelector('parsererror');
+                        if (validateError) {
+                            console.error('Saved XML validation error:', validateError.textContent);
+                            alert('Warning: Saved XML may be corrupted. Please check the file.');
+                        }
+                        
+                        // Reload annotations to show the saved changes immediately
+                        loadAnnotations();
+                        // Force video seek and redraw
+                        if (video && video.readyState >= 2) {
+                            video.currentTime = currentFrame / 60;
+                            video.addEventListener('seeked', function onSeeked() {
+                                video.removeEventListener('seeked', onSeeked);
+                                drawFrame();
+                            }, { once: true });
+                            setTimeout(() => drawFrame(), 100);
+                        }
+                        alert('Annotations saved successfully! The XML file has been updated.');
+                    } else {
+                        alert('Error saving annotations: ' + (data.error || 'Unknown error'));
+                    }
+                })""",
+        """                .then(data => {
+                    if (data.success) {
+                        // Keep in-memory boxes as-is (already correct). Only refresh XML DOM.
+                        const keepFrame = currentFrame;
+                        annotations = new DOMParser().parseFromString(finalXml, 'text/xml');
+                        selectedBox = null;
+                        updateLabelSelector();
+                        updateBoxesList();
+                        updateObjectTracks();
+                        drawFrame();
+                        const hint = document.getElementById('labelHint');
+                        if (hint) {
+                            const prev = hint.textContent;
+                            hint.textContent = 'Saved frame ' + keepFrame + ' ✓';
+                            setTimeout(() => { if (hint.textContent.startsWith('Saved')) hint.textContent = prev; }, 2000);
+                        }
+                        debugLog('Saved annotations without reload (frame ' + keepFrame + ')');
+                    } else {
+                        alert('Error saving annotations: ' + (data.error || 'Unknown error'));
+                    }
+                })""",
+        "save-no-reload",
+    )
+    # Loose track id match (avoids dropped/duplicated boxes on save)
+    html = _must_replace(
+        html,
+        """                            let track = Array.from(newDoc.querySelectorAll('track')).find(t => 
+                                t.getAttribute('id') === box.trackId.toString()
+                            );""",
+        """                            let track = Array.from(newDoc.querySelectorAll('track')).find(t =>
+                                String(t.getAttribute('id')) === String(box.trackId)
+                            );""",
+        "track-id-match",
+    )
+
     for needle in (
         "canvas.addEventListener('mousedown'",
         "function seekToFrame",
         "loadReviewFrame(currentFrame)",
         "isDragging",
         "saveAnnotations",
+        "Saved annotations without reload",
     ):
         if needle not in html:
             raise RuntimeError(f"Generated editor missing required code: {needle}")
