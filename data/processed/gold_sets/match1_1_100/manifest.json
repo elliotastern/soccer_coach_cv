@@ -1,0 +1,1935 @@
+{
+  "match_dir": "data/raw/Match 1/Match 1 -1",
+  "seed": 42,
+  "detect_threshold": 0.3,
+  "n_frames": 100,
+  "strip_size": [
+    1920,
+    1080
+  ],
+  "strata_targets": {
+    "camera": 40,
+    "uniform": 20,
+    "high_ball": 15,
+    "uncertain_ball": 15,
+    "negative": 10
+  },
+  "strata_counts": {
+    "camera": 40,
+    "uniform": 20,
+    "high_ball": 2,
+    "uncertain_ball": 20,
+    "negative": 18
+  },
+  "camera_counts": {
+    "cam 11": 24,
+    "cam 13": 25,
+    "cam 8": 29,
+    "cam 9": 22
+  },
+  "scale_to_strip": [
+    {
+      "strip_frame": 0,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 1,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 2,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 3,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 4,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 5,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 6,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 7,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 8,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 9,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 10,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 11,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 12,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 13,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 14,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 15,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 16,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 17,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 18,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 19,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 20,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 21,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 22,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 23,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 24,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 25,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 26,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 27,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 28,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 29,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 30,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 31,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 32,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 33,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 34,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 35,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 36,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 37,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 38,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 39,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 40,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 41,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 42,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 43,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 44,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 45,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 46,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 47,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 48,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 49,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 50,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 51,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 52,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 53,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 54,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 55,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 56,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 57,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 58,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 59,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 60,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 61,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 62,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 63,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 64,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 65,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 66,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 67,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 68,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 69,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 70,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 71,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 72,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 73,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 74,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 75,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 76,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 77,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 78,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 79,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 80,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 81,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 82,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 83,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 84,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 85,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 86,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 87,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 88,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 89,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 90,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 91,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 92,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 93,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 94,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 95,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 96,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 97,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 98,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 99,
+      "sx": 0.5,
+      "sy": 0.5
+    }
+  ],
+  "frames": [
+    {
+      "strip_frame": 0,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 654,
+      "image": "cam11_f000654.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 15,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 1,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 3228,
+      "image": "cam11_f003228.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 14,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 2,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 3573,
+      "image": "cam11_f003573.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 20,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 3,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 7339,
+      "image": "cam11_f007339.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 16,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 4,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 8923,
+      "image": "cam11_f008923.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 13,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 5,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 558,
+      "image": "cam11_f000558.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 13,
+      "max_ball_conf": 0.3444463610649109
+    },
+    {
+      "strip_frame": 6,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 4970,
+      "image": "cam11_f004970.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 13,
+      "max_ball_conf": 0.6211827993392944
+    },
+    {
+      "strip_frame": 7,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 5910,
+      "image": "cam11_f005910.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 11,
+      "max_ball_conf": 0.33551719784736633
+    },
+    {
+      "strip_frame": 8,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 10765,
+      "image": "cam11_f010765.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 15,
+      "max_ball_conf": 0.3220606744289398
+    },
+    {
+      "strip_frame": 9,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 16709,
+      "image": "cam11_f016709.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 10,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 18694,
+      "image": "cam11_f018694.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 11,
+      "max_ball_conf": 0.7248373627662659
+    },
+    {
+      "strip_frame": 11,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 20476,
+      "image": "cam11_f020476.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 16,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 12,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 21839,
+      "image": "cam11_f021839.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 13,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 13,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 22370,
+      "image": "cam11_f022370.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 14,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 14,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 23847,
+      "image": "cam11_f023847.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 13,
+      "max_ball_conf": 0.6720779538154602
+    },
+    {
+      "strip_frame": 15,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 34169,
+      "image": "cam11_f034169.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 17,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 16,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 38575,
+      "image": "cam11_f038575.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 10,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 17,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 40378,
+      "image": "cam11_f040378.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 13,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 18,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 40926,
+      "image": "cam11_f040926.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 19,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 46222,
+      "image": "cam11_f046222.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 13,
+      "max_ball_conf": 0.45382413268089294
+    },
+    {
+      "strip_frame": 20,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 50672,
+      "image": "cam11_f050672.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 15,
+      "max_ball_conf": 0.3293668329715729
+    },
+    {
+      "strip_frame": 21,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000020400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000020400000000.mp4",
+      "frame_idx": 363,
+      "image": "cam11_f000363.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 14,
+      "max_ball_conf": 0.4749734103679657
+    },
+    {
+      "strip_frame": 22,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000020400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000020400000000.mp4",
+      "frame_idx": 446,
+      "image": "cam11_f000446.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 12,
+      "max_ball_conf": 0.3831922113895416
+    },
+    {
+      "strip_frame": 23,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000020400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 11/0000000020400000000.mp4",
+      "frame_idx": 634,
+      "image": "cam11_f000634.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 15,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 24,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 4810,
+      "image": "cam13_f004810.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 19,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 25,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 5167,
+      "image": "cam13_f005167.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 17,
+      "max_ball_conf": 0.3403977155685425
+    },
+    {
+      "strip_frame": 26,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 6371,
+      "image": "cam13_f006371.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 13,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 27,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 11094,
+      "image": "cam13_f011094.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 19,
+      "max_ball_conf": 0.3867308795452118
+    },
+    {
+      "strip_frame": 28,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 14370,
+      "image": "cam13_f014370.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 15,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 29,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 19373,
+      "image": "cam13_f019373.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 30,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 21627,
+      "image": "cam13_f021627.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 19,
+      "max_ball_conf": 0.3032778799533844
+    },
+    {
+      "strip_frame": 31,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 1220,
+      "image": "cam13_f001220.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 11,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 32,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 1895,
+      "image": "cam13_f001895.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 16,
+      "max_ball_conf": 0.7748519778251648
+    },
+    {
+      "strip_frame": 33,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 3458,
+      "image": "cam13_f003458.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 15,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 34,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 4633,
+      "image": "cam13_f004633.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 17,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 35,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 5997,
+      "image": "cam13_f005997.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 19,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 36,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 7967,
+      "image": "cam13_f007967.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 37,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 8618,
+      "image": "cam13_f008618.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 13,
+      "max_ball_conf": 0.4236012101173401
+    },
+    {
+      "strip_frame": 38,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 15977,
+      "image": "cam13_f015977.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 16,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 39,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 16765,
+      "image": "cam13_f016765.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 16,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 40,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 25637,
+      "image": "cam13_f025637.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 17,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 41,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 26036,
+      "image": "cam13_f026036.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 18,
+      "max_ball_conf": 0.4127194583415985
+    },
+    {
+      "strip_frame": 42,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 27612,
+      "image": "cam13_f027612.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 43,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 28487,
+      "image": "cam13_f028487.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 17,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 44,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 29342,
+      "image": "cam13_f029342.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 19,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 45,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 30970,
+      "image": "cam13_f030970.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 20,
+      "max_ball_conf": 0.3166336417198181
+    },
+    {
+      "strip_frame": 46,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 37092,
+      "image": "cam13_f037092.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 17,
+      "max_ball_conf": 0.3217252194881439
+    },
+    {
+      "strip_frame": 47,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 39171,
+      "image": "cam13_f039171.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "high_ball",
+      "n_ball": 1,
+      "n_player": 17,
+      "max_ball_conf": 0.80119389295578
+    },
+    {
+      "strip_frame": 48,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 40547,
+      "image": "cam13_f040547.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 14,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 49,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 698,
+      "image": "cam8_f000698.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 22,
+      "max_ball_conf": 0.40735939145088196
+    },
+    {
+      "strip_frame": 50,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 5197,
+      "image": "cam8_f005197.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 22,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 51,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 5771,
+      "image": "cam8_f005771.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 25,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 52,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 9354,
+      "image": "cam8_f009354.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 21,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 53,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 11245,
+      "image": "cam8_f011245.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 21,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 54,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 15874,
+      "image": "cam8_f015874.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 25,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 55,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 17612,
+      "image": "cam8_f017612.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 24,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 56,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 19242,
+      "image": "cam8_f019242.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 20,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 57,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 25606,
+      "image": "cam8_f025606.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 19,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 58,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 27213,
+      "image": "cam8_f027213.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 24,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 59,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 613,
+      "image": "cam8_f000613.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "high_ball",
+      "n_ball": 1,
+      "n_player": 23,
+      "max_ball_conf": 0.8416889309883118
+    },
+    {
+      "strip_frame": 60,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 3397,
+      "image": "cam8_f003397.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 24,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 61,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 4475,
+      "image": "cam8_f004475.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 18,
+      "max_ball_conf": 0.5364819765090942
+    },
+    {
+      "strip_frame": 62,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 5239,
+      "image": "cam8_f005239.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 18,
+      "max_ball_conf": 0.35712555050849915
+    },
+    {
+      "strip_frame": 63,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 6626,
+      "image": "cam8_f006626.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 15,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 64,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 11421,
+      "image": "cam8_f011421.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 19,
+      "max_ball_conf": 0.3309003710746765
+    },
+    {
+      "strip_frame": 65,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 11990,
+      "image": "cam8_f011990.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 24,
+      "max_ball_conf": 0.30104362964630127
+    },
+    {
+      "strip_frame": 66,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 12384,
+      "image": "cam8_f012384.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 21,
+      "max_ball_conf": 0.3214040994644165
+    },
+    {
+      "strip_frame": 67,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 13913,
+      "image": "cam8_f013913.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 14,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 68,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 15561,
+      "image": "cam8_f015561.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 2,
+      "n_player": 22,
+      "max_ball_conf": 0.6707038283348083
+    },
+    {
+      "strip_frame": 69,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 15726,
+      "image": "cam8_f015726.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 21,
+      "max_ball_conf": 0.32310378551483154
+    },
+    {
+      "strip_frame": 70,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 18547,
+      "image": "cam8_f018547.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "negative",
+      "n_ball": 0,
+      "n_player": 19,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 71,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 21884,
+      "image": "cam8_f021884.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 19,
+      "max_ball_conf": 0.31189289689064026
+    },
+    {
+      "strip_frame": 72,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 23419,
+      "image": "cam8_f023419.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 73,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 24023,
+      "image": "cam8_f024023.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 20,
+      "max_ball_conf": 0.48524191975593567
+    },
+    {
+      "strip_frame": 74,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 29873,
+      "image": "cam8_f029873.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 0,
+      "n_player": 26,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 75,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 31883,
+      "image": "cam8_f031883.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 24,
+      "max_ball_conf": 0.4247088134288788
+    },
+    {
+      "strip_frame": 76,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 32682,
+      "image": "cam8_f032682.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 16,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 77,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 35763,
+      "image": "cam8_f035763.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 0,
+      "n_player": 20,
+      "max_ball_conf": 0.0
+    },
+    {
+      "strip_frame": 78,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000017600010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000017600010000.mp4",
+      "frame_idx": 4602,
+      "image": "cam9_f004602.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 21,
+      "max_ball_conf": 0.6499257683753967
+    },
+    {
+      "strip_frame": 79,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000017600010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000017600010000.mp4",
+      "frame_idx": 5343,
+      "image": "cam9_f005343.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 2,
+      "n_player": 16,
+      "max_ball_conf": 0.6567456126213074
+    },
+    {
+      "strip_frame": 80,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000017600010000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000017600010000.mp4",
+      "frame_idx": 8565,
+      "image": "cam9_f008565.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 14,
+      "max_ball_conf": 0.66197270154953
+    },
+    {
+      "strip_frame": 81,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 680,
+      "image": "cam9_f000680.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 19,
+      "max_ball_conf": 0.6938387155532837
+    },
+    {
+      "strip_frame": 82,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 2319,
+      "image": "cam9_f002319.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 14,
+      "max_ball_conf": 0.6658923625946045
+    },
+    {
+      "strip_frame": 83,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 2957,
+      "image": "cam9_f002957.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 16,
+      "max_ball_conf": 0.6801359057426453
+    },
+    {
+      "strip_frame": 84,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 4256,
+      "image": "cam9_f004256.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 8,
+      "max_ball_conf": 0.705957293510437
+    },
+    {
+      "strip_frame": 85,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 4905,
+      "image": "cam9_f004905.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 16,
+      "max_ball_conf": 0.6969476342201233
+    },
+    {
+      "strip_frame": 86,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 6004,
+      "image": "cam9_f006004.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 20,
+      "max_ball_conf": 0.669014573097229
+    },
+    {
+      "strip_frame": 87,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 6657,
+      "image": "cam9_f006657.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 2,
+      "n_player": 19,
+      "max_ball_conf": 0.6854740381240845
+    },
+    {
+      "strip_frame": 88,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 7496,
+      "image": "cam9_f007496.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 11,
+      "max_ball_conf": 0.6877396106719971
+    },
+    {
+      "strip_frame": 89,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 10045,
+      "image": "cam9_f010045.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 17,
+      "max_ball_conf": 0.6544402241706848
+    },
+    {
+      "strip_frame": 90,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 10555,
+      "image": "cam9_f010555.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 8,
+      "max_ball_conf": 0.6881430745124817
+    },
+    {
+      "strip_frame": 91,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 11706,
+      "image": "cam9_f011706.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 3,
+      "max_ball_conf": 0.6914674639701843
+    },
+    {
+      "strip_frame": 92,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 14397,
+      "image": "cam9_f014397.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 2,
+      "n_player": 16,
+      "max_ball_conf": 0.558263897895813
+    },
+    {
+      "strip_frame": 93,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 15193,
+      "image": "cam9_f015193.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 7,
+      "max_ball_conf": 0.39651304483413696
+    },
+    {
+      "strip_frame": 94,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 15475,
+      "image": "cam9_f015475.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 5,
+      "max_ball_conf": 0.5017287731170654
+    },
+    {
+      "strip_frame": 95,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 18092,
+      "image": "cam9_f018092.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 2,
+      "n_player": 16,
+      "max_ball_conf": 0.6610895395278931
+    },
+    {
+      "strip_frame": 96,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 18266,
+      "image": "cam9_f018266.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 15,
+      "max_ball_conf": 0.4614521265029907
+    },
+    {
+      "strip_frame": 97,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 19358,
+      "image": "cam9_f019358.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "camera",
+      "n_ball": 1,
+      "n_player": 10,
+      "max_ball_conf": 0.40712377429008484
+    },
+    {
+      "strip_frame": 98,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 21029,
+      "image": "cam9_f021029.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uniform",
+      "n_ball": 1,
+      "n_player": 5,
+      "max_ball_conf": 0.4992910623550415
+    },
+    {
+      "strip_frame": 99,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 21170,
+      "image": "cam9_f021170.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 6,
+      "max_ball_conf": 0.5410356521606445
+    }
+  ],
+  "review_mode": "image_sequence"
+}

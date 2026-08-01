@@ -46,6 +46,13 @@ data/**
 !data/processed/.gitkeep
 !data/external/
 !data/external/.gitkeep
+# Match Gold100 labels (XML/manifest only — not images/frames)
+!data/processed/gold_sets/
+!data/processed/gold_sets/match1_1_100/
+!data/processed/gold_sets/match1_1_100/README.md
+!data/processed/gold_sets/match1_1_100/manifest.json
+!data/processed/gold_sets/match1_1_100/prelabels/
+!data/processed/gold_sets/match1_1_100/prelabels/annotations.xml
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

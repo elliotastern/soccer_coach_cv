@@ -576,6 +576,141 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
                     break;""",
     )
 
+    # Sticky label picker at top of right sidebar (always visible)
+    html = _must_replace(
+        html,
+        """        .object-sidebar {
+            width: 250px;
+            background: #2a2a2a;
+            border-left: 2px solid #333;
+            padding: 15px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }""",
+        """        .object-sidebar {
+            width: 250px;
+            background: #2a2a2a;
+            border-left: 2px solid #333;
+            padding: 0;
+            overflow-y: auto;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .object-sidebar-body {
+            padding: 15px;
+            padding-top: 8px;
+        }
+        #labelSelector {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            margin: 0;
+            padding: 12px 15px;
+            background: #1e1e1e;
+            border-bottom: 2px solid #FFC107;
+            border-radius: 0;
+            display: block !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+        }""",
+        "sidebar-sticky-css",
+    )
+    html = _must_replace(
+        html,
+        """            <div class="object-sidebar">
+                <h3>Object Tracks</h3>
+                <div id="objectTracksList"></div>
+                <h3 style="margin-top: 20px;">Boxes in Frame</h3>
+                <div class="box-list" id="boxesList"></div>
+                <div id="labelSelector" style="margin-top: 20px; padding: 12px; background: #2a2a2a; border: 2px solid #444; border-radius: 6px; display: none;">
+                    <h4 style="color: #fff; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;">✏️ Change Label</h4>
+                    <select id="labelDropdown" onchange="changeBoxLabel(this.value)" style="width: 100%; padding: 8px; background: #1a1a1a; color: #fff; border: 1px solid #666; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                        <option value="player">Player</option>
+                        <option value="person">Person</option>
+                        <option value="ball">Ball</option>
+                        <option value="referee">Referee</option>
+                        <option value="coach">Coach</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div style="color: #888; font-size: 11px; margin-top: 6px;">Select a box above to change its label</div>
+                </div>
+            </div>""",
+        """            <div class="object-sidebar">
+                <div id="labelSelector">
+                    <h4 style="color: #FFC107; font-size: 13px; font-weight: bold; margin: 0 0 8px 0;">Label</h4>
+                    <select id="labelDropdown" onchange="changeBoxLabel(this.value)" style="width: 100%; padding: 8px; background: #1a1a1a; color: #fff; border: 1px solid #666; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                        <option value="player">Player</option>
+                        <option value="person">Person</option>
+                        <option value="ball">Ball</option>
+                        <option value="referee">Referee</option>
+                        <option value="coach">Coach</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div id="labelHint" style="color: #aaa; font-size: 11px; margin-top: 6px; line-height: 1.35;">Pick Ball then press N to draw · or click a box to relabel</div>
+                </div>
+                <div class="object-sidebar-body">
+                    <h3>Object Tracks</h3>
+                    <div id="objectTracksList"></div>
+                    <h3 style="margin-top: 20px;">Boxes in Frame</h3>
+                    <div class="box-list" id="boxesList"></div>
+                </div>
+            </div>""",
+        "sidebar-label-top",
+    )
+    html = _must_replace(
+        html,
+        """        function updateLabelSelector() {
+            const labelSelector = document.getElementById('labelSelector');
+            const labelDropdown = document.getElementById('labelDropdown');
+            
+            if (!labelSelector || !labelDropdown) {
+                console.warn('Label selector elements not found');
+                return;
+            }
+            
+            if (selectedBox) {
+                labelSelector.style.display = 'block';
+                // Set current label in dropdown
+                const currentLabel = selectedBox.label || (selectedBox.trackId && trackMap[selectedBox.trackId] && trackMap[selectedBox.trackId].label) || 'player';
+                labelDropdown.value = currentLabel;
+                // Update the hint text
+                const hint = labelSelector.querySelector('div[style*="color: #888"]');
+                if (hint) {
+                    hint.textContent = `Current label: ${currentLabel}`;
+                }
+            } else {
+                labelSelector.style.display = 'none';
+            }
+        }""",
+        """        function updateLabelSelector() {
+            const labelSelector = document.getElementById('labelSelector');
+            const labelDropdown = document.getElementById('labelDropdown');
+            const hint = document.getElementById('labelHint');
+            if (!labelSelector || !labelDropdown) return;
+            labelSelector.style.display = 'block';
+            if (selectedBox) {
+                const currentLabel = selectedBox.label || (selectedBox.trackId && trackMap[selectedBox.trackId] && trackMap[selectedBox.trackId].label) || 'player';
+                labelDropdown.value = currentLabel;
+                if (hint) hint.textContent = 'Selected box → ' + currentLabel + ' (change above to relabel)';
+            } else if (hint) {
+                hint.textContent = 'Pick Ball then press N to draw · or click a box to relabel';
+            }
+        }""",
+        "label-selector-always",
+    )
+    html = _must_replace(
+        html,
+        """        function changeBoxLabel(newLabel) {
+            if (!selectedBox) return;""",
+        """        function changeBoxLabel(newLabel) {
+            const hint = document.getElementById('labelHint');
+            if (!selectedBox) {
+                if (hint) hint.textContent = 'Next new box (N) will be: ' + newLabel;
+                return;
+            }""",
+        "change-label-default",
+    )
+
     for needle in (
         "canvas.addEventListener('mousedown'",
         "function seekToFrame",

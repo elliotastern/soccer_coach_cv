@@ -6,7 +6,7 @@ Use this pack whenever you need a fixed, real-match benchmark for RF-DETR people
 
 | | |
 |---|---|
-| **Pack path** | `data/processed/gold_sets/match1_1_100/` (local; not in git — too large) |
+| **Pack path** | `data/processed/gold_sets/match1_1_100/` (images local-only; **corrected XML + manifest are tracked in git**) |
 | **Classes** | `player` (COCO category 1), `ball` (COCO category 2) |
 | **Size** | 100 stratified frames from Match 1 multi-cam |
 | **Source video** | `data/raw/Match 1/Match 1 -1` (cams 8 / 9 / 11 / 13, 3840×2160) |
