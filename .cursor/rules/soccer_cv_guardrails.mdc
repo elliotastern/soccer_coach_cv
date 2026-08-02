@@ -10,6 +10,8 @@ globs: "**/*"
 - Do not use licensed or proprietary match footage without permission.
 - Use only data that is free for commercial use (or explicitly licensed for this project).
 - Prefer synthetic datasets (for example SoccerSynth-Detection) for training and public examples.
+- **Blocked:** `football.v1i` / Roboflow `dev-h00ha/football-r4il1` — league/broadcast-style footage; do not train on or recommend (see `Soccer project data/README.md` “Do not use”).
+- Reject other league/broadcast datasets the same way even if a third-party listing claims CC BY.
 
 ## Technical standards
 

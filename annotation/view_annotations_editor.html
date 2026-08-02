@@ -416,6 +416,7 @@
             <div class="video-container">
                 <div class="video-wrapper" id="videoWrapper">
                     <div class="canvas-controls">
+                        <button id="toggleBoxesBtn" onclick="toggleBoxes()" title="Hide/Show boxes (H)" style="min-width:64px;font-size:12px;">Boxes</button>
                         <button onclick="zoomIn()" title="Zoom In">+</button>
                         <button onclick="zoomOut()" title="Zoom Out">-</button>
                         <button onclick="resetZoom()" title="Reset Zoom">⌂</button>
@@ -544,7 +545,7 @@
                     <span class="shortcut-key">Delete</span>
                 </div>
                 <div class="shortcut-item">
-                    <span>Toggle Overlay</span>
+                    <span>Hide/Show Boxes</span>
                     <span class="shortcut-key">H</span>
                 </div>
                 <div class="shortcut-item">
@@ -610,6 +611,24 @@
         let dragHandle = null; // 'nw', 'ne', 'sw', 'se', or null for moving
         let isResizing = false;
         let showOverlay = true;
+
+        function syncBoxesButton() {
+            const btn = document.getElementById('toggleBoxesBtn');
+            if (!btn) return;
+            btn.textContent = showOverlay ? 'Boxes' : 'Boxes off';
+            btn.style.opacity = showOverlay ? '1' : '0.55';
+            btn.title = showOverlay ? 'Hide boxes (H)' : 'Show boxes (H)';
+            btn.setAttribute('aria-pressed', showOverlay ? 'true' : 'false');
+        }
+
+        function toggleBoxes() {
+            showOverlay = !showOverlay;
+            syncBoxesButton();
+            if (!Number.isFinite(zoomLevel) || zoomLevel <= 0) zoomLevel = 1;
+            if (!Number.isFinite(panX)) panX = 0;
+            if (!Number.isFinite(panY)) panY = 0;
+            drawFrame();
+        }
         let zoomLevel = 1;
         let panX = 0;
         let panY = 0;
@@ -717,76 +736,57 @@
         function drawFrame() {
             if (!video || !ctx || !canvas) return;
             if (videoWidth === 0 || videoHeight === 0) {
-                // Video not loaded yet, just clear canvas
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 return;
             }
-            
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
             try {
-                // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Get canvas display dimensions
                 const rect = canvas.getBoundingClientRect();
-                const displayWidth = rect.width;
-                const displayHeight = rect.height;
-                
-                // Calculate center of visible area
-                const centerX = displayWidth / 2;
-                const centerY = displayHeight / 2;
-                
-                // Apply transformations centered on the canvas
-                ctx.save();
-                
-                // Move to center, scale, then move back with pan offset
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
                 ctx.translate(centerX + panX, centerY + panY);
                 ctx.scale(zoomLevel, zoomLevel);
                 ctx.translate(-videoWidth / 2, -videoHeight / 2);
-                
-                // Draw video frame - ensure video is ready and seeked
+
                 if (video.readyState >= 2) {
                     try {
                         ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
                     } catch (e) {
                         debugLog('ERROR drawing video frame: ' + e.message);
-                        // If drawImage fails, fill with dark gray to show something
                         ctx.fillStyle = '#1a1a1a';
                         ctx.fillRect(0, 0, videoWidth, videoHeight);
                     }
                 } else {
-                    // Video not ready yet, fill with dark background
                     ctx.fillStyle = '#1a1a1a';
                     ctx.fillRect(0, 0, videoWidth, videoHeight);
                 }
-                
-                // Draw bounding boxes if overlay is enabled
+
                 if (showOverlay) {
-                    if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
-                        boxes[currentFrame].forEach(box => {
-                            drawBox(box, box.id === selectedBox?.id);
-                        });
-                    } else {
-                        // Debug: log when no boxes for current frame
-                        if (currentFrame === 0) {
-                            console.log(`Frame ${currentFrame}: No boxes found. showOverlay=${showOverlay}, boxes object has ${Object.keys(boxes).length} frames`);
+                    const frameBoxes = boxes[currentFrame] || [];
+                    for (let i = 0; i < frameBoxes.length; i++) {
+                        const box = frameBoxes[i];
+                        try {
+                            drawBox(box, box && selectedBox && box.id === selectedBox.id);
+                        } catch (boxErr) {
+                            debugLog('ERROR drawBox: ' + boxErr.message);
                         }
                     }
-                    
                     if (isDrawing && drawStart) {
-                        const rect = getMouseRect(drawStart, currentMousePos);
-                        drawBox(rect, false, true);
-                    }
-                } else {
-                    // Overlay is hidden - log once
-                    if (currentFrame === 0 && !hasLoggedOverlayHidden) {
-                        console.log('Overlay is hidden (press H to toggle)');
-                        hasLoggedOverlayHidden = true;
+                        const drawRect = getMouseRect(drawStart, currentMousePos);
+                        drawBox(drawRect, false, true);
                     }
                 }
-                
-                ctx.restore();
             } catch (e) {
                 debugLog('ERROR in drawFrame: ' + e.message);
+            } finally {
+                ctx.restore();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
         }
 
@@ -815,7 +815,9 @@
             
             // Draw label text with background for better visibility
             if (label && label !== 'undefined') {
-                const labelText = `${label} (${(box.confidence * 100).toFixed(0)}%)`;
+                const conf = Number(box.confidence);
+                const confTxt = Number.isFinite(conf) ? `${(conf * 100).toFixed(0)}%` : '—';
+                const labelText = `${label} (${confTxt})`;
                 ctx.font = 'bold 14px Arial';
                 const textMetrics = ctx.measureText(labelText);
                 const textWidth = textMetrics.width;
@@ -1846,8 +1848,7 @@
                 case 'h':
                 case 'H':
                     e.preventDefault();
-                    showOverlay = !showOverlay;
-                    drawFrame();
+                    toggleBoxes();
                     break;
                 case 'n':
                 case 'N':

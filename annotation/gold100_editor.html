@@ -24,7 +24,7 @@
         }
         .header {
             background: #2a2a2a;
-            padding: 10px 20px;
+            padding: 6px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -33,7 +33,7 @@
         }
         .header h1 {
             color: #4CAF50;
-            font-size: 20px;
+            font-size: 16px;
             margin: 0;
         }
         .status-bar {
@@ -91,8 +91,6 @@
             overflow: hidden;
         }
         #videoCanvas {
-            max-width: 100%;
-            max-height: 100%;
             display: block;
             cursor: grab;
             object-fit: contain;
@@ -124,7 +122,7 @@
         #reviewImage { display: none !important; }
         .timeline-container {
             background: #2a2a2a;
-            padding: 15px;
+            padding: 8px 12px;
             border-top: 2px solid #333;
             flex-shrink: 0;
         }
@@ -209,7 +207,7 @@
             margin-left: auto;
         }
         .object-sidebar {
-            width: 250px;
+            width: 200px;
             background: #2a2a2a;
             border-left: 2px solid #333;
             padding: 0;
@@ -497,6 +495,7 @@
                     <h3>Object Tracks</h3>
                     <div id="objectTracksList"></div>
                     <h3 style="margin-top: 20px;">Boxes in Frame</h3>
+                    <div id="ballFrameBanner" style="display:none;margin:0 0 8px 0;padding:8px;border-radius:4px;font-size:12px;font-weight:bold;"></div>
                     <div class="box-list" id="boxesList"></div>
                 </div>
             </div>
@@ -623,15 +622,30 @@
         };
         let reviewImage = null;
         let _frameLoadToken = 0;
+        let _frameLoadError = null;
         function loadReviewFrame(idx) {
             if (!reviewImage) reviewImage = document.getElementById('reviewImage');
             const token = ++_frameLoadToken;
-            const src = GOLD100.base + GOLD100.files[idx] + '?v=1';
+            // Cache-bust so a prior failed load (hung server) does not stick
+            const src = GOLD100.base + GOLD100.files[idx] + '?t=' + Date.now();
             return new Promise((resolve, reject) => {
-                const done = () => { if (token === _frameLoadToken) resolve(); };
+                const done = () => {
+                    if (token !== _frameLoadToken) return;
+                    _frameLoadError = null;
+                    resolve();
+                };
                 reviewImage.onload = done;
-                reviewImage.onerror = () => reject(new Error('frame load failed: ' + src));
-                if (reviewImage.getAttribute('data-idx') === String(idx) && reviewImage.complete) {
+                reviewImage.onerror = () => {
+                    if (token !== _frameLoadToken) return;
+                    _frameLoadError = src;
+                    reject(new Error('frame load failed: ' + src));
+                };
+                // Only reuse cached decode if pixels actually loaded
+                if (
+                    reviewImage.getAttribute('data-idx') === String(idx) &&
+                    reviewImage.complete &&
+                    reviewImage.naturalWidth > 0
+                ) {
                     done();
                     return;
                 }
@@ -640,6 +654,29 @@
             });
         }
         // ===== end GOLD100 boot =====
+
+        // Subset nav: ?frames=6,20,32
+        const _qs = new URLSearchParams(location.search);
+        let frameFilter = null;
+        if (_qs.get('frames')) {
+            frameFilter = _qs.get('frames').split(',').map((x) => parseInt(x, 10)).filter((n) => !Number.isNaN(n));
+        }
+        function filterIndexOf(frame) {
+            return frameFilter ? frameFilter.indexOf(frame) : -1;
+        }
+        function updateFrameDisplay() {
+            const el = document.getElementById('currentFrame');
+            if (!el) return;
+            if (!frameFilter || !frameFilter.length) {
+                el.textContent = currentFrame;
+                return;
+            }
+            const i = filterIndexOf(currentFrame);
+            el.textContent = i >= 0
+                ? `${currentFrame} (${i + 1}/${frameFilter.length} in filter)`
+                : String(currentFrame);
+        }
+
 
         let annotations = null;
         let currentFrame = 0;
@@ -708,20 +745,42 @@
         videoHeight = GOLD100.height;
         canvas.width = videoWidth;
         canvas.height = videoHeight;
-        const wrapperInit = canvas.parentElement;
-        const containerWidth = wrapperInit.clientWidth || 800;
-        const containerHeight = wrapperInit.clientHeight || 600;
-        scaleX = containerWidth / videoWidth;
-        scaleY = containerHeight / videoHeight;
-        const fit = Math.min(scaleX, scaleY);
-        canvas.style.width = (videoWidth * fit) + 'px';
-        canvas.style.height = (videoHeight * fit) + 'px';
+
+        function fitCanvasToWrapper() {
+            const wrapper = document.getElementById('videoWrapper') || canvas.parentElement;
+            const pad = 2;
+            const cw = Math.max(120, (wrapper.clientWidth || 800) - pad);
+            const ch = Math.max(120, (wrapper.clientHeight || 600) - pad);
+            scaleX = cw / videoWidth;
+            scaleY = ch / videoHeight;
+            const fit = Math.min(scaleX, scaleY);
+            canvas.style.width = Math.floor(videoWidth * fit) + 'px';
+            canvas.style.height = Math.floor(videoHeight * fit) + 'px';
+        }
+        fitCanvasToWrapper();
+        requestAnimationFrame(() => {
+            fitCanvasToWrapper();
+            requestAnimationFrame(fitCanvasToWrapper);
+        });
+        window.addEventListener('resize', fitCanvasToWrapper);
+        if (window.ResizeObserver) {
+            new ResizeObserver(fitCanvasToWrapper).observe(
+                document.getElementById('videoWrapper') || canvas.parentElement
+            );
+        }
 
         const overlay = document.getElementById('playOverlay');
         if (overlay) overlay.style.display = 'none';
 
         loadAnnotations();
-        seekToFrame(0);
+        const _frameParam = _qs.get('frame');
+        let _startFrame = 0;
+        if (_frameParam !== null && !Number.isNaN(parseInt(_frameParam, 10))) {
+            _startFrame = parseInt(_frameParam, 10);
+        } else if (frameFilter && frameFilter.length) {
+            _startFrame = frameFilter[0];
+        }
+        seekToFrame(_startFrame);
         requestAnimationFrame(drawLoop);
         updateTimelineMarkers();
 
@@ -733,44 +792,48 @@
         }
 
         function drawFrame() {
-            if (!video || !ctx || !canvas) return;
+            if (!ctx || !canvas) return;
             if (videoWidth === 0 || videoHeight === 0) {
-                // Video not loaded yet, just clear canvas
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 return;
             }
-            
+
+            // Reset transform so a prior failed draw cannot stack zooms
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             try {
-                // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Transform in canvas buffer space (matches screenToCanvas)
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
                 ctx.save();
                 ctx.translate(centerX + panX, centerY + panY);
                 ctx.scale(zoomLevel, zoomLevel);
                 ctx.translate(-videoWidth / 2, -videoHeight / 2);
-                
+
                 // Draw exact review JPG for this strip frame
                 if (reviewImage && reviewImage.complete && reviewImage.naturalWidth > 0) {
                     ctx.drawImage(reviewImage, 0, 0, videoWidth, videoHeight);
                 } else {
                     ctx.fillStyle = '#1a1a1a';
                     ctx.fillRect(0, 0, videoWidth, videoHeight);
+                    ctx.fillStyle = '#ff5252';
+                    ctx.font = 'bold 36px Arial';
+                    const msg = _frameLoadError
+                        ? ('FRAME FAILED TO LOAD — restart serve_viewer / hard refresh')
+                        : 'Loading frame…';
+                    ctx.fillText(msg, 40, 80);
                 }
                 
                 // Draw bounding boxes if overlay is enabled
+                // Players first, balls last (on top) so thin/tall ball boxes are not buried
                 if (showOverlay) {
                     if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
-                        boxes[currentFrame].forEach(box => {
-                            drawBox(box, box.id === selectedBox?.id);
-                        });
-                    } else {
-                        // Debug: log when no boxes for current frame
-                        if (currentFrame === 0) {
-                            console.log(`Frame ${currentFrame}: No boxes found. showOverlay=${showOverlay}, boxes object has ${Object.keys(boxes).length} frames`);
-                        }
+                        const frameBoxes = boxes[currentFrame];
+                        const nonBalls = frameBoxes.filter(b => (b.label || '') !== 'ball');
+                        const balls = frameBoxes.filter(b => (b.label || '') === 'ball');
+                        nonBalls.forEach(box => drawBox(box, box.id === selectedBox?.id));
+                        balls.forEach((box, i) => drawBox(box, box.id === selectedBox?.id, false, i + 1));
                     }
                     
                     if (isDrawing && drawStart) {
@@ -791,7 +854,7 @@
             }
         }
 
-        function drawBox(box, isSelected = false, isTemporary = false) {
+        function drawBox(box, isSelected = false, isTemporary = false, ballIndex = null) {
             const x = box.xtl;
             const y = box.ytl;
             const w = box.xbr - box.xtl;
@@ -799,54 +862,77 @@
             
             // Get label from box or trackMap - prioritize box.label
             const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
+            const isBall = label === 'ball';
             
             let color = '#4CAF50';
             if (label === 'player') color = '#2196F3';
-            if (label === 'person') color = '#2196F3'; // Same as player
-            if (label === 'ball') color = '#FFC107';
+            if (label === 'person') color = '#2196F3';
+            if (isBall) color = '#FFEB3B';
             if (label === 'referee') color = '#9C27B0';
             if (label === 'coach') color = '#00BCD4';
             if (label === 'other') color = '#795548';
             
-            ctx.strokeStyle = isSelected ? '#FF9800' : color;
-            ctx.lineWidth = isSelected ? 3 : 2;
-            ctx.setLineDash(isTemporary ? [5, 5] : []);
-            
-            ctx.strokeRect(x, y, w, h);
+            // Balls: thick magenta outer ring so they stay visible on yellow bibs / clutter
+            if (isBall && !isTemporary) {
+                const cx = x + w / 2;
+                const cy = y + h / 2;
+                ctx.fillStyle = 'rgba(255, 235, 59, 0.25)';
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeStyle = '#E91E63';
+                ctx.lineWidth = Math.max(4, 4 / zoomLevel);
+                ctx.setLineDash([]);
+                ctx.strokeRect(x, y, w, h);
+                ctx.strokeStyle = isSelected ? '#FF9800' : color;
+                ctx.lineWidth = Math.max(2, 2 / zoomLevel);
+                ctx.strokeRect(x + 2, y + 2, Math.max(1, w - 4), Math.max(1, h - 4));
+                // Center crosshair
+                const arm = Math.max(10, Math.min(w, h) * 0.8);
+                ctx.strokeStyle = '#E91E63';
+                ctx.lineWidth = Math.max(2, 2 / zoomLevel);
+                ctx.beginPath();
+                ctx.moveTo(cx - arm, cy);
+                ctx.lineTo(cx + arm, cy);
+                ctx.moveTo(cx, cy - arm);
+                ctx.lineTo(cx, cy + arm);
+                ctx.stroke();
+            } else {
+                ctx.strokeStyle = isSelected ? '#FF9800' : color;
+                ctx.lineWidth = isSelected ? 3 : 2;
+                ctx.setLineDash(isTemporary ? [5, 5] : []);
+                ctx.strokeRect(x, y, w, h);
+            }
             
             // Draw label text with background for better visibility
             if (label && label !== 'undefined') {
-                const labelText = `${label} (${(box.confidence * 100).toFixed(0)}%)`;
-                ctx.font = 'bold 14px Arial';
+                const idx = ballIndex != null ? ` #${ballIndex}` : '';
+                const labelText = isBall
+                    ? `BALL${idx} (${(box.confidence * 100).toFixed(0)}%) ${Math.round(w)}x${Math.round(h)}`
+                    : `${label} (${(box.confidence * 100).toFixed(0)}%)`;
+                ctx.font = isBall ? 'bold 16px Arial' : 'bold 14px Arial';
                 const textMetrics = ctx.measureText(labelText);
                 const textWidth = textMetrics.width;
-                const textHeight = 16;
+                const textHeight = isBall ? 18 : 16;
                 
-                // Draw semi-transparent background for text
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillStyle = isBall ? 'rgba(233, 30, 99, 0.9)' : 'rgba(0, 0, 0, 0.7)';
                 ctx.fillRect(x - 2, y - textHeight - 2, textWidth + 6, textHeight + 4);
                 
-                // Draw text with white outline for better visibility
                 ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
                 ctx.lineWidth = 3;
                 ctx.strokeText(labelText, x + 1, y - 4);
                 
-                // Draw text
-                ctx.fillStyle = color;
+                ctx.fillStyle = isBall ? '#FFFFFF' : color;
                 ctx.fillText(labelText, x + 1, y - 4);
             }
             
             if (isSelected && !isTemporary) {
-                // Handles are 3px × 3px - small and transparent
-                const baseHandleSize = 10;
+                const baseHandleSize = isBall ? 14 : 10;
                 const handleSize = Math.max(baseHandleSize, baseHandleSize / zoomLevel);
                 const handles = [
                     {x: x, y: y, corner: 'nw'}, {x: x + w, y: y, corner: 'ne'},
                     {x: x, y: y + h, corner: 'sw'}, {x: x + w, y: y + h, corner: 'se'}
                 ];
                 handles.forEach(handle => {
-                    // Draw handle - 3px, more transparent
-                    ctx.fillStyle = dragHandle === handle.corner ? 'rgba(255, 87, 34, 0.7)' : 'rgba(255, 152, 0, 0.5)';
+                    ctx.fillStyle = dragHandle === handle.corner ? 'rgba(255, 87, 34, 0.9)' : 'rgba(233, 30, 99, 0.85)';
                     ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize);
                 });
             }
@@ -1238,7 +1324,7 @@
         function seekToFrame(frameNum) {
             currentFrame = Math.max(0, Math.min(parseInt(frameNum), GOLD100.maxFrame));
             document.getElementById('frameSlider').value = currentFrame;
-            document.getElementById('currentFrame').textContent = currentFrame;
+            updateFrameDisplay();
             selectedBox = null;
             updateLabelSelector();
             updateBoxesList();
@@ -1251,10 +1337,22 @@
         }
 
         function nextFrame() {
+            if (frameFilter && frameFilter.length) {
+                const i = filterIndexOf(currentFrame);
+                if (i < 0) { seekToFrame(frameFilter[0]); return; }
+                if (i < frameFilter.length - 1) seekToFrame(frameFilter[i + 1]);
+                return;
+            }
             if (currentFrame < 99) seekToFrame(currentFrame + 1);
         }
 
         function prevFrame() {
+            if (frameFilter && frameFilter.length) {
+                const i = filterIndexOf(currentFrame);
+                if (i < 0) { seekToFrame(frameFilter[0]); return; }
+                if (i > 0) seekToFrame(frameFilter[i - 1]);
+                return;
+            }
             if (currentFrame > 0) seekToFrame(currentFrame - 1);
         }
 
@@ -1279,16 +1377,62 @@
 
         function updateBoxesList() {
             const list = document.getElementById('boxesList');
+            const banner = document.getElementById('ballFrameBanner');
             list.innerHTML = '';
             
-            if (boxes[currentFrame] && boxes[currentFrame].length > 0) {
-                boxes[currentFrame].forEach(box => {
+            const frameBoxes = boxes[currentFrame] || [];
+            const balls = frameBoxes.filter(b => (b.label || '') === 'ball');
+            const others = frameBoxes.filter(b => (b.label || '') !== 'ball');
+
+            if (banner) {
+                if (balls.length === 0) {
+                    banner.style.display = 'block';
+                    banner.style.background = '#333';
+                    banner.style.color = '#aaa';
+                    banner.textContent = 'Balls this frame: 0';
+                } else if (balls.length === 1) {
+                    banner.style.display = 'block';
+                    banner.style.background = '#1b5e20';
+                    banner.style.color = '#c8e6c9';
+                    banner.textContent = 'Balls this frame: 1';
+                } else {
+                    banner.style.display = 'block';
+                    banner.style.background = '#880e4f';
+                    banner.style.color = '#fff';
+                    banner.textContent = `Balls this frame: ${balls.length} — click each BALL row below (easy to miss on pitch)`;
+                }
+            }
+            
+            if (frameBoxes.length > 0) {
+                // Balls first so they are not buried under 15+ players
+                [...balls, ...others].forEach((box, idx) => {
                     const item = document.createElement('div');
-                    item.className = `box-item ${box.id === selectedBox?.id ? 'selected' : ''}`;
                     const label = box.label || (box.trackId && trackMap[box.trackId] && trackMap[box.trackId].label) || 'player';
-                    item.innerHTML = `${label} (Track ${box.trackId})`;
+                    const isBall = label === 'ball';
+                    const ballNum = isBall ? (balls.indexOf(box) + 1) : null;
+                    item.className = `box-item ${box.id === selectedBox?.id ? 'selected' : ''}`;
+                    if (isBall) {
+                        item.style.borderLeft = '4px solid #E91E63';
+                        item.style.background = box.id === selectedBox?.id ? '#4a148c' : '#311b2c';
+                        item.style.fontWeight = 'bold';
+                    }
+                    const w = Math.round(box.xbr - box.xtl);
+                    const h = Math.round(box.ybr - box.ytl);
+                    const cx = Math.round((box.xtl + box.xbr) / 2);
+                    const cy = Math.round((box.ytl + box.ybr) / 2);
+                    item.innerHTML = isBall
+                        ? `BALL #${ballNum} · ${w}×${h}px @ (${cx},${cy}) · track ${box.trackId}`
+                        : `${label} (Track ${box.trackId})`;
                     item.onclick = () => {
                         selectedBox = box;
+                        // Zoom toward selected ball so it cannot hide
+                        if (isBall) {
+                            zoomLevel = Math.max(zoomLevel, 2.5);
+                            const centerX = videoWidth / 2;
+                            const centerY = videoHeight / 2;
+                            panX = (centerX - cx) * zoomLevel;
+                            panY = (centerY - cy) * zoomLevel;
+                        }
                         drawFrame();
                         updateBoxesList();
                         updateLabelSelector();
@@ -1410,7 +1554,7 @@
         function loadAnnotations() {
             // Add cache-busting timestamp to force fresh load
             const timestamp = new Date().getTime();
-            fetch(`/data/processed/gold_sets/match1_1_100/prelabels/annotations.xml?t=${timestamp}`, {
+            fetch(`/data/processed/gold_sets/match1_1_100/gold/annotations.xml?t=${timestamp}`, {
                 cache: 'no-store',
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -1486,11 +1630,17 @@
                 };
                 
                 trackBoxes.forEach(box => {
+                    // Skip CVAT outside markers (not real boxes on this frame)
+                    if (box.getAttribute('outside') === '1') return;
+
                     const frame = parseInt(box.getAttribute('frame'));
                     const xtl = parseFloat(box.getAttribute('xtl'));
                     const ytl = parseFloat(box.getAttribute('ytl'));
                     const xbr = parseFloat(box.getAttribute('xbr'));
                     const ybr = parseFloat(box.getAttribute('ybr'));
+                    if (![xtl, ytl, xbr, ybr].every(Number.isFinite)) return;
+                    if (xbr <= xtl || ybr <= ytl) return;
+
                     const conf = box.querySelector('attribute[name="confidence"]');
                     const confidence = conf ? parseFloat(conf.textContent) : 0.5;
                     
@@ -1724,7 +1874,7 @@
                     },
                     body: JSON.stringify({
                         xml: finalXml, // Use validated XML
-                        file_path: 'data/processed/gold_sets/match1_1_100/prelabels/annotations.xml'
+                        file_path: 'data/processed/gold_sets/match1_1_100/gold/annotations.xml'
                     })
                 })
                 .then(response => {

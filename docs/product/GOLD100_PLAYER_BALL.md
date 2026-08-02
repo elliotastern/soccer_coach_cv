@@ -4,6 +4,8 @@
 
 Use this pack whenever you need a fixed, real-match benchmark for RF-DETR people + ball checkpoints (precision-first). Do not treat SoccerSynth or random clips as a substitute for this set once human correction is complete.
 
+**Do not train on this pack.** Match train labels live in `math_1_training` under `gold/` only — see [`docs/ball_detection/TRAIN_LABEL_SOURCE_OF_TRUTH.md`](../ball_detection/TRAIN_LABEL_SOURCE_OF_TRUTH.md).
+
 | | |
 |---|---|
 | **Pack path** | `data/processed/gold_sets/match1_1_100/` (images local-only; **corrected XML + manifest are tracked in git**) |
@@ -25,9 +27,9 @@ It is a **detection / classification** gold set on sparse frames. It is **not** 
 ```text
 data/processed/gold_sets/match1_1_100/
 ├── images/                 # full-res JPGs (gold COCO image space)
-├── prelabels/
-│   ├── annotations.xml     # CVAT XML on strip/review coords (edit here)
-│   └── annotations.coco.json
+├── gold/
+│   ├── annotations.xml     # canonical corrected CVAT XML (editor load/save)
+│   └── annotations.coco.json  # full-res boxes (strip XML scaled ×2)
 ├── review/
 │   ├── frames/000.jpg…     # 1920×1080 review sequence (editor display)
 │   ├── strip_100.mp4       # all-intra H.264 (secondary)
@@ -36,10 +38,13 @@ data/processed/gold_sets/match1_1_100/
 └── README.md
 ```
 
-After human correction, export COCO gold from the corrected XML:
+After human correction, export COCO from `gold/`:
 
 ```bash
-python scripts/gold_set/export_gold_coco.py --gold-dir data/processed/gold_sets/match1_1_100
+python scripts/gold_set/export_gold_coco.py \
+  --gold-dir data/processed/gold_sets/match1_1_100 \
+  --xml data/processed/gold_sets/match1_1_100/gold/annotations.xml \
+  --output data/processed/gold_sets/match1_1_100/gold/annotations.coco.json
 ```
 
 ## Workflow
@@ -98,3 +103,6 @@ python scripts/gold_set/export_gold_coco.py --gold-dir data/processed/gold_sets/
 ## Results so far
 
 - **Frames 0–20 labelled** (2026-07-31): player P≈97% / R≈35% at IoU 0.5, conf ≥ 0.8 (**precision PASS**); ball **0** dets at conf ≥ 0.8. Full table: [`reports/gold100_frames0_20_eval.md`](../../reports/gold100_frames0_20_eval.md).
+- **Ball prelabel stack ablation** (SAHI / size / multiscale / Kalman): [`reports/gold100_ball_prelabel_stack.md`](../../reports/gold100_ball_prelabel_stack.md).  
+  Recommended prelabel: `thr=0.30 + size filter + topk=2` (`LocalRFDETRDetector(enhance_ball=True)` or `BallPrelabeler`). SAHI/Kalman validated **off** for sparse Match gold with `ball_89.pth` (need domain finetune for product-level ball).
+- **Feature scorecard (≥9/10 each):** [`reports/feature_scorecard.md`](../../reports/feature_scorecard.md) — run `python scripts/gold_set/test_feature_scorecard.py`.

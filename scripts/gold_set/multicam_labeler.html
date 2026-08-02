@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Multi-cam ball GT labeler</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #0d1117; color: #e6edf3; }
+    header { padding: 10px 14px; border-bottom: 1px solid #30363d; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    h1 { font-size: 1rem; margin: 0; }
+    .hint { color: #8b949e; font-size: 0.85rem; }
+    button, select {
+      background: #21262d; color: #e6edf3; border: 1px solid #30363d;
+      border-radius: 6px; padding: 7px 10px; cursor: pointer;
+    }
+    button.primary { background: #238636; border-color: #2ea043; }
+    button.warn { background: #9e6a03; border-color: #bb8009; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; height: calc(100vh - 64px); }
+    .cell { position: relative; background: #000; border: 2px solid #30363d; border-radius: 6px; overflow: hidden; }
+    .cell.active { border-color: #58a6ff; }
+    .cell.done { border-color: #3fb950; }
+    .cell.empty { border-color: #f85149; }
+    canvas { width: 100%; height: 100%; object-fit: contain; cursor: crosshair; }
+    .tag {
+      position: absolute; left: 8px; top: 8px; z-index: 2;
+      background: rgba(0,0,0,.65); padding: 2px 8px; border-radius: 4px; font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Multi-cam ball GT</h1>
+    <span id="status" class="hint">loading…</span>
+    <button id="prev">← prev</button>
+    <button id="next">next →</button>
+    <button id="empty" class="warn">E empty (active cam)</button>
+    <button id="accept">A accept prelabel</button>
+    <button id="clear">clear cam</button>
+    <button id="save" class="primary">save labels.json</button>
+    <span class="hint">Click-drag box on active cam. Keys: ←/→ n/p, e empty, a accept, 1–4 select cam, s save.</span>
+  </header>
+  <div class="grid" id="grid"></div>
+  <script>
+    const CAMS = ["cam8", "cam9", "cam11", "cam13"];
+    let data = null;
+    let idx = 0;
+    let active = "cam8";
+    const cells = {};
+
+    async function load() {
+      const res = await fetch("labels.json", { cache: "no-store" });
+      data = await res.json();
+      buildGrid();
+      show(0);
+    }
+
+    function buildGrid() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      for (const cam of CAMS) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.cam = cam;
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.textContent = cam;
+        const canvas = document.createElement("canvas");
+        cell.appendChild(tag);
+        cell.appendChild(canvas);
+        cell.onclick = () => { active = cam; paintAll(); };
+        grid.appendChild(cell);
+        cells[cam] = { cell, canvas, tag, img: null, drag: null };
+        wireDraw(cam);
+      }
+    }
+
+    function wireDraw(cam) {
+      const c = cells[cam].canvas;
+      c.onmousedown = (e) => {
+        active = cam;
+        const p = pos(c, e);
+        cells[cam].drag = { x0: p.x, y0: p.y, x1: p.x, y1: p.y };
+      };
+      c.onmousemove = (e) => {
+        if (!cells[cam].drag) return;
+        const p = pos(c, e);
+        cells[cam].drag.x1 = p.x;
+        cells[cam].drag.y1 = p.y;
+        paint(cam);
+      };
+      c.onmouseup = () => {
+        const d = cells[cam].drag;
+        cells[cam].drag = null;
+        if (!d) return;
+        const box = normalize(d);
+        if (box.w < 4 || box.h < 4) { paint(cam); return; }
+        const item = data.timestamps[idx].cams[cam];
+        item.gt_balls = [box];
+        item.empty = false;
+        paintAll();
+      };
+    }
+
+    function pos(canvas, e) {
+      const r = canvas.getBoundingClientRect();
+      const sx = canvas.width / r.width;
+      const sy = canvas.height / r.height;
+      return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
+    }
+
+    function normalize(d) {
+      const x1 = Math.min(d.x0, d.x1), y1 = Math.min(d.y0, d.y1);
+      const x2 = Math.max(d.x0, d.x1), y2 = Math.max(d.y0, d.y1);
+      return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+    }
+
+    async function show(i) {
+      idx = Math.max(0, Math.min(data.timestamps.length - 1, i));
+      const ts = data.timestamps[idx];
+      for (const cam of CAMS) {
+        const img = new Image();
+        img.src = ts.cams[cam].image + "?t=" + Date.now();
+        await img.decode();
+        cells[cam].img = img;
+        cells[cam].canvas.width = img.naturalWidth;
+        cells[cam].canvas.height = img.naturalHeight;
+      }
+      paintAll();
+      updateStatus();
+    }
+
+    function paintAll() { CAMS.forEach(paint); }
+
+    function paint(cam) {
+      const { canvas, img, cell, tag, drag } = cells[cam];
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (img) ctx.drawImage(img, 0, 0);
+      const item = data.timestamps[idx].cams[cam];
+      for (const b of (item.prelabel_balls || [])) {
+        strokeBox(ctx, b.bbox || [b.x, b.y, b.w, b.h], "#f0c000", `pre ${Number(b.confidence||0).toFixed(2)}`);
+      }
+      if (item.gt_balls) {
+        for (const b of item.gt_balls) {
+          const bb = b.bbox || [b.x, b.y, b.w, b.h];
+          strokeBox(ctx, bb, "#3fb950", "GT");
+        }
+      }
+      if (drag) {
+        const box = normalize(drag);
+        strokeBox(ctx, [box.x, box.y, box.w, box.h], "#58a6ff", "");
+      }
+      cell.classList.toggle("active", cam === active);
+      const labeled = item.empty === true || (item.gt_balls && item.gt_balls.length);
+      cell.classList.toggle("done", !!labeled && item.empty !== true);
+      cell.classList.toggle("empty", item.empty === true);
+      const state = item.empty === true ? "EMPTY" : (item.gt_balls ? "GT" : "unlabeled");
+      tag.textContent = `${cam} · ${state}`;
+    }
+
+    function strokeBox(ctx, bb, color, label) {
+      const [x, y, w, h] = bb.map(Number);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(2, canvasScale(ctx));
+      ctx.strokeRect(x, y, w, h);
+      if (label) {
+        ctx.fillStyle = color;
+        ctx.font = `${Math.max(16, canvasScale(ctx) * 10)}px sans-serif`;
+        ctx.fillText(label, x, Math.max(16, y - 6));
+      }
+    }
+
+    function canvasScale(ctx) {
+      return Math.max(1, Math.round(ctx.canvas.width / 900));
+    }
+
+    function updateStatus() {
+      let labeled = 0, total = 0;
+      for (const ts of data.timestamps) {
+        for (const cam of CAMS) {
+          total++;
+          const it = ts.cams[cam];
+          if (it.empty === true || (it.gt_balls && it.gt_balls.length)) labeled++;
+        }
+      }
+      document.getElementById("status").textContent =
+        `t=${data.timestamps[idx].t.toFixed(2)}s  (#${idx+1}/${data.timestamps.length})  labeled ${labeled}/${total}`;
+    }
+
+    function activeItem() { return data.timestamps[idx].cams[active]; }
+
+    document.getElementById("prev").onclick = () => show(idx - 1);
+    document.getElementById("next").onclick = () => show(idx + 1);
+    document.getElementById("empty").onclick = () => {
+      const it = activeItem();
+      it.empty = true; it.gt_balls = [];
+      paintAll(); updateStatus();
+    };
+    document.getElementById("accept").onclick = () => {
+      const it = activeItem();
+      const pre = it.prelabel_balls || [];
+      if (!pre.length) { it.empty = true; it.gt_balls = []; }
+      else {
+        const b = pre[0];
+        const bb = b.bbox || [b.x, b.y, b.w, b.h];
+        it.gt_balls = [{ x: bb[0], y: bb[1], w: bb[2], h: bb[3] }];
+        it.empty = false;
+      }
+      paintAll(); updateStatus();
+    };
+    document.getElementById("clear").onclick = () => {
+      const it = activeItem();
+      it.gt_balls = null; it.empty = null;
+      paintAll(); updateStatus();
+    };
+    document.getElementById("save").onclick = save;
+
+    async function save() {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      // download (static server can't write back)
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "labels.json";
+      a.click();
+      alert("Downloaded labels.json — replace eval_pack/labels.json with it, then run eval_multicam_ball.py");
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === "n") show(idx + 1);
+      if (e.key === "ArrowLeft" || e.key === "p") show(idx - 1);
+      if (e.key === "e") document.getElementById("empty").click();
+      if (e.key === "a") document.getElementById("accept").click();
+      if (e.key === "s") save();
+      if (["1","2","3","4"].includes(e.key)) {
+        active = CAMS[Number(e.key) - 1];
+        paintAll();
+      }
+    });
+
+    load().catch((err) => {
+      document.getElementById("status").textContent = "Failed to load labels.json: " + err;
+    });
+  </script>
+</body>
+</html>

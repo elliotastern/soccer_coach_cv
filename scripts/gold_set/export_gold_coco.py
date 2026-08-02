@@ -27,7 +27,8 @@ def parse_args():
         "--xml",
         type=Path,
         default=None,
-        help="Corrected XML (default: <gold-dir>/prelabels/annotations.xml)",
+        help="Corrected XML (default: <gold-dir>/gold/annotations.xml, "
+        "else prelabels/annotations.xml)",
     )
     parser.add_argument(
         "--output",
@@ -36,6 +37,25 @@ def parse_args():
         help="Output COCO path (default: <gold-dir>/gold/annotations.coco.json)",
     )
     return parser.parse_args()
+
+
+def resolve_xml(gold_dir: Path, xml_arg: Path | None) -> Path:
+    if xml_arg is not None:
+        return xml_arg
+    gold_xml = gold_dir / "gold" / "annotations.xml"
+    if gold_xml.is_file():
+        return gold_xml
+    pre_xml = gold_dir / "prelabels" / "annotations.xml"
+    if pre_xml.is_file():
+        print(
+            f"Warning: using prelabels XML (not gold/): {pre_xml}\n"
+            "Prefer promoting corrected labels to gold/ before export/train. "
+            "See docs/ball_detection/TRAIN_LABEL_SOURCE_OF_TRUTH.md"
+        )
+        return pre_xml
+    raise FileNotFoundError(
+        f"No annotations.xml under {gold_dir}/gold or {gold_dir}/prelabels"
+    )
 
 
 def load_manifest(gold_dir: Path) -> dict:
@@ -58,9 +78,24 @@ def image_size(gold_dir: Path, file_name: str) -> tuple:
     return width, height
 
 
+def strip_size(gold_dir: Path) -> tuple[int, int]:
+    """CVAT/editor XML is authored in review/strip pixel space (typically 1920×1080)."""
+    import cv2
+
+    sample = gold_dir / "review" / "frames" / "000.jpg"
+    if not sample.is_file():
+        raise FileNotFoundError(f"Missing strip frame for scale: {sample}")
+    img = cv2.imread(str(sample))
+    if img is None:
+        raise RuntimeError(f"Could not read strip frame: {sample}")
+    height, width = img.shape[:2]
+    return width, height
+
+
 def build_coco(gold_dir: Path, xml_path: Path) -> dict:
     manifest = load_manifest(gold_dir)
     tree = parse_cvat_xml(str(xml_path))
+    strip_w, strip_h = strip_size(gold_dir)
     categories = [
         {"id": 1, "name": "player", "supercategory": "person"},
         {"id": 2, "name": "ball", "supercategory": "sports"},
@@ -68,10 +103,15 @@ def build_coco(gold_dir: Path, xml_path: Path) -> dict:
     images = []
     annotations = []
     ann_id = 1
+    scale_note = None
     for row in manifest["frames"]:
         strip_frame = int(row["strip_frame"])
         file_name = row["image"]
         width, height = image_size(gold_dir, file_name)
+        sx = width / float(strip_w)
+        sy = height / float(strip_h)
+        if scale_note is None:
+            scale_note = (strip_w, strip_h, width, height, sx, sy)
         image_id = strip_frame + 1
         images.append({
             "id": image_id,
@@ -84,6 +124,8 @@ def build_coco(gold_dir: Path, xml_path: Path) -> dict:
         for ann in extract_frame_annotations(tree, strip_frame):
             xtl, ytl, xbr, ybr = ann["bbox"]
             x, y, w, h = cvat_bbox_to_coco(xtl, ytl, xbr, ybr)
+            # Map strip/review XML → full-res images/ COCO space
+            x, y, w, h = x * sx, y * sy, w * sx, h * sy
             if w <= 0 or h <= 0:
                 continue
             annotations.append({
@@ -95,10 +137,17 @@ def build_coco(gold_dir: Path, xml_path: Path) -> dict:
                 "iscrowd": 0,
             })
             ann_id += 1
+    sw, sh, fw, fh, sx, sy = scale_note
+    print(
+        f"Scaled XML strip {sw}x{sh} → images {fw}x{fh} "
+        f"(sx={sx:.4f}, sy={sy:.4f})"
+    )
     return {
         "info": {
-            "description": "Match 117093 half-2 gold100 (corrected)",
-            "version": "1.0",
+            "description": "Match gold pack (corrected); boxes in full-res image space",
+            "version": "1.1",
+            "strip_width": sw,
+            "strip_height": sh,
         },
         "licenses": [],
         "images": images,
@@ -110,10 +159,11 @@ def build_coco(gold_dir: Path, xml_path: Path) -> dict:
 def main():
     args = parse_args()
     gold_dir = args.gold_dir
-    xml_path = args.xml or (gold_dir / "prelabels" / "annotations.xml")
+    xml_path = resolve_xml(gold_dir, args.xml)
     out_path = args.output or (gold_dir / "gold" / "annotations.coco.json")
     if not xml_path.is_file():
         raise FileNotFoundError(f"XML not found: {xml_path}")
+    print(f"Exporting from {xml_path}")
     coco = build_coco(gold_dir, xml_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(coco, indent=2))

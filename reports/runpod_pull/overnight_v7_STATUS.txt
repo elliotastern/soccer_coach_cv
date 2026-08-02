@@ -1,0 +1,7 @@
+2026-08-01T14:59:20Z V7 START
+2026-08-01T14:59:20Z extract v7 pack
+2026-08-01T15:01:04Z resume=/workspace/soccer_cv_ball/models/v6_snaps/epoch_110/checkpoint_best_regular.pth
+watcher_pid=69905
+2026-08-01T15:01:05Z TRAIN v7 begin pack=v7 resume_gold_best
+2026-08-01T17:26:39Z TRAIN v7 rc=0
+2026-08-01T17:26:46Z DONE — stop pod in dashboard

@@ -1,0 +1,54 @@
+# v7: Match = math_1_training + batch2 + batch3, x3 aug, no Synth
+# Resume from best Gold snap (v6_epoch_110) — not pack-val best
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match_mix_v7/train
+  coco_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match_mix_v7/valid
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: true
+  prefetch_factor: 1
+  persistent_workers: false
+
+training:
+  epochs: 160
+  batch_size: 2
+  grad_accum_steps: 16
+  learning_rate: 0.00005
+  encoder_learning_rate: 0.00003
+  weight_decay: 0.0001
+  resolution: 1288
+  amp: true
+  mixed_precision: true
+  num_workers: 2
+  device: cuda
+  multi_scale: false
+  expanded_scales: false
+
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+
+output:
+  output_dir: /workspace/soccer_cv_ball/models
+  save_every_epochs: 1
+
+checkpoint:
+  # Prefer Gold-best v6 snap; fall back handled by train launch script
+  resume_from: /workspace/soccer_cv_ball/models/v6_snaps/checkpoint_110.pth
+  start_epoch: null
+  save_dir: models/checkpoints

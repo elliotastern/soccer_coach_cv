@@ -1,6 +1,10 @@
-# ByteTrack logic
-from typing import List, Dict
+"""ByteTrack multi-object tracker (supervision)."""
+from __future__ import annotations
+
+from typing import List, Optional
+
 import numpy as np
+
 try:
     from supervision.tracker.byte_tracker.core import ByteTrack
     BYTETRACK_AVAILABLE = True
@@ -13,107 +17,108 @@ except ImportError:
         ByteTrack = None
 
 from supervision.detection.core import Detections
+
 from src.state.types import Detection, TrackedObject
 
 
+def _build_byte_track(
+    track_activation_threshold: float,
+    lost_track_buffer: int,
+    minimum_matching_threshold: float,
+    frame_rate: int,
+    minimum_consecutive_frames: int = 1,
+):
+    if not BYTETRACK_AVAILABLE:
+        raise ImportError("ByteTrack not available. Install: pip install supervision")
+    return ByteTrack(
+        track_activation_threshold=track_activation_threshold,
+        lost_track_buffer=lost_track_buffer,
+        minimum_matching_threshold=minimum_matching_threshold,
+        frame_rate=frame_rate,
+        minimum_consecutive_frames=minimum_consecutive_frames,
+    )
+
+
 class Tracker:
-    """ByteTrack-based multi-object tracker"""
-    
-    def __init__(self, track_thresh: float = 0.5, high_thresh: float = 0.6,
-                 track_buffer: int = 30, match_thresh: float = 0.8, 
-                 frame_rate: int = 30):
-        """
-        Initialize ByteTrack tracker
-        
-        Args:
-            track_thresh: Detection confidence threshold
-            high_thresh: High confidence threshold
-            track_buffer: Number of frames to keep lost tracks
-            match_thresh: Matching threshold for tracks
-            frame_rate: Video frame rate
-        """
+    """ByteTrack-based multi-object tracker with correct supervision API wiring."""
+
+    def __init__(
+        self,
+        track_thresh: float = 0.25,
+        high_thresh: float = 0.35,  # kept for config compat; unused by current API
+        track_buffer: int = 30,
+        match_thresh: float = 0.8,
+        frame_rate: int = 30,
+        minimum_consecutive_frames: int = 1,
+    ):
         self.track_thresh = track_thresh
         self.high_thresh = high_thresh
         self.track_buffer = track_buffer
         self.match_thresh = match_thresh
         self.frame_rate = frame_rate
-        
-        if not BYTETRACK_AVAILABLE:
-            raise ImportError("ByteTrack not available. Install supervision with: pip install supervision")
-        
-        # ByteTrack API - use minimal initialization (parameters are handled internally)
-        self.byte_tracker = ByteTrack()
-    
-    def update(self, detections: List[Detection], frame: np.ndarray) -> List[TrackedObject]:
-        """
-        Update tracker with new detections
-        
-        Args:
-            detections: List of detections
-            frame: Current frame (for shape info)
-        
-        Returns:
-            List of tracked objects with IDs
-        """
+        self.minimum_consecutive_frames = minimum_consecutive_frames
+        self.byte_tracker = _build_byte_track(
+            track_activation_threshold=track_thresh,
+            lost_track_buffer=track_buffer,
+            minimum_matching_threshold=match_thresh,
+            frame_rate=frame_rate,
+            minimum_consecutive_frames=minimum_consecutive_frames,
+        )
+
+    def update(self, detections: List[Detection], frame: Optional[np.ndarray] = None) -> List[TrackedObject]:
         if not detections:
+            empty = Detections.empty()
+            self.byte_tracker.update_with_detections(empty)
             return []
-        
-        # Convert to supervision Detections format
-        xyxy = []
-        confidence = []
-        class_id = []
-        
+
+        xyxy = np.array(
+            [[d.bbox[0], d.bbox[1], d.bbox[0] + d.bbox[2], d.bbox[1] + d.bbox[3]] for d in detections],
+            dtype=np.float32,
+        )
+        confidence = np.array([d.confidence for d in detections], dtype=np.float32)
+        class_id = np.array([d.class_id for d in detections], dtype=np.int32)
+        supervision_detections = Detections(xyxy=xyxy, confidence=confidence, class_id=class_id)
+        tracks = self.byte_tracker.update_with_detections(supervision_detections)
+        return self._tracks_to_objects(tracks, detections)
+
+    def _tracks_to_objects(self, tracks: Detections, detections: List[Detection]) -> List[TrackedObject]:
+        if tracks is None or len(tracks) == 0:
+            return []
+        tracked_objects = []
+        tracker_ids = tracks.tracker_id
+        for i in range(len(tracks)):
+            track_xyxy = tracks.xyxy[i]
+            tid = int(tracker_ids[i]) if tracker_ids is not None else i
+            det = self._nearest_detection(track_xyxy, detections)
+            if det is None:
+                x1, y1, x2, y2 = map(float, track_xyxy)
+                conf = float(tracks.confidence[i]) if tracks.confidence is not None else 0.5
+                cid = int(tracks.class_id[i]) if tracks.class_id is not None else 0
+                det = Detection(
+                    class_id=cid,
+                    confidence=conf,
+                    bbox=(x1, y1, max(1.0, x2 - x1), max(1.0, y2 - y1)),
+                    class_name="player" if cid == 0 else "ball",
+                )
+            tracked_objects.append(TrackedObject(object_id=tid, detection=det))
+        return tracked_objects
+
+    def _nearest_detection(self, track_xyxy, detections: List[Detection]) -> Optional[Detection]:
+        tcx = (float(track_xyxy[0]) + float(track_xyxy[2])) / 2
+        tcy = (float(track_xyxy[1]) + float(track_xyxy[3])) / 2
+        best, best_dist = None, 80.0
         for det in detections:
             x, y, w, h = det.bbox
-            xyxy.append([x, y, x + w, y + h])
-            confidence.append(det.confidence)
-            class_id.append(det.class_id)
-        
-        supervision_detections = Detections(
-            xyxy=np.array(xyxy, dtype=np.float32),
-            confidence=np.array(confidence, dtype=np.float32),
-            class_id=np.array(class_id, dtype=np.int32)
+            dist = ((x + w / 2 - tcx) ** 2 + (y + h / 2 - tcy) ** 2) ** 0.5
+            if dist < best_dist:
+                best, best_dist = det, dist
+        return best
+
+    def reset(self) -> None:
+        self.byte_tracker = _build_byte_track(
+            track_activation_threshold=self.track_thresh,
+            lost_track_buffer=self.track_buffer,
+            minimum_matching_threshold=self.match_thresh,
+            frame_rate=self.frame_rate,
+            minimum_consecutive_frames=self.minimum_consecutive_frames,
         )
-        
-        # Update tracker
-        tracks = self.byte_tracker.update_with_detections(supervision_detections)
-        
-        # Convert back to TrackedObject format
-        tracked_objects = []
-        for i, track in enumerate(tracks):
-            # Match track to original detection by position
-            track_xyxy = track.xyxy[0]
-            det_idx = None
-            min_dist = float('inf')
-            
-            for j, det in enumerate(detections):
-                x, y, w, h = det.bbox
-                det_center_x = x + w / 2
-                det_center_y = y + h / 2
-                track_center_x = (track_xyxy[0] + track_xyxy[2]) / 2
-                track_center_y = (track_xyxy[1] + track_xyxy[3]) / 2
-                
-                dist = np.sqrt((det_center_x - track_center_x)**2 + (det_center_y - track_center_y)**2)
-                if dist < min_dist:
-                    min_dist = dist
-                    det_idx = j
-            
-            if det_idx is not None and min_dist < 50:  # Within 50 pixels
-                detection = detections[det_idx]
-                tracked_objects.append(TrackedObject(
-                    object_id=int(track.tracker_id),
-                    detection=detection
-                ))
-        
-        return tracked_objects
-    
-    def reset(self):
-        """Reset tracker state (call on scene cut)"""
-        if BYTETRACK_AVAILABLE:
-            self.byte_tracker = ByteTrack(
-                track_thresh=self.track_thresh,
-                high_thresh=self.high_thresh,
-                track_buffer=self.track_buffer,
-                match_thresh=self.match_thresh,
-                frame_rate=self.frame_rate
-            )

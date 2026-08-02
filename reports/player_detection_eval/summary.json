@@ -1,0 +1,97 @@
+{
+  "checkpoint": "/Volumes/LaCie/Projects/Soccer Coach CV/models/people_after_100_epochs.pth",
+  "val_dir": "/Volumes/LaCie/Projects/Soccer project data/SoccerSynth_Detection/val",
+  "dataset": "SoccerSynth_Detection/val (YOLO, player class 0)",
+  "max_images": 100,
+  "seed": 7,
+  "note": "No prior saved metrics for people_after_100_epochs.pth. F1@IoU0.5 is used as a practical mAP@0.5 proxy (not COCO mAP). Player detection is Product Phase 1 perception, not Product Phase 2. Scores often cap near 0.80 so conf=0.79 is the practical high-precision cut.",
+  "targets": {
+    "training_precision": 0.8,
+    "training_recall": 0.95,
+    "training_f1_proxy": 0.85,
+    "phase1_precision": 0.8,
+    "phase1_recall": 0.8
+  },
+  "metrics_by_confidence": {
+    "0.3": {
+      "tp": 404,
+      "fp": 923,
+      "fn": 282,
+      "precision": 0.3044461190655614,
+      "recall": 0.5889212827988338,
+      "f1": 0.40139095876800795,
+      "confidence_threshold": 0.3,
+      "iou_threshold": 0.5,
+      "images": 100,
+      "gt_boxes": 686,
+      "pred_boxes": 1327
+    },
+    "0.5": {
+      "tp": 313,
+      "fp": 367,
+      "fn": 373,
+      "precision": 0.4602941176470588,
+      "recall": 0.45626822157434405,
+      "f1": 0.45827232796486095,
+      "confidence_threshold": 0.5,
+      "iou_threshold": 0.5,
+      "images": 100,
+      "gt_boxes": 686,
+      "pred_boxes": 680
+    },
+    "0.7": {
+      "tp": 152,
+      "fp": 63,
+      "fn": 534,
+      "precision": 0.7069767441860465,
+      "recall": 0.22157434402332363,
+      "f1": 0.3374028856825749,
+      "confidence_threshold": 0.7,
+      "iou_threshold": 0.5,
+      "images": 100,
+      "gt_boxes": 686,
+      "pred_boxes": 215
+    },
+    "0.79": {
+      "tp": 15,
+      "fp": 1,
+      "fn": 671,
+      "precision": 0.9375,
+      "recall": 0.021865889212827987,
+      "f1": 0.042735042735042736,
+      "confidence_threshold": 0.79,
+      "iou_threshold": 0.5,
+      "images": 100,
+      "gt_boxes": 686,
+      "pred_boxes": 16
+    },
+    "0.8": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 679,
+      "precision": 1.0,
+      "recall": 0.01020408163265306,
+      "f1": 0.020202020202020204,
+      "confidence_threshold": 0.8,
+      "iou_threshold": 0.5,
+      "images": 100,
+      "gt_boxes": 686,
+      "pred_boxes": 7
+    }
+  },
+  "gates": {
+    "training_goals": {
+      "precision_ge_0.80": false,
+      "recall_ge_0.95": false,
+      "f1_ge_0.85": false
+    },
+    "training_goals_pass": false,
+    "phase1_posture": {
+      "precision_at_high_conf_ge_0.80": true,
+      "recall_at_high_conf_ge_0.80": false,
+      "functional_f1_at_high_conf_ge_0.80": false
+    },
+    "phase1_good_enough": false,
+    "verdict": "NOT_YET_GOOD_ENOUGH"
+  }
+}

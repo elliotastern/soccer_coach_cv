@@ -180,23 +180,19 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
 
     html = _must_replace(
         html,
-        """                // Draw video frame - ensure video is ready and seeked
-                if (video.readyState >= 2) {
+        """                if (video.readyState >= 2) {
                     try {
                         ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
                     } catch (e) {
                         debugLog('ERROR drawing video frame: ' + e.message);
-                        // If drawImage fails, fill with dark gray to show something
                         ctx.fillStyle = '#1a1a1a';
                         ctx.fillRect(0, 0, videoWidth, videoHeight);
                     }
                 } else {
-                    // Video not ready yet, fill with dark background
                     ctx.fillStyle = '#1a1a1a';
                     ctx.fillRect(0, 0, videoWidth, videoHeight);
                 }""",
-        """                // Draw exact review JPG for this strip frame
-                if (reviewImage && reviewImage.complete && reviewImage.naturalWidth > 0) {
+        """                if (reviewImage && reviewImage.complete && reviewImage.naturalWidth > 0) {
                     ctx.drawImage(reviewImage, 0, 0, videoWidth, videoHeight);
                 } else {
                     ctx.fillStyle = '#1a1a1a';
@@ -305,14 +301,29 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
         videoHeight = GOLD100.height;
         canvas.width = videoWidth;
         canvas.height = videoHeight;
-        const wrapperInit = canvas.parentElement;
-        const containerWidth = wrapperInit.clientWidth || 800;
-        const containerHeight = wrapperInit.clientHeight || 600;
-        scaleX = containerWidth / videoWidth;
-        scaleY = containerHeight / videoHeight;
-        const fit = Math.min(scaleX, scaleY);
-        canvas.style.width = (videoWidth * fit) + 'px';
-        canvas.style.height = (videoHeight * fit) + 'px';
+
+        function fitCanvasToWrapper() {
+            const wrapper = document.getElementById('videoWrapper') || canvas.parentElement;
+            const pad = 2;
+            const cw = Math.max(120, (wrapper.clientWidth || 800) - pad);
+            const ch = Math.max(120, (wrapper.clientHeight || 600) - pad);
+            scaleX = cw / videoWidth;
+            scaleY = ch / videoHeight;
+            const fit = Math.min(scaleX, scaleY);
+            canvas.style.width = Math.floor(videoWidth * fit) + 'px';
+            canvas.style.height = Math.floor(videoHeight * fit) + 'px';
+        }
+        fitCanvasToWrapper();
+        requestAnimationFrame(() => {
+            fitCanvasToWrapper();
+            requestAnimationFrame(fitCanvasToWrapper);
+        });
+        window.addEventListener('resize', fitCanvasToWrapper);
+        if (window.ResizeObserver) {
+            new ResizeObserver(fitCanvasToWrapper).observe(
+                document.getElementById('videoWrapper') || canvas.parentElement
+            );
+        }
 
         const overlay = document.getElementById('playOverlay');
         if (overlay) overlay.style.display = 'none';
@@ -652,6 +663,7 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
                     <h3>Object Tracks</h3>
                     <div id="objectTracksList"></div>
                     <h3 style="margin-top: 20px;">Boxes in Frame</h3>
+                    <div id="ballFrameBanner" style="display:none;margin:0 0 8px 0;padding:8px;border-radius:4px;font-size:12px;font-weight:bold;"></div>
                     <div class="box-list" id="boxesList"></div>
                 </div>
             </div>""",
@@ -832,6 +844,8 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
         "track-id-match",
     )
 
+    html = _apply_ball_visibility(html)
+
     for needle in (
         "canvas.addEventListener('mousedown'",
         "function seekToFrame",
@@ -839,6 +853,9 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
         "isDragging",
         "saveAnnotations",
         "Saved annotations without reload",
+        "#E91E63",
+        "ballFrameBanner",
+        "Skip CVAT outside",
     ):
         if needle not in html:
             raise RuntimeError(f"Generated editor missing required code: {needle}")
@@ -847,6 +864,106 @@ def build_image_editor(gold_dir: Path, frame_names: list[str], width: int, heigh
     out_path.write_text(html, encoding="utf-8")
     (ROOT / "annotation" / "gold100_editor.html").write_text(html, encoding="utf-8")
     return out_path
+
+
+def _apply_ball_visibility(html: str) -> str:
+    """Make ball labels unmistakable (magenta ring, draw on top, sidebar zoom)."""
+    if "Balls: thick magenta outer ring" in html:
+        return html
+
+    if 'id="ballFrameBanner"' not in html:
+        html = html.replace(
+            '<div class="box-list" id="boxesList"></div>',
+            '<div id="ballFrameBanner" style="display:none;margin:0 0 8px 0;padding:8px;border-radius:4px;font-size:12px;font-weight:bold;"></div>\n'
+            '                    <div class="box-list" id="boxesList"></div>',
+            1,
+        )
+
+    # Prefer copying proven snippets from the live Gold100 editor when present.
+    ref = ROOT / "data/processed/gold_sets/match1_1_100/review/editor.html"
+    if ref.is_file() and "#E91E63" in ref.read_text(encoding="utf-8", errors="replace"):
+        ref_html = ref.read_text(encoding="utf-8")
+
+        def _extract(src: str, start: str, end: str) -> str | None:
+            i = src.find(start)
+            if i < 0:
+                return None
+            j = src.find(end, i + len(start))
+            if j < 0:
+                return None
+            return src[i:j]
+
+        for start, end in (
+            ("        function drawBox(box, isSelected = false, isTemporary = false, ballIndex = null) {",
+             "        function getHandleAt(x, y, box) {"),
+            ("        function updateBoxesList() {",
+             "        function updateLabelSelector() {"),
+        ):
+            snippet = _extract(ref_html, start, end)
+            if not snippet:
+                continue
+            # Replace either old or already-new signature
+            for old_start in (
+                start,
+                start.replace(", ballIndex = null", ""),
+            ):
+                i = html.find(old_start)
+                if i < 0:
+                    continue
+                j = html.find(end, i + 1)
+                if j < 0:
+                    continue
+                html = html[:i] + snippet + html[j:]
+                break
+
+        # Draw balls on top
+        old_loop = (
+            "                if (showOverlay) {\n"
+            "                    const frameBoxes = boxes[currentFrame] || [];\n"
+            "                    for (let i = 0; i < frameBoxes.length; i++) {\n"
+            "                        const box = frameBoxes[i];\n"
+            "                        try {\n"
+            "                            drawBox(box, box && selectedBox && box.id === selectedBox.id);\n"
+            "                        } catch (boxErr) {\n"
+            "                            debugLog('ERROR drawBox: ' + boxErr.message);\n"
+            "                        }\n"
+            "                    }"
+        )
+        new_loop = (
+            "                // Players first, balls last (on top) so thin/tall ball boxes are not buried\n"
+            "                if (showOverlay) {\n"
+            "                    const frameBoxes = boxes[currentFrame] || [];\n"
+            "                    const nonBalls = frameBoxes.filter(b => (b.label || '') !== 'ball');\n"
+            "                    const balls = frameBoxes.filter(b => (b.label || '') === 'ball');\n"
+            "                    nonBalls.forEach(box => {\n"
+            "                        try { drawBox(box, box.id === selectedBox?.id); }\n"
+            "                        catch (boxErr) { debugLog('ERROR drawBox: ' + boxErr.message); }\n"
+            "                    });\n"
+            "                    balls.forEach((box, i) => {\n"
+            "                        try { drawBox(box, box.id === selectedBox?.id, false, i + 1); }\n"
+            "                        catch (boxErr) { debugLog('ERROR drawBox: ' + boxErr.message); }\n"
+            "                    });"
+        )
+        if old_loop in html:
+            html = html.replace(old_loop, new_loop, 1)
+
+    if "Skip CVAT outside" not in html:
+        html = html.replace(
+            "                trackBoxes.forEach(box => {\n"
+            "                    const frame = parseInt(box.getAttribute('frame'));",
+            "                trackBoxes.forEach(box => {\n"
+            "                    // Skip CVAT outside markers (not real boxes on this frame)\n"
+            "                    if (box.getAttribute('outside') === '1') return;\n\n"
+            "                    const frame = parseInt(box.getAttribute('frame'));",
+            1,
+        )
+
+    if "#E91E63" not in html:
+        raise RuntimeError(
+            "Failed to apply ball-visibility UI. "
+            "Ensure match1_1_100/review/editor.html has magenta ball styling."
+        )
+    return html
 
 
 def validate_pack(gold_dir: Path, max_mean_delta: float = 8.0) -> None:

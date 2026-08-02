@@ -12,7 +12,14 @@ import socket
 from pathlib import Path
 
 PORT = 8080
-FALLBACK_PORTS = (8081, 8082, 9000, 3000)
+FALLBACK_PORTS = (8081, 8082, 9000, 3000, 8765, 8877)
+
+
+class ThreadingHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    """Concurrent GETs — single-thread TCPServer deadlocks under browser load."""
+
+    allow_reuse_address = True
+    daemon_threads = True
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 MARK_UI_RELPATH = 'data/output/2dmap_manual_mark/mark_ui.html'
@@ -41,6 +48,7 @@ PITCH_DIAGRAM_HELP_HTML = (
 def _port_is_free(host, port):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((host, port))
             return True
     except OSError:
@@ -70,7 +78,24 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Short URL for gold100 correction editor
         if self.path in ('/gold100', '/gold100/', '/gold100_editor.html'):
             self.send_response(302)
-            self.send_header('Location', '/annotation/gold100_editor.html')
+            self.send_header('Location', '/data/processed/gold_sets/match1_1_100/review/editor.html')
+            self.end_headers()
+            return
+        # Short URL for next Match train-label batch
+        if self.path in ('/batch3', '/batch3/', '/math1_batch3'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/math_1_training_batch3/review/editor.html',
+            )
+            self.end_headers()
+            return
+        if self.path in ('/batch2', '/batch2/', '/math1_batch2'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/math_1_training_batch2/review/editor.html',
+            )
             self.end_headers()
             return
         # Short URL for 2D map report
@@ -249,36 +274,40 @@ def main():
     args = parser.parse_args()
     port = args.port
     if port == PORT:
-        avail = _first_available_port("", PORT)
+        avail = _first_available_port("127.0.0.1", PORT)
         if avail is None:
             print(f"Port {PORT} and fallbacks {FALLBACK_PORTS} are in use. Use --port N to try another.")
             return
         if avail != PORT:
             print(f"Port {PORT} in use, using port {avail}")
         port = avail
-    else:
-        if not _port_is_free("", port):
-            print(f"Port {port} is in use. Choose another with --port N.")
-            return
 
     os.chdir(Path(__file__).parent)
 
-    # Allow socket reuse to avoid "Address already in use" errors
-    socketserver.TCPServer.allow_reuse_address = True
-    httpd = socketserver.TCPServer(("", port), MyHTTPRequestHandler)
+    try:
+        httpd = ThreadingHTTPServer(("127.0.0.1", port), MyHTTPRequestHandler)
+    except OSError as e:
+        print(f"Could not bind port {port}: {e}")
+        print(f"Try: python3 serve_viewer.py --port N")
+        return
+
+    # Persist port for launch scripts / open_gold100 helpers
+    (Path("/tmp") / "soccer_coach_serve_viewer.port").write_text(str(port))
+    (Path("/tmp") / "soccer_coach_serve_viewer.pid").write_text(str(os.getpid()))
+
+    gold_editor = (
+        f"http://127.0.0.1:{port}/data/processed/gold_sets/"
+        "match1_1_100/review/editor.html"
+    )
     print("=" * 60)
-    print("🌐 Annotation Viewer Server Started")
+    print("Annotation Viewer Server Started (threaded)")
     print("=" * 60)
-    print(f"📍 Server running at: http://localhost:{port}")
-    print(f"📄 2D map (short): http://localhost:{port}/2dmap")
-    print(f"📄 Mark UI (4 corners + halfway): http://localhost:{port}/mark_ui")
-    print(f"📄 2D map (long): http://localhost:{port}/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html")
-    print(f"📄 Open in browser: http://localhost:{port}/view_annotations_editor.html")
-    print(f"📄 37a results: http://localhost:{port}/data/output/37a_20frames/viewer.html")
-    print(f"📄 37a frames+bboxes: http://localhost:{port}/data/output/37a_20frames/viewer_with_frames.html")
-    print("=" * 60)
-    print("If using port forwarding (Cursor/VS Code), open the Forwarded Address from")
-    print("the Ports panel, e.g. http://localhost:62845/2dmap")
+    print(f"Server:      http://127.0.0.1:{port}")
+    print(f"Gold100:     {gold_editor}")
+    print(f"math_1_train: http://127.0.0.1:{port}/data/processed/gold_sets/math_1_training/review/editor.html")
+    print(f"math_1_batch3: http://127.0.0.1:{port}/batch3")
+    print(f"math_1_batch2: http://127.0.0.1:{port}/data/processed/gold_sets/math_1_training_batch2/review/editor.html")
+    print(f"2D map:      http://127.0.0.1:{port}/2dmap")
     print("=" * 60)
     print("Press Ctrl+C to stop")
     print()
@@ -288,6 +317,15 @@ def main():
     except KeyboardInterrupt:
         print("\n\nServer stopped.")
         httpd.shutdown()
+    finally:
+        for p in (
+            Path("/tmp/soccer_coach_serve_viewer.port"),
+            Path("/tmp/soccer_coach_serve_viewer.pid"),
+        ):
+            try:
+                p.unlink()
+            except OSError:
+                pass
 
 
 if __name__ == "__main__":

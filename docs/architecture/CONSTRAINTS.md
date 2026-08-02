@@ -18,6 +18,7 @@ Target environment and hard limits for the coaching product. See also [product/P
 - Free for commercial use (or explicitly licensed) only
 - No licensed/proprietary match footage without permission
 - Prefer synthetic datasets (e.g. SoccerSynth-Detection) for training and public examples
+- **Do not use** `football.v1i` (Roboflow `football-r4il1`) — league/broadcast footage; blocked in the shared data catalog even if listed as CC BY
 
 ## Quality posture (Phase 1)
 

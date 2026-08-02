@@ -1,0 +1,30 @@
+Next top 10 to Match/Gold AP50 0.8
+========================================
+1. Finish v7→160; Gold-rank snaps 155/160+final (R50 flat 0.095 through ep150; ~8 epochs left)
+2. Keep RunPod disk under quota; prune old snaps/tars after v7 finishes; stop pod when idle
+3. Add Camera-OSD hard-negatives (0/C/digit glyphs) — high-P/low-R; later snaps P~0.80
+4. Tiny-ball augs / multi-scale (copy-paste, blur, downscale) on Match gold only
+5. After v7 ends: if still ≤ v6_epoch_110, resume that snap with Match-heavier / miss_like strata
+6. Calibrate operating point toward conf~0.8 (precision-first Phase 1 bar)
+7. Higher-res inference or tiling for ~13px balls on Match eval
+8. Expand held-out Match eval beyond Gold0-49 strip (still never train on it)
+9. Hard-neg mine batch3 empties (glare/OSD/jersey) into train as negatives
+10. ByteTrack only after detector R/P improves — tracking will not fix ~0.12 R50
+
+Saved 2026-08-01T17:04:52.451473+00:00
+best Gold: v6_epoch_110 R50=0.119 P50=0.625
+v7 train ~152/160; Gold sweep LIVE
+v7 ranked:
+  v7_epoch_125: R50=0.095 P50=1.000 F1=0.174 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_125.json)
+  v7_epoch_120: R50=0.095 P50=1.000 F1=0.174 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_120.json)
+  v7_epoch_115: R50=0.095 P50=1.000 F1=0.174 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_115.json)
+  v7_best_2975996: R50=0.095 P50=1.000 F1=0.174 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_best_2975996.json)
+  v7_best_2975990: R50=0.095 P50=1.000 F1=0.174 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_best_2975990.json)
+  v7_epoch_150: R50=0.095 P50=0.800 F1=0.170 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_150.json)
+  v7_epoch_145: R50=0.095 P50=0.800 F1=0.170 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_145.json)
+  v7_epoch_140: R50=0.095 P50=0.800 F1=0.170 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_140.json)
+  v7_epoch_135: R50=0.095 P50=0.800 F1=0.170 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_135.json)
+  v7_epoch_130: R50=0.095 P50=0.800 F1=0.170 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_epoch_130.json)
+  v7_best_2976000: R50=0.095 P50=0.800 F1=0.170 R80=0.000 P80=0.000 tp50=4 fn50=38 (eval_v7_best_2976000.json)
+  v7_epoch_110: R50=0.095 P50=0.667 F1=0.167 R80=0.024 P80=1.000 tp50=4 fn50=38 (eval_v7_epoch_110.json)
+COMPLETED this session: monitor + Gold-rank epoch_150

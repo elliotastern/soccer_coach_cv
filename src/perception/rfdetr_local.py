@@ -138,26 +138,48 @@ class LocalRFDETRDetector:
         confidence_threshold: float = 0.5,
         player_class_id: int = 0,
         ball_class_id: int = 1,
+        enhance_ball: bool = False,
     ):
         self.confidence_threshold = confidence_threshold
         self.player_class_id = player_class_id
         self.ball_class_id = ball_class_id
+        self.enhance_ball = enhance_ball
         self.people_model = load_people_model(player_checkpoint)
         self.ball_model = load_ball_model(ball_checkpoint)
+        self._ball_prelabeler = None
+        if enhance_ball:
+            from src.perception.ball_prelabel import BallPrelabelConfig, BallPrelabeler
+
+            # Recommended prelabel stack from Gold100 0-20 ablation
+            self._ball_prelabeler = BallPrelabeler(
+                self.ball_model,
+                BallPrelabelConfig(
+                    threshold=min(0.30, confidence_threshold),
+                    use_sahi=False,
+                    use_size_filter=True,
+                    topk=2,
+                    use_kalman=False,
+                    min_side=4,
+                    max_side=120,
+                ),
+                class_id=ball_class_id,
+            )
 
     def detect(self, frame: np.ndarray) -> List[Detection]:
         pil_image = _frame_to_pil(frame)
         threshold = self.confidence_threshold
 
         people_raw = self.people_model.predict(pil_image, threshold=threshold)
-        ball_raw = self.ball_model.predict(pil_image, threshold=threshold)
-
         detections = _parse_rfdetr_detections(
             people_raw, self.player_class_id, "player"
         )
-        detections.extend(_parse_rfdetr_detections(
-            ball_raw, self.ball_class_id, "ball"
-        ))
+        if self._ball_prelabeler is not None:
+            detections.extend(self._ball_prelabeler.detect_pil(pil_image))
+        else:
+            ball_raw = self.ball_model.predict(pil_image, threshold=threshold)
+            detections.extend(_parse_rfdetr_detections(
+                ball_raw, self.ball_class_id, "ball"
+            ))
         return detections
 
 
