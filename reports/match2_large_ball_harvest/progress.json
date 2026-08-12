@@ -1,8 +1,6 @@
 {
-  "status": "scanning",
-  "cam": "P10",
-  "frame": 57180,
-  "scanned": 925,
-  "kept_this_cam": 13,
-  "updated_unix": 1786561971.437558
+  "status": "done",
+  "kept": 100,
+  "out": "data/processed/gold_sets/match2_large_ball_harvest_batch2",
+  "editor": "http://127.0.0.1:8080/match2-harvest?pack=/data/processed/gold_sets/match2_large_ball_harvest_batch2"
 }

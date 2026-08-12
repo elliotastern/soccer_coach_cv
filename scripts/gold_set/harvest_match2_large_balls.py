@@ -517,17 +517,19 @@ def main():
     args.out.mkdir(parents=True, exist_ok=True)
     save_crops(args.out, kept)
     write_pack(args.out, kept, args)
+    rel = args.out if not args.out.is_absolute() else args.out.relative_to(ROOT)
+    rel_s = rel.as_posix().lstrip("./")
+    editor = f"http://127.0.0.1:8080/match2-harvest?pack=/{rel_s}"
     write_progress({
         "status": "done",
         "kept": len(kept),
         "out": str(args.out),
         "mean_side": float(np.mean([r["side"] for r in kept])),
         "mean_conf": float(np.mean([r["max_ball_conf"] for r in kept])),
-        "editor": f"http://127.0.0.1:8080/match2-harvest?pack=/{args.out.relative_to(ROOT).as_posix()}",
+        "editor": editor,
     })
     print(f"\nHarvested {len(kept)} frames → {args.out}")
-    rel = args.out.relative_to(ROOT).as_posix() if args.out.is_absolute() else args.out.as_posix()
-    print(f"Review: python3 serve_viewer.py → http://127.0.0.1:8080/match2-harvest?pack=/{rel}")
+    print(f"Review: python3 serve_viewer.py → {editor}")
     return 0
 
 
