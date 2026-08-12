@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Match 2 large-ball harvest</title>
+  <style>
+    :root {
+      --bg: #12141a; --panel: #1c2030; --line: #2c3348; --text: #e8ecf4;
+      --muted: #9aa3b8; --green: #3ddc84; --red: #ff6b6b; --accent: #5b8cff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "IBM Plex Sans", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+    .layout { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: auto 1fr auto; height: 100vh; }
+    header { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+    header h1 { font-size: 15px; }
+    header .meta { color: var(--muted); font-size: 12px; }
+    button { background: #262b3c; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+    button:hover { border-color: var(--accent); }
+    button.accept { border-color: var(--green); color: var(--green); }
+    button.reject { border-color: var(--red); color: var(--red); }
+    .stage { display: flex; align-items: center; justify-content: center; background: #000; min-height: 0; }
+    canvas { max-width: 100%; max-height: 100%; }
+    aside { background: var(--panel); border-left: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    aside h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .chip { background: #262b3c; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12px; display: inline-block; margin: 0 6px 6px 0; }
+    footer { grid-column: 1 / -1; background: var(--panel); border-top: 1px solid var(--line); padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+    footer input[type="range"] { flex: 1; }
+    .status-accept { color: var(--green); }
+    .status-reject { color: var(--red); }
+    .err { color: var(--red); padding: 24px; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <h1>Match 2 · large-ball harvest</h1>
+      <span class="meta" id="metaLine">loading…</span>
+      <button type="button" id="prevBtn">←</button>
+      <button type="button" id="nextBtn">→</button>
+      <button type="button" class="accept" id="acceptBtn">A accept</button>
+      <button type="button" class="reject" id="rejectBtn">D reject</button>
+      <button type="button" id="saveBtn">Save keep list</button>
+    </header>
+    <div class="stage"><canvas id="view"></canvas></div>
+    <aside>
+      <div>
+        <h2>This frame</h2>
+        <div id="frameInfo"></div>
+      </div>
+      <div>
+        <h2>Progress</h2>
+        <div id="progressChips"></div>
+      </div>
+      <p class="meta">A = keep (box is a real large ball). D = drop FP. Save writes keep.json.</p>
+    </aside>
+    <footer>
+      <span id="frameLabel">0 / 0</span>
+      <input type="range" id="frameSlider" min="0" max="0" value="0" />
+    </footer>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const PACK = params.get("pack") || "/data/processed/gold_sets/match2_large_ball_harvest";
+    let manifest = null;
+    let preds = [];
+    let decisions = {};
+    let frameIdx = 0;
+    const img = new Image();
+    const canvas = document.getElementById("view");
+    const ctx = canvas.getContext("2d");
+
+    function pad3(i) { return String(i).padStart(3, "0"); }
+
+    async function boot() {
+      const man = await fetch(`${PACK}/manifest.json`);
+      if (!man.ok) throw new Error("harvest pack missing — run harvest_match2_large_balls.py");
+      manifest = await man.json();
+      preds = await (await fetch(`${PACK}/review/preds.json`)).json();
+      document.getElementById("metaLine").textContent =
+        `${manifest.n_frames} frames · min side ${manifest.min_side}px · conf≥${manifest.min_conf}`;
+      document.getElementById("frameSlider").max = String(manifest.n_frames - 1);
+      await showFrame(0);
+    }
+
+    function decisionOf(i) { return decisions[i] || "unset"; }
+
+    function renderProgress() {
+      const n = manifest.n_frames;
+      let acc = 0, rej = 0;
+      for (let i = 0; i < n; i++) {
+        if (decisions[i] === "accept") acc++;
+        if (decisions[i] === "reject") rej++;
+      }
+      document.getElementById("progressChips").innerHTML =
+        `<span class="chip">accepted <strong>${acc}</strong></span>` +
+        `<span class="chip">rejected <strong>${rej}</strong></span>` +
+        `<span class="chip">todo <strong>${n - acc - rej}</strong></span>`;
+    }
+
+    async function showFrame(i) {
+      frameIdx = i;
+      const url = `${PACK}/review/frames/${pad3(i)}.jpg`;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error("frame load failed " + url));
+        img.src = url;
+      });
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      const row = preds[i] || { balls: [] };
+      const dec = decisionOf(i);
+      const color = dec === "reject" ? "#ff6b6b" : "#3ddc84";
+      for (const b of row.balls) {
+        const [x, y, w, h] = b.bbox;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = color;
+        ctx.font = "16px IBM Plex Sans, sans-serif";
+        const side = b.side_fullres != null ? b.side_fullres : b.side;
+        ctx.fillText(`ball ${b.confidence.toFixed(2)} s=${side.toFixed(0)}`, x, Math.max(16, y - 6));
+      }
+      const info = manifest.frames[i];
+      const cls = dec === "accept" ? "status-accept" : (dec === "reject" ? "status-reject" : "");
+      document.getElementById("frameInfo").innerHTML =
+        `<div class="chip">${info.camera}</div>` +
+        `<div class="chip">t=${info.t_sec.toFixed(1)}s</div>` +
+        `<div class="chip">conf ${info.max_ball_conf.toFixed(3)}</div>` +
+        `<div class="chip">side ${info.side.toFixed(0)}px</div>` +
+        `<p class="${cls}">${dec}</p>`;
+      document.getElementById("frameLabel").textContent = `${i} / ${manifest.n_frames - 1}`;
+      document.getElementById("frameSlider").value = String(i);
+      renderProgress();
+    }
+
+    function mark(dec) {
+      decisions[frameIdx] = dec;
+      const next = Math.min(manifest.n_frames - 1, frameIdx + 1);
+      showFrame(next);
+    }
+
+    async function saveKeep() {
+      const accepted = [];
+      const rejected = [];
+      for (let i = 0; i < manifest.n_frames; i++) {
+        if (decisions[i] === "accept") accepted.push(i);
+        if (decisions[i] === "reject") rejected.push(i);
+      }
+      const payload = {
+        pack: PACK.replace(/^\//, ""),
+        accepted,
+        rejected,
+        n_frames: manifest.n_frames,
+      };
+      const res = await fetch("/save_harvest_keep", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json();
+      alert(body.ok ? `Saved ${accepted.length} accepted / ${rejected.length} rejected` : (body.error || "save failed"));
+    }
+
+    document.getElementById("prevBtn").onclick = () => showFrame(Math.max(0, frameIdx - 1));
+    document.getElementById("nextBtn").onclick = () => showFrame(Math.min(manifest.n_frames - 1, frameIdx + 1));
+    document.getElementById("acceptBtn").onclick = () => mark("accept");
+    document.getElementById("rejectBtn").onclick = () => mark("reject");
+    document.getElementById("saveBtn").onclick = saveKeep;
+    document.getElementById("frameSlider").oninput = e => showFrame(Number(e.target.value));
+    window.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft") showFrame(Math.max(0, frameIdx - 1));
+      if (e.key === "ArrowRight") showFrame(Math.min(manifest.n_frames - 1, frameIdx + 1));
+      if (e.key === "a" || e.key === "A") mark("accept");
+      if (e.key === "d" || e.key === "D") mark("reject");
+    });
+    boot().catch(err => { document.body.innerHTML = `<p class="err">${err.message}</p>`; });
+  </script>
+</body>
+</html>

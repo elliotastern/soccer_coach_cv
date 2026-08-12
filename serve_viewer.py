@@ -81,6 +81,21 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Location', '/data/processed/gold_sets/match1_1_100/review/editor.html')
             self.end_headers()
             return
+        # Match 2 gold 100 frames in a row confidence scrubber
+        if self.path in ('/match2-100row', '/match2-100row/', '/match2_100row'):
+            self.send_response(302)
+            self.send_header('Location', '/annotation/match2_100row_viewer.html')
+            self.end_headers()
+            return
+        harvest_path = self.path.split('?', 1)[0]
+        if harvest_path in ('/match2-harvest', '/match2-harvest/', '/match2_harvest'):
+            qs = ''
+            if '?' in self.path:
+                qs = '?' + self.path.split('?', 1)[1]
+            self.send_response(302)
+            self.send_header('Location', '/annotation/match2_harvest_editor.html' + qs)
+            self.end_headers()
+            return
         # Short URL for next Match train-label batch
         if self.path in ('/batch3', '/batch3/', '/math1_batch3'):
             self.send_response(302)
@@ -209,6 +224,25 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
             return
+        if self.path == '/save_harvest_keep':
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                pack = data.get('pack', 'data/processed/gold_sets/match2_large_ball_harvest')
+                keep_path = SCRIPT_DIR / pack / 'keep.json'
+                keep_path.parent.mkdir(parents=True, exist_ok=True)
+                keep_path.write_text(json.dumps(data, indent=2), encoding='utf-8')
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"ok": true}')
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
         if self.path == '/save_annotations':
             try:
                 content_length = int(self.headers.get('Content-Length', 0))
@@ -304,6 +338,8 @@ def main():
     print("=" * 60)
     print(f"Server:      http://127.0.0.1:{port}")
     print(f"Gold100:     {gold_editor}")
+    print(f"Match2 100row: http://127.0.0.1:{port}/match2-100row")
+    print(f"Match2 harvest: http://127.0.0.1:{port}/match2-harvest")
     print(f"math_1_train: http://127.0.0.1:{port}/data/processed/gold_sets/math_1_training/review/editor.html")
     print(f"math_1_batch3: http://127.0.0.1:{port}/batch3")
     print(f"math_1_batch2: http://127.0.0.1:{port}/data/processed/gold_sets/math_1_training_batch2/review/editor.html")

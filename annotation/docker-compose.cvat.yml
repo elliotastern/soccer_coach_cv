@@ -33,13 +33,14 @@ services:
       CVAT_REDIS_HOST: cvat_redis
       CVAT_SHARE_URL: /home/django/share
     ports:
-      - "8080:8080"
+      - "8090:8080"
     volumes:
       - cvat_data:/home/django/data
       - cvat_keys:/home/django/keys
       - cvat_logs:/home/django/logs
-      # Mount your videos directory
-      - ./data/raw:/home/django/share:ro
+      # Mount match footage + accepted harvest for CVAT import
+      - ../data/raw:/home/django/share:ro
+      - ../data/processed/gold_sets/match2_large_ball_accepted50/cvat:/home/django/share/match2_accepted50:ro
     networks:
       - cvat
 
@@ -54,7 +55,8 @@ services:
       CVAT_REDIS_HOST: cvat_redis
     volumes:
       - cvat_data:/home/django/data
-      - ./data/raw:/home/django/share:ro
+      - ../data/raw:/home/django/share:ro
+      - ../data/processed/gold_sets/match2_large_ball_accepted50/cvat:/home/django/share/match2_accepted50:ro
     networks:
       - cvat
 

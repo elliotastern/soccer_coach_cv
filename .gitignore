@@ -53,6 +53,25 @@ data/**
 !data/processed/gold_sets/match1_1_100/manifest.json
 !data/processed/gold_sets/match1_1_100/prelabels/
 !data/processed/gold_sets/match1_1_100/prelabels/annotations.xml
+# Match2 large-ball accepted50 labels (XML/manifest/keep — not images)
+!data/processed/gold_sets/match2_large_ball_accepted50/
+!data/processed/gold_sets/match2_large_ball_accepted50/README.md
+!data/processed/gold_sets/match2_large_ball_accepted50/manifest.json
+!data/processed/gold_sets/match2_large_ball_accepted50/keep_source.json
+!data/processed/gold_sets/match2_large_ball_accepted50/prelabels/
+!data/processed/gold_sets/match2_large_ball_accepted50/prelabels/annotations.xml
+!data/processed/gold_sets/match2_large_ball_accepted50/prelabels/annotations.coco.json
+!data/processed/gold_sets/match2_large_ball_accepted50/gold/
+!data/processed/gold_sets/match2_large_ball_accepted50/gold/annotations.xml
+!data/processed/gold_sets/match2_large_ball_accepted50/cvat/
+!data/processed/gold_sets/match2_large_ball_accepted50/cvat/annotations.xml
+!data/processed/gold_sets/match2_large_ball_harvest/
+!data/processed/gold_sets/match2_large_ball_harvest/keep.json
+!data/processed/gold_sets/match2_large_ball_harvest/manifest.json
+!data/processed/gold_sets/match2_large_ball_harvest/README.md
+!data/processed/gold_sets/match2_large_ball_harvest_batch2/
+!data/processed/gold_sets/match2_large_ball_harvest_batch2/manifest.json
+!data/processed/gold_sets/match2_large_ball_harvest_batch2/README.md
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

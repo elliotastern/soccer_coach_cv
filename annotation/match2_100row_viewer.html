@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Match 2 — 100 frames in a row</title>
+  <style>
+    :root {
+      --bg: #12141a;
+      --panel: #1c2030;
+      --line: #2c3348;
+      --text: #e8ecf4;
+      --muted: #9aa3b8;
+      --green: #3ddc84;
+      --yellow: #f0c040;
+      --orange: #ff9f43;
+      --accent: #5b8cff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      grid-template-rows: auto 1fr auto;
+      height: 100vh;
+    }
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    header h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.02em; }
+    header .meta { color: var(--muted); font-size: 12px; }
+    select, button {
+      background: #262b3c;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: var(--accent); }
+    .stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+      min-height: 0;
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      cursor: grab;
+    }
+    aside {
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    aside h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      background: #262b3c;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+    .chip strong { color: var(--green); }
+    .det {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: #171b27;
+    }
+    .det .c-green { color: var(--green); }
+    .det .c-yellow { color: #f0c040; }
+    .det .c-orange { color: var(--orange); }
+    .spark-wrap {
+      background: #171b27;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .spark-wrap canvas { width: 100%; height: 64px; display: block; }
+    footer {
+      grid-column: 1 / -1;
+      background: var(--panel);
+      border-top: 1px solid var(--line);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    footer input[type="range"] { flex: 1; }
+    .legend { font-size: 11px; color: var(--muted); display: flex; gap: 12px; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+    .err { color: #ff6b6b; padding: 24px; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <h1>Match 2 · 100 frames in a row</h1>
+      <span class="meta" id="metaLine">loading…</span>
+      <label>
+        Cam
+        <select id="camSelect"></select>
+      </label>
+      <button type="button" id="prevBtn">←</button>
+      <button type="button" id="nextBtn">→</button>
+      <span class="legend">
+        <span><span class="dot" style="background:#3ddc84"></span>≥0.8</span>
+        <span><span class="dot" style="background:#f0c040"></span>≥0.5</span>
+        <span><span class="dot" style="background:#ff9f43"></span>≥0.3</span>
+      </span>
+    </header>
+    <div class="stage">
+      <canvas id="view"></canvas>
+    </div>
+    <aside>
+      <div>
+        <h2>Cam summary</h2>
+        <div class="chips" id="camChips"></div>
+      </div>
+      <div>
+        <h2>This frame</h2>
+        <div id="frameDets"></div>
+      </div>
+      <div>
+        <h2>Max conf strip</h2>
+        <div class="spark-wrap"><canvas id="spark" width="280" height="64"></canvas></div>
+      </div>
+    </aside>
+    <footer>
+      <span id="frameLabel">0 / 99</span>
+      <input type="range" id="frameSlider" min="0" max="99" value="0" />
+    </footer>
+  </div>
+  <script>
+    const PACK = "/data/processed/match2_gold_100_in_a_row";
+    let manifest = null;
+    let preds = null;
+    let stats = null;
+    let frameIdx = 0;
+    let camLabel = null;
+    let img = new Image();
+    const canvas = document.getElementById("view");
+    const ctx = canvas.getContext("2d");
+    const spark = document.getElementById("spark");
+    const sctx = spark.getContext("2d");
+
+    function confClass(c) {
+      if (c >= 0.8) return "c-green";
+      if (c >= 0.5) return "c-yellow";
+      return "c-orange";
+    }
+    function confColor(c) {
+      if (c >= 0.8) return "#3ddc84";
+      if (c >= 0.5) return "#f0c040";
+      return "#ff9f43";
+    }
+    function fmt(v, d=1) {
+      return (v == null || Number.isNaN(v)) ? "—" : Number(v).toFixed(d);
+    }
+
+    async function loadManifest() {
+      const res = await fetch(`${PACK}/manifest.json`);
+      if (!res.ok) throw new Error("manifest missing — run match2_gold_100_frames_in_a_row_test.py first");
+      manifest = await res.json();
+      document.getElementById("metaLine").textContent =
+        `t=${manifest.start_sec}s · ${manifest.num_frames} frames · thr=${manifest.detect_thr}`;
+      const sel = document.getElementById("camSelect");
+      sel.innerHTML = "";
+      for (const cam of manifest.cams) {
+        const opt = document.createElement("option");
+        opt.value = cam.label;
+        opt.textContent = cam.label;
+        sel.appendChild(opt);
+      }
+      document.getElementById("frameSlider").max = String(manifest.num_frames - 1);
+      await selectCam(manifest.cams[0].label);
+    }
+
+    async function selectCam(label) {
+      camLabel = label;
+      document.getElementById("camSelect").value = label;
+      const cam = manifest.cams.find(c => c.label === label);
+      const [predsRes, statsRes] = await Promise.all([
+        fetch(`${PACK}/${cam.preds}`),
+        fetch(`${PACK}/${cam.stats}`),
+      ]);
+      preds = await predsRes.json();
+      stats = await statsRes.json();
+      renderChips();
+      drawSpark();
+      frameIdx = 0;
+      document.getElementById("frameSlider").value = "0";
+      await showFrame(0);
+    }
+
+    function renderChips() {
+      const el = document.getElementById("camChips");
+      el.innerHTML = `
+        <div class="chip">@0.5 <strong>${stats.frames_with_det_ge_0_5}</strong>/100</div>
+        <div class="chip">@0.8 <strong>${stats.frames_with_det_ge_0_8}</strong>/100</div>
+        <div class="chip">median side <strong>${fmt(stats.median_side)}</strong>px</div>
+        <div class="chip">max conf <strong>${fmt(stats.max_conf, 3)}</strong></div>
+        <div class="chip">clear≥25 @0.5 <strong>${stats.frames_side_ge_clear_and_det05}</strong></div>
+      `;
+    }
+
+    function drawSpark() {
+      const series = stats.max_conf_series || [];
+      const w = spark.width, h = spark.height;
+      sctx.clearRect(0, 0, w, h);
+      sctx.strokeStyle = "#2c3348";
+      sctx.beginPath();
+      sctx.moveTo(0, h * (1 - 0.5));
+      sctx.lineTo(w, h * (1 - 0.5));
+      sctx.moveTo(0, h * (1 - 0.8));
+      sctx.lineTo(w, h * (1 - 0.8));
+      sctx.stroke();
+      if (!series.length) return;
+      sctx.strokeStyle = "#5b8cff";
+      sctx.lineWidth = 1.5;
+      sctx.beginPath();
+      series.forEach((v, i) => {
+        const x = (i / (series.length - 1 || 1)) * (w - 2) + 1;
+        const y = h - 2 - v * (h - 4);
+        if (i === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
+      });
+      sctx.stroke();
+      const x = (frameIdx / (series.length - 1 || 1)) * (w - 2) + 1;
+      sctx.strokeStyle = "#e8ecf4";
+      sctx.beginPath();
+      sctx.moveTo(x, 0);
+      sctx.lineTo(x, h);
+      sctx.stroke();
+    }
+
+    async function showFrame(i) {
+      frameIdx = i;
+      const cam = manifest.cams.find(c => c.label === camLabel);
+      const url = `${PACK}/cams/${camLabel}/frames/${String(i).padStart(3, "0")}.jpg`;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error("frame load failed: " + url));
+        img.src = url;
+      });
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      const row = preds[i] || { balls: [] };
+      for (const b of row.balls) {
+        const [x, y, w, h] = b.bbox;
+        const color = confColor(b.confidence);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = color;
+        ctx.font = "16px IBM Plex Sans, sans-serif";
+        const side = b.side_fullres != null ? b.side_fullres : b.side;
+        ctx.fillText(`ball ${b.confidence.toFixed(2)} s=${side.toFixed(0)}`, x, Math.max(16, y - 6));
+      }
+      document.getElementById("frameLabel").textContent = `${i} / ${manifest.num_frames - 1}`;
+      document.getElementById("frameSlider").value = String(i);
+      const box = document.getElementById("frameDets");
+      if (!row.balls.length) {
+        box.innerHTML = `<div class="det">No detections ≥ ${manifest.detect_thr}</div>`;
+      } else {
+        box.innerHTML = row.balls.map(b => {
+          const side = b.side_fullres != null ? b.side_fullres : b.side;
+          return `<div class="det"><span class="${confClass(b.confidence)}">conf ${b.confidence.toFixed(3)}</span>
+            · side ${side.toFixed(1)} px (full-res)</div>`;
+        }).join("");
+      }
+      drawSpark();
+    }
+
+    document.getElementById("camSelect").addEventListener("change", e => selectCam(e.target.value));
+    document.getElementById("frameSlider").addEventListener("input", e => showFrame(Number(e.target.value)));
+    document.getElementById("prevBtn").addEventListener("click", () => showFrame(Math.max(0, frameIdx - 1)));
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      showFrame(Math.min(manifest.num_frames - 1, frameIdx + 1));
+    });
+    window.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft") showFrame(Math.max(0, frameIdx - 1));
+      if (e.key === "ArrowRight") showFrame(Math.min(manifest.num_frames - 1, frameIdx + 1));
+    });
+
+    loadManifest().catch(err => {
+      document.body.innerHTML = `<p class="err">${err.message}</p>`;
+    });
+  </script>
+</body>
+</html>
