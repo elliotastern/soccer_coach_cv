@@ -87,6 +87,22 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Location', '/annotation/match2_100row_viewer.html')
             self.end_headers()
             return
+        if self.path.split('?', 1)[0] in ('/5x5', '/5x5/', '/5x5-clips'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/5x5_clips_bestcam/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in ('/4quad', '/4quad/', '/4-quad', '/quad'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/4quad_test/index.html',
+            )
+            self.end_headers()
+            return
         harvest_path = self.path.split('?', 1)[0]
         if self.path.split('?', 1)[0] in ('/accepted50', '/accepted50/', '/match2-accepted50'):
             self.send_response(302)
@@ -363,6 +379,8 @@ def main():
     print(f"Server:      http://127.0.0.1:{port}")
     print(f"Gold100:     {gold_editor}")
     print(f"Match2 100row: http://127.0.0.1:{port}/match2-100row")
+    print(f"5x5 clips:   http://127.0.0.1:{port}/5x5")
+    print(f"4 quad test: http://127.0.0.1:{port}/4quad")
     print(f"Match2 harvest: http://127.0.0.1:{port}/match2-harvest")
     print(f"math_1_train: http://127.0.0.1:{port}/data/processed/gold_sets/math_1_training/review/editor.html")
     print(f"math_1_batch3: http://127.0.0.1:{port}/batch3")

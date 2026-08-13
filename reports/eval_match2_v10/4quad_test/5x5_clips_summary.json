@@ -1,0 +1,499 @@
+{
+  "pack": "4quad_test",
+  "title": "4 quad test",
+  "layout": "quad",
+  "seed": 20260813,
+  "n_clips": 4,
+  "clip_sec": 5.0,
+  "min_thr": 0.3,
+  "emit_thresh": 0.8,
+  "select_camera": "max_conf",
+  "cameras": "all_match2",
+  "checkpoint": "/Volumes/LaCie/Projects/Soccer Coach CV/models/v10_snaps/post_train/checkpoint.pth",
+  "clips": [
+    {
+      "camera": "bestcam",
+      "start_sec": 8.0,
+      "duration_sec": 5.0,
+      "cameras": [
+        {
+          "camera": "P1",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 3-P1.mp4"
+        },
+        {
+          "camera": "P6",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 6-P6-002.mp4"
+        },
+        {
+          "camera": "P7",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 11-P7-003.mp4"
+        },
+        {
+          "camera": "P8",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 14-P8-001.mp4"
+        },
+        {
+          "camera": "P10",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 8-P10-003.mp4"
+        },
+        {
+          "camera": "P12",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 10-P12-001.mp4"
+        },
+        {
+          "camera": "Cam4plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 4+-002.mp4"
+        },
+        {
+          "camera": "Cam5plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 5+-004.mp4"
+        }
+      ],
+      "label": "Center Start",
+      "slot": "center_start",
+      "stem": "quad_center_start_t00008.0s",
+      "stats": {
+        "n_frames": 300,
+        "n_emit_held": 2,
+        "n_raw_hits": 300,
+        "emit_rate": 0.006666666666666667,
+        "mean_selected_conf": 0.7751783160368602,
+        "win_counts": {
+          "P1": 16,
+          "P6": 0,
+          "P7": 0,
+          "P8": 32,
+          "P10": 0,
+          "P12": 0,
+          "Cam4plus": 246,
+          "Cam5plus": 6,
+          "none": 0
+        },
+        "top_camera": "Cam4plus",
+        "overlay": "reports/eval_match2_v10/4quad_test/overlay/quad_center_start_t00008.0s_overlay.mp4",
+        "mosaic": "reports/eval_match2_v10/4quad_test/overlay/quad_center_start_t00008.0s.mp4",
+        "per_camera": {
+          "P1": {
+            "n_raw_hits": 149,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P6": {
+            "n_raw_hits": 87,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P7": {
+            "n_raw_hits": 81,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P8": {
+            "n_raw_hits": 139,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P10": {
+            "n_raw_hits": 22,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P12": {
+            "n_raw_hits": 40,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "Cam4plus": {
+            "n_raw_hits": 150,
+            "n_emit_held": 2,
+            "emit_rate": 0.006666666666666667,
+            "mean_emit_conf": 0.8001230955123901,
+            "n_frames": 300
+          },
+          "Cam5plus": {
+            "n_raw_hits": 147,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          }
+        }
+      }
+    },
+    {
+      "camera": "bestcam",
+      "start_sec": 412.0,
+      "duration_sec": 6.0,
+      "cameras": [
+        {
+          "camera": "P1",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 3-P1.mp4"
+        },
+        {
+          "camera": "P6",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 6-P6-002.mp4"
+        },
+        {
+          "camera": "P7",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 11-P7-003.mp4"
+        },
+        {
+          "camera": "P8",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 14-P8-001.mp4"
+        },
+        {
+          "camera": "P10",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 8-P10-003.mp4"
+        },
+        {
+          "camera": "P12",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 10-P12-001.mp4"
+        },
+        {
+          "camera": "Cam4plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 4+-002.mp4"
+        },
+        {
+          "camera": "Cam5plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 5+-004.mp4"
+        }
+      ],
+      "label": "Bottom Right",
+      "slot": "bottom_right",
+      "stem": "quad_bottom_right_t00412.0s",
+      "stats": {
+        "n_frames": 359,
+        "n_emit_held": 40,
+        "n_raw_hits": 359,
+        "emit_rate": 0.11142061281337047,
+        "mean_selected_conf": 0.7559562772097361,
+        "win_counts": {
+          "P1": 3,
+          "P6": 0,
+          "P7": 0,
+          "P8": 40,
+          "P10": 0,
+          "P12": 2,
+          "Cam4plus": 230,
+          "Cam5plus": 84,
+          "none": 0
+        },
+        "top_camera": "Cam4plus",
+        "overlay": "reports/eval_match2_v10/4quad_test/overlay/quad_bottom_right_t00412.0s_overlay.mp4",
+        "mosaic": "reports/eval_match2_v10/4quad_test/overlay/quad_bottom_right_t00412.0s.mp4",
+        "per_camera": {
+          "P1": {
+            "n_raw_hits": 179,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 359
+          },
+          "P6": {
+            "n_raw_hits": 0,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 359
+          },
+          "P7": {
+            "n_raw_hits": 2,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 359
+          },
+          "P8": {
+            "n_raw_hits": 180,
+            "n_emit_held": 30,
+            "emit_rate": 0.08356545961002786,
+            "mean_emit_conf": 0.8524029781300513,
+            "n_frames": 359
+          },
+          "P10": {
+            "n_raw_hits": 0,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 359
+          },
+          "P12": {
+            "n_raw_hits": 101,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 359
+          },
+          "Cam4plus": {
+            "n_raw_hits": 180,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 360
+          },
+          "Cam5plus": {
+            "n_raw_hits": 177,
+            "n_emit_held": 38,
+            "emit_rate": 0.10584958217270195,
+            "mean_emit_conf": 0.8571864674048827,
+            "n_frames": 359
+          }
+        }
+      }
+    },
+    {
+      "camera": "bestcam",
+      "start_sec": 26.0,
+      "duration_sec": 5.0,
+      "cameras": [
+        {
+          "camera": "P1",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 3-P1.mp4"
+        },
+        {
+          "camera": "P6",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 6-P6-002.mp4"
+        },
+        {
+          "camera": "P7",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 11-P7-003.mp4"
+        },
+        {
+          "camera": "P8",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 14-P8-001.mp4"
+        },
+        {
+          "camera": "P10",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 8-P10-003.mp4"
+        },
+        {
+          "camera": "P12",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 10-P12-001.mp4"
+        },
+        {
+          "camera": "Cam4plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 4+-002.mp4"
+        },
+        {
+          "camera": "Cam5plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 5+-004.mp4"
+        }
+      ],
+      "label": "Top Left",
+      "slot": "top_left",
+      "stem": "quad_top_left_t00026.0s",
+      "stats": {
+        "n_frames": 299,
+        "n_emit_held": 47,
+        "n_raw_hits": 299,
+        "emit_rate": 0.15719063545150502,
+        "mean_selected_conf": 0.7902730228908883,
+        "win_counts": {
+          "P1": 0,
+          "P6": 0,
+          "P7": 0,
+          "P8": 0,
+          "P10": 59,
+          "P12": 0,
+          "Cam4plus": 240,
+          "Cam5plus": 0,
+          "none": 0
+        },
+        "top_camera": "Cam4plus",
+        "overlay": "reports/eval_match2_v10/4quad_test/overlay/quad_top_left_t00026.0s_overlay.mp4",
+        "mosaic": "reports/eval_match2_v10/4quad_test/overlay/quad_top_left_t00026.0s.mp4",
+        "per_camera": {
+          "P1": {
+            "n_raw_hits": 49,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P6": {
+            "n_raw_hits": 64,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P7": {
+            "n_raw_hits": 150,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P8": {
+            "n_raw_hits": 68,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P10": {
+            "n_raw_hits": 108,
+            "n_emit_held": 38,
+            "emit_rate": 0.12666666666666668,
+            "mean_emit_conf": 0.8347950526104095,
+            "n_frames": 300
+          },
+          "P12": {
+            "n_raw_hits": 50,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "Cam4plus": {
+            "n_raw_hits": 150,
+            "n_emit_held": 16,
+            "emit_rate": 0.05351170568561873,
+            "mean_emit_conf": 0.8342200032519549,
+            "n_frames": 299
+          },
+          "Cam5plus": {
+            "n_raw_hits": 119,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          }
+        }
+      }
+    },
+    {
+      "camera": "bestcam",
+      "start_sec": 125.0,
+      "duration_sec": 5.0,
+      "cameras": [
+        {
+          "camera": "P1",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 3-P1.mp4"
+        },
+        {
+          "camera": "P6",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 6-P6-002.mp4"
+        },
+        {
+          "camera": "P7",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 11-P7-003.mp4"
+        },
+        {
+          "camera": "P8",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 14-P8-001.mp4"
+        },
+        {
+          "camera": "P10",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 8-P10-003.mp4"
+        },
+        {
+          "camera": "P12",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 10-P12-001.mp4"
+        },
+        {
+          "camera": "Cam4plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 4+-002.mp4"
+        },
+        {
+          "camera": "Cam5plus",
+          "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 2/Cam 5+-004.mp4"
+        }
+      ],
+      "label": "Top Right",
+      "slot": "top_right",
+      "stem": "quad_top_right_t00125.0s",
+      "stats": {
+        "n_frames": 299,
+        "n_emit_held": 66,
+        "n_raw_hits": 299,
+        "emit_rate": 0.22073578595317725,
+        "mean_selected_conf": 0.8126594563790388,
+        "win_counts": {
+          "P1": 66,
+          "P6": 0,
+          "P7": 94,
+          "P8": 0,
+          "P10": 0,
+          "P12": 0,
+          "Cam4plus": 139,
+          "Cam5plus": 0,
+          "none": 0
+        },
+        "top_camera": "Cam4plus",
+        "overlay": "reports/eval_match2_v10/4quad_test/overlay/quad_top_right_t00125.0s_overlay.mp4",
+        "mosaic": "reports/eval_match2_v10/4quad_test/overlay/quad_top_right_t00125.0s.mp4",
+        "per_camera": {
+          "P1": {
+            "n_raw_hits": 105,
+            "n_emit_held": 16,
+            "emit_rate": 0.05351170568561873,
+            "mean_emit_conf": 0.8358847802132368,
+            "n_frames": 299
+          },
+          "P6": {
+            "n_raw_hits": 109,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 300
+          },
+          "P7": {
+            "n_raw_hits": 128,
+            "n_emit_held": 70,
+            "emit_rate": 0.23333333333333334,
+            "mean_emit_conf": 0.8360375345134795,
+            "n_frames": 300
+          },
+          "P8": {
+            "n_raw_hits": 0,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 299
+          },
+          "P10": {
+            "n_raw_hits": 10,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 299
+          },
+          "P12": {
+            "n_raw_hits": 38,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 299
+          },
+          "Cam4plus": {
+            "n_raw_hits": 150,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 299
+          },
+          "Cam5plus": {
+            "n_raw_hits": 150,
+            "n_emit_held": 0,
+            "emit_rate": 0.0,
+            "mean_emit_conf": null,
+            "n_frames": 299
+          }
+        }
+      }
+    }
+  ]
+}

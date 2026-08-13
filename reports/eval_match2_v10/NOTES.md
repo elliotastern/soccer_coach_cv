@@ -116,3 +116,21 @@ Unit tests (no model): `test_eval_match2_v10_recall.py`, `test_eval_match2_v10_v
 - **That is not the whole match** (no Cam5plus gold; ordinary t=33s clip unlabeled).
 - **Kalman/ByteTrack/0.80 emit** = high precision, low recall. They are not how we got 92%.
 - Do not remap 0.70 → 0.80. Do not train on Match 2 gold eval frames or on prelabels.
+
+## 4 quad test (named Match 2 windows)
+
+Replaces the random 5×5 strip for review. Four synced windows, all 8 Match 2 cameras, best-cam `max_conf`, detect 0.3 → ByteTrack → emit 0.80. Dashboard: `http://127.0.0.1:8080/4quad` (`serve_viewer.py`). Script: `scripts/gold_set/run_5x5_ball_clips.py --quad-test`. Pack (videos not in git, ~2.4 GB): `reports/eval_match2_v10/4quad_test/`.
+
+| Slot | Clock | Start | Frames | Selected raw | Emit @0.80 | Mean conf | Top cam |
+|---|---|---:|---:|---|---:|---:|---|
+| Center Start | 0:08–0:13 | 8s | 300 | 300/300 | 0.7% | 0.775 | Cam4plus |
+| Bottom Right | 6:52–6:58 | 412s | 359 | 359/359 | 11.1% | 0.756 | Cam4plus |
+| Top Left | 0:26–0:31 | 26s | 299 | 299/299 | 15.7% | 0.790 | Cam4plus |
+| Top Right | 2:05–2:10 | 125s | 299 | 299/299 | 22.1% | 0.813 | Cam4plus |
+
+Boxes are drawn on **Mosaic** and **Selected** overlays only. Per-camera filter clips (`source/quad_*_P1.mp4` etc.) are raw extracts with **no** boxes. Overlay mp4s are H.264 so the browser can play them. Layout is full-width stacked clips, not 2×2.
+
+```bash
+python3 scripts/gold_set/run_5x5_ball_clips.py --quad-test
+python3 scripts/gold_set/test_run_5x5_ball_clips.py
+```
