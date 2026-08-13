@@ -53,6 +53,7 @@ class Tracker:
         emit_thresh: float = 0.80,
         ema_alpha: float = 0.3,
         apply_emit_gate: bool = True,
+        match_px: Optional[float] = None,
     ):
         self.track_thresh = track_thresh
         self.high_thresh = high_thresh
@@ -63,6 +64,7 @@ class Tracker:
         self.emit_thresh = emit_thresh
         self.ema_alpha = ema_alpha
         self.apply_emit_gate = apply_emit_gate
+        self.match_px = match_px
         self._ema: Dict[int, float] = {}
         self.byte_tracker = _build_byte_track(
             track_activation_threshold=track_thresh,
@@ -86,7 +88,7 @@ class Tracker:
         class_id = np.array([d.class_id for d in detections], dtype=np.int32)
         supervision_detections = Detections(xyxy=xyxy, confidence=confidence, class_id=class_id)
         tracks = self.byte_tracker.update_with_detections(supervision_detections)
-        objects = self._tracks_to_objects(tracks, detections)
+        objects = self._tracks_to_objects(tracks, detections, frame)
         return self._apply_emit_gate(objects)
 
     def tracklet_ema(self, track_id: int) -> Optional[float]:
@@ -135,7 +137,12 @@ class Tracker:
                 del self._ema[tid]
         return published
 
-    def _tracks_to_objects(self, tracks: Detections, detections: List[Detection]) -> List[TrackedObject]:
+    def _tracks_to_objects(
+        self,
+        tracks: Detections,
+        detections: List[Detection],
+        frame: Optional[np.ndarray] = None,
+    ) -> List[TrackedObject]:
         if tracks is None or len(tracks) == 0:
             return []
         tracked_objects = []
@@ -143,7 +150,7 @@ class Tracker:
         for i in range(len(tracks)):
             track_xyxy = tracks.xyxy[i]
             tid = int(tracker_ids[i]) if tracker_ids is not None else i
-            det = self._nearest_detection(track_xyxy, detections)
+            det = self._nearest_detection(track_xyxy, detections, frame)
             if det is None:
                 x1, y1, x2, y2 = map(float, track_xyxy)
                 conf = float(tracks.confidence[i]) if tracks.confidence is not None else 0.5
@@ -157,10 +164,19 @@ class Tracker:
             tracked_objects.append(TrackedObject(object_id=tid, detection=det))
         return tracked_objects
 
-    def _nearest_detection(self, track_xyxy, detections: List[Detection]) -> Optional[Detection]:
+    def assoc_px(self, frame: Optional[np.ndarray] = None) -> float:
+        if self.match_px is not None:
+            return float(self.match_px)
+        if frame is None:
+            return 160.0
+        return max(80.0, 0.04 * float(max(frame.shape[0], frame.shape[1])))
+
+    def _nearest_detection(
+        self, track_xyxy, detections: List[Detection], frame: Optional[np.ndarray] = None
+    ) -> Optional[Detection]:
         tcx = (float(track_xyxy[0]) + float(track_xyxy[2])) / 2
         tcy = (float(track_xyxy[1]) + float(track_xyxy[3])) / 2
-        best, best_dist = None, 80.0
+        best, best_dist = None, self.assoc_px(frame)
         for det in detections:
             x, y, w, h = det.bbox
             dist = ((x + w / 2 - tcx) ** 2 + (y + h / 2 - tcy) ** 2) ** 0.5

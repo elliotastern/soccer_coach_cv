@@ -1,0 +1,384 @@
+{
+  "checkpoint": "models/v10_snaps/post_train/checkpoint.pth",
+  "tune_on": "match2_train_label100 train split (87), not gold",
+  "picked": "baseline_thr30_size_topk2",
+  "baseline": "baseline_thr30_size_topk2",
+  "all": [
+    {
+      "name": "baseline_thr30_size_topk2",
+      "cfg": {
+        "kind": "prelabel",
+        "threshold": 0.3,
+        "topk": 2,
+        "use_sahi": false,
+        "sahi_fallback_only": true,
+        "sahi_recover_only": true,
+        "use_multiscale": false,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 118,
+          "fp": 3,
+          "fn": 6,
+          "precision": 0.9752066115702479,
+          "recall": 0.9516129032258065,
+          "P_emit": 0.9752066115702479,
+          "n_emitted": 121
+        },
+        "0.8": {
+          "tp": 44,
+          "fp": 0,
+          "fn": 80,
+          "precision": 1.0,
+          "recall": 0.3548387096774194,
+          "P_emit": 1.0,
+          "n_emitted": 44
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 57,
+          "fp": 2,
+          "fn": 5,
+          "precision": 0.9661016949152542,
+          "recall": 0.9193548387096774,
+          "P_emit": 0.9661016949152542,
+          "n_emitted": 59
+        },
+        "0.8": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 34,
+          "precision": 1.0,
+          "recall": 0.45161290322580644,
+          "P_emit": 1.0,
+          "n_emitted": 28
+        }
+      }
+    },
+    {
+      "name": "topk1",
+      "cfg": {
+        "kind": "prelabel",
+        "threshold": 0.3,
+        "topk": 1,
+        "use_sahi": false,
+        "sahi_fallback_only": true,
+        "sahi_recover_only": true,
+        "use_multiscale": false,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 85,
+          "fp": 2,
+          "fn": 39,
+          "precision": 0.9770114942528736,
+          "recall": 0.6854838709677419,
+          "P_emit": 0.9770114942528736,
+          "n_emitted": 87
+        },
+        "0.8": {
+          "tp": 44,
+          "fp": 0,
+          "fn": 80,
+          "precision": 1.0,
+          "recall": 0.3548387096774194,
+          "P_emit": 1.0,
+          "n_emitted": 44
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 48,
+          "fp": 2,
+          "fn": 14,
+          "precision": 0.96,
+          "recall": 0.7741935483870968,
+          "P_emit": 0.96,
+          "n_emitted": 50
+        },
+        "0.8": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 34,
+          "precision": 1.0,
+          "recall": 0.45161290322580644,
+          "P_emit": 1.0,
+          "n_emitted": 28
+        }
+      }
+    },
+    {
+      "name": "topk3",
+      "cfg": {
+        "kind": "prelabel",
+        "threshold": 0.3,
+        "topk": 3,
+        "use_sahi": false,
+        "sahi_fallback_only": true,
+        "sahi_recover_only": true,
+        "use_multiscale": false,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 118,
+          "fp": 3,
+          "fn": 6,
+          "precision": 0.9752066115702479,
+          "recall": 0.9516129032258065,
+          "P_emit": 0.9752066115702479,
+          "n_emitted": 121
+        },
+        "0.8": {
+          "tp": 44,
+          "fp": 0,
+          "fn": 80,
+          "precision": 1.0,
+          "recall": 0.3548387096774194,
+          "P_emit": 1.0,
+          "n_emitted": 44
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 58,
+          "fp": 2,
+          "fn": 4,
+          "precision": 0.9666666666666667,
+          "recall": 0.9354838709677419,
+          "P_emit": 0.9666666666666667,
+          "n_emitted": 60
+        },
+        "0.8": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 34,
+          "precision": 1.0,
+          "recall": 0.45161290322580644,
+          "P_emit": 1.0,
+          "n_emitted": 28
+        }
+      }
+    },
+    {
+      "name": "multiscale_1p5",
+      "cfg": {
+        "kind": "prelabel",
+        "threshold": 0.3,
+        "topk": 2,
+        "use_sahi": false,
+        "sahi_fallback_only": true,
+        "sahi_recover_only": true,
+        "use_multiscale": true,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 119,
+          "fp": 4,
+          "fn": 5,
+          "precision": 0.967479674796748,
+          "recall": 0.9596774193548387,
+          "P_emit": 0.967479674796748,
+          "n_emitted": 123
+        },
+        "0.8": {
+          "tp": 44,
+          "fp": 0,
+          "fn": 80,
+          "precision": 1.0,
+          "recall": 0.3548387096774194,
+          "P_emit": 1.0,
+          "n_emitted": 44
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 57,
+          "fp": 2,
+          "fn": 5,
+          "precision": 0.9661016949152542,
+          "recall": 0.9193548387096774,
+          "P_emit": 0.9661016949152542,
+          "n_emitted": 59
+        },
+        "0.8": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 34,
+          "precision": 1.0,
+          "recall": 0.45161290322580644,
+          "P_emit": 1.0,
+          "n_emitted": 28
+        }
+      }
+    },
+    {
+      "name": "sahi_fallback_only",
+      "cfg": {
+        "kind": "prelabel",
+        "threshold": 0.3,
+        "topk": 2,
+        "use_sahi": true,
+        "sahi_fallback_only": true,
+        "sahi_recover_only": true,
+        "use_multiscale": false,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 118,
+          "fp": 3,
+          "fn": 6,
+          "precision": 0.9752066115702479,
+          "recall": 0.9516129032258065,
+          "P_emit": 0.9752066115702479,
+          "n_emitted": 121
+        },
+        "0.8": {
+          "tp": 44,
+          "fp": 0,
+          "fn": 80,
+          "precision": 1.0,
+          "recall": 0.3548387096774194,
+          "P_emit": 1.0,
+          "n_emitted": 44
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 57,
+          "fp": 2,
+          "fn": 5,
+          "precision": 0.9661016949152542,
+          "recall": 0.9193548387096774,
+          "P_emit": 0.9661016949152542,
+          "n_emitted": 59
+        },
+        "0.8": {
+          "tp": 28,
+          "fp": 0,
+          "fn": 34,
+          "precision": 1.0,
+          "recall": 0.45161290322580644,
+          "P_emit": 1.0,
+          "n_emitted": 28
+        }
+      }
+    },
+    {
+      "name": "sahi_recover_always",
+      "cfg": {
+        "kind": "prelabel",
+        "threshold": 0.3,
+        "topk": 2,
+        "use_sahi": true,
+        "sahi_fallback_only": false,
+        "sahi_recover_only": true,
+        "use_multiscale": false,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 120,
+          "fp": 8,
+          "fn": 4,
+          "precision": 0.9375,
+          "recall": 0.967741935483871,
+          "P_emit": 0.9375,
+          "n_emitted": 128
+        },
+        "0.8": {
+          "tp": 46,
+          "fp": 0,
+          "fn": 78,
+          "precision": 1.0,
+          "recall": 0.3709677419354839,
+          "P_emit": 1.0,
+          "n_emitted": 46
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 57,
+          "fp": 6,
+          "fn": 5,
+          "precision": 0.9047619047619048,
+          "recall": 0.9193548387096774,
+          "P_emit": 0.9047619047619048,
+          "n_emitted": 63
+        },
+        "0.8": {
+          "tp": 28,
+          "fp": 1,
+          "fn": 34,
+          "precision": 0.9655172413793104,
+          "recall": 0.45161290322580644,
+          "P_emit": 0.9655172413793104,
+          "n_emitted": 29
+        }
+      }
+    },
+    {
+      "name": "hflip_tta_nms",
+      "cfg": {
+        "kind": "tta",
+        "threshold": 0.3,
+        "topk": 99,
+        "use_sahi": false,
+        "sahi_fallback_only": true,
+        "sahi_recover_only": true,
+        "use_multiscale": false,
+        "use_kalman": false
+      },
+      "train": {
+        "0.3": {
+          "tp": 120,
+          "fp": 6,
+          "fn": 4,
+          "precision": 0.9523809523809523,
+          "recall": 0.967741935483871,
+          "P_emit": 0.9523809523809523,
+          "n_emitted": 126
+        },
+        "0.8": {
+          "tp": 57,
+          "fp": 0,
+          "fn": 67,
+          "precision": 1.0,
+          "recall": 0.4596774193548387,
+          "P_emit": 1.0,
+          "n_emitted": 57
+        }
+      },
+      "gold": {
+        "0.3": {
+          "tp": 57,
+          "fp": 2,
+          "fn": 5,
+          "precision": 0.9661016949152542,
+          "recall": 0.9193548387096774,
+          "P_emit": 0.9661016949152542,
+          "n_emitted": 59
+        },
+        "0.8": {
+          "tp": 32,
+          "fp": 0,
+          "fn": 30,
+          "precision": 1.0,
+          "recall": 0.5161290322580645,
+          "P_emit": 1.0,
+          "n_emitted": 32
+        }
+      }
+    }
+  ],
+  "cited_not_rerun": {
+    "kalman": "reports/eval_match2_v10/track_tune.md \u2014 gold R=0.71 P=0.88",
+    "bytetrack": "reports/eval_match2_v10/track_tune.md \u2014 gold R=0.90, emit0.8 R=0.40"
+  },
+  "read": "Pick used train recall @0.3 with precision >= 0.90 and fp <= baseline. Gold scored after pick. Kalman/ByteTrack not re-run."
+}

@@ -1,0 +1,290 @@
+{
+  "checkpoint": "models/v10_snaps/post_train/checkpoint.pth",
+  "tune_on": "match2_train_label100 train split (87), not gold",
+  "score_thr": 0.3,
+  "warmup": 10,
+  "picked": "detector_only",
+  "detector_train": {
+    "tp": 118,
+    "fp": 3,
+    "fn": 6,
+    "precision": 0.9752066115702479,
+    "recall": 0.9516129032258065
+  },
+  "winner_train": {
+    "tp": 118,
+    "fp": 3,
+    "fn": 6,
+    "precision": 0.9752066115702479,
+    "recall": 0.9516129032258065
+  },
+  "winner_gold": {
+    "tp": 57,
+    "fp": 2,
+    "fn": 5,
+    "precision": 0.9661016949152542,
+    "recall": 0.9193548387096774
+  },
+  "detector_gold": {
+    "tp": 57,
+    "fp": 2,
+    "fn": 5,
+    "precision": 0.9661016949152542,
+    "recall": 0.9193548387096774
+  },
+  "all": [
+    {
+      "name": "detector_only",
+      "cfg": {
+        "name": "detector_only",
+        "kind": "detector",
+        "kalman": false,
+        "track_thresh": 0.1,
+        "match_thresh": 0.8,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 118,
+        "fp": 3,
+        "fn": 6,
+        "precision": 0.9752066115702479,
+        "recall": 0.9516129032258065
+      },
+      "gold": {
+        "tp": 57,
+        "fp": 2,
+        "fn": 5,
+        "precision": 0.9661016949152542,
+        "recall": 0.9193548387096774
+      }
+    },
+    {
+      "name": "legacy_bt_px80_iou08",
+      "cfg": {
+        "name": "legacy_bt_px80_iou08",
+        "kind": "track",
+        "kalman": false,
+        "track_thresh": 0.1,
+        "match_thresh": 0.8,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": 80.0
+      },
+      "train": {
+        "tp": 116,
+        "fp": 2,
+        "fn": 8,
+        "precision": 0.9830508474576272,
+        "recall": 0.9354838709677419
+      },
+      "gold": {
+        "tp": 56,
+        "fp": 2,
+        "fn": 6,
+        "precision": 0.9655172413793104,
+        "recall": 0.9032258064516129
+      }
+    },
+    {
+      "name": "bt_scaled_px_iou08",
+      "cfg": {
+        "name": "bt_scaled_px_iou08",
+        "kind": "track",
+        "kalman": false,
+        "track_thresh": 0.1,
+        "match_thresh": 0.8,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 116,
+        "fp": 2,
+        "fn": 8,
+        "precision": 0.9830508474576272,
+        "recall": 0.9354838709677419
+      },
+      "gold": {
+        "tp": 56,
+        "fp": 2,
+        "fn": 6,
+        "precision": 0.9655172413793104,
+        "recall": 0.9032258064516129
+      }
+    },
+    {
+      "name": "bt_scaled_px_iou03",
+      "cfg": {
+        "name": "bt_scaled_px_iou03",
+        "kind": "track",
+        "kalman": false,
+        "track_thresh": 0.1,
+        "match_thresh": 0.3,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 82,
+        "fp": 1,
+        "fn": 42,
+        "precision": 0.9879518072289156,
+        "recall": 0.6612903225806451
+      },
+      "gold": {
+        "tp": 43,
+        "fp": 2,
+        "fn": 19,
+        "precision": 0.9555555555555556,
+        "recall": 0.6935483870967742
+      }
+    },
+    {
+      "name": "bt_scaled_px_iou05",
+      "cfg": {
+        "name": "bt_scaled_px_iou05",
+        "kind": "track",
+        "kalman": false,
+        "track_thresh": 0.1,
+        "match_thresh": 0.5,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 103,
+        "fp": 2,
+        "fn": 21,
+        "precision": 0.9809523809523809,
+        "recall": 0.8306451612903226
+      },
+      "gold": {
+        "tp": 55,
+        "fp": 2,
+        "fn": 7,
+        "precision": 0.9649122807017544,
+        "recall": 0.8870967741935484
+      }
+    },
+    {
+      "name": "bt_iou03_track05",
+      "cfg": {
+        "name": "bt_iou03_track05",
+        "kind": "track",
+        "kalman": false,
+        "track_thresh": 0.05,
+        "match_thresh": 0.3,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 82,
+        "fp": 1,
+        "fn": 42,
+        "precision": 0.9879518072289156,
+        "recall": 0.6612903225806451
+      },
+      "gold": {
+        "tp": 43,
+        "fp": 2,
+        "fn": 19,
+        "precision": 0.9555555555555556,
+        "recall": 0.6935483870967742
+      }
+    },
+    {
+      "name": "bt_iou03_emit80",
+      "cfg": {
+        "name": "bt_iou03_emit80",
+        "kind": "track",
+        "kalman": false,
+        "track_thresh": 0.1,
+        "match_thresh": 0.3,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": true,
+        "match_px": null
+      },
+      "train": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 84,
+        "precision": 1.0,
+        "recall": 0.3225806451612903
+      },
+      "gold": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 37,
+        "precision": 1.0,
+        "recall": 0.4032258064516129
+      }
+    },
+    {
+      "name": "kalman_bt_iou03",
+      "cfg": {
+        "name": "kalman_bt_iou03",
+        "kind": "track",
+        "kalman": true,
+        "track_thresh": 0.1,
+        "match_thresh": 0.3,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 31,
+        "fp": 5,
+        "fn": 93,
+        "precision": 0.8611111111111112,
+        "recall": 0.25
+      },
+      "gold": {
+        "tp": 24,
+        "fp": 2,
+        "fn": 38,
+        "precision": 0.9230769230769231,
+        "recall": 0.3870967741935484
+      }
+    },
+    {
+      "name": "kalman_only_as_detect",
+      "cfg": {
+        "name": "kalman_only_as_detect",
+        "kind": "detector",
+        "kalman": true,
+        "track_thresh": 0.1,
+        "match_thresh": 0.8,
+        "emit_thresh": 0.8,
+        "ema_alpha": 0.3,
+        "emit_gate": false,
+        "match_px": null
+      },
+      "train": {
+        "tp": 69,
+        "fp": 18,
+        "fn": 55,
+        "precision": 0.7931034482758621,
+        "recall": 0.5564516129032258
+      },
+      "gold": {
+        "tp": 44,
+        "fp": 6,
+        "fn": 18,
+        "precision": 0.88,
+        "recall": 0.7096774193548387
+      }
+    }
+  ],
+  "read": "Pick used train recall @0.3 with precision floor. Gold numbers are locked after pick. Helps gold only if winner_gold.recall > detector_gold.recall without collapsing precision."
+}
