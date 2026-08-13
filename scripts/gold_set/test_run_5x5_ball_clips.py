@@ -18,6 +18,7 @@ from run_5x5_ball_clips import (
     clip_stem,
     html_clip,
     named_quad_windows,
+    paint_view,
     ordered_clips,
     parse_clock,
     pick_random_windows,
@@ -130,8 +131,20 @@ def test_html_clip_has_per_camera_filter():
     html = html_clip(clip)
     assert "Filter to 1 camera" in html
     assert 'data-cam-filter="Cam4plus"' in html
-    assert "source/5x5_clip_01_bestcam_t01285.1s_Cam4plus.mp4" in html
-    assert "source/5x5_clip_01_bestcam_t01285.1s_Cam5plus.mp4" in html
+    assert "overlay/5x5_clip_01_bestcam_t01285.1s_Cam4plus_boxes.mp4" in html
+    assert "overlay/5x5_clip_01_bestcam_t01285.1s_Cam5plus_boxes.mp4" in html
+    assert "Watching: Selected" in html
+    assert "box-legend" in html
+    assert "green EMIT" in html
+
+
+def test_paint_view_marks_ball_after_resize():
+    import numpy as np
+    frame = np.zeros((2160, 3840, 3), dtype=np.uint8)
+    pred = ([1920.0, 1080.0, 30.0, 30.0], 0.81, 30.0)
+    vis = paint_view(frame, pred, pred, "P10", 1280)
+    assert vis.shape[1] == 1280
+    assert int(vis[:, :, 1].max()) > 200
 
 
 def test_parse_clock_and_quad_windows():
@@ -212,6 +225,7 @@ def main() -> int:
     test_pick_selected_eight_cameras()
     test_pick_selected_all_empty()
     test_html_clip_has_per_camera_filter()
+    test_paint_view_marks_ball_after_resize()
     test_parse_clock_and_quad_windows()
     test_quad_html_layout()
     print("ok")

@@ -134,3 +134,13 @@ Boxes are drawn on **Mosaic** and **Selected** overlays only. Per-camera filter 
 python3 scripts/gold_set/run_5x5_ball_clips.py --quad-test
 python3 scripts/gold_set/test_run_5x5_ball_clips.py
 ```
+
+## Ball postprocessing test (P10 Top Left) — visual pick
+
+Dashboard: `http://127.0.0.1:8080/ball_postprocessing_test`. Script: `scripts/gold_set/run_ball_postprocessing_test.py`. Pack metadata in git; overlay mp4s stay local (~100 MB).
+
+Ten curated stacks on Match 2 **Top Left 0:26–0:31, P10 only**, ordered from prior train/gold studies. After visual review of that gallery:
+
+**Winner: SAHI fallback-only** (`sahi_fallback`) — full-frame detect first; tiles only when full-frame is empty after the size filter. On this clip: raw hold **78.0%**, emit hold **26.7%** (baseline topk=2 was 50.7% / 15.3%).
+
+Still not a gold rescore. Earlier still ablation treated fallback as identical to baseline because labeled frames already had a det. On this video window tiles actually fire. Next candidates to try as combos: TTA or multiscale on full-frame **plus** SAHI fallback for remaining empties.

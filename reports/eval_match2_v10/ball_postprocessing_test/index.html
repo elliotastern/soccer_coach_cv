@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>ball_postprocessing_test</title>
+<style>
+body { font-family: ui-sans-serif, system-ui, sans-serif; background: #0b1220; color: #e8eefc; margin: 0; }
+main { max-width: 1280px; margin: 0 auto; padding: 28px 20px 64px; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+.sub, .why, .meta, .box-legend { color: #9db0d0; font-size: 14px; margin: 0 0 10px; }
+.why { color: #c5d3ea; }
+.box-legend .emit { color: #4ade80; }
+.box-legend .raw { color: #fb923c; }
+.clip { background: #151d2e; border-radius: 16px; padding: 18px; margin: 18px 0; }
+video { width: 100%; border-radius: 10px; background: #000; }
+.note { color: #9db0d0; font-size: 13px; margin-bottom: 20px; max-width: 72ch; }
+</style>
+</head>
+<body>
+<main>
+<h1>ball_postprocessing_test</h1>
+<p class="sub">Top Left 0:26–0:31 · camera P10 · detect floor from each variant ·
+checkpoint /Volumes/LaCie/Projects/Soccer Coach CV/models/v10_snaps/post_train/checkpoint.pth</p>
+<p class="note">Ranking is from prior Match 2 train/gold postprocess + track studies, not this 5s window.
+ByteTrack/Kalman are shown for contrast — they did not beat detector-only on gold.</p>
+
+<section class="clip" id="baseline_topk2">
+<h2>1. Baseline topk=2</h2>
+<p class="meta">0:26–0:31 · P10 · raw 152/300
+(50.7%) · emit hold 46/300
+(15.3%) · mean emit conf 0.838</p>
+<p class="why">Locked winner on train/gold (thr 0.3 + size + NMS + topk=2).</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/baseline_topk2.mp4"></video>
+</section>
+
+<section class="clip" id="topk3">
+<h2>2. Topk=3</h2>
+<p class="meta">0:26–0:31 · P10 · raw 152/300
+(50.7%) · emit hold 46/300
+(15.3%) · mean emit conf 0.838</p>
+<p class="why">Same stack; gold peek found +1 TP at same FPs.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/topk3.mp4"></video>
+</section>
+
+<section class="clip" id="hflip_tta">
+<h2>3. HFlip TTA + NMS</h2>
+<p class="meta">0:26–0:31 · P10 · raw 168/300
+(56.0%) · emit hold 54/300
+(18.0%) · mean emit conf 0.837</p>
+<p class="why">Train raised recall with more FPs; gold @0.8 published more boxes.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/hflip_tta.mp4"></video>
+</section>
+
+<section class="clip" id="multiscale_1p5">
+<h2>4. Multiscale 1.5×</h2>
+<p class="meta">0:26–0:31 · P10 · raw 152/300
+(50.7%) · emit hold 46/300
+(15.3%) · mean emit conf 0.838</p>
+<p class="why">Train +1 TP +1 FP; gold no gain — included as recover candidate.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/multiscale_1p5.mp4"></video>
+</section>
+
+<section class="clip" id="sahi_fallback">
+<h2>5. SAHI fallback-only</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Tiles only if fullframe empty; identical to baseline when a det exists.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_fallback.mp4"></video>
+</section>
+
+<section class="clip" id="thr50_topk2">
+<h2>6. Thr 0.5 topk=2</h2>
+<p class="meta">0:26–0:31 · P10 · raw 116/300
+(38.7%) · emit hold 46/300
+(15.3%) · mean emit conf 0.838</p>
+<p class="why">Stricter detect floor — fewer weak RAWs, may miss hard balls.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/thr50_topk2.mp4"></video>
+</section>
+
+<section class="clip" id="emit80_pass">
+<h2>7. Emit ≥ 0.80 only</h2>
+<p class="meta">0:26–0:31 · P10 · raw 46/300
+(15.3%) · emit hold 46/300
+(15.3%) · mean emit conf 0.838</p>
+<p class="why">Publish gate on baseline detect (precision-only; not more balls).</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/emit80_pass.mp4"></video>
+</section>
+
+<section class="clip" id="bytetrack_iou08">
+<h2>8. ByteTrack IoU 0.8</h2>
+<p class="meta">0:26–0:31 · P10 · raw 152/300
+(50.7%) · emit hold 92/300
+(30.7%) · mean emit conf 0.707</p>
+<p class="why">Least-harmful ByteTrack on train/gold; still drops some balls vs detector.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/bytetrack_iou08.mp4"></video>
+</section>
+
+<section class="clip" id="bytetrack_emit80">
+<h2>9. ByteTrack + emit 0.80</h2>
+<p class="meta">0:26–0:31 · P10 · raw 152/300
+(50.7%) · emit hold 42/300
+(14.0%) · mean emit conf 0.835</p>
+<p class="why">Current product publish path (high precision, low recall).</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/bytetrack_emit80.mp4"></video>
+</section>
+
+<section class="clip" id="kalman_detect">
+<h2>10. Kalman as detect</h2>
+<p class="meta">0:26–0:31 · P10 · raw 216/300
+(72.0%) · emit hold 46/300
+(15.3%) · mean emit conf 0.838</p>
+<p class="why">Known weaker on gold (R~0.71) — contrast against detector-only.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/kalman_detect.mp4"></video>
+</section>
+
+</main>
+</body>
+</html>

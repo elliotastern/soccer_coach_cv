@@ -24,7 +24,6 @@ sys.path.insert(0, str(ROOT / "scripts" / "gold_set"))
 from eval_match2_v10_video_system import (  # noqa: E402
     DEFAULT_CKPT,
     MASTER_CAMS,
-    draw_pred,
     load_ball_model,
     make_prelabeler,
     make_tracker,
@@ -79,6 +78,7 @@ def parse_args():
         default="masters",
     )
     p.add_argument("--quad-test", action="store_true", help="4 named Match 2 windows, 2x2 dashboard")
+    p.add_argument("--skip-extract", action="store_true", help="reuse source clips if present")
     p.add_argument(
         "--out",
         type=Path,
@@ -224,7 +224,9 @@ def cam_window(synced: dict, cam_row: dict) -> dict:
     }
 
 
-def extract_clip(window: dict, dest: Path) -> Path:
+def extract_clip(window: dict, dest: Path, skip_extract: bool = False) -> Path:
+    if skip_extract and dest.is_file() and dest.stat().st_size > 1000:
+        return dest
     dest.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         "ffmpeg",
@@ -263,23 +265,48 @@ def resize_overlay(frame, width: int):
     return cv2.resize(frame, (width, int(round(h * scale))))
 
 
+def scale_pred(pred, sx: float, sy: float):
+    if pred is None:
+        return None
+    box, conf, side = pred
+    x, y, w, h = box
+    return ([x * sx, y * sy, w * sx, h * sy], conf, side * min(sx, sy))
+
+
+def paint_view(frame, raw_pred, emit_pred, label: str, width: int):
+    vis = resize_overlay(frame, width)
+    sx = vis.shape[1] / float(frame.shape[1])
+    sy = vis.shape[0] / float(frame.shape[0])
+    return draw_raw_and_emit(
+        vis,
+        scale_pred(raw_pred, sx, sy),
+        scale_pred(emit_pred, sx, sy),
+        label,
+    )
+
+
 def draw_raw_and_emit(frame, raw_pred, emit_pred, label: str):
-    vis = draw_pred(frame, emit_pred if emit_pred is not None else raw_pred, label)
-    if emit_pred is None and raw_pred is not None:
-        box, conf, _side = raw_pred
-        x, y, w, h = box
-        cv2.rectangle(
-            vis, (int(x), int(y)), (int(x + w), int(y + h)), (0, 140, 255), 2
-        )
-        cv2.putText(
-            vis,
-            f"raw {conf:.2f} (not emitted)",
-            (16, 88),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (0, 140, 255),
-            2,
-        )
+    vis = frame.copy()
+    emitted = emit_pred is not None
+    pred = emit_pred if emitted else raw_pred
+    color = (0, 255, 0) if emitted else (0, 140, 255)
+    h, w = vis.shape[:2]
+    thick = max(4, int(round(0.008 * min(h, w))))
+    font = max(0.5, min(0.85, h / 800.0))
+    if pred is None:
+        return vis
+    _box, conf, side = pred
+    x, y, bw, bh = [int(round(v)) for v in pred[0]]
+    cv2.rectangle(vis, (x, y), (x + max(bw, 1), y + max(bh, 1)), color, thick)
+    cx, cy = x + max(bw, 1) // 2, y + max(bh, 1) // 2
+    radius = max(16, int(max(bw, bh) * 1.6), int(0.03 * min(h, w)))
+    cv2.circle(vis, (cx, cy), radius, color, thick)
+    cv2.drawMarker(vis, (cx, cy), color, cv2.MARKER_CROSS, radius, thick)
+    kind = "EMIT" if emitted else "RAW"
+    tag = f"{kind} {conf:.2f}"
+    tx = min(w - 8, cx + radius + 8)
+    ty = max(24, cy - radius)
+    cv2.putText(vis, tag, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, font, color, 2)
     return vis
 
 
@@ -287,13 +314,13 @@ def pred_list(pred):
     return [pred] if pred is not None else []
 
 
-def new_track_state(path: Path, args, overlay_path: Path | None) -> dict:
+def new_track_state(path: Path, args, overlay_path: Path | None, label: str | None = None) -> dict:
     return {
         "pre": make_prelabeler(load_track_model(args), args.min_thr, True),
         "tracker": make_tracker(args),
         "writer": None,
         "overlay_path": overlay_path,
-        "label": path.stem,
+        "label": label or path.stem,
         "raws": [],
         "emits": [],
         "n_frames": 0,
@@ -330,12 +357,12 @@ def step_track(state: dict, frame):
     )
 
 
-def track_frames(path: Path, args, overlay_path: Path | None) -> dict:
+def track_frames(path: Path, args, overlay_path: Path | None, label: str | None = None) -> dict:
     cap = cv2.VideoCapture(str(path))
     if not cap.isOpened():
         raise RuntimeError(f"open failed: {path}")
     fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
-    state = new_track_state(path, args, overlay_path)
+    state = new_track_state(path, args, overlay_path, label=label)
     state["fps"] = fps
     while True:
         ok, frame = cap.read()
@@ -353,8 +380,13 @@ def maybe_write_overlay(state: dict, frame):
     path = state["overlay_path"]
     if path is None:
         return
-    vis = draw_raw_and_emit(frame, state["last_raw"], state["last_emit"], state["label"])
-    vis = resize_overlay(vis, state["args"].overlay_width)
+    vis = paint_view(
+        frame,
+        state["last_raw"],
+        state["last_emit"],
+        state["label"],
+        state["args"].overlay_width,
+    )
     if state["writer"] is None:
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         state["writer"] = cv2.VideoWriter(
@@ -520,11 +552,9 @@ def selected_view(job: dict):
     picked = job["picked"]
     args = job["args"]
     if picked["cam"] is None:
-        vis = draw_raw_and_emit(frames[0], None, None, "none")
-        return resize_overlay(vis, args.overlay_width)
+        return paint_view(frames[0], None, None, "none", args.overlay_width)
     frame = frames[job["names"].index(picked["cam"])]
-    vis = draw_raw_and_emit(frame, picked["raw"], picked["emit"], picked["cam"])
-    return resize_overlay(vis, args.overlay_width)
+    return paint_view(frame, picked["raw"], picked["emit"], picked["cam"], args.overlay_width)
 
 
 def mosaic_view(job: dict):
@@ -532,9 +562,8 @@ def mosaic_view(job: dict):
     for name, frame in zip(job["names"], job["frames"]):
         raw_pred = job["tracks"][name]["raws"][job["idx"]]
         emit_pred = job["tracks"][name]["emits"][job["idx"]]
-        vis = draw_raw_and_emit(frame, raw_pred, emit_pred, name)
-        cell = resize_overlay(vis, MOSAIC_CELL_W)
-        cells.append(add_winner_border(cell, name == job["winner"]))
+        vis = paint_view(frame, raw_pred, emit_pred, name, MOSAIC_CELL_W)
+        cells.append(add_winner_border(vis, name == job["winner"]))
     return tile_mosaic(cells)
 
 
@@ -603,21 +632,22 @@ def bestcam_stats(acc: dict, job: dict):
     }
 
 
-def extract_synced_sources(window: dict, src_dir: Path, stem: str) -> dict:
+def extract_synced_sources(window: dict, src_dir: Path, stem: str, skip_extract: bool = False) -> dict:
     paths = {}
     for cam_row in window["cameras"]:
         name = cam_row["camera"]
         dest = src_dir / f"{stem}_{name}.mp4"
-        extract_clip(cam_window(window, cam_row), dest)
+        extract_clip(cam_window(window, cam_row), dest, skip_extract=skip_extract)
         paths[name] = dest
     return paths
 
 
-def track_synced_cameras(paths: dict, args) -> dict:
+def track_synced_cameras(paths: dict, args, ov_dir: Path, stem: str) -> dict:
     tracks = {}
     for name, src in paths.items():
+        overlay = ov_dir / f"{stem}_{name}_boxes.mp4"
         print(f"{src.stem}: tracking {src}", flush=True)
-        tracks[name] = track_frames(src, args, None)
+        tracks[name] = track_frames(src, args, overlay, label=name)
     return tracks
 
 
@@ -651,8 +681,8 @@ def run_bestcam(args, out: Path) -> dict:
     clips = []
     for i, window in enumerate(windows, start=1):
         stem = clip_stem(i, window)
-        paths = extract_synced_sources(window, src_dir, stem)
-        tracks = track_synced_cameras(paths, args)
+        paths = extract_synced_sources(window, src_dir, stem, skip_extract=args.skip_extract)
+        tracks = track_synced_cameras(paths, args, ov_dir, stem)
         names = [row["camera"] for row in window["cameras"]]
         job = {
             "names": names,
@@ -801,6 +831,9 @@ video {{ width: 100%; border-radius: 10px; background: #000; }}
 }}
 .filters button.on {{ background: #2563eb; border-color: #2563eb; }}
 .view-label {{ color: #9db0d0; font-size: 14px; margin: 0 0 8px; }}
+.box-legend {{ color: #c5d3ea; font-size: 13px; margin: 0 0 10px; }}
+.box-legend .emit {{ color: #4ade80; }}
+.box-legend .raw {{ color: #fb923c; }}
 .quad {{ display: block; }}
 .quad .clip {{ margin: 18px 0; }}
 table {{ width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }}
@@ -837,11 +870,11 @@ def html_cam_filter(clip: dict) -> str:
     overlay = f"overlay/{Path(stats['overlay']).name}"
     mosaic = f"overlay/{Path(stats['mosaic']).name}"
     buttons = [
-        filter_btn("mosaic", "Mosaic", mosaic, on=True),
-        filter_btn("selected", "Selected", overlay),
+        filter_btn("selected", "Selected", overlay, on=True),
+        filter_btn("mosaic", "Mosaic", mosaic),
     ]
     for name in clip_cam_names(clip):
-        buttons.append(filter_btn(name, name, f"source/{stem}_{name}.mp4"))
+        buttons.append(filter_btn(name, name, f"overlay/{stem}_{name}_boxes.mp4"))
     return (
         '<div class="filters"><span class="label">Filter to 1 camera</span>'
         + "".join(buttons)
@@ -851,7 +884,7 @@ def html_cam_filter(clip: dict) -> str:
 
 def html_clip(clip: dict) -> str:
     stats = clip["stats"]
-    mosaic = Path(stats["mosaic"]).name
+    overlay = Path(stats["overlay"]).name
     return f"""
 <section class="clip">
 <h2>{html_esc(clip.get('label') or clip['stem'])}</h2>
@@ -862,8 +895,9 @@ top camera {html_esc(stats['top_camera'])}</p>
 {html_win_bar(stats)}
 {html_cam_filter(clip)}
 <div class="videos">
-<p class="view-label">Watching: Mosaic</p>
-<video controls playsinline data-player type="video/mp4" src="overlay/{html_esc(mosaic)}"></video>
+<p class="view-label">Watching: Selected</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published ≥0.80 · <span class="raw">orange RAW</span> = detected, not emitted · marker is on the ball</p>
+<video controls playsinline data-player type="video/mp4" src="overlay/{html_esc(overlay)}"></video>
 </div>
 {html_cam_table(clip)}
 </section>
@@ -902,7 +936,7 @@ def html_cam_table(clip: dict) -> str:
         "<table><tr><th>Camera</th><th>Raw hits</th><th>Emit hold</th><th>Mean emit conf</th></tr>"
     ]
     for name, row in stats.get("per_camera", {}).items():
-        src = f"source/{stem}_{name}.mp4"
+        src = f"overlay/{stem}_{name}_boxes.mp4"
         rows.append(
             f'<tr data-cam-filter="{html_esc(name)}" data-src="{html_esc(src)}" '
             f'data-label="{html_esc(name)}">'
