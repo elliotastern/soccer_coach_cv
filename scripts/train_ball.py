@@ -209,7 +209,15 @@ def check_coco_dataset_exists(coco_path: Path) -> bool:
     """Check if COCO format dataset already exists."""
     annotation_file = coco_path / "_annotations.coco.json"
     n_img = sum(1 for _ in coco_path.glob("*.jpg")) + sum(1 for _ in coco_path.glob("*.png"))
-    return annotation_file.exists() and n_img > 0
+    if not annotation_file.exists() or n_img == 0:
+        return False
+    n_coco = len(json.loads(annotation_file.read_text()).get("images", []))
+    if n_coco == 0:
+        raise RuntimeError(
+            f"COCO json empty but {n_img} images in {coco_path}; "
+            "refuse YOLO convert (would wipe labels)"
+        )
+    return True
 
 
 def merge_coco_datasets(

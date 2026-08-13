@@ -4,7 +4,7 @@
 
 Build an automated, real-time AI football (soccer) coaching system that delivers intelligent haptic guidance directly to players on the pitch—gamified training that bridges video-game style coaching and live practice.
 
-This repository currently implements the **offline/batch computer-vision and heuristic-events foundation** toward that product (Product Phase 1). Predictive coaching and wearable deployment are later phases.
+This repository currently implements the **offline/batch computer-vision and heuristic-events foundation** toward that product (Product Phase 1). Predictive coaching and wearable deployment are later phases. Phase 1 PoC “~80% accuracy” means **precision of published detections/events**, not complete recall on every tiny/far ball — see [PHASE1_SCOPE.md](PHASE1_SCOPE.md).
 
 ## System architecture
 

@@ -9,21 +9,29 @@ camera:
   scene_cut_threshold: 0.7
 
 # Detection Settings
+# Low detect floor feeds ByteTrack; product emit gate is tracker.emit_thresh (~0.80).
 detection:
   backend: local_rfdetr  # local_rfdetr | roboflow
-  confidence_threshold: 0.5
+  confidence_threshold: 0.10
   player_class_id: 0
   ball_class_id: 1
   player_checkpoint: models/people_after_100_epochs.pth
-  ball_checkpoint: models/ball_89.pth
+  ball_checkpoint: models/v8_snaps/post_train/checkpoint.pth
+  enhance_ball: true
+  use_sahi: true
+  use_kalman: true
 
 # Tracker Settings (ByteTrack)
+# Ingest low-conf dets for association; publish balls only if tracklet EMA >= emit_thresh.
 tracker:
-  track_thresh: 0.5
-  high_thresh: 0.6
+  track_thresh: 0.10
+  high_thresh: 0.35
   track_buffer: 30
   match_thresh: 0.8
   frame_rate: 30
+  emit_thresh: 0.80
+  ema_alpha: 0.3
+  apply_emit_gate: true
 
 # Team Assignment
 team_assignment:

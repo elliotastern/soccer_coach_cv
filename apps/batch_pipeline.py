@@ -122,12 +122,16 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/process
     load_dotenv()
     detector = build_detector(config)
     
+    tracker_cfg = config.get("tracker", {})
     base_tracker = Tracker(
-        track_thresh=config['tracker']['track_thresh'],
-        high_thresh=config['tracker']['high_thresh'],
-        track_buffer=config['tracker']['track_buffer'],
-        match_thresh=config['tracker']['match_thresh'],
-        frame_rate=config['tracker']['frame_rate']
+        track_thresh=tracker_cfg.get("track_thresh", 0.10),
+        high_thresh=tracker_cfg.get("high_thresh", 0.35),
+        track_buffer=tracker_cfg.get("track_buffer", 30),
+        match_thresh=tracker_cfg.get("match_thresh", 0.8),
+        frame_rate=tracker_cfg.get("frame_rate", 30),
+        emit_thresh=tracker_cfg.get("emit_thresh", 0.80),
+        ema_alpha=tracker_cfg.get("ema_alpha", 0.3),
+        apply_emit_gate=tracker_cfg.get("apply_emit_gate", True),
     )
     
     # Wrap tracker with ball validation (parabolic fit check)

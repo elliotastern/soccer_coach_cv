@@ -1,0 +1,89 @@
+{
+  "checkpoint": "models/v10_snaps/post_train/checkpoint.pth",
+  "min_thr": 0.3,
+  "emit_thresh": 0.8,
+  "use_kalman": true,
+  "use_sahi": false,
+  "warmup": 10,
+  "start_sec": 33.0,
+  "num_frames": 100,
+  "strip_start_frame": 1980,
+  "gold_warmup_emit": {
+    "tp": 27,
+    "fp": 0,
+    "fn": 35,
+    "precision": 1.0,
+    "recall": 0.43548387096774194,
+    "P_emit": 1.0,
+    "n_emitted": 27,
+    "poc_pass_P_emit": true,
+    "hollow": false
+  },
+  "gold_warmup_raw": {
+    "tp": 44,
+    "fp": 6,
+    "fn": 18,
+    "precision": 0.88,
+    "recall": 0.7096774193548387,
+    "P_emit": 0.88,
+    "n_emitted": 50,
+    "poc_pass_P_emit": true,
+    "hollow": false
+  },
+  "gold_clear_ball": {
+    "n_gt": 62,
+    "tp": 27,
+    "fn": 35,
+    "recall": 0.43548387096774194
+  },
+  "strip_track_emit_max_conf": {
+    "n_emitted": 0,
+    "n_frames": 100,
+    "emit_rate": 0.0,
+    "mean_conf": null,
+    "per_cam": {
+      "Cam5plus": 0,
+      "Cam4plus": 0
+    },
+    "note": "no GT on this strip \u2014 n_emitted/rate only, not P_emit"
+  },
+  "strip_raw_max_conf": {
+    "n_emitted": 100,
+    "n_frames": 100,
+    "emit_rate": 1.0,
+    "mean_conf": 0.7158288919925689,
+    "per_cam": {
+      "Cam5plus": 0,
+      "Cam4plus": 100
+    },
+    "note": "no GT on this strip \u2014 n_emitted/rate only, not P_emit"
+  },
+  "strip_gold_overlap": [
+    {
+      "image": "037_Cam4plus_f001980.jpg",
+      "camera": "Cam4plus",
+      "frame_idx": 1980,
+      "strip_i": 0
+    }
+  ],
+  "strip_gold_scored": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "P_emit": null,
+    "n_emitted": 0,
+    "poc_pass_P_emit": false,
+    "hollow": false,
+    "frames": [
+      {
+        "image": "037_Cam4plus_f001980.jpg",
+        "gold_cam": "Cam4plus",
+        "selected_cam": null,
+        "skipped": "selected other cam; no GT on that view"
+      }
+    ]
+  },
+  "read": "P_emit/FPs come from held-out Match 2 gold 50 with video warmup + emit gate. The Cam5plus/Cam4plus strip reports product n_emitted (how often we publish). Strip has no full GT; overlapping gold frames are scored separately."
+}

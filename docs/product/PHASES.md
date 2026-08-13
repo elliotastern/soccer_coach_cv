@@ -14,7 +14,7 @@ Offline / batch-first vision and events:
 - Streamlit review of low-confidence flags with corrections persisted
 - CSV/JSON export of events and locations
 
-Quality posture: **high precision, lower recall** — skip messy/occluded frames rather than guess. Details and acceptance: [PHASE1_SCOPE.md](PHASE1_SCOPE.md).
+Quality posture: **high precision, lower recall** — skip messy/occluded frames rather than guess. PoC **~80% accuracy** means **precision of published outputs ≥ 0.80** (emit only at conf ≥ ~0.80); full-field tiny-ball completeness is deferred. Details and acceptance: [PHASE1_SCOPE.md](PHASE1_SCOPE.md).
 
 ## Product Phase 2 — Predictive AI and sensor fusion
 

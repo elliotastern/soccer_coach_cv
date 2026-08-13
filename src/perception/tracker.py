@@ -1,7 +1,7 @@
-"""ByteTrack multi-object tracker (supervision)."""
+"""ByteTrack multi-object tracker (supervision) with tracklet emit gating."""
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -40,16 +40,19 @@ def _build_byte_track(
 
 
 class Tracker:
-    """ByteTrack-based multi-object tracker with correct supervision API wiring."""
+    """ByteTrack tracker: low-conf ingest, high-conf emit via tracklet EMA."""
 
     def __init__(
         self,
-        track_thresh: float = 0.25,
+        track_thresh: float = 0.10,
         high_thresh: float = 0.35,  # kept for config compat; unused by current API
         track_buffer: int = 30,
         match_thresh: float = 0.8,
         frame_rate: int = 30,
         minimum_consecutive_frames: int = 1,
+        emit_thresh: float = 0.80,
+        ema_alpha: float = 0.3,
+        apply_emit_gate: bool = True,
     ):
         self.track_thresh = track_thresh
         self.high_thresh = high_thresh
@@ -57,6 +60,10 @@ class Tracker:
         self.match_thresh = match_thresh
         self.frame_rate = frame_rate
         self.minimum_consecutive_frames = minimum_consecutive_frames
+        self.emit_thresh = emit_thresh
+        self.ema_alpha = ema_alpha
+        self.apply_emit_gate = apply_emit_gate
+        self._ema: Dict[int, float] = {}
         self.byte_tracker = _build_byte_track(
             track_activation_threshold=track_thresh,
             lost_track_buffer=track_buffer,
@@ -79,7 +86,54 @@ class Tracker:
         class_id = np.array([d.class_id for d in detections], dtype=np.int32)
         supervision_detections = Detections(xyxy=xyxy, confidence=confidence, class_id=class_id)
         tracks = self.byte_tracker.update_with_detections(supervision_detections)
-        return self._tracks_to_objects(tracks, detections)
+        objects = self._tracks_to_objects(tracks, detections)
+        return self._apply_emit_gate(objects)
+
+    def tracklet_ema(self, track_id: int) -> Optional[float]:
+        return self._ema.get(track_id)
+
+    def _update_ema(self, track_id: int, conf: float) -> float:
+        prev = self._ema.get(track_id)
+        if prev is None:
+            ema = conf
+        else:
+            ema = self.ema_alpha * conf + (1.0 - self.ema_alpha) * prev
+        self._ema[track_id] = ema
+        return ema
+
+    def _apply_emit_gate(self, objects: List[TrackedObject]) -> List[TrackedObject]:
+        published = []
+        live_ids = set()
+        for obj in objects:
+            live_ids.add(obj.object_id)
+            ema = self._update_ema(obj.object_id, float(obj.detection.confidence))
+            # Attach EMA on detection confidence for emit score when gating
+            if not self.apply_emit_gate:
+                published.append(obj)
+                continue
+            # Players: keep legacy behavior (publish if track exists); balls: EMA gate
+            if obj.detection.class_name != "ball":
+                published.append(obj)
+                continue
+            if ema >= self.emit_thresh or float(obj.detection.confidence) >= self.emit_thresh:
+                published.append(
+                    TrackedObject(
+                        object_id=obj.object_id,
+                        detection=Detection(
+                            class_id=obj.detection.class_id,
+                            confidence=max(float(obj.detection.confidence), ema),
+                            bbox=obj.detection.bbox,
+                            class_name=obj.detection.class_name,
+                        ),
+                        team_id=obj.team_id,
+                        role=obj.role,
+                    )
+                )
+        # Drop EMAs for dead tracks
+        for tid in list(self._ema.keys()):
+            if tid not in live_ids:
+                del self._ema[tid]
+        return published
 
     def _tracks_to_objects(self, tracks: Detections, detections: List[Detection]) -> List[TrackedObject]:
         if tracks is None or len(tracks) == 0:
@@ -115,6 +169,7 @@ class Tracker:
         return best
 
     def reset(self) -> None:
+        self._ema.clear()
         self.byte_tracker = _build_byte_track(
             track_activation_threshold=self.track_thresh,
             lost_track_buffer=self.track_buffer,

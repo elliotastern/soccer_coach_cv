@@ -37,7 +37,7 @@ CAMS = {
     },
 }
 DEFAULT_OUT = ROOT / "data/processed/multicam_20s_match1"
-DEFAULT_CKPT = ROOT / "models/v6_snaps/epoch_110/checkpoint_best_regular.pth"
+DEFAULT_CKPT = ROOT / "models/v8_snaps/post_train/checkpoint.pth"
 
 
 def parse_args():
@@ -48,6 +48,9 @@ def parse_args():
     p.add_argument("--thresholds", nargs="+", type=float, default=[0.5, 0.8])
     p.add_argument("--skip-extract", action="store_true")
     p.add_argument("--skip-infer", action="store_true")
+    p.add_argument("--use-sahi", action="store_true", help="enable SAHI recover on ball detect")
+    p.add_argument("--use-kalman", action="store_true", help="enable Kalman assist on prelabel")
+    p.add_argument("--min-thr", type=float, default=0.30, help="ball detect threshold floor")
     return p.parse_args()
 
 
@@ -105,7 +108,7 @@ def extract_all(out_dir: Path, fps_sample: float) -> list[float]:
     return times
 
 
-def load_detector(ckpt: Path, thr: float):
+def load_detector(ckpt: Path, thr: float, use_sahi: bool = False, use_kalman: bool = False):
     from src.perception.rfdetr_local import load_ball_model
     from src.perception.ball_prelabel import BallPrelabelConfig, BallPrelabeler
 
@@ -114,12 +117,14 @@ def load_detector(ckpt: Path, thr: float):
         model,
         BallPrelabelConfig(
             threshold=thr,
-            use_sahi=False,
+            use_sahi=use_sahi,
+            sahi_fallback_only=True,
+            sahi_recover_only=True,
             use_size_filter=True,
             topk=2,
-            use_kalman=False,
+            use_kalman=use_kalman,
             min_side=4,
-            max_side=120,
+            max_side=240 if use_sahi else 120,
         ),
     )
 
@@ -128,11 +133,20 @@ def frame_path(out_dir: Path, cam: str, i: int, t: float) -> Path:
     return out_dir / "frames" / cam / f"t{i:03d}_{t:05.2f}s.jpg"
 
 
-def infer_all(out_dir: Path, times: list[float], ckpt: Path, min_thr: float) -> dict:
-    pre = load_detector(ckpt, min_thr)
+def infer_all(
+    out_dir: Path,
+    times: list[float],
+    ckpt: Path,
+    min_thr: float,
+    use_sahi: bool = False,
+    use_kalman: bool = False,
+) -> dict:
+    pre = load_detector(ckpt, min_thr, use_sahi=use_sahi, use_kalman=use_kalman)
     preds = {}
     for cam in CAMS:
         preds[cam] = {}
+        if use_kalman:
+            pre.reset()
         for i, t in enumerate(times):
             path = frame_path(out_dir, cam, i, t)
             img = cv2.imread(str(path))
@@ -323,16 +337,26 @@ def main():
             for cam in CAMS
         },
         "ball_checkpoint": str(args.ball_checkpoint.relative_to(ROOT)),
+        "use_sahi": bool(args.use_sahi),
+        "use_kalman": bool(args.use_kalman),
+        "min_thr": float(args.min_thr),
         "note": "Aligned by shared filename clock; cam9 is 30fps, others 60fps.",
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
     preds_path = out_dir / "preds_ball.json"
-    min_thr = min(args.thresholds)
+    min_thr = min(args.thresholds + [args.min_thr])
     if args.skip_infer and preds_path.is_file():
         preds = json.loads(preds_path.read_text())
     else:
-        preds = infer_all(out_dir, times, args.ball_checkpoint, min_thr)
+        preds = infer_all(
+            out_dir,
+            times,
+            args.ball_checkpoint,
+            min_thr,
+            use_sahi=bool(args.use_sahi),
+            use_kalman=bool(args.use_kalman),
+        )
         preds_path.write_text(json.dumps(preds, indent=2))
 
     metrics = [score_presence(preds, times, thr) for thr in args.thresholds]

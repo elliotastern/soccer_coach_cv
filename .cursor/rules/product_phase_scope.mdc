@@ -27,5 +27,7 @@ Detection stack standards live in the soccer CV guardrails rule (RF-DETR, not YO
 ## Quality bar (Phase 1)
 
 - High precision, lower recall
-- Confidence below ~80% → drop / do nothing
+- PoC ~80% accuracy = **precision of emitted** outputs ≥ ~0.8 (not all-frame recall @ conf 0.8)
+- Confidence below ~0.8 → drop / do nothing at the product emit gate
+- Clear-ball recall is secondary coverage; all-frame R@0.8 is not the PoC gate
 - Prefer commercial-use-safe data only

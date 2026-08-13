@@ -1,0 +1,68 @@
+{
+  "seed": 42,
+  "recipe": "match2_v10",
+  "train": {
+    "images": 825,
+    "annotations": 1014,
+    "by_source": {
+      "match1_train_batch2": 11,
+      "match1_train_random": 68,
+      "match2_train100": 87,
+      "match1_train_batch3_aug1": 66,
+      "match2_train100_aug4": 87,
+      "match1_train_batch3": 66,
+      "official_train": 35,
+      "official_test": 1,
+      "match2_train100_aug2": 87,
+      "kjoyy_train": 48,
+      "match1_train_random_aug1": 68,
+      "kjoyy_valid": 9,
+      "match2_train100_aug1": 87,
+      "match2_train100_aug3": 87,
+      "match1_train_batch2_aug1": 11,
+      "kjoyy_test": 3,
+      "official_valid": 4
+    }
+  },
+  "valid": {
+    "images": 45,
+    "annotations": 45,
+    "by_source": {
+      "kjoyy_train": 18,
+      "official_valid": 2,
+      "kjoyy_valid": 1,
+      "official_train": 11,
+      "match2_train100": 10,
+      "official_test": 2,
+      "kjoyy_test": 1
+    }
+  },
+  "test": {
+    "images": 85,
+    "annotations": 98,
+    "by_source": {
+      "gold100_test_0_49": 35,
+      "match2_gold_test": 50
+    }
+  },
+  "held_out": {
+    "match2_gold_frames": "data/processed/gold_sets/match2_gold_frames",
+    "gold100_strip_0_49": "data/processed/gold_sets/match1_1_100",
+    "match2_valid_from_train100": 10
+  },
+  "match2_split": {
+    "n_train": 87,
+    "n_valid": 10,
+    "n_test": 50,
+    "skipped_empty": 3
+  },
+  "aug": {
+    "match2": 5,
+    "match1": 2
+  },
+  "notes": [
+    "v10: Match2 x5 (majority), Match1 x2 (other fields), light stills.",
+    "Shorter resume from v9 to limit Match2 overfitting.",
+    "match2_gold_frames and Gold100 0-49 are test only."
+  ]
+}

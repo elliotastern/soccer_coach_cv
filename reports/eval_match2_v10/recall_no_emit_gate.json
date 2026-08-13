@@ -1,0 +1,97 @@
+{
+  "checkpoint": "models/v10_snaps/post_train/checkpoint.pth",
+  "gold": "match2_gold_frames",
+  "note": "No 0.80 emit gate. Recall = GT balls found (IoU 0.5). Precision = published boxes that match GT. Gold 50 is held-out harvest of large/clear balls, not every ball in the match. Cam5plus has no gold labels. Train100 not used.",
+  "thresholds": {
+    "0.3": {
+      "tp": 57,
+      "fp": 2,
+      "fn": 5,
+      "precision": 0.9661016949152542,
+      "recall": 0.9193548387096774,
+      "box_accuracy_jaccard": 0.890625,
+      "n_gt_boxes": 62,
+      "n_pred_boxes": 59,
+      "frame_recall": 1.0,
+      "frames_with_gt": 50,
+      "frames_with_hit": 50,
+      "by_camera": {
+        "P10": {
+          "tp": 36,
+          "fp": 0,
+          "fn": 0,
+          "frame_hit": 36,
+          "n_frames": 36,
+          "precision": 1.0,
+          "recall": 1.0,
+          "frame_recall": 1.0
+        },
+        "Cam4plus": {
+          "tp": 20,
+          "fp": 2,
+          "fn": 5,
+          "frame_hit": 13,
+          "n_frames": 13,
+          "precision": 0.9090909090909091,
+          "recall": 0.8,
+          "frame_recall": 1.0
+        },
+        "P8": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "frame_hit": 1,
+          "n_frames": 1,
+          "precision": 1.0,
+          "recall": 1.0,
+          "frame_recall": 1.0
+        }
+      }
+    },
+    "0.5": {
+      "tp": 55,
+      "fp": 2,
+      "fn": 7,
+      "precision": 0.9649122807017544,
+      "recall": 0.8870967741935484,
+      "box_accuracy_jaccard": 0.859375,
+      "n_gt_boxes": 62,
+      "n_pred_boxes": 57,
+      "frame_recall": 1.0,
+      "frames_with_gt": 50,
+      "frames_with_hit": 50,
+      "by_camera": {
+        "P10": {
+          "tp": 36,
+          "fp": 0,
+          "fn": 0,
+          "frame_hit": 36,
+          "n_frames": 36,
+          "precision": 1.0,
+          "recall": 1.0,
+          "frame_recall": 1.0
+        },
+        "Cam4plus": {
+          "tp": 18,
+          "fp": 2,
+          "fn": 7,
+          "frame_hit": 13,
+          "n_frames": 13,
+          "precision": 0.9,
+          "recall": 0.72,
+          "frame_recall": 1.0
+        },
+        "P8": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "frame_hit": 1,
+          "n_frames": 1,
+          "precision": 1.0,
+          "recall": 1.0,
+          "frame_recall": 1.0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+# v10: Match2-heavy resume from v9. Keep Match1 + light stills (other fields).
+# ~25 extra epochs (205). Test: Gold100 0-49 + match2_gold_frames (never in train).
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v10/train
+  coco_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v10/valid
+  yolo_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v10/train
+  yolo_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v10/valid
+  ball_class_id: 1
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: true
+  prefetch_factor: 1
+  persistent_workers: false
+
+training:
+  epochs: 205
+  batch_size: 2
+  grad_accum_steps: 16
+  learning_rate: 0.00003
+  encoder_learning_rate: 0.00002
+  weight_decay: 0.0001
+  resolution: 1288
+  amp: true
+  mixed_precision: true
+  num_workers: 2
+  device: cuda
+  multi_scale: true
+  expanded_scales: true
+
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+
+output:
+  output_dir: /workspace/soccer_cv_ball/models
+  save_every_epochs: 1
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/v9_snaps/post_train/checkpoint.pth
+  save_dir: models/v10_snaps

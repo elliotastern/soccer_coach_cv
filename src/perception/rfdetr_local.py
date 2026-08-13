@@ -139,28 +139,36 @@ class LocalRFDETRDetector:
         player_class_id: int = 0,
         ball_class_id: int = 1,
         enhance_ball: bool = False,
+        use_sahi: bool = False,
+        use_kalman: bool = False,
     ):
         self.confidence_threshold = confidence_threshold
         self.player_class_id = player_class_id
         self.ball_class_id = ball_class_id
         self.enhance_ball = enhance_ball
+        self.use_sahi = use_sahi
+        self.use_kalman = use_kalman
         self.people_model = load_people_model(player_checkpoint)
         self.ball_model = load_ball_model(ball_checkpoint)
         self._ball_prelabeler = None
-        if enhance_ball:
+        if enhance_ball or use_sahi or use_kalman:
             from src.perception.ball_prelabel import BallPrelabelConfig, BallPrelabeler
 
-            # Recommended prelabel stack from Gold100 0-20 ablation
+            # Match stack: size filter + optional SAHI recover when fullframe empty
             self._ball_prelabeler = BallPrelabeler(
                 self.ball_model,
                 BallPrelabelConfig(
-                    threshold=min(0.30, confidence_threshold),
-                    use_sahi=False,
+                    threshold=min(0.30, confidence_threshold)
+                    if confidence_threshold > 0
+                    else 0.30,
+                    use_sahi=use_sahi,
+                    sahi_fallback_only=True,
+                    sahi_recover_only=True,
                     use_size_filter=True,
                     topk=2,
-                    use_kalman=False,
+                    use_kalman=use_kalman,
                     min_side=4,
-                    max_side=120,
+                    max_side=240,
                 ),
                 class_id=ball_class_id,
             )
@@ -210,6 +218,9 @@ def build_detector(config: dict):
             confidence_threshold=threshold,
             player_class_id=player_class_id,
             ball_class_id=ball_class_id,
+            enhance_ball=bool(detection.get("enhance_ball", True)),
+            use_sahi=bool(detection.get("use_sahi", True)),
+            use_kalman=bool(detection.get("use_kalman", False)),
         )
 
     if backend == "roboflow":
