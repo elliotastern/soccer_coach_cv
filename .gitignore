@@ -72,6 +72,37 @@ data/**
 !data/processed/gold_sets/match2_large_ball_harvest_batch2/
 !data/processed/gold_sets/match2_large_ball_harvest_batch2/manifest.json
 !data/processed/gold_sets/match2_large_ball_harvest_batch2/README.md
+# Match 2 gold frames (XML/manifest only — not images)
+!data/processed/gold_sets/match2_gold_frames/
+!data/processed/gold_sets/match2_gold_frames/README.md
+!data/processed/gold_sets/match2_gold_frames/manifest.json
+!data/processed/gold_sets/match2_gold_frames/keep_source.json
+!data/processed/gold_sets/match2_gold_frames/gold/
+!data/processed/gold_sets/match2_gold_frames/gold/annotations.xml
+!data/processed/gold_sets/match2_gold_frames/gold/annotations.coco.json
+!data/processed/gold_sets/match2_gold_frames/prelabels/
+!data/processed/gold_sets/match2_gold_frames/prelabels/annotations.xml
+!data/processed/gold_sets/match2_gold_frames/prelabels/annotations.coco.json
+# Match 2 train label 100 (XML/manifest only)
+!data/processed/gold_sets/match2_train_label100/
+!data/processed/gold_sets/match2_train_label100/README.md
+!data/processed/gold_sets/match2_train_label100/manifest.json
+!data/processed/gold_sets/match2_train_label100/gold/
+!data/processed/gold_sets/match2_train_label100/gold/annotations.xml
+!data/processed/gold_sets/match2_train_label100/gold/annotations.coco.json
+!data/processed/gold_sets/match2_train_test/
+!data/processed/gold_sets/match2_train_test/README.md
+!data/processed/gold_sets/match2_train_test/split.json
+!data/processed/gold_sets/match2_train_test/train/
+!data/processed/gold_sets/match2_train_test/train/_annotations.coco.json
+!data/processed/gold_sets/match2_train_test/valid/
+!data/processed/gold_sets/match2_train_test/valid/_annotations.coco.json
+!data/processed/gold_sets/match2_train_test/test/
+!data/processed/gold_sets/match2_train_test/test/_annotations.coco.json
+!data/processed/gold_sets/match2_train_label100/prelabels/
+!data/processed/gold_sets/match2_train_label100/prelabels/annotations.xml
+!data/processed/gold_sets/match2_train_label100/cvat/
+!data/processed/gold_sets/match2_train_label100/cvat/annotations.xml
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

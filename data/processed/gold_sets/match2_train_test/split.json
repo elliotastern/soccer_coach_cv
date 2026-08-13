@@ -1,0 +1,50 @@
+{
+  "name": "match2_train_test",
+  "source_of_truth": "gold/annotations.xml",
+  "train_pack": "data/processed/gold_sets/match2_train_label100",
+  "test_pack": "data/processed/gold_sets/match2_gold_frames",
+  "n_train": 87,
+  "n_valid": 10,
+  "n_test": 50,
+  "n_train_skipped_empty": 3,
+  "skipped_empty": [
+    {
+      "camera": "Cam5plus",
+      "frame_idx": 59265,
+      "strip_frame": 24
+    },
+    {
+      "camera": "Cam5plus",
+      "frame_idx": 61110,
+      "strip_frame": 25
+    },
+    {
+      "camera": "P10",
+      "frame_idx": 8550,
+      "strip_frame": 81
+    }
+  ],
+  "train_cams": {
+    "Cam4plus": 39,
+    "Cam5plus": 38,
+    "P10": 10
+  },
+  "valid_cams": {
+    "P10": 10
+  },
+  "test_cams": {
+    "P10": 36,
+    "Cam4plus": 13,
+    "P8": 1
+  },
+  "n_ball_train": 124,
+  "n_ball_valid": 10,
+  "n_ball_test": 62,
+  "overlap_train_test": 0,
+  "paths": {
+    "train": "data/processed/gold_sets/match2_train_test/train",
+    "valid": "data/processed/gold_sets/match2_train_test/valid",
+    "test": "data/processed/gold_sets/match2_train_test/test"
+  },
+  "rule": "Do not train on match2_gold_frames. Test is held-out eval."
+}

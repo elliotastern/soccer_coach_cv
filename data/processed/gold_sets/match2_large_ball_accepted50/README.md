@@ -2,18 +2,24 @@
 
 Saved from harvest keep.json on accept/reject pass.
 
-## Add a second ball (CVAT)
+## Draw / add a second ball (local editor)
 
 ```bash
-cd annotation && docker compose -f docker-compose.cvat.yml up -d
-# open http://127.0.0.1:8090  (admin / admin)
+python3 serve_viewer.py --port 8080
+# open http://127.0.0.1:8080/accepted50
 ```
 
-1. Create project → labels: `ball`, `player`
-2. Create task → upload all files from `cvat/images/`
-3. Actions → Upload annotations → `cvat/annotations.xml` (CVAT for images 1.1)
-4. Draw extra `ball` boxes for sideline balls; Export when done
+1. Label dropdown → **Ball**
+2. Press **N** (mode shows `draw (N)`)
+3. Click-drag a box around the second ball
+4. **Save**
 
-## Local accept/reject for next batch
+Rebuild editor if needed: `python3 scripts/gold_set/build_accepted50_editor.py`
+
+## CVAT (optional; needs Docker)
+
+See `docs/product/MATCH2_CVAT_SECOND_BALL.md` — port 8090.
+
+## Next harvest batch
 
 http://127.0.0.1:8080/match2-harvest?pack=/data/processed/gold_sets/match2_large_ball_harvest_batch2

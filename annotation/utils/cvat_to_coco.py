@@ -39,6 +39,8 @@ def extract_frame_annotations(tree: ET.ElementTree, frame_id: int = 0) -> List[D
         boxes = track.findall(f'.//box[@frame="{frame_id}"]')
 
         for box in boxes:
+            if box.get("outside") == "1":
+                continue
             xtl = float(box.get('xtl'))
             ytl = float(box.get('ytl'))
             xbr = float(box.get('xbr'))

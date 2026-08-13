@@ -88,6 +88,30 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         harvest_path = self.path.split('?', 1)[0]
+        if self.path.split('?', 1)[0] in ('/accepted50', '/accepted50/', '/match2-accepted50'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_large_ball_accepted50/review/editor.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in ('/match2-gold', '/match2-gold/', '/match2_gold'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_gold_frames/review/editor.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in ('/match2-train100', '/match2-train100/', '/match2_train100'):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_train_label100/review/editor.html',
+            )
+            self.end_headers()
+            return
         if harvest_path in ('/match2-harvest', '/match2-harvest/', '/match2_harvest'):
             qs = ''
             if '?' in self.path:

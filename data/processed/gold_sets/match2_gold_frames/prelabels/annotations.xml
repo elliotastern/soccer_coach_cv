@@ -1,0 +1,401 @@
+<?xml version="1.0" ?>
+<annotations>
+  <version>1.1</version>
+  <meta>
+    <task>
+      <id>0</id>
+      <name>strip_100</name>
+      <size>50</size>
+      <mode>annotation</mode>
+      <overlap>0</overlap>
+      <bugtracker/>
+      <created/>
+      <updated/>
+      <subset/>
+      <start_frame>0</start_frame>
+      <stop_frame>49</stop_frame>
+      <frame_filter/>
+      <segments/>
+      <owner/>
+      <assignee/>
+      <labels>
+        <label>
+          <name>player</name>
+          <color>#ff0000</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>ball</name>
+          <color>#00ff00</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pass</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value/>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>dribble</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value/>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>shot</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value/>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>recovery</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value/>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>movement</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values/>
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value/>
+              <values/>
+            </attribute>
+          </attributes>
+        </label>
+      </labels>
+    </task>
+  </meta>
+  <track id="0" label="ball" source="auto">
+    <box frame="0" xtl="571.41" ytl="254.60" xbr="599.10" ybr="279.62" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.651</attribute>
+    </box>
+  </track>
+  <track id="1" label="ball" source="auto">
+    <box frame="1" xtl="1708.68" ytl="302.49" xbr="1726.51" ybr="324.73" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.449</attribute>
+    </box>
+  </track>
+  <track id="2" label="ball" source="auto">
+    <box frame="2" xtl="1800.84" ytl="196.24" xbr="1816.93" ybr="215.32" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.453</attribute>
+    </box>
+  </track>
+  <track id="3" label="ball" source="auto">
+    <box frame="3" xtl="1153.01" ytl="56.32" xbr="1175.34" ybr="77.05" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.684</attribute>
+    </box>
+  </track>
+  <track id="4" label="ball" source="auto">
+    <box frame="4" xtl="1223.72" ytl="345.11" xbr="1247.25" ybr="367.05" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.636</attribute>
+    </box>
+  </track>
+  <track id="5" label="ball" source="auto">
+    <box frame="5" xtl="634.44" ytl="315.09" xbr="660.01" ybr="337.55" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.481</attribute>
+    </box>
+  </track>
+  <track id="6" label="ball" source="auto">
+    <box frame="6" xtl="409.81" ytl="255.52" xbr="427.52" ybr="277.03" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.565</attribute>
+    </box>
+  </track>
+  <track id="7" label="ball" source="auto">
+    <box frame="7" xtl="1082.58" ytl="172.07" xbr="1105.06" ybr="194.85" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.635</attribute>
+    </box>
+  </track>
+  <track id="8" label="ball" source="auto">
+    <box frame="8" xtl="1466.24" ytl="428.82" xbr="1488.63" ybr="453.84" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.741</attribute>
+    </box>
+  </track>
+  <track id="9" label="ball" source="auto">
+    <box frame="9" xtl="1801.38" ytl="664.90" xbr="1825.43" ybr="689.97" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.618</attribute>
+    </box>
+  </track>
+  <track id="10" label="ball" source="auto">
+    <box frame="10" xtl="1318.89" ytl="284.20" xbr="1340.59" ybr="308.05" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.692</attribute>
+    </box>
+  </track>
+  <track id="11" label="ball" source="auto">
+    <box frame="11" xtl="1304.41" ytl="332.61" xbr="1327.58" ybr="355.76" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.722</attribute>
+    </box>
+  </track>
+  <track id="12" label="ball" source="auto">
+    <box frame="12" xtl="1025.31" ytl="47.94" xbr="1043.69" ybr="66.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.669</attribute>
+    </box>
+  </track>
+  <track id="13" label="ball" source="auto">
+    <box frame="13" xtl="1424.38" ytl="304.89" xbr="1446.29" ybr="327.03" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.550</attribute>
+    </box>
+  </track>
+  <track id="14" label="ball" source="auto">
+    <box frame="14" xtl="789.58" ytl="71.53" xbr="807.51" ybr="91.71" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.523</attribute>
+    </box>
+  </track>
+  <track id="15" label="ball" source="auto">
+    <box frame="15" xtl="1705.76" ytl="347.36" xbr="1725.01" ybr="368.42" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.679</attribute>
+    </box>
+  </track>
+  <track id="16" label="ball" source="auto">
+    <box frame="16" xtl="1492.37" ytl="389.29" xbr="1516.07" ybr="414.22" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.694</attribute>
+    </box>
+  </track>
+  <track id="17" label="ball" source="auto">
+    <box frame="17" xtl="1171.49" ytl="626.73" xbr="1195.99" ybr="651.79" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.808</attribute>
+    </box>
+  </track>
+  <track id="18" label="ball" source="auto">
+    <box frame="18" xtl="564.27" ytl="406.25" xbr="590.37" ybr="428.28" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.541</attribute>
+    </box>
+  </track>
+  <track id="19" label="ball" source="auto">
+    <box frame="19" xtl="1229.00" ytl="770.37" xbr="1254.35" ybr="796.09" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.685</attribute>
+    </box>
+  </track>
+  <track id="20" label="ball" source="auto">
+    <box frame="20" xtl="1623.98" ytl="278.03" xbr="1646.52" ybr="302.50" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.601</attribute>
+    </box>
+  </track>
+  <track id="21" label="ball" source="auto">
+    <box frame="21" xtl="931.63" ytl="132.24" xbr="954.97" ybr="155.61" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.726</attribute>
+    </box>
+  </track>
+  <track id="22" label="ball" source="auto">
+    <box frame="22" xtl="499.81" ytl="445.10" xbr="530.97" ybr="474.20" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.772</attribute>
+    </box>
+  </track>
+  <track id="23" label="ball" source="auto">
+    <box frame="23" xtl="1272.80" ytl="803.72" xbr="1303.91" ybr="832.27" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.775</attribute>
+    </box>
+  </track>
+  <track id="24" label="ball" source="auto">
+    <box frame="24" xtl="1564.35" ytl="643.85" xbr="1586.47" ybr="668.17" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.519</attribute>
+    </box>
+  </track>
+  <track id="25" label="ball" source="auto">
+    <box frame="25" xtl="1694.97" ytl="835.71" xbr="1724.09" ybr="863.48" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.426</attribute>
+    </box>
+  </track>
+  <track id="26" label="ball" source="auto">
+    <box frame="26" xtl="1007.79" ytl="819.58" xbr="1048.99" ybr="855.82" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.600</attribute>
+    </box>
+  </track>
+  <track id="27" label="ball" source="auto">
+    <box frame="27" xtl="276.61" ytl="430.35" xbr="305.22" ybr="455.95" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.640</attribute>
+    </box>
+  </track>
+  <track id="28" label="ball" source="auto">
+    <box frame="28" xtl="490.93" ytl="659.10" xbr="515.64" ybr="683.82" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.708</attribute>
+    </box>
+  </track>
+  <track id="29" label="ball" source="auto">
+    <box frame="29" xtl="539.12" ytl="739.70" xbr="571.04" ybr="768.77" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.764</attribute>
+    </box>
+  </track>
+  <track id="30" label="ball" source="auto">
+    <box frame="30" xtl="91.04" ytl="947.97" xbr="117.19" ybr="972.94" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.628</attribute>
+    </box>
+  </track>
+  <track id="31" label="ball" source="auto">
+    <box frame="31" xtl="339.79" ytl="513.91" xbr="362.98" ybr="535.79" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.408</attribute>
+    </box>
+  </track>
+  <track id="32" label="ball" source="auto">
+    <box frame="32" xtl="1745.86" ytl="639.43" xbr="1767.02" ybr="663.60" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.722</attribute>
+    </box>
+  </track>
+  <track id="33" label="ball" source="auto">
+    <box frame="33" xtl="1783.49" ytl="732.66" xbr="1814.30" ybr="760.64" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.701</attribute>
+    </box>
+  </track>
+  <track id="34" label="ball" source="auto">
+    <box frame="34" xtl="794.78" ytl="155.94" xbr="817.02" ybr="177.99" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.674</attribute>
+    </box>
+  </track>
+  <track id="35" label="ball" source="auto">
+    <box frame="35" xtl="1368.10" ytl="29.97" xbr="1384.34" ybr="45.11" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.440</attribute>
+    </box>
+  </track>
+  <track id="36" label="ball" source="auto">
+    <box frame="36" xtl="248.33" ytl="379.30" xbr="272.94" ybr="404.29" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.420</attribute>
+    </box>
+  </track>
+  <track id="37" label="ball" source="auto">
+    <box frame="37" xtl="1694.16" ytl="463.96" xbr="1713.05" ybr="480.55" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.703</attribute>
+    </box>
+  </track>
+  <track id="38" label="ball" source="auto">
+    <box frame="38" xtl="1583.78" ytl="303.70" xbr="1601.62" ybr="320.70" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.558</attribute>
+    </box>
+  </track>
+  <track id="39" label="ball" source="auto">
+    <box frame="39" xtl="1749.04" ytl="1024.92" xbr="1779.81" ybr="1051.62" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.806</attribute>
+    </box>
+  </track>
+  <track id="40" label="ball" source="auto">
+    <box frame="40" xtl="1023.60" ytl="815.59" xbr="1059.85" ybr="844.99" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.807</attribute>
+    </box>
+  </track>
+  <track id="41" label="ball" source="auto">
+    <box frame="41" xtl="601.43" ytl="284.38" xbr="620.35" ybr="304.81" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.678</attribute>
+    </box>
+  </track>
+  <track id="42" label="ball" source="auto">
+    <box frame="42" xtl="455.91" ytl="229.43" xbr="474.85" ybr="248.07" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.664</attribute>
+    </box>
+  </track>
+  <track id="43" label="ball" source="auto">
+    <box frame="43" xtl="703.37" ytl="162.76" xbr="720.05" ybr="180.14" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.694</attribute>
+    </box>
+  </track>
+  <track id="44" label="ball" source="auto">
+    <box frame="44" xtl="550.57" ytl="160.43" xbr="570.09" ybr="177.29" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.532</attribute>
+    </box>
+  </track>
+  <track id="45" label="ball" source="auto">
+    <box frame="45" xtl="543.30" ytl="160.21" xbr="559.65" ybr="174.94" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.568</attribute>
+    </box>
+  </track>
+  <track id="46" label="ball" source="auto">
+    <box frame="46" xtl="1212.20" ytl="590.71" xbr="1242.90" ybr="616.56" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.747</attribute>
+    </box>
+  </track>
+  <track id="47" label="ball" source="auto">
+    <box frame="47" xtl="1033.45" ytl="351.78" xbr="1056.12" ybr="372.87" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.568</attribute>
+    </box>
+  </track>
+  <track id="48" label="ball" source="auto">
+    <box frame="48" xtl="600.70" ytl="345.09" xbr="623.65" ybr="367.16" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.765</attribute>
+    </box>
+  </track>
+  <track id="49" label="ball" source="auto">
+    <box frame="49" xtl="735.52" ytl="386.75" xbr="757.47" ybr="407.81" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.695</attribute>
+    </box>
+  </track>
+</annotations>

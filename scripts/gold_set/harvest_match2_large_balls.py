@@ -335,6 +335,9 @@ def scan_cam(pre, name: str, path: Path, args, exclude_keys: set) -> list:
             f"  keep {len(kept)} f={i} t={i/fps:.1f}s "
             f"conf={det.confidence:.3f} side={ball_side(det):.0f} vlm={vlm_note}"
         )
+        if getattr(args, "pool_cap", 0) and len(kept) >= int(args.pool_cap):
+            i += 1
+            break
         i += 1
     cap.release()
     print(f"  {name}: scanned={scanned} kept={len(kept)}")

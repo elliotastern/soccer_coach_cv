@@ -10,6 +10,7 @@
    - `gold/annotations.coco.json` — what builders/trainers may read  
 3. **After every editor save**, re-export COCO before rebuilding a train pack.
 4. **Eval Gold100** (`match1_1_100`) stays out of **train**. It may appear only in the pack `test/` split (strip 0–49 ball frames) from `match1_1_100/gold/`.
+   **Match 2:** `match2_gold_frames` is eval-only. Train from `match2_train_label100/gold/` via `match2_train_test/{train,valid,test}`.
 5. **COCO is full-res:** editor XML is strip/review (1920×1080); `export_gold_coco.py` scales boxes into `images/` space (3840×2160).
 
 ## `math_1_training` layout

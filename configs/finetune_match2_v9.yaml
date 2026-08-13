@@ -1,0 +1,41 @@
+# v9: Match 2 domain finetune
+# train/valid = match2_train_label100 gold
+# test        = match2_gold_frames (held out — do not train)
+
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+dataset:
+  coco_train_path: data/processed/gold_sets/match2_train_test/train
+  coco_val_path: data/processed/gold_sets/match2_train_test/valid
+  coco_test_path: data/processed/gold_sets/match2_train_test/test
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: true
+  prefetch_factor: 1
+  persistent_workers: false
+
+training:
+  epochs: 80
+  batch_size: 2
+  grad_accum_steps: 16
+  learning_rate: 0.00005
+  encoder_learning_rate: 0.00003
+  weight_decay: 0.0001
+  resolution: 1288
+  amp: true
+  mixed_precision: true
+  num_workers: 2
+  device: cuda
+  multi_scale: false
+  expanded_scales: false
