@@ -4,7 +4,7 @@
 
 **Dashboard:** `python3 serve_viewer.py` → [http://127.0.0.1:8080/match2-100row](http://127.0.0.1:8080/match2-100row)
 
-**v9 result** (held-out Match 2 gold 50, not this 100-row strip): @0.8 P_emit 1.0 with **19 emits** (v8 had 3 / hollow); clear-ball R **31%** (v8 5%). Notes: [eval_match2_v9/NOTES.md](../eval_match2_v9/NOTES.md). Score vs PoC: v8 2/10 → v9 5/10.
+**v9 result** (held-out Match 2 gold 50, not this 100-row strip): @0.8 P_emit 1.0 with **19 emits** (v8 had 3 / hollow); clear-ball R **31%** (v8 5%). Notes: [Training v9 NOTES.md](../eval_match2_v9/Training%20v9%20NOTES.md). Score vs PoC: v8 2/10 → v9 5/10.
 
 ## What this strip showed (t=33s, 100 frames, v8)
 

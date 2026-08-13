@@ -1,4 +1,6 @@
-# v9 Match 2 ball finetune — how it was done
+# Training v9 NOTES
+
+Created 2026-08-12 after v9 train + Match 2 gold P_emit eval finished. This is the writeup for that run.
 
 **Date:** 2026-08-12 / 2026-08-13 UTC  
 **Goal:** Phase 1 PoC — **P_emit ≥ 0.80** at conf ≥ **0.80**, IoU 0.5, **n_emitted ≥ 5** (not hollow). Secondary: clear-ball recall ≥ 0.80 (min side ≥ 25 px). Not all-frame recall for a whole match.
