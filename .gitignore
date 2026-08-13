@@ -99,6 +99,7 @@ data/**
 !data/processed/gold_sets/match2_train_test/valid/_annotations.coco.json
 !data/processed/gold_sets/match2_train_test/test/
 !data/processed/gold_sets/match2_train_test/test/_annotations.coco.json
+!data/processed/gold_sets/ball_finetune_match2_v9_manifest.json
 !data/processed/gold_sets/match2_train_label100/prelabels/
 !data/processed/gold_sets/match2_train_label100/prelabels/annotations.xml
 !data/processed/gold_sets/match2_train_label100/cvat/

@@ -15,13 +15,26 @@ Phase 1 delivery is **batch-first** (process match video files via `apps/batch_p
 
 ## 1. Automated vision engine
 
-- Aim for functional detection (~80% accuracy) to prove the pipeline.
 - Prioritize **high precision over high recall** (correctness over completeness).
-- **Confidence rule:** if tracking confidence drops below ~80% (e.g. blurry scramble), do nothing—only record events that meet the certainty bar.
 - **Object tracking:** RF-DETR detection for players and ball; ByteTrack for multi-object tracking (not YOLO).
 - **Team assignment:** classify Team A / B using color clustering.
 - **Coordinate mapping:** pixel locations → pitch-relative `(x, y)`. Single center/master camera is expected to capture ~85% of action; multi-camera occlusion fixes are Phase 2.
 - **Batch processing:** sequential processing of multiple match videos with operational reliability (checkpoints, incremental saves).
+
+### PoC accuracy definition (~80%)
+
+Client / proof-of-concept **“approximately 80% accuracy”** means the following (not all-frame recall at high confidence):
+
+| Role | Metric | Target |
+|---|---|---|
+| **Primary (acceptance)** | Precision of **emitted** ball (and later event) outputs at IoU 0.5 | **≥ 0.80** |
+| **Secondary (coverage)** | **Clear-ball recall** — ball on a near/clear view (tunable; start with min box side ≥ 25 px on full-res 4K, not heavily occluded) | **≥ 0.80** |
+| **Not the PoC bar** | Per-frame Match/Gold recall @ conf ≥ 0.8 on all frames (including tiny far balls) | Engineering stretch / Phase 2+ completeness |
+
+- **Emit / confidence rule:** if confidence drops below ~0.80 (e.g. blurry scramble), **do nothing**—only publish detections and events that meet the certainty bar.
+- The raw detector may feed **lower** scores into ByteTrack for association; the **product emit gate** remains ≥ ~0.80 (per detection or tracklet EMA) so published precision holds.
+- Measure primary precision on [Match Gold100](GOLD100_PLAYER_BALL.md) (and/or an agreed demo clip). Report recall and clear-ball recall separately; they are not a substitute for P_emit.
+- **Checkpoint pick during ball finetune:** use Gold strip 0–49 PoC (`P_emit`, clear-ball R), not train-pack AP50. See [TRAIN_CHECKPOINT_SELECTION.md](../ball_detection/TRAIN_CHECKPOINT_SELECTION.md).
 
 Messy or occluded frames may be skipped to preserve data quality. Perfecting those edge cases is Product Phase 2.
 
@@ -47,6 +60,12 @@ Messy or occluded frames may be skipped to preserve data quality. Perfecting tho
 1. Successfully process **2 full matches** through the pipeline.
 2. Complete a **handover session** guiding the client through processing a **3rd match**.
 
+### 5.1 Detection metrics (PoC)
+
+1. **Ball PoC pass:** precision of emitted ball predictions **P_emit ≥ 0.80** at IoU 0.5, conf ≥ 0.80, on Match Gold100 and/or an agreed demo clip.
+2. **Clear-ball recall** reported separately (secondary coverage target ≥ 0.80); do **not** fail Phase 1 solely on all-frame recall @ conf ≥ 0.80.
+3. Player detection follows the same precision-first emit gate; Gold100 remains the fixed benchmark ([GOLD100_PLAYER_BALL.md](GOLD100_PLAYER_BALL.md)).
+
 ## 6. Golden test set (player + ball)
 
 **Match Gold100** is the canonical fixed benchmark for player and ball detection / classification on real Match 1 multi-cam frames.
@@ -55,6 +74,7 @@ Messy or occluded frames may be skipped to preserve data quality. Perfecting tho
 - Local pack: `data/processed/gold_sets/match1_1_100/` (rebuild via `scripts/gold_set/`; not stored in git)
 - Correct labels: `python serve_viewer.py` → http://localhost:8080/gold100
 - Eval: `python scripts/gold_set/eval_on_gold100.py --gold-dir data/processed/gold_sets/match1_1_100`
+- Ball PoC / rank: `python scripts/gold_set/eval_poc_ball_metrics.py --strip-max 49 --require-ball-gt` and [TRAIN_CHECKPOINT_SELECTION.md](../ball_detection/TRAIN_CHECKPOINT_SELECTION.md)
 
 ## Explicitly deferred to Product Phase 2+
 

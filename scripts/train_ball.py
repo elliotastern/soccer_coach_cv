@@ -208,7 +208,8 @@ def convert_yolo_to_coco_ball_only(
 def check_coco_dataset_exists(coco_path: Path) -> bool:
     """Check if COCO format dataset already exists."""
     annotation_file = coco_path / "_annotations.coco.json"
-    return annotation_file.exists() and len(list(coco_path.glob("*.png"))) > 0
+    n_img = sum(1 for _ in coco_path.glob("*.jpg")) + sum(1 for _ in coco_path.glob("*.png"))
+    return annotation_file.exists() and n_img > 0
 
 
 def merge_coco_datasets(
@@ -867,48 +868,79 @@ def main():
         
         print(f"\nTraining for {num_epochs} epochs with evaluation every {eval_frequency} epoch(s)...")
         
-        # Check for existing checkpoint to resume from
-        checkpoint_files = list(Path(output_dir).glob("*.pth"))
+        # RESUME_ONE_SHOT_V8: RF-DETR native resume (loads model weights); epochs=N is absolute
+        # range(start_epoch, epochs), so one shot train(resume=..., epochs=num_epochs) is required.
+        import torch
+        resume_path = None
+        ckpt_cfg = config.get("checkpoint", {}) or {}
+        if ckpt_cfg.get("resume_from"):
+            cand = Path(ckpt_cfg["resume_from"])
+            if cand.exists():
+                resume_path = cand
+        if resume_path is None:
+            checkpoint_files = list(Path(output_dir).glob("*.pth"))
+            if checkpoint_files:
+                resume_path = max(checkpoint_files, key=lambda p: p.stat().st_mtime)
+
         start_epoch = 0
-        if checkpoint_files:
-            latest_checkpoint = max(checkpoint_files, key=lambda p: p.stat().st_mtime)
+        if resume_path is not None:
             try:
-                import torch
-                checkpoint = torch.load(str(latest_checkpoint), map_location='cpu', weights_only=False)
-                if 'epoch' in checkpoint:
-                    start_epoch = checkpoint['epoch'] + 1
-                    print(f"📁 Found checkpoint from epoch {checkpoint['epoch']}")
-                    print(f"🔄 Resuming training from epoch {start_epoch}/{num_epochs}")
-                else:
-                    print(f"⚠️  Checkpoint found but no epoch info, starting from epoch 0")
+                checkpoint = torch.load(str(resume_path), map_location="cpu", weights_only=False)
+                if "epoch" in checkpoint:
+                    start_epoch = int(checkpoint["epoch"]) + 1
+                    print(f"📁 Found checkpoint from epoch {checkpoint['epoch']}: {resume_path}")
+                    print(f"🔄 Resuming weights + continuing to epoch {num_epochs} (start {start_epoch})")
             except Exception as e:
                 print(f"⚠️  Could not load checkpoint info: {e}")
-                print(f"   Starting from epoch 0")
-        
-        # Track last checkpoint to detect new ones
+                resume_path = None
+
         last_checkpoint_time = 0
         checkpoint_files_before = set(Path(output_dir).glob("*.pth"))
-        
-        for epoch in range(start_epoch, num_epochs):
+
+        def _train_kwargs(epochs_arg, resume_arg=None):
+            kw = dict(
+                dataset_dir=str(dataset_base),
+                epochs=epochs_arg,
+                batch_size=training_config["batch_size"],
+                grad_accum_steps=training_config["grad_accum_steps"],
+                lr=training_config["learning_rate"],
+                output_dir=output_dir,
+                resolution=training_config.get("resolution", 1288),
+                device=training_config.get("device", "cuda"),
+                num_workers=training_config.get("num_workers", 4),
+            )
+            if training_config.get("encoder_learning_rate") is not None:
+                kw["lr_encoder"] = training_config["encoder_learning_rate"]
+            if training_config.get("weight_decay") is not None:
+                kw["weight_decay"] = training_config["weight_decay"]
+            if training_config.get("multi_scale") is not None:
+                kw["multi_scale"] = training_config["multi_scale"]
+            if training_config.get("expanded_scales") is not None:
+                kw["expanded_scales"] = training_config["expanded_scales"]
+            if resume_arg:
+                kw["resume"] = str(resume_arg)
+            return kw
+
+        if resume_path is not None and start_epoch < num_epochs:
+            print(f"\n{'='*60}")
+            print(f"ONE-SHOT FINETUNE resume -> epochs {start_epoch}..{num_epochs-1}")
+            print(f"{'='*60}")
+            try:
+                model.train(**_train_kwargs(num_epochs, resume_path))
+            except TypeError as e:
+                if "only 0-dimensional arrays" in str(e):
+                    print(f"⚠️  RF-DETR evaluation bug encountered (non-critical): {e}")
+                else:
+                    raise
+        else:
+          for epoch in range(start_epoch, num_epochs):
             print(f"\n{'='*60}")
             print(f"EPOCH {epoch + 1}/{num_epochs}")
             print(f"{'='*60}")
             
-            # Train for 1 epoch (catch RF-DETR evaluation bug)
             try:
-                model.train(
-                    dataset_dir=str(dataset_base),
-                    epochs=1,  # Train one epoch at a time
-                    batch_size=training_config['batch_size'],
-                    grad_accum_steps=training_config['grad_accum_steps'],
-                    lr=training_config['learning_rate'],
-                    output_dir=output_dir,
-                    resolution=training_config.get('resolution', 1288),
-                    device=training_config.get('device', 'cuda'),
-                    num_workers=training_config.get('num_workers', 4)
-                )
+                model.train(**_train_kwargs(1, None))
             except TypeError as e:
-                # RF-DETR has a known bug in evaluation code (non-critical)
                 if "only 0-dimensional arrays" in str(e):
                     print(f"⚠️  RF-DETR evaluation bug encountered (non-critical): {e}")
                     print("   Training completed, but evaluation had an error. Continuing...")

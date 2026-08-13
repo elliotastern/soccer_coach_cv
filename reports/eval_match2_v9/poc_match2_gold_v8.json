@@ -1,0 +1,42 @@
+{
+  "checkpoint": "models/v8_snaps/post_train/checkpoint.pth",
+  "strip": "0-49",
+  "require_ball_gt": true,
+  "n_images": 50,
+  "clear_min_side": 25.0,
+  "use_sahi": false,
+  "thresholds": {
+    "0.5": {
+      "tp": 43,
+      "fp": 0,
+      "fn": 19,
+      "precision": 1.0,
+      "recall": 0.6935483870967742,
+      "P_emit": 1.0,
+      "n_emitted": 43,
+      "clear_ball": {
+        "n_gt": 62,
+        "tp": 43,
+        "fn": 19,
+        "recall": 0.6935483870967742
+      },
+      "poc_pass_P_emit": true
+    },
+    "0.8": {
+      "tp": 3,
+      "fp": 0,
+      "fn": 59,
+      "precision": 1.0,
+      "recall": 0.04838709677419355,
+      "P_emit": 1.0,
+      "n_emitted": 3,
+      "clear_ball": {
+        "n_gt": 62,
+        "tp": 3,
+        "fn": 59,
+        "recall": 0.04838709677419355
+      },
+      "poc_pass_P_emit": true
+    }
+  }
+}

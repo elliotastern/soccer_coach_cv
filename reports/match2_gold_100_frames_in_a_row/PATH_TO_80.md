@@ -4,6 +4,8 @@
 
 **Dashboard:** `python3 serve_viewer.py` → [http://127.0.0.1:8080/match2-100row](http://127.0.0.1:8080/match2-100row)
 
+**v9 result** (held-out Match 2 gold 50, not this 100-row strip): @0.8 P_emit 1.0 with **19 emits** (v8 had 3 / hollow); clear-ball R **31%** (v8 5%). Notes: [eval_match2_v9/NOTES.md](../eval_match2_v9/NOTES.md). Score vs PoC: v8 2/10 → v9 5/10.
+
 ## What this strip showed (t=33s, 100 frames, v8)
 
 | Rank | Cam | @0.5 | @0.8 | median side | max conf |
@@ -27,7 +29,11 @@ Match 1 baseline on the same scorecard: also **0% @0.8**; at best 2% @0.5 (cam9)
 
 1. **Pick winners in the dashboard** — scrub Cam5plus / Cam4plus / P10; confirm boxes are real balls (presence ≠ precision).
 2. **Label Match 2 clear-ball GT** on this 100-row strip (and expand to a stratified Match2 Gold). Needed for real **P_emit**, not presence proxies. Viewer stays read-only for now; reuse Gold100 editor when labeling.
-3. **Domain finetune (v9)** — mix Match 2 clear balls (1/1000 + closer zoom domain) into the ball train pack. Rank with:
+3. **Domain finetune (v9)** — mix is built (`ball_finetune_match2_v9`: Match1 gold + Match2 train100; Gold100 0–49 + `match2_gold_frames` are **test only**). Resume v8, then rank with:
+   ```bash
+   python3 scripts/gold_set/build_ball_finetune_match2_v9.py
+   bash scripts/sync_v9_to_runpod.sh   # GPU pod up, Host runpod-tcp
+   ```
    ```bash
    python3 scripts/gold_set/eval_poc_ball_metrics.py \
      --ball-checkpoint <ckpt> --strip-max 49 --require-ball-gt \

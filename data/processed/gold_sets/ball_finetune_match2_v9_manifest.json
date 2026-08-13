@@ -1,0 +1,59 @@
+{
+  "seed": 42,
+  "recipe": "match2_v9",
+  "train": {
+    "images": 996,
+    "annotations": 1111,
+    "by_source": {
+      "match1_train_batch3": 66,
+      "kjoyy_train": 141,
+      "kjoyy_valid": 33,
+      "match1_train_aug1": 232,
+      "match1_train_aug2": 232,
+      "match2_train100": 87,
+      "official_train": 85,
+      "match1_train_random": 68,
+      "official_valid": 10,
+      "kjoyy_test": 26,
+      "match1_train_batch2": 11,
+      "official_test": 5
+    }
+  },
+  "valid": {
+    "images": 90,
+    "annotations": 92,
+    "by_source": {
+      "match2_train100": 10,
+      "kjoyy_valid": 10,
+      "kjoyy_train": 30,
+      "official_valid": 2,
+      "kjoyy_test": 10,
+      "official_train": 26,
+      "official_test": 2
+    }
+  },
+  "test": {
+    "images": 85,
+    "annotations": 98,
+    "by_source": {
+      "gold100_test_0_49": 35,
+      "match2_gold_test": 50
+    }
+  },
+  "held_out": {
+    "match2_gold_frames": "data/processed/gold_sets/match2_gold_frames",
+    "gold100_strip_0_49": "data/processed/gold_sets/match1_1_100",
+    "match2_valid_from_train100": 10
+  },
+  "match2_split": {
+    "n_train": 87,
+    "n_valid": 10,
+    "n_test": 50,
+    "skipped_empty": 3
+  },
+  "notes": [
+    "v9: v7 Match1 gold + Match2 train100 gold, x3 aug, light OFFICIAL/kjoyy.",
+    "match2_gold_frames and Gold100 0-49 are test only \u2014 never train.",
+    "Resume from v8 post_train; rank on Match2 gold P_emit."
+  ]
+}

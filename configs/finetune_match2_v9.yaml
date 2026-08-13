@@ -1,6 +1,6 @@
-# v9: Match 2 domain finetune
-# train/valid = match2_train_label100 gold
-# test        = match2_gold_frames (held out — do not train)
+# v9: Match1 gold + Match2 train100 domain finetune
+# Resume v8 weights. epochs must be > v8 ckpt epoch (RF-DETR range is start..epochs-1).
+# Test/eval: Gold100 0-49 + match2_gold_frames (never in train).
 
 model:
   architecture: detr
@@ -15,9 +15,11 @@ model:
   remap_mscoco_category: false
 
 dataset:
-  coco_train_path: data/processed/gold_sets/match2_train_test/train
-  coco_val_path: data/processed/gold_sets/match2_train_test/valid
-  coco_test_path: data/processed/gold_sets/match2_train_test/test
+  coco_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v9/train
+  coco_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v9/valid
+  yolo_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v9/train
+  yolo_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_match2_v9/valid
+  ball_class_id: 1
   category_name: ball
   category_id: 0
   use_combined_dataset: false
@@ -26,7 +28,7 @@ dataset:
   persistent_workers: false
 
 training:
-  epochs: 80
+  epochs: 180
   batch_size: 2
   grad_accum_steps: 16
   learning_rate: 0.00005
@@ -37,5 +39,18 @@ training:
   mixed_precision: true
   num_workers: 2
   device: cuda
-  multi_scale: false
-  expanded_scales: false
+  multi_scale: true
+  expanded_scales: true
+
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+
+output:
+  output_dir: /workspace/soccer_cv_ball/models
+  save_every_epochs: 1
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/v8_snaps/post_train/checkpoint.pth
+  save_dir: models/v9_snaps
