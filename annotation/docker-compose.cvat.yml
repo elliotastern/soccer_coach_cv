@@ -41,6 +41,8 @@ services:
       # Mount match footage + accepted harvest for CVAT import
       - ../data/raw:/home/django/share:ro
       - ../data/processed/gold_sets/match2_large_ball_accepted50/cvat:/home/django/share/match2_accepted50:ro
+      - ../data/processed/gold_sets/match2_4quad_label/cvat:/home/django/share/match2_4quad:ro
+      - ../data/processed/gold_sets/match2_4quad_label/videos:/home/django/share/match2_4quad_videos:ro
     networks:
       - cvat
 
@@ -57,6 +59,8 @@ services:
       - cvat_data:/home/django/data
       - ../data/raw:/home/django/share:ro
       - ../data/processed/gold_sets/match2_large_ball_accepted50/cvat:/home/django/share/match2_accepted50:ro
+      - ../data/processed/gold_sets/match2_4quad_label/cvat:/home/django/share/match2_4quad:ro
+      - ../data/processed/gold_sets/match2_4quad_label/videos:/home/django/share/match2_4quad_videos:ro
     networks:
       - cvat
 

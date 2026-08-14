@@ -48,11 +48,42 @@ PITCH_DIAGRAM_HELP_HTML = (
 def _port_is_free(host, port):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((host, port))
             return True
     except OSError:
         return False
+
+
+def _parse_byte_range(range_header: str, file_size: int):
+    """Return (start, end_inclusive) or None if unsatisfiable / ignored."""
+    if not range_header or not range_header.startswith("bytes="):
+        return None
+    spec = range_header[6:].strip()
+    if "," in spec:
+        spec = spec.split(",", 1)[0].strip()
+    if "-" not in spec:
+        return None
+    start_s, end_s = spec.split("-", 1)
+    try:
+        if start_s == "":
+            # suffix: bytes=-N
+            length = int(end_s)
+            if length <= 0:
+                return None
+            start = max(0, file_size - length)
+            end = file_size - 1
+        else:
+            start = int(start_s)
+            end = int(end_s) if end_s else file_size - 1
+    except ValueError:
+        return None
+    if start < 0 or start >= file_size:
+        return None
+    end = min(end, file_size - 1)
+    if end < start:
+        return None
+    return start, end
+
 
 def _first_available_port(host, preferred, fallbacks=FALLBACK_PORTS):
     if _port_is_free(host, preferred):
@@ -62,19 +93,73 @@ def _first_available_port(host, preferred, fallbacks=FALLBACK_PORTS):
             return p
     return None
 
+
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         # Add CORS headers to allow loading local files
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Range')
+        self.send_header('Accept-Ranges', 'bytes')
         super().end_headers()
-    
+
     def do_OPTIONS(self):
         self.send_response(200)
         self.end_headers()
 
-    def do_GET(self):
+    def _serve_file_ranges(self, file_path: Path):
+        """Serve local file with HTTP Range (needed for <video> scrubbing)."""
+        try:
+            file_size = file_path.stat().st_size
+        except OSError:
+            self.send_error(404, "File not found")
+            return
+        ctype = self.guess_type(str(file_path))
+        range_hdr = self.headers.get("Range")
+        byte_range = _parse_byte_range(range_hdr, file_size) if range_hdr else None
+        try:
+            with open(file_path, "rb") as f:
+                if byte_range is None:
+                    self.send_response(200)
+                    self.send_header("Content-Type", ctype)
+                    self.send_header("Content-Length", str(file_size))
+                    self.send_header("Accept-Ranges", "bytes")
+                    self.end_headers()
+                    if self.command == "HEAD":
+                        return
+                    self.copyfile(f, self.wfile)
+                    return
+                start, end = byte_range
+                length = end - start + 1
+                f.seek(start)
+                self.send_response(206)
+                self.send_header("Content-Type", ctype)
+                self.send_header("Content-Length", str(length))
+                self.send_header("Content-Range", f"bytes {start}-{end}/{file_size}")
+                self.send_header("Accept-Ranges", "bytes")
+                self.end_headers()
+                if self.command == "HEAD":
+                    return
+                remaining = length
+                while remaining > 0:
+                    chunk = f.read(min(65536, remaining))
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    remaining -= len(chunk)
+        except (BrokenPipeError, ConnectionResetError):
+            return
+        except OSError:
+            self.send_error(404, "File not found")
+
+    def do_HEAD(self):
+        # Same short routes as GET so curl -I / healthchecks work
+        self.do_GET(head_only=True)
+
+    def do_GET(self, head_only=False):
+        if head_only:
+            # reuse redirect + file logic; handlers check self.command
+            pass
         # Short URL for gold100 correction editor
         if self.path in ('/gold100', '/gold100/', '/gold100_editor.html'):
             self.send_response(302)
@@ -104,6 +189,54 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/4quad-cvat',
+            '/4quad-cvat/',
+            '/4quad-label',
+            '/4quad_label',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_4quad_label/review/editor.html',
+            )
+            self.end_headers()
+            return
+        # One quad at a time (not all 4 combined)
+        quad_one = self.path.split('?', 1)[0].rstrip('/')
+        _quad_ranges = {
+            '/4quad-cvat/center': (0, 24),
+            '/4quad-cvat/center_start': (0, 24),
+            '/4quad-cvat/bottom': (25, 54),
+            '/4quad-cvat/bottom_right': (25, 54),
+            '/4quad-cvat/top_left': (55, 79),
+            '/4quad-cvat/top-left': (55, 79),
+            '/4quad-cvat/top_right': (80, 104),
+            '/4quad-cvat/top-right': (80, 104),
+        }
+        if quad_one in (
+            '/4quad-cvat/top_left',
+            '/4quad-cvat/top-left',
+        ):
+            # Standalone pack: only Top Left frames (0..N), nothing before.
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_4quad_top_left/review/editor.html',
+            )
+            self.end_headers()
+            return
+        if quad_one in _quad_ranges:
+            start, end = _quad_ranges[quad_one]
+            frames = ','.join(str(i) for i in range(start, end + 1))
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_4quad_label/review/editor.html'
+                f'?frames={frames}&frame={start}',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/ball_postprocessing_test',
             '/ball_postprocessing_test/',
             '/ball-postprocessing-test',
@@ -112,6 +245,30 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header(
                 'Location',
                 '/reports/eval_match2_v10/ball_postprocessing_test/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/ball_sahi_hurt_test',
+            '/ball_sahi_hurt_test/',
+            '/sahi-hurt',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/ball_sahi_hurt_test/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/ball_sahi_next_test',
+            '/ball_sahi_next_test/',
+            '/sahi-next',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/ball_sahi_next_test/index.html',
             )
             self.end_headers()
             return
@@ -124,7 +281,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
-        if self.path.split('?', 1)[0] in ('/match2-gold', '/match2-gold/', '/match2_gold'):
+        if harvest_path in ('/match2-gold', '/match2-gold/', '/match2_gold'):
             self.send_response(302)
             self.send_header(
                 'Location',
@@ -132,7 +289,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
-        if self.path.split('?', 1)[0] in ('/match2-train100', '/match2-train100/', '/match2_train100'):
+        if harvest_path in ('/match2-train100', '/match2-train100/', '/train100'):
             self.send_response(302)
             self.send_header(
                 'Location',
@@ -140,7 +297,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
-        if harvest_path in ('/match2-harvest', '/match2-harvest/', '/match2_harvest'):
+        if harvest_path in ('/match2-harvest', '/match2-harvest/', '/harvest'):
             qs = ''
             if '?' in self.path:
                 qs = '?' + self.path.split('?', 1)[1]
@@ -148,8 +305,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Location', '/annotation/match2_harvest_editor.html' + qs)
             self.end_headers()
             return
-        # Short URL for next Match train-label batch
-        if self.path in ('/batch3', '/batch3/', '/math1_batch3'):
+        if harvest_path in ('/batch3', '/batch3/', '/math1-batch3'):
             self.send_response(302)
             self.send_header(
                 'Location',
@@ -157,7 +313,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
-        if self.path in ('/batch2', '/batch2/', '/math1_batch2'):
+        if harvest_path in ('/batch2', '/batch2/', '/math1-batch2'):
             self.send_response(302)
             self.send_header(
                 'Location',
@@ -165,48 +321,55 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
-        # Short URL for 2D map report
-        if self.path == '/2dmap' or self.path == '/2dmap/':
+        if self.path in ('/2dmap', '/2dmap/', '/2d-map'):
             self.send_response(302)
             self.send_header('Location', '/data/output/2dmap_manual_mark/test_2dmap_manual_mark.html')
             self.end_headers()
             return
-        # Pitch diagram reference (FIFA terminology)
-        if self.path == '/pitch_diagram' or self.path == '/pitch_diagram/':
+        if self.path in ('/pitch', '/pitch/', '/pitch-diagram'):
             self.send_response(302)
             self.send_header('Location', '/' + PITCH_DIAGRAM_RELPATH)
             self.end_headers()
             return
-        # Marking UI (4 corners + halfway line) – use port 8080 to avoid "Unable to connect"
-        if self.path == '/mark_ui' or self.path == '/mark_ui.html' or self.path == '/mark_ui/':
+        if self.path in ('/mark', '/mark/', '/mark-ui'):
             self.send_response(302)
             self.send_header('Location', '/data/output/2dmap_manual_mark/mark_ui.html')
             self.end_headers()
             return
-        # Handle GET requests with cache control for XML files
-        if self.path.endswith('.xml'):
+
+        raw_path = self.path.split('?', 1)[0].lstrip('/')
+        file_path = SCRIPT_DIR / raw_path
+        if (
+            file_path.is_file()
+            and (
+                self.headers.get("Range")
+                or file_path.suffix.lower() in {".mp4", ".webm", ".mov", ".m4v"}
+            )
+        ):
+            self._serve_file_ranges(file_path)
+            return
+
+        if self.path.endswith('.xml') or raw_path.endswith('.xml'):
             try:
-                file_path = self.path.lstrip('/')
-                if os.path.exists(file_path):
-                    with open(file_path, 'rb') as f:
-                        content = f.read()
+                if file_path.exists():
                     self.send_response(200)
                     self.send_header('Content-type', 'application/xml')
                     self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
                     self.send_header('Pragma', 'no-cache')
                     self.send_header('Expires', '0')
                     self.end_headers()
-                    self.wfile.write(content)
+                    if self.command != "HEAD":
+                        with open(file_path, 'rb') as f:
+                            self.copyfile(f, self.wfile)
                 else:
                     self.send_response(404)
                     self.end_headers()
             except Exception as e:
                 self.send_response(500)
                 self.end_headers()
-        elif self.path.endswith('.html'):
+        elif self.path.endswith('.html') or raw_path.endswith('.html'):
             # Handle large HTML files by streaming in chunks. Resolve from script dir (project root) per cursorrules.
             try:
-                raw_path = self.path.lstrip('/')
                 if raw_path == MARK_UI_RELPATH:
                     file_path = SCRIPT_DIR / MARK_UI_RELPATH
                 elif raw_path == PITCH_DIAGRAM_RELPATH:
@@ -220,6 +383,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_header('Content-Length', str(file_size))
                     self.send_header('Connection', 'keep-alive')
                     self.end_headers()
+                    if self.command == "HEAD":
+                        return
                     chunk_size = 8192
                     with open(file_path, 'rb') as f:
                         while True:
@@ -233,22 +398,33 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_header('Content-type', 'text/html; charset=utf-8')
                     self.send_header('Content-Length', str(len(MARK_UI_HELP_HTML)))
                     self.end_headers()
-                    self.wfile.write(MARK_UI_HELP_HTML)
+                    if self.command != "HEAD":
+                        self.wfile.write(MARK_UI_HELP_HTML)
                 elif raw_path == PITCH_DIAGRAM_RELPATH:
                     self.send_response(200)
                     self.send_header('Content-type', 'text/html; charset=utf-8')
                     self.send_header('Content-Length', str(len(PITCH_DIAGRAM_HELP_HTML)))
                     self.end_headers()
-                    self.wfile.write(PITCH_DIAGRAM_HELP_HTML)
+                    if self.command != "HEAD":
+                        self.wfile.write(PITCH_DIAGRAM_HELP_HTML)
                 else:
                     self.send_response(404)
                     self.end_headers()
+            except (BrokenPipeError, ConnectionResetError):
+                return
             except Exception as e:
                 self.send_response(500)
                 self.end_headers()
         else:
             # Use parent class to serve other files normally
-            super().do_GET()
+            try:
+                if self.command == "HEAD":
+                    super().do_HEAD()
+                else:
+                    super().do_GET()
+            except (BrokenPipeError, ConnectionResetError):
+                # Browser cancelled a large video/image download; keep server alive.
+                return
 
     def do_POST(self):
         if self.path == '/save_marks':
@@ -355,11 +531,22 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description="HTTP server for annotation/viewer HTML")
-    parser.add_argument("--port", "-p", type=int, default=PORT,
-                        help=f"Port to listen on (default: {PORT})")
+    parser.add_argument(
+        "--port",
+        "-p",
+        type=int,
+        default=None,
+        help=f"Port to listen on (default: {PORT}, with fallbacks if busy)",
+    )
+    parser.add_argument(
+        "--no-fallback",
+        action="store_true",
+        help="Fail if the requested port is busy (used by run_viewer_stable.sh)",
+    )
     args = parser.parse_args()
-    port = args.port
-    if port == PORT:
+    explicit = args.port is not None
+    port = args.port if explicit else PORT
+    if (not explicit) and (not args.no_fallback):
         avail = _first_available_port("127.0.0.1", PORT)
         if avail is None:
             print(f"Port {PORT} and fallbacks {FALLBACK_PORTS} are in use. Use --port N to try another.")
@@ -367,6 +554,9 @@ def main():
         if avail != PORT:
             print(f"Port {PORT} in use, using port {avail}")
         port = avail
+    elif args.no_fallback or explicit:
+        # Don't pre-bind-check (races). ThreadingHTTPServer will raise if busy.
+        pass
 
     os.chdir(Path(__file__).parent)
 
@@ -393,7 +583,10 @@ def main():
     print(f"Match2 100row: http://127.0.0.1:{port}/match2-100row")
     print(f"5x5 clips:   http://127.0.0.1:{port}/5x5")
     print(f"4 quad test: http://127.0.0.1:{port}/4quad")
+    print(f"4 quad CVAT: http://127.0.0.1:{port}/4quad-cvat")
     print(f"Ball postproc: http://127.0.0.1:{port}/ball_postprocessing_test")
+    print(f"SAHI hurt test: http://127.0.0.1:{port}/ball_sahi_hurt_test")
+    print(f"SAHI next test: http://127.0.0.1:{port}/ball_sahi_next_test")
     print(f"Match2 harvest: http://127.0.0.1:{port}/match2-harvest")
     print(f"math_1_train: http://127.0.0.1:{port}/data/processed/gold_sets/math_1_training/review/editor.html")
     print(f"math_1_batch3: http://127.0.0.1:{port}/batch3")

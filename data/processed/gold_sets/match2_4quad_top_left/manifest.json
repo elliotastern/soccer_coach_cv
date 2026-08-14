@@ -1,0 +1,12 @@
+{
+  "pack": "match2_4quad_top_left",
+  "slot": "top_left",
+  "label": "Top Left",
+  "camera": "P10",
+  "clock": "0:26-0:31",
+  "fps": 60.0,
+  "stride": 1,
+  "n_frames": 300,
+  "n_prelabel_boxes": 193,
+  "source": "reports/eval_match2_v10/4quad_test/source/quad_top_left_t00026.0s_P10.mp4"
+}

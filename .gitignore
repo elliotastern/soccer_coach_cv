@@ -105,6 +105,16 @@ data/**
 !data/processed/gold_sets/match2_train_label100/prelabels/annotations.xml
 !data/processed/gold_sets/match2_train_label100/cvat/
 !data/processed/gold_sets/match2_train_label100/cvat/annotations.xml
+# Match 2 4quad Top Left (300 frames @ 60fps) — XML/manifest only, not review/frames
+!data/processed/gold_sets/match2_4quad_top_left/
+!data/processed/gold_sets/match2_4quad_top_left/README.md
+!data/processed/gold_sets/match2_4quad_top_left/manifest.json
+!data/processed/gold_sets/match2_4quad_top_left/gold/
+!data/processed/gold_sets/match2_4quad_top_left/gold/annotations.xml
+!data/processed/gold_sets/match2_4quad_top_left/prelabels/
+!data/processed/gold_sets/match2_4quad_top_left/prelabels/annotations.xml
+!data/processed/gold_sets/match2_4quad_top_left/cvat/
+!data/processed/gold_sets/match2_4quad_top_left/cvat/annotations.xml
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

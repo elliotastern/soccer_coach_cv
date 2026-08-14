@@ -1,53 +1,88 @@
 #!/usr/bin/env bash
 # Durable annotation viewer: threaded serve_viewer + PID file + healthcheck.
+# Prefer this over bare `python3 serve_viewer.py` in Cursor shells (those get SIGKILL'd).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-PORT="${1:-8765}"
+PORT="${1:-8080}"
 LOG="${TMPDIR:-/tmp}/soccer_coach_serve_viewer.log"
 PIDFILE="${TMPDIR:-/tmp}/soccer_coach_serve_viewer.pid"
 PORTFILE="${TMPDIR:-/tmp}/soccer_coach_serve_viewer.port"
+LOCKFILE="${TMPDIR:-/tmp}/soccer_coach_serve_viewer.lock"
 EDITOR="http://127.0.0.1:${PORT}/data/processed/gold_sets/match1_1_100/review/editor.html"
-FRAME="http://127.0.0.1:${PORT}/data/processed/gold_sets/match1_1_100/review/frames/000.jpg"
+DASHBOARD="${OPEN_URL:-http://127.0.0.1:${PORT}/4quad}"
 
 is_healthy() {
   local p="$1"
-  curl -fsS -m 2 -o /dev/null \
-    "http://127.0.0.1:${p}/data/processed/gold_sets/match1_1_100/review/frames/000.jpg"
+  curl -fsS -m 3 -o /dev/null \
+    "http://127.0.0.1:${p}/data/processed/gold_sets/match1_1_100/review/frames/000.jpg" || return 1
+  local code
+  code="$(curl -s -m 3 -o /dev/null -w '%{http_code}' "http://127.0.0.1:${p}/4quad" || true)"
+  [[ "$code" == "302" || "$code" == "200" ]]
 }
 
-# Reuse healthy existing server
-if [[ -f "$PORTFILE" ]]; then
-  old_port="$(cat "$PORTFILE" 2>/dev/null || true)"
-  if [[ -n "${old_port:-}" ]] && is_healthy "$old_port"; then
-    echo "Viewer already healthy on ${old_port}"
-    echo "Gold100: http://127.0.0.1:${old_port}/data/processed/gold_sets/match1_1_100/review/editor.html"
-    if [[ "${OPEN_BROWSER:-1}" == "1" ]]; then
-      open "http://127.0.0.1:${old_port}/data/processed/gold_sets/match1_1_100/review/editor.html" || true
-    fi
-    exit 0
+stop_listener_on_port() {
+  local p="$1"
+  local pids
+  pids="$(lsof -tiTCP:"$p" -sTCP:LISTEN 2>/dev/null || true)"
+  if [[ -n "${pids:-}" ]]; then
+    # shellcheck disable=SC2086
+    kill $pids 2>/dev/null || true
+    sleep 0.4
+    # shellcheck disable=SC2086
+    kill -9 $pids 2>/dev/null || true
   fi
+}
+
+# Serialize starts so overlapping watchdogs cannot thrash (macOS: no flock)
+acquire_lock() {
+  local waited=0
+  while ! mkdir "$LOCKFILE" 2>/dev/null; do
+    sleep 0.2
+    waited=$((waited + 1))
+    if [[ $waited -gt 100 ]]; then
+      echo "Lock stuck at $LOCKFILE — removing stale lock"
+      rmdir "$LOCKFILE" 2>/dev/null || true
+    fi
+  done
+  trap 'rmdir "$LOCKFILE" 2>/dev/null || true' EXIT
+}
+acquire_lock
+
+# Reuse healthy existing server
+if is_healthy "$PORT"; then
+  echo "Viewer already healthy on ${PORT}"
+  echo "$PORT" >"$PORTFILE"
+  lsof -tiTCP:"$PORT" -sTCP:LISTEN 2>/dev/null | head -1 >"$PIDFILE" || true
+  echo "Dashboard: ${DASHBOARD}"
+  if [[ "${OPEN_BROWSER:-1}" == "1" ]]; then
+    open "$DASHBOARD" || true
+  fi
+  exit 0
 fi
 
-# Stop stale viewers
+# Stop only the PID we own / whatever holds the port (never broad pkill -f)
 if [[ -f "$PIDFILE" ]]; then
   old_pid="$(cat "$PIDFILE" 2>/dev/null || true)"
   if [[ -n "${old_pid:-}" ]] && kill -0 "$old_pid" 2>/dev/null; then
     kill "$old_pid" 2>/dev/null || true
-    sleep 0.5
+    sleep 0.4
     kill -9 "$old_pid" 2>/dev/null || true
   fi
 fi
-pkill -f "serve_viewer.py" 2>/dev/null || true
-sleep 0.5
+stop_listener_on_port "$PORT"
+sleep 0.3
 
 cd "$ROOT"
-# Detach fully so Cursor shell teardown does not kill the server
-nohup python3 -u serve_viewer.py --port "$PORT" >"$LOG" 2>&1 </dev/null &
-disown || true
+# Detach fully so Cursor shell teardown does not kill the server.
+# --no-fallback keeps dashboards on the requested port (never silent 8081).
+nohup python3 -u serve_viewer.py --port "$PORT" --no-fallback >"$LOG" 2>&1 </dev/null &
+new_pid=$!
+echo "$new_pid" >"$PIDFILE"
+echo "$PORT" >"$PORTFILE"
+disown "$new_pid" 2>/dev/null || true
 
-# Wait for health (up to ~15s)
 ok=0
-for i in $(seq 1 30); do
+for _ in $(seq 1 40); do
   if is_healthy "$PORT"; then
     ok=1
     break
@@ -78,9 +113,15 @@ if bad:
     raise SystemExit("concurrent fetch failed")
 PY
 
-echo "Viewer healthy on ${PORT}"
-echo "Gold100: ${EDITOR}"
+live_pid="$(lsof -tiTCP:"$PORT" -sTCP:LISTEN 2>/dev/null | head -1 || true)"
+if [[ -n "${live_pid:-}" ]]; then
+  echo "$live_pid" >"$PIDFILE"
+fi
+
+echo "Viewer healthy on ${PORT} pid=$(cat "$PIDFILE")"
+echo "Dashboard: ${DASHBOARD}"
+echo "4quad-cvat: http://127.0.0.1:${PORT}/4quad-cvat"
 echo "Log: ${LOG}"
 if [[ "${OPEN_BROWSER:-1}" == "1" ]]; then
-  open "$EDITOR" || true
+  open "$DASHBOARD" || true
 fi
