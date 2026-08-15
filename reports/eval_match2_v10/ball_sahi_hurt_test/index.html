@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>ball_sahi_hurt_test</title>
+<style>
+body { font-family: ui-sans-serif, system-ui, sans-serif; background: #0b1220; color: #e8eefc; margin: 0; }
+main { max-width: 1280px; margin: 0 auto; padding: 28px 20px 64px; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+.sub, .why, .meta, .box-legend { color: #9db0d0; font-size: 14px; margin: 0 0 10px; }
+.why { color: #c5d3ea; }
+.box-legend .emit { color: #4ade80; }
+.box-legend .raw { color: #fb923c; }
+.clip { background: #151d2e; border-radius: 16px; padding: 18px; margin: 18px 0; }
+video { width: 100%; border-radius: 10px; background: #000; }
+.note { color: #9db0d0; font-size: 13px; margin-bottom: 20px; max-width: 72ch; }
+</style>
+</head>
+<body>
+<main>
+<h1>ball_sahi_hurt_test</h1>
+<p class="sub">Top Left 0:26–0:31 · camera P10 · detect floor from each variant ·
+checkpoint /Volumes/LaCie/Projects/Soccer Coach CV/models/v10_snaps/post_train/checkpoint.pth</p>
+<p class="note">These are the SAHI stacks most likely to hurt — recover-always, loose thr, no size filter, dense tiles, and SAHI piled with TTA/multiscale/Kalman/ByteTrack. Same P10 Top Left clip as ball_postprocessing_test. Not a gold rescore.</p>
+
+<section class="clip" id="sahi_recover_always">
+<h2>1. SAHI recover-always</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Measured hurt on train/gold — extra FPs; gold P_emit dropped.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_recover_always.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_topk3">
+<h2>2. SAHI always + topk=3</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Always tiles then keep 3 boxes — more room for tile junk.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_topk3.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_topk5">
+<h2>3. SAHI always + topk=5</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Even looser topk — second/third FPs more likely to survive.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_topk5.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_thr20">
+<h2>4. SAHI always + thr 0.20</h2>
+<p class="meta">0:26–0:31 · P10 · raw 244/300
+(81.3%) · emit hold 76/300
+(25.3%) · mean emit conf 0.832</p>
+<p class="why">Lower detect floor on fullframe and tiles — weak false balls.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_thr20.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_nosize">
+<h2>5. SAHI always, no size filter</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Drops geometry gate — huge/tiny junk from tiles can pass.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_nosize.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_multiscale">
+<h2>6. SAHI always + multiscale 1.5×</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Two recover paths at once — train already showed multiscale +FPs.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_multiscale.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_tta">
+<h2>7. SAHI always + HFlip TTA</h2>
+<p class="meta">0:26–0:31 · P10 · raw 240/300
+(80.0%) · emit hold 102/300
+(34.0%) · mean emit conf 0.835</p>
+<p class="why">TTA + always-tile: most aggressive recover; FP risk stacks.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_tta.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_kalman">
+<h2>8. SAHI always + Kalman</h2>
+<p class="meta">0:26–0:31 · P10 · raw 266/300
+(88.7%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Kalman coasts wrong tile dets across frames (gold R/P both hurt).</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_kalman.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_always_bt_sticky">
+<h2>9. SAHI always + ByteTrack (no emit gate)</h2>
+<p class="meta">0:26–0:31 · P10 · raw 234/300
+(78.0%) · emit hold 154/300
+(51.3%) · mean emit conf 0.725</p>
+<p class="why">Sticky tracks on tile FPs — junk can linger without 0.80 gate.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_always_bt_sticky.mp4?v=hurt1"></video>
+</section>
+
+<section class="clip" id="sahi_dense_tiles">
+<h2>10. Dense SAHI tiles (640 / 40% overlap) + topk=3</h2>
+<p class="meta">0:26–0:31 · P10 · raw 240/300
+(80.0%) · emit hold 62/300
+(20.7%) · mean emit conf 0.837</p>
+<p class="why">More/smaller tiles → more false peaks; keep three of them.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/sahi_dense_tiles.mp4?v=hurt1"></video>
+</section>
+
+</main>
+</body>
+</html>

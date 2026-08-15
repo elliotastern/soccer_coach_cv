@@ -54,3 +54,11 @@ python3 scripts/experiments/match2_gold_100_frames_in_a_row_test.py \
 Report: `reports/match2_gold_100_frames_in_a_row/`.  
 Dashboard: `python3 serve_viewer.py` → [http://127.0.0.1:8080/match2-100row](http://127.0.0.1:8080/match2-100row)  
 Path to PoC 80%: `reports/match2_gold_100_frames_in_a_row/PATH_TO_80.md`
+
+## Match2 Top Left 300-frame gold labels
+
+Human ball gold for the 4-quad **Top Left** window: **P10**, clock **0:26–0:31**, **300** frames @ 60 fps.
+
+- Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md)
+- Pack: `data/processed/gold_sets/match2_4quad_top_left/` (`gold/annotations.xml`)
+- Editor: http://127.0.0.1:8080/4quad-cvat/top_left

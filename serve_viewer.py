@@ -225,6 +225,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
+        if quad_one in (
+            '/4quad-cvat/top_left_p7',
+            '/4quad-cvat/top-left-p7',
+            '/4quad-cvat/top_left_P7',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_4quad_top_left_p7/review/editor.html',
+            )
+            self.end_headers()
+            return
         if quad_one in _quad_ranges:
             start, end = _quad_ranges[quad_one]
             frames = ','.join(str(i) for i in range(start, end + 1))
@@ -245,6 +257,19 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header(
                 'Location',
                 '/reports/eval_match2_v10/ball_postprocessing_test/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/multicam-proxy',
+            '/multicam_proxy',
+            '/top-left-proxy',
+            '/proxy095',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/top_left_multicam_baseline/proxy_gallery/index.html',
             )
             self.end_headers()
             return
@@ -585,6 +610,7 @@ def main():
     print(f"4 quad test: http://127.0.0.1:{port}/4quad")
     print(f"4 quad CVAT: http://127.0.0.1:{port}/4quad-cvat")
     print(f"Ball postproc: http://127.0.0.1:{port}/ball_postprocessing_test")
+    print(f"Multicam proxy gallery: http://127.0.0.1:{port}/multicam-proxy")
     print(f"SAHI hurt test: http://127.0.0.1:{port}/ball_sahi_hurt_test")
     print(f"SAHI next test: http://127.0.0.1:{port}/ball_sahi_next_test")
     print(f"Match2 harvest: http://127.0.0.1:{port}/match2-harvest")

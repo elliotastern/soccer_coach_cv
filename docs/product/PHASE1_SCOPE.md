@@ -76,9 +76,18 @@ Messy or occluded frames may be skipped to preserve data quality. Perfecting tho
 - Eval: `python scripts/gold_set/eval_on_gold100.py --gold-dir data/processed/gold_sets/match1_1_100`
 - Ball PoC / rank: `python scripts/gold_set/eval_poc_ball_metrics.py --strip-max 49 --require-ball-gt` and [TRAIN_CHECKPOINT_SELECTION.md](../ball_detection/TRAIN_CHECKPOINT_SELECTION.md)
 
+**Match2 Top Left 300-frame gold labels** — dense Match 2 P10 clip (0:26–0:31, 300 @ 60 fps) for the 4-quad Top Left window; does not replace Gold100. Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
+
+### 6.1 Six P-cam ball system goal (Match 2)
+
+Client-ok path: combine **P1, P6, P7, P8, P10, P12** for system ball **R ≥ 0.80** and **P ≥ 0.90**, with a live ball-path budget of **≤ 125 ms** on RTX 5090 (stricter than the 200 ms e2e doc budget). Start with max_conf / soft 2-cam co-occurrence (no dense SAHI); **epipolar consensus is gated on Match 2 calib** (not on disk yet).
+
+- Baseline + consensus eval: `python3 scripts/gold_set/eval_match2_top_left_multicam_baseline.py`
+- Reports: `reports/eval_match2_v10/top_left_multicam_baseline/`, `reports/eval_match2_v10/top_left_multicam_consensus/`
+
 ## Explicitly deferred to Product Phase 2+
 
-- Multi-view fusion and occlusion elimination across cameras
+- Full multi-view **fusion / occlusion merge** (beyond best-cam / soft consensus)
 - Predictive pre-event signaling and learned coaching models
 - Kalman / short-horizon trajectory prediction for live cues
 - Wearable command encoding and live haptic deployment

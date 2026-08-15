@@ -1,0 +1,104 @@
+{
+  "title": "top_left_multicam_baseline",
+  "cams": [
+    "P1",
+    "P6",
+    "P7",
+    "P8",
+    "P10",
+    "P12"
+  ],
+  "gold_cam": "P10",
+  "checkpoint": "/Volumes/LaCie/Projects/Soccer Coach CV/models/v10_snaps/post_train/checkpoint.pth",
+  "detect_thr_cache": 0.1,
+  "goal_r": 0.8,
+  "goal_p": 0.9,
+  "baseline_a": {
+    "thr": 0.3,
+    "emit_thr": null,
+    "min_cams": 1,
+    "n_frames": 300,
+    "n_selected": 295,
+    "n_empty_or_below_emit": 5,
+    "selection_share": {
+      "P1": 0.006666666666666667,
+      "P10": 0.38333333333333336,
+      "P12": 0.043333333333333335,
+      "P6": 0.02,
+      "P7": 0.51,
+      "P8": 0.02,
+      "none": 0.016666666666666666
+    },
+    "selection_counts": {
+      "P10": 115,
+      "P7": 153,
+      "P12": 13,
+      "none": 5,
+      "P8": 6,
+      "P1": 2,
+      "P6": 6
+    },
+    "mean_cams_with_det": 2.0,
+    "proxy_p10_selected": {
+      "n_frames_scored": 115,
+      "n_gt": 115,
+      "tp": 109,
+      "fp": 6,
+      "fn": 6,
+      "precision": 0.9478260869565217,
+      "recall": 0.9478260869565217,
+      "f1": 0.9478260869565217,
+      "note": "only timestamps where selected cam is P10"
+    },
+    "p10_single_cam": {
+      "n_gt": 265,
+      "tp": 140,
+      "fp": 10,
+      "fn": 125,
+      "precision": 0.9333333333333333,
+      "recall": 0.5283018867924528,
+      "f1": 0.6746987951807228
+    },
+    "n_proxy_frames": 115
+  },
+  "baseline_b": {
+    "thr": 0.3,
+    "emit_thr": 0.8,
+    "min_cams": 1,
+    "n_frames": 300,
+    "n_selected": 47,
+    "n_empty_or_below_emit": 253,
+    "selection_share": {
+      "P10": 0.15666666666666668,
+      "below_emit": 0.8266666666666667,
+      "none": 0.016666666666666666
+    },
+    "selection_counts": {
+      "below_emit": 248,
+      "P10": 47,
+      "none": 5
+    },
+    "mean_cams_with_det": 2.0,
+    "proxy_p10_selected": {
+      "n_frames_scored": 47,
+      "n_gt": 47,
+      "tp": 47,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "note": "only timestamps where selected cam is P10"
+    },
+    "p10_single_cam": {
+      "n_gt": 265,
+      "tp": 47,
+      "fp": 0,
+      "fn": 218,
+      "precision": 1.0,
+      "recall": 0.17735849056603772,
+      "f1": 0.30128205128205127
+    },
+    "n_proxy_frames": 47
+  }
+}

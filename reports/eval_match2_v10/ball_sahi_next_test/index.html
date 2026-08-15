@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>ball_sahi_next_test</title>
+<style>
+body { font-family: ui-sans-serif, system-ui, sans-serif; background: #0b1220; color: #e8eefc; margin: 0; }
+main { max-width: 1280px; margin: 0 auto; padding: 28px 20px 64px; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+.sub, .why, .meta, .box-legend { color: #9db0d0; font-size: 14px; margin: 0 0 10px; }
+.why { color: #c5d3ea; }
+.box-legend .emit { color: #4ade80; }
+.box-legend .raw { color: #fb923c; }
+.clip { background: #151d2e; border-radius: 16px; padding: 18px; margin: 18px 0; }
+video { width: 100%; border-radius: 10px; background: #000; }
+.note { color: #9db0d0; font-size: 13px; margin-bottom: 20px; max-width: 72ch; }
+</style>
+</head>
+<body>
+<main>
+<h1>ball_sahi_next_test</h1>
+<p class="sub">Top Left 0:26–0:31 · camera P10 · detect floor from each variant ·
+checkpoint /Volumes/LaCie/Projects/Soccer Coach CV/models/v10_snaps/post_train/checkpoint.pth</p>
+<p class="note">Next SAHI attempts from deep research (sparse logit, WBF, DIoU, EMA tile, soft-edge, motion ROI, ASAHI grid, conditional SR, DotD gate, entropy crop). D1/D10 use low-threshold detects as encoder-query proxies; D6 uses motion ROIs (no person head on ball checkpoint). Same P10 Top Left clip.</p>
+
+<section class="clip" id="D1_sparse_logit">
+<h2>1. D1 Sparse logit tiles</h2>
+<p class="meta">0:26–0:31 · P10 · raw 188/300
+(62.7%) · emit hold 64/300
+(21.3%) · mean emit conf 0.834</p>
+<p class="why">On empty full-frame, tile only around subthreshold (0.10–0.29) detects as logit proxy.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D1_sparse_logit.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D2_wbf_merge">
+<h2>2. D2 Fallback + WBF merge</h2>
+<p class="meta">0:26–0:31 · P10 · raw 238/300
+(79.3%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Standard fallback grid; Weighted Boxes Fusion instead of hard NMS.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D2_wbf_merge.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D3_diou_merge">
+<h2>3. D3 Fallback + Cluster-DIoU-NMS</h2>
+<p class="meta">0:26–0:31 · P10 · raw 238/300
+(79.3%) · emit hold 80/300
+(26.7%) · mean emit conf 0.832</p>
+<p class="why">Centroid-aware suppress for tiny-ball tile duplicates (&lt;15px).</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D3_diou_merge.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D4_temporal_ema">
+<h2>4. D4 Temporal EMA motion tile</h2>
+<p class="meta">0:26–0:31 · P10 · raw 196/300
+(65.3%) · emit hold 58/300
+(19.3%) · mean emit conf 0.836</p>
+<p class="why">One tile on EMA-projected (x,y) when empty — verify with network, no Kalman coast.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D4_temporal_ema.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D5_soft_edge">
+<h2>5. D5 Soft edge penalty</h2>
+<p class="meta">0:26–0:31 · P10 · raw 238/300
+(79.3%) · emit hold 70/300
+(23.3%) · mean emit conf 0.834</p>
+<p class="why">Down-weight tile dets near tile borders (truncation FPs), then NMS.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D5_soft_edge.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D6_player_context">
+<h2>6. D6 Motion-ROI tiles (player proxy)</h2>
+<p class="meta">0:26–0:31 · P10 · raw 230/300
+(76.7%) · emit hold 70/300
+(23.3%) · mean emit conf 0.835</p>
+<p class="why">No person head on ball ckpt — tile only where frame-diff motion is high.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D6_player_context.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D7_adaptive_asahi">
+<h2>7. D7 Adaptive ASAHI grid</h2>
+<p class="meta">0:26–0:31 · P10 · raw 246/300
+(82.0%) · emit hold 64/300
+(21.3%) · mean emit conf 0.838</p>
+<p class="why">Far pitch (top): 640px tiles; near (bottom): 1024px — then WBF.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D7_adaptive_asahi.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D8_sr_conditional">
+<h2>8. D8 Conditional SR tile</h2>
+<p class="meta">0:26–0:31 · P10 · raw 186/300
+(62.0%) · emit hold 60/300
+(20.0%) · mean emit conf 0.835</p>
+<p class="why">One tile on best subthreshold center, 1.5× upscale, detect, scale back.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D8_sr_conditional.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D9_dotd_tracker">
+<h2>9. D9 DotD track gate</h2>
+<p class="meta">0:26–0:31 · P10 · raw 196/300
+(65.3%) · emit hold 68/300
+(22.7%) · mean emit conf 0.833</p>
+<p class="why">Fallback grid + WBF, then emit only if linked by Dot Distance to prior.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D9_dotd_tracker.mp4?v=next1"></video>
+</section>
+
+<section class="clip" id="D10_entropy_crop">
+<h2>10. D10 Entropy/uncertainty crop</h2>
+<p class="meta">0:26–0:31 · P10 · raw 182/300
+(60.7%) · emit hold 60/300
+(20.0%) · mean emit conf 0.835</p>
+<p class="why">Tile on detection closest to conf=0.5 (uncertainty proxy) when empty.</p>
+<p class="box-legend"><span class="emit">green EMIT</span> = published / tracked ·
+<span class="raw">orange RAW</span> = detect below gate · marker on the ball</p>
+<video controls playsinline type="video/mp4" src="overlay/D10_entropy_crop.mp4?v=next1"></video>
+</section>
+
+</main>
+</body>
+</html>

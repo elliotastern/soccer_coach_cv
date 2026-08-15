@@ -15,7 +15,7 @@ soccer_coach_cv/
 │   ├── processed/             # Tracks, events, pitch coords
 │   └── external/              # Third-party commercial-safe datasets
 ├── docs/
-│   ├── product/               # Vision, phases, Phase 1 scope, Gold100 eval set
+│   ├── product/               # Vision, phases, Phase 1 scope, Gold100, Match2 Top Left 300
 │   ├── architecture/          # Constraints, deployment, mapping plans
 │   ├── runbooks/              # Operator / training guides
 │   └── ball_detection/        # Ball training notes (not product phases)

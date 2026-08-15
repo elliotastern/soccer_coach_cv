@@ -144,3 +144,36 @@ Ten curated stacks on Match 2 **Top Left 0:26–0:31, P10 only**, ordered from p
 **Winner: SAHI fallback-only** (`sahi_fallback`) — full-frame detect first; tiles only when full-frame is empty after the size filter. On this clip: raw hold **78.0%**, emit hold **26.7%** (baseline topk=2 was 50.7% / 15.3%).
 
 Still not a gold rescore. Earlier still ablation treated fallback as identical to baseline because labeled frames already had a det. On this video window tiles actually fire. Next candidates to try as combos: TTA or multiscale on full-frame **plus** SAHI fallback for remaining empties.
+
+## Match2 Top Left 300 gold — 30-stack postproc rank
+
+After human labels on the same P10 window (`match2_4quad_top_left`, 265 GT balls / 300 frames), all 30 gallery stacks were rescored vs gold XML:
+
+`reports/eval_match2_v10/top_left_300_postproc_rank/` · script `scripts/gold_set/eval_top_left_300_postproc_rank.py`
+
+| Rank | Stack | F1@0.3 | R@0.3 | P@0.3 |
+|---:|---|---:|---:|---:|
+| 1 | `sahi_dense_tiles` | 0.847 | 0.796 | 0.906 |
+| 2 | `D7_adaptive_asahi` | 0.821 | 0.789 | 0.857 |
+| 3–6 | SAHI-always family (multiscale / topk3 / topk5 / recover-always) | 0.805 | 0.702 | 0.944 |
+| 11 | `sahi_fallback` | 0.795 | 0.687 | 0.943 |
+| 22 | `baseline_topk2` | 0.681 | 0.536 | 0.934 |
+| 30 | `sahi_always_kalman` | 0.267 | 0.253 | 0.283 |
+
+Dense tiles win recall here; product emit @0.8 stays high-P / low-R (~0.20–0.25 R) across the leaders. Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](../../docs/product/MATCH2_4QUAD_TOP_LEFT_300.md).
+
+Mac latency bench (`latency_bench.json`, not 5090): dense median ~**1.55 s/frame** → offline-only; live path stays no-SAHI / fallback.
+
+## 6 P-cam multicam baseline + soft consensus (Top Left window)
+
+Script: `scripts/gold_set/eval_match2_top_left_multicam_baseline.py`  
+Reports: `top_left_multicam_baseline/`, `top_left_multicam_consensus/` · proxy gallery `/multicam-proxy`
+
+| Stack | Proxy P (P10-selected) | Proxy R | Who wins max_conf |
+|---|---:|---:|---|
+| Baseline A max_conf @0.30 | 0.948 | 0.948 | **P7 51%**, P10 38% |
+| Soft consensus thr0.15 ≥2 cams | 0.948 | 0.948 | same proxy set; no lift |
+| P10 single-cam @0.30 | 0.933 | 0.528 | — |
+
+Gate: proxy OK on P10-win frames → next **5090 latency**; need **P7 gold** (pack `match2_4quad_top_left_p7`, route `/4quad-cvat/top_left_p7`) before claiming full-system R/P. Epipolar blocked (no Match 2 extrinsics). Dense SAHI stays out of live path.
+

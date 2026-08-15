@@ -156,6 +156,10 @@ def ensure_source(out: Path, skip_extract: bool) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if skip_extract and dest.is_file() and dest.stat().st_size > 1000:
         return dest
+    prior = OUT_DEFAULT / "source" / "top_left_p10.mp4"
+    if prior.is_file() and prior.stat().st_size > 1000:
+        shutil.copy2(prior, dest)
+        return dest
     if QUAD_SRC.is_file() and QUAD_SRC.stat().st_size > 1000:
         shutil.copy2(QUAD_SRC, dest)
         return dest
@@ -311,6 +315,7 @@ def fmt_mean(value):
 
 
 def write_html(out: Path, payload: dict) -> Path:
+    title = payload.get("title", "ball_postprocessing_test")
     cards = []
     for clip in payload["variants"]:
         cards.append(
@@ -327,11 +332,16 @@ def write_html(out: Path, payload: dict) -> Path:
 </section>
 """
         )
+    note = payload.get(
+        "page_note",
+        "Ranking is from prior Match 2 train/gold postprocess + track studies, not this 5s window. "
+        "ByteTrack/Kalman are shown for contrast — they did not beat detector-only on gold.",
+    )
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>ball_postprocessing_test</title>
+<title>{html_esc(title)}</title>
 <style>
 body {{ font-family: ui-sans-serif, system-ui, sans-serif; background: #0b1220; color: #e8eefc; margin: 0; }}
 main {{ max-width: 1280px; margin: 0 auto; padding: 28px 20px 64px; }}
@@ -347,11 +357,10 @@ video {{ width: 100%; border-radius: 10px; background: #000; }}
 </head>
 <body>
 <main>
-<h1>ball_postprocessing_test</h1>
+<h1>{html_esc(title)}</h1>
 <p class="sub">Top Left {html_esc(payload['clock'])} · camera P10 · detect floor from each variant ·
 checkpoint {html_esc(payload['checkpoint'])}</p>
-<p class="note">Ranking is from prior Match 2 train/gold postprocess + track studies, not this 5s window.
-ByteTrack/Kalman are shown for contrast — they did not beat detector-only on gold.</p>
+<p class="note">{html_esc(note)}</p>
 {"".join(cards)}
 </main>
 </body>
@@ -365,10 +374,11 @@ ByteTrack/Kalman are shown for contrast — they did not beat detector-only on g
 def write_summary(out: Path, payload: dict) -> Path:
     path = out / "summary.json"
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    title = payload.get("title", "ball_postprocessing_test")
     lines = [
-        "# ball_postprocessing_test",
+        f"# {title}",
         "",
-        f"Top Left `{payload['clock']}` · P10 · ranking from prior train/gold studies.",
+        f"Top Left `{payload['clock']}` · P10 · {payload.get('ranking_note', '')}",
         "",
         "| # | id | raw rate | emit hold | mean emit |",
         "|---|---|---:|---:|---:|",

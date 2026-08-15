@@ -49,6 +49,21 @@ def parse_args():
     p.add_argument("--out", type=Path, default=OUT_DEFAULT)
     p.add_argument("--stride", type=int, default=STRIDE_DEFAULT)
     p.add_argument("--ckpt", type=Path, default=CKPT)
+    p.add_argument(
+        "--standalone",
+        action="store_true",
+        help="Build one clip only (requires --camera --stem --slot --label)",
+    )
+    p.add_argument("--camera", type=str, default="")
+    p.add_argument("--stem", type=str, default="")
+    p.add_argument("--slot", type=str, default="")
+    p.add_argument("--label", type=str, default="")
+    p.add_argument(
+        "--prelabel",
+        choices=("fallback", "dense"),
+        default="fallback",
+        help="fallback=SAHI only when empty; dense=always dense tiles",
+    )
     return p.parse_args()
 
 
@@ -68,20 +83,36 @@ def resize_review(frame):
     return out, scale
 
 
-def make_prelabler(ckpt: Path) -> BallPrelabeler:
+def make_prelabler(ckpt: Path, mode: str = "fallback") -> BallPrelabeler:
     if not ckpt.is_file():
         raise FileNotFoundError(ckpt)
     model = load_ball_model(str(ckpt))
-    cfg = BallPrelabelConfig(
-        threshold=0.30,
-        use_sahi=True,
-        sahi_fallback_only=True,
-        topk=2,
-        use_kalman=False,
-        use_size_filter=True,
-        min_side=4,
-        max_side=240,
-    )
+    if mode == "dense":
+        # Same stack as sahi_dense_tiles (postproc rank winner on P10 Top Left).
+        cfg = BallPrelabelConfig(
+            threshold=0.30,
+            use_sahi=True,
+            sahi_fallback_only=False,
+            sahi_recover_only=True,
+            slice_size=640,
+            overlap=0.4,
+            topk=3,
+            use_kalman=False,
+            use_size_filter=True,
+            min_side=4,
+            max_side=240,
+        )
+    else:
+        cfg = BallPrelabelConfig(
+            threshold=0.30,
+            use_sahi=True,
+            sahi_fallback_only=True,
+            topk=2,
+            use_kalman=False,
+            use_size_filter=True,
+            min_side=4,
+            max_side=240,
+        )
     return BallPrelabeler(model, cfg)
 
 
@@ -260,16 +291,22 @@ def write_editor(out: Path, names: list):
 
 
 
-def write_readme(out: Path, n: int, stride: int):
-    text = f"""# Match 2 — 4 quad label pack
+def write_readme(out: Path, n: int, stride: int, clips: list[dict], prelabel: str, route: str):
+    cams = " · ".join(f"{c['label']}={c['camera']}" for c in clips)
+    pre_note = (
+        "thr0.3 + size + NMS + topk=3 + dense SAHI tiles (offline)"
+        if prelabel == "dense"
+        else "thr0.3 + size + NMS + topk=2 + SAHI fallback"
+    )
+    text = f"""# Match 2 — {out.name}
 
-Cameras: Center Start=Cam4plus · Bottom Right=Cam5plus · Top Left=P10 · Top Right=P7.
+Cameras: {cams}.
 Frames: **{n}** (stride {stride} from 4quad source clips).
-Prelabel: thr0.3 + size + NMS + topk=2 + SAHI fallback.
+Prelabel: {pre_note}.
 
 ## Local editor (no Docker)
 
-http://127.0.0.1:8080/4quad-cvat
+http://127.0.0.1:8080/{route}
 
 Ball → N → draw · Save → `gold/annotations.xml`
 
@@ -287,6 +324,23 @@ Import `cvat/images/` + `cvat/annotations.xml` (CVAT for images 1.1).
 def main() -> int:
     args = parse_args()
     out = args.out
+    if args.standalone:
+        need = (args.camera, args.stem, args.slot, args.label)
+        if not all(need):
+            raise SystemExit("--standalone needs --camera --stem --slot --label")
+        clips = [
+            {
+                "slot": args.slot,
+                "label": args.label,
+                "stem": args.stem,
+                "camera": args.camera,
+            }
+        ]
+        route = f"4quad-cvat/{args.slot}_{args.camera.lower()}"
+    else:
+        clips = CLIPS
+        route = "4quad-cvat"
+
     dirs = {
         "review": out / "review" / "frames",
         "cvat": out / "cvat" / "images",
@@ -294,11 +348,11 @@ def main() -> int:
     for d in (*dirs.values(), out / "prelabels", out / "gold", out / "videos"):
         d.mkdir(parents=True, exist_ok=True)
 
-    print(f"loading {args.ckpt}")
-    pre = make_prelabler(args.ckpt)
+    print(f"loading {args.ckpt} prelabel={args.prelabel}")
+    pre = make_prelabler(args.ckpt, args.prelabel)
     rows = []
     preds = []
-    for clip in CLIPS:
+    for clip in clips:
         src = source_path(clip["stem"], clip["camera"])
         shutil.copy2(src, out / "videos" / src.name)
         part_rows, part_preds = extract_clip(pre, clip, args.stride, len(rows), dirs)
@@ -313,10 +367,11 @@ def main() -> int:
         json.dumps(
             {
                 "pack": out.name,
-                "camera": clip["camera"],
+                "camera": clips[0]["camera"] if len(clips) == 1 else "multi",
                 "stride": args.stride,
                 "n_frames": len(rows),
-                "clips": CLIPS,
+                "prelabel": args.prelabel,
+                "clips": clips,
                 "checkpoint": str(args.ckpt.relative_to(ROOT)),
                 "frames": rows,
             },
@@ -324,9 +379,9 @@ def main() -> int:
         ),
         encoding="utf-8",
     )
-    write_readme(out, len(rows), args.stride)
+    write_readme(out, len(rows), args.stride, clips, args.prelabel, route)
     print(f"wrote {len(rows)} frames → {out}")
-    print(f"editor: http://127.0.0.1:8080/4quad-cvat")
+    print(f"editor: http://127.0.0.1:8080/{route}")
     return 0
 
 

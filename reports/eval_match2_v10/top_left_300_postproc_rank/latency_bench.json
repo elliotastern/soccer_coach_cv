@@ -1,0 +1,49 @@
+{
+  "device_note": "Timed on this Mac (MPS/CPU fallback), not RTX 5090 deploy target",
+  "live_budget_ms": 200,
+  "frame_size": [
+    1080,
+    1920,
+    3
+  ],
+  "n_frames": 40,
+  "tiles": {
+    "dense_640_0.4": 15,
+    "standard_960_0.2": 6
+  },
+  "stacks": {
+    "baseline": {
+      "n": 40,
+      "mean_ms": 106.5,
+      "median_ms": 106.6,
+      "p95_ms": 109.1,
+      "min_ms": 102.4,
+      "max_ms": 110.6,
+      "fps_mean": 9.39,
+      "under_200ms_median": true,
+      "under_200ms_p95": true
+    },
+    "sahi_fallback": {
+      "n": 40,
+      "mean_ms": 418.4,
+      "median_ms": 692.8,
+      "p95_ms": 705.1,
+      "min_ms": 104.0,
+      "max_ms": 728.6,
+      "fps_mean": 2.39,
+      "under_200ms_median": false,
+      "under_200ms_p95": false
+    },
+    "sahi_dense_tiles": {
+      "n": 40,
+      "mean_ms": 1556.1,
+      "median_ms": 1554.1,
+      "p95_ms": 1580.4,
+      "min_ms": 1531.6,
+      "max_ms": 1608.7,
+      "fps_mean": 0.64,
+      "under_200ms_median": false,
+      "under_200ms_p95": false
+    }
+  }
+}

@@ -115,6 +115,16 @@ data/**
 !data/processed/gold_sets/match2_4quad_top_left/prelabels/annotations.xml
 !data/processed/gold_sets/match2_4quad_top_left/cvat/
 !data/processed/gold_sets/match2_4quad_top_left/cvat/annotations.xml
+# Match 2 4quad Top Left P7 (300 frames) — XML/manifest only
+!data/processed/gold_sets/match2_4quad_top_left_p7/
+!data/processed/gold_sets/match2_4quad_top_left_p7/README.md
+!data/processed/gold_sets/match2_4quad_top_left_p7/manifest.json
+!data/processed/gold_sets/match2_4quad_top_left_p7/gold/
+!data/processed/gold_sets/match2_4quad_top_left_p7/gold/annotations.xml
+!data/processed/gold_sets/match2_4quad_top_left_p7/prelabels/
+!data/processed/gold_sets/match2_4quad_top_left_p7/prelabels/annotations.xml
+!data/processed/gold_sets/match2_4quad_top_left_p7/cvat/
+!data/processed/gold_sets/match2_4quad_top_left_p7/cvat/annotations.xml
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

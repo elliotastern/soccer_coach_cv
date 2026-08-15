@@ -1,0 +1,883 @@
+{
+  "title": "Match2 Top Left 300 \u2014 post-process ranking",
+  "gold_dir": "/Volumes/LaCie/Projects/Soccer Coach CV/data/processed/gold_sets/match2_4quad_top_left",
+  "gold_xml": "/Volumes/LaCie/Projects/Soccer Coach CV/data/processed/gold_sets/match2_4quad_top_left/gold/annotations.xml",
+  "checkpoint": "/Volumes/LaCie/Projects/Soccer Coach CV/models/v10_snaps/post_train/checkpoint.pth",
+  "n_frames": 300,
+  "n_gt_boxes": 265,
+  "n_gt_frames": 265,
+  "iou": 0.5,
+  "rank_key": "f1_at_conf_0.3",
+  "ranked": [
+    {
+      "id": "sahi_dense_tiles",
+      "title": "10. Dense SAHI tiles (640 / 40% overlap) + topk=3",
+      "why": "More/smaller tiles \u2192 more false peaks; keep three of them.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 211,
+        "fp": 22,
+        "fn": 54,
+        "n_gt": 265,
+        "precision": 0.9055793991416309,
+        "recall": 0.7962264150943397,
+        "f1": 0.8473895582329318,
+        "P_emit": 0.9055793991416309,
+        "n_emitted": 233
+      },
+      "at_0_8": {
+        "tp": 64,
+        "fp": 2,
+        "fn": 201,
+        "n_gt": 265,
+        "precision": 0.9696969696969697,
+        "recall": 0.24150943396226415,
+        "f1": 0.38670694864048344,
+        "P_emit": 0.9696969696969697,
+        "n_emitted": 66
+      },
+      "rank": 1
+    },
+    {
+      "id": "D7_adaptive_asahi",
+      "title": "7. D7 Adaptive ASAHI grid",
+      "why": "Far pitch (top): 640px tiles; near (bottom): 1024px \u2014 then WBF.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 209,
+        "fp": 35,
+        "fn": 56,
+        "n_gt": 265,
+        "precision": 0.8565573770491803,
+        "recall": 0.7886792452830189,
+        "f1": 0.8212180746561886,
+        "P_emit": 0.8565573770491803,
+        "n_emitted": 244
+      },
+      "at_0_8": {
+        "tp": 67,
+        "fp": 0,
+        "fn": 198,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2528301886792453,
+        "f1": 0.4036144578313253,
+        "P_emit": 1.0,
+        "n_emitted": 67
+      },
+      "rank": 2
+    },
+    {
+      "id": "sahi_always_multiscale",
+      "title": "6. SAHI always + multiscale 1.5\u00d7",
+      "why": "Two recover paths at once \u2014 train already showed multiscale +FPs.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 186,
+        "fp": 11,
+        "fn": 79,
+        "n_gt": 265,
+        "precision": 0.9441624365482234,
+        "recall": 0.7018867924528301,
+        "f1": 0.8051948051948052,
+        "P_emit": 0.9441624365482234,
+        "n_emitted": 197
+      },
+      "at_0_8": {
+        "tp": 54,
+        "fp": 0,
+        "fn": 211,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2037735849056604,
+        "f1": 0.33855799373040757,
+        "P_emit": 1.0,
+        "n_emitted": 54
+      },
+      "rank": 3
+    },
+    {
+      "id": "sahi_always_topk3",
+      "title": "2. SAHI always + topk=3",
+      "why": "Always tiles then keep 3 boxes \u2014 more room for tile junk.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 186,
+        "fp": 11,
+        "fn": 79,
+        "n_gt": 265,
+        "precision": 0.9441624365482234,
+        "recall": 0.7018867924528301,
+        "f1": 0.8051948051948052,
+        "P_emit": 0.9441624365482234,
+        "n_emitted": 197
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 4
+    },
+    {
+      "id": "sahi_always_topk5",
+      "title": "3. SAHI always + topk=5",
+      "why": "Even looser topk \u2014 second/third FPs more likely to survive.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 186,
+        "fp": 11,
+        "fn": 79,
+        "n_gt": 265,
+        "precision": 0.9441624365482234,
+        "recall": 0.7018867924528301,
+        "f1": 0.8051948051948052,
+        "P_emit": 0.9441624365482234,
+        "n_emitted": 197
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 5
+    },
+    {
+      "id": "sahi_recover_always",
+      "title": "1. SAHI recover-always",
+      "why": "Measured hurt on train/gold \u2014 extra FPs; gold P_emit dropped.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 186,
+        "fp": 11,
+        "fn": 79,
+        "n_gt": 265,
+        "precision": 0.9441624365482234,
+        "recall": 0.7018867924528301,
+        "f1": 0.8051948051948052,
+        "P_emit": 0.9441624365482234,
+        "n_emitted": 197
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 6
+    },
+    {
+      "id": "sahi_always_nosize",
+      "title": "5. SAHI always, no size filter",
+      "why": "Drops geometry gate \u2014 huge/tiny junk from tiles can pass.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 186,
+        "fp": 12,
+        "fn": 79,
+        "n_gt": 265,
+        "precision": 0.9393939393939394,
+        "recall": 0.7018867924528301,
+        "f1": 0.8034557235421167,
+        "P_emit": 0.9393939393939394,
+        "n_emitted": 198
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 7
+    },
+    {
+      "id": "sahi_always_tta",
+      "title": "7. SAHI always + HFlip TTA",
+      "why": "TTA + always-tile: most aggressive recover; FP risk stacks.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 197,
+        "fp": 30,
+        "fn": 68,
+        "n_gt": 265,
+        "precision": 0.8678414096916299,
+        "recall": 0.7433962264150943,
+        "f1": 0.8008130081300813,
+        "P_emit": 0.8678414096916299,
+        "n_emitted": 227
+      },
+      "at_0_8": {
+        "tp": 63,
+        "fp": 0,
+        "fn": 202,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.23773584905660378,
+        "f1": 0.38414634146341464,
+        "P_emit": 1.0,
+        "n_emitted": 63
+      },
+      "rank": 8
+    },
+    {
+      "id": "D2_wbf_merge",
+      "title": "2. D2 Fallback + WBF merge",
+      "why": "Standard fallback grid; Weighted Boxes Fusion instead of hard NMS.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 183,
+        "fp": 11,
+        "fn": 82,
+        "n_gt": 265,
+        "precision": 0.9432989690721649,
+        "recall": 0.690566037735849,
+        "f1": 0.7973856209150327,
+        "P_emit": 0.9432989690721649,
+        "n_emitted": 194
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 9
+    },
+    {
+      "id": "D3_diou_merge",
+      "title": "3. D3 Fallback + Cluster-DIoU-NMS",
+      "why": "Centroid-aware suppress for tiny-ball tile duplicates (<15px).",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 183,
+        "fp": 11,
+        "fn": 82,
+        "n_gt": 265,
+        "precision": 0.9432989690721649,
+        "recall": 0.690566037735849,
+        "f1": 0.7973856209150327,
+        "P_emit": 0.9432989690721649,
+        "n_emitted": 194
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 10
+    },
+    {
+      "id": "sahi_fallback",
+      "title": "5. SAHI fallback-only",
+      "why": "Tiles only if fullframe empty; identical to baseline when a det exists.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 182,
+        "fp": 11,
+        "fn": 83,
+        "n_gt": 265,
+        "precision": 0.9430051813471503,
+        "recall": 0.6867924528301886,
+        "f1": 0.7947598253275108,
+        "P_emit": 0.9430051813471503,
+        "n_emitted": 193
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 11
+    },
+    {
+      "id": "D4_temporal_ema",
+      "title": "4. D4 Temporal EMA motion tile",
+      "why": "One tile on EMA-projected (x,y) when empty \u2014 verify with network, no Kalman coast.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 176,
+        "fp": 10,
+        "fn": 89,
+        "n_gt": 265,
+        "precision": 0.946236559139785,
+        "recall": 0.6641509433962264,
+        "f1": 0.7804878048780489,
+        "P_emit": 0.946236559139785,
+        "n_emitted": 186
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 12
+    },
+    {
+      "id": "D9_dotd_tracker",
+      "title": "9. D9 DotD track gate",
+      "why": "Fallback grid + WBF, then emit only if linked by Dot Distance to prior.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 176,
+        "fp": 11,
+        "fn": 89,
+        "n_gt": 265,
+        "precision": 0.9411764705882353,
+        "recall": 0.6641509433962264,
+        "f1": 0.7787610619469026,
+        "P_emit": 0.9411764705882353,
+        "n_emitted": 187
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 13
+    },
+    {
+      "id": "sahi_always_thr20",
+      "title": "4. SAHI always + thr 0.20",
+      "why": "Lower detect floor on fullframe and tiles \u2014 weak false balls.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 176,
+        "fp": 11,
+        "fn": 89,
+        "n_gt": 265,
+        "precision": 0.9411764705882353,
+        "recall": 0.6641509433962264,
+        "f1": 0.7787610619469026,
+        "P_emit": 0.9411764705882353,
+        "n_emitted": 187
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 14
+    },
+    {
+      "id": "D1_sparse_logit",
+      "title": "1. D1 Sparse logit tiles",
+      "why": "On empty full-frame, tile only around subthreshold (0.10\u20130.29) detects as logit proxy.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 175,
+        "fp": 10,
+        "fn": 90,
+        "n_gt": 265,
+        "precision": 0.9459459459459459,
+        "recall": 0.660377358490566,
+        "f1": 0.7777777777777778,
+        "P_emit": 0.9459459459459459,
+        "n_emitted": 185
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 15
+    },
+    {
+      "id": "D6_player_context",
+      "title": "6. D6 Motion-ROI tiles (player proxy)",
+      "why": "No person head on ball ckpt \u2014 tile only where frame-diff motion is high.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 178,
+        "fp": 15,
+        "fn": 87,
+        "n_gt": 265,
+        "precision": 0.9222797927461139,
+        "recall": 0.6716981132075471,
+        "f1": 0.7772925764192138,
+        "P_emit": 0.9222797927461139,
+        "n_emitted": 193
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 16
+    },
+    {
+      "id": "D5_soft_edge",
+      "title": "5. D5 Soft edge penalty",
+      "why": "Down-weight tile dets near tile borders (truncation FPs), then NMS.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 173,
+        "fp": 11,
+        "fn": 92,
+        "n_gt": 265,
+        "precision": 0.9402173913043478,
+        "recall": 0.6528301886792452,
+        "f1": 0.7706013363028953,
+        "P_emit": 0.9402173913043478,
+        "n_emitted": 184
+      },
+      "at_0_8": {
+        "tp": 50,
+        "fp": 0,
+        "fn": 215,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18867924528301888,
+        "f1": 0.3174603174603175,
+        "P_emit": 1.0,
+        "n_emitted": 50
+      },
+      "rank": 17
+    },
+    {
+      "id": "D10_entropy_crop",
+      "title": "10. D10 Entropy/uncertainty crop",
+      "why": "Tile on detection closest to conf=0.5 (uncertainty proxy) when empty.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 165,
+        "fp": 10,
+        "fn": 100,
+        "n_gt": 265,
+        "precision": 0.9428571428571428,
+        "recall": 0.6226415094339622,
+        "f1": 0.7500000000000001,
+        "P_emit": 0.9428571428571428,
+        "n_emitted": 175
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 18
+    },
+    {
+      "id": "D8_sr_conditional",
+      "title": "8. D8 Conditional SR tile",
+      "why": "One tile on best subthreshold center, 1.5\u00d7 upscale, detect, scale back.",
+      "family": "sahi_next",
+      "at_0_3": {
+        "tp": 165,
+        "fp": 11,
+        "fn": 100,
+        "n_gt": 265,
+        "precision": 0.9375,
+        "recall": 0.6226415094339622,
+        "f1": 0.7482993197278911,
+        "P_emit": 0.9375,
+        "n_emitted": 176
+      },
+      "at_0_8": {
+        "tp": 53,
+        "fp": 0,
+        "fn": 212,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.33333333333333337,
+        "P_emit": 1.0,
+        "n_emitted": 53
+      },
+      "rank": 19
+    },
+    {
+      "id": "sahi_always_bt_sticky",
+      "title": "9. SAHI always + ByteTrack (no emit gate)",
+      "why": "Sticky tracks on tile FPs \u2014 junk can linger without 0.80 gate.",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 144,
+        "fp": 6,
+        "fn": 121,
+        "n_gt": 265,
+        "precision": 0.96,
+        "recall": 0.5433962264150943,
+        "f1": 0.6939759036144579,
+        "P_emit": 0.96,
+        "n_emitted": 150
+      },
+      "at_0_8": {
+        "tp": 51,
+        "fp": 0,
+        "fn": 214,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.19245283018867926,
+        "f1": 0.32278481012658233,
+        "P_emit": 1.0,
+        "n_emitted": 51
+      },
+      "rank": 20
+    },
+    {
+      "id": "hflip_tta",
+      "title": "3. HFlip TTA + NMS",
+      "why": "Train raised recall with more FPs; gold @0.8 published more boxes.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 152,
+        "fp": 26,
+        "fn": 113,
+        "n_gt": 265,
+        "precision": 0.8539325842696629,
+        "recall": 0.5735849056603773,
+        "f1": 0.6862302483069977,
+        "P_emit": 0.8539325842696629,
+        "n_emitted": 178
+      },
+      "at_0_8": {
+        "tp": 57,
+        "fp": 0,
+        "fn": 208,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.21509433962264152,
+        "f1": 0.35403726708074534,
+        "P_emit": 1.0,
+        "n_emitted": 57
+      },
+      "rank": 21
+    },
+    {
+      "id": "baseline_topk2",
+      "title": "1. Baseline topk=2",
+      "why": "Locked winner on train/gold (thr 0.3 + size + NMS + topk=2).",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 142,
+        "fp": 10,
+        "fn": 123,
+        "n_gt": 265,
+        "precision": 0.9342105263157895,
+        "recall": 0.5358490566037736,
+        "f1": 0.6810551558752997,
+        "P_emit": 0.9342105263157895,
+        "n_emitted": 152
+      },
+      "at_0_8": {
+        "tp": 49,
+        "fp": 0,
+        "fn": 216,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18490566037735848,
+        "f1": 0.31210191082802546,
+        "P_emit": 1.0,
+        "n_emitted": 49
+      },
+      "rank": 22
+    },
+    {
+      "id": "multiscale_1p5",
+      "title": "4. Multiscale 1.5\u00d7",
+      "why": "Train +1 TP +1 FP; gold no gain \u2014 included as recover candidate.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 142,
+        "fp": 10,
+        "fn": 123,
+        "n_gt": 265,
+        "precision": 0.9342105263157895,
+        "recall": 0.5358490566037736,
+        "f1": 0.6810551558752997,
+        "P_emit": 0.9342105263157895,
+        "n_emitted": 152
+      },
+      "at_0_8": {
+        "tp": 50,
+        "fp": 0,
+        "fn": 215,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18867924528301888,
+        "f1": 0.3174603174603175,
+        "P_emit": 1.0,
+        "n_emitted": 50
+      },
+      "rank": 23
+    },
+    {
+      "id": "topk3",
+      "title": "2. Topk=3",
+      "why": "Same stack; gold peek found +1 TP at same FPs.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 142,
+        "fp": 10,
+        "fn": 123,
+        "n_gt": 265,
+        "precision": 0.9342105263157895,
+        "recall": 0.5358490566037736,
+        "f1": 0.6810551558752997,
+        "P_emit": 0.9342105263157895,
+        "n_emitted": 152
+      },
+      "at_0_8": {
+        "tp": 49,
+        "fp": 0,
+        "fn": 216,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18490566037735848,
+        "f1": 0.31210191082802546,
+        "P_emit": 1.0,
+        "n_emitted": 49
+      },
+      "rank": 24
+    },
+    {
+      "id": "thr50_topk2",
+      "title": "6. Thr 0.5 topk=2",
+      "why": "Stricter detect floor \u2014 fewer weak RAWs, may miss hard balls.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 116,
+        "fp": 3,
+        "fn": 149,
+        "n_gt": 265,
+        "precision": 0.9747899159663865,
+        "recall": 0.4377358490566038,
+        "f1": 0.6041666666666666,
+        "P_emit": 0.9747899159663865,
+        "n_emitted": 119
+      },
+      "at_0_8": {
+        "tp": 49,
+        "fp": 0,
+        "fn": 216,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18490566037735848,
+        "f1": 0.31210191082802546,
+        "P_emit": 1.0,
+        "n_emitted": 49
+      },
+      "rank": 25
+    },
+    {
+      "id": "bytetrack_iou08",
+      "title": "8. ByteTrack IoU 0.8",
+      "why": "Least-harmful ByteTrack on train/gold; still drops some balls vs detector.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 108,
+        "fp": 5,
+        "fn": 157,
+        "n_gt": 265,
+        "precision": 0.9557522123893806,
+        "recall": 0.4075471698113208,
+        "f1": 0.5714285714285715,
+        "P_emit": 0.9557522123893806,
+        "n_emitted": 113
+      },
+      "at_0_8": {
+        "tp": 47,
+        "fp": 0,
+        "fn": 218,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.17735849056603772,
+        "f1": 0.30128205128205127,
+        "P_emit": 1.0,
+        "n_emitted": 47
+      },
+      "rank": 26
+    },
+    {
+      "id": "bytetrack_emit80",
+      "title": "9. ByteTrack + emit 0.80",
+      "why": "Current product publish path (high precision, low recall).",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 56,
+        "fp": 0,
+        "fn": 209,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.21132075471698114,
+        "f1": 0.3489096573208723,
+        "P_emit": 1.0,
+        "n_emitted": 56
+      },
+      "at_0_8": {
+        "tp": 56,
+        "fp": 0,
+        "fn": 209,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.21132075471698114,
+        "f1": 0.3489096573208723,
+        "P_emit": 1.0,
+        "n_emitted": 56
+      },
+      "rank": 27
+    },
+    {
+      "id": "kalman_detect",
+      "title": "10. Kalman as detect",
+      "why": "Known weaker on gold (R~0.71) \u2014 contrast against detector-only.",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 74,
+        "fp": 130,
+        "fn": 191,
+        "n_gt": 265,
+        "precision": 0.3627450980392157,
+        "recall": 0.2792452830188679,
+        "f1": 0.3155650319829424,
+        "P_emit": 0.3627450980392157,
+        "n_emitted": 204
+      },
+      "at_0_8": {
+        "tp": 38,
+        "fp": 11,
+        "fn": 227,
+        "n_gt": 265,
+        "precision": 0.7755102040816326,
+        "recall": 0.14339622641509434,
+        "f1": 0.24203821656050956,
+        "P_emit": 0.7755102040816326,
+        "n_emitted": 49
+      },
+      "rank": 28
+    },
+    {
+      "id": "emit80_pass",
+      "title": "7. Emit \u2265 0.80 only",
+      "why": "Publish gate on baseline detect (precision-only; not more balls).",
+      "family": "postproc",
+      "at_0_3": {
+        "tp": 49,
+        "fp": 0,
+        "fn": 216,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18490566037735848,
+        "f1": 0.31210191082802546,
+        "P_emit": 1.0,
+        "n_emitted": 49
+      },
+      "at_0_8": {
+        "tp": 49,
+        "fp": 0,
+        "fn": 216,
+        "n_gt": 265,
+        "precision": 1.0,
+        "recall": 0.18490566037735848,
+        "f1": 0.31210191082802546,
+        "P_emit": 1.0,
+        "n_emitted": 49
+      },
+      "rank": 29
+    },
+    {
+      "id": "sahi_always_kalman",
+      "title": "8. SAHI always + Kalman",
+      "why": "Kalman coasts wrong tile dets across frames (gold R/P both hurt).",
+      "family": "sahi_hurt",
+      "at_0_3": {
+        "tp": 67,
+        "fp": 170,
+        "fn": 198,
+        "n_gt": 265,
+        "precision": 0.28270042194092826,
+        "recall": 0.2528301886792453,
+        "f1": 0.26693227091633465,
+        "P_emit": 0.28270042194092826,
+        "n_emitted": 237
+      },
+      "at_0_8": {
+        "tp": 40,
+        "fp": 13,
+        "fn": 225,
+        "n_gt": 265,
+        "precision": 0.7547169811320755,
+        "recall": 0.1509433962264151,
+        "f1": 0.25157232704402516,
+        "P_emit": 0.7547169811320755,
+        "n_emitted": 53
+      },
+      "rank": 30
+    }
+  ]
+}

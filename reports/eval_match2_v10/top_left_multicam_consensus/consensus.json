@@ -1,0 +1,101 @@
+{
+  "title": "top_left_multicam_consensus",
+  "baseline_a": {
+    "thr": 0.3,
+    "emit_thr": null,
+    "min_cams": 1,
+    "n_frames": 300,
+    "n_selected": 295,
+    "n_empty_or_below_emit": 5,
+    "selection_share": {
+      "P1": 0.006666666666666667,
+      "P10": 0.38333333333333336,
+      "P12": 0.043333333333333335,
+      "P6": 0.02,
+      "P7": 0.51,
+      "P8": 0.02,
+      "none": 0.016666666666666666
+    },
+    "selection_counts": {
+      "P10": 115,
+      "P7": 153,
+      "P12": 13,
+      "none": 5,
+      "P8": 6,
+      "P1": 2,
+      "P6": 6
+    },
+    "mean_cams_with_det": 2.0,
+    "proxy_p10_selected": {
+      "n_frames_scored": 115,
+      "n_gt": 115,
+      "tp": 109,
+      "fp": 6,
+      "fn": 6,
+      "precision": 0.9478260869565217,
+      "recall": 0.9478260869565217,
+      "f1": 0.9478260869565217,
+      "note": "only timestamps where selected cam is P10"
+    },
+    "p10_single_cam": {
+      "n_gt": 265,
+      "tp": 140,
+      "fp": 10,
+      "fn": 125,
+      "precision": 0.9333333333333333,
+      "recall": 0.5283018867924528,
+      "f1": 0.6746987951807228
+    },
+    "n_proxy_frames": 115
+  },
+  "soft_consensus": {
+    "thr": 0.15,
+    "emit_thr": null,
+    "min_cams": 2,
+    "n_frames": 300,
+    "n_selected": 299,
+    "n_empty_or_below_emit": 1,
+    "selection_share": {
+      "P1": 0.006666666666666667,
+      "P10": 0.38333333333333336,
+      "P12": 0.043333333333333335,
+      "P6": 0.02666666666666667,
+      "P7": 0.5166666666666667,
+      "P8": 0.02,
+      "none": 0.0033333333333333335
+    },
+    "selection_counts": {
+      "P10": 115,
+      "P7": 155,
+      "P12": 13,
+      "P8": 6,
+      "none": 1,
+      "P1": 2,
+      "P6": 8
+    },
+    "mean_cams_with_det": 3.81,
+    "proxy_p10_selected": {
+      "n_frames_scored": 115,
+      "n_gt": 115,
+      "tp": 109,
+      "fp": 6,
+      "fn": 6,
+      "precision": 0.9478260869565217,
+      "recall": 0.9478260869565217,
+      "f1": 0.9478260869565217,
+      "note": "only timestamps where selected cam is P10"
+    },
+    "p10_single_cam": {
+      "n_gt": 265,
+      "tp": 150,
+      "fp": 83,
+      "fn": 115,
+      "precision": 0.6437768240343348,
+      "recall": 0.5660377358490566,
+      "f1": 0.6024096385542169
+    },
+    "n_proxy_frames": 115
+  },
+  "goal_r": 0.8,
+  "goal_p": 0.9
+}
