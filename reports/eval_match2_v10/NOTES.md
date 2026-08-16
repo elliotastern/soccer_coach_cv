@@ -195,5 +195,21 @@ After human P7 gold: score when selected cam is P7 or P10 vs that cam’s XML.
 Script: `scripts/gold_set/eval_top_left_multicam_selection_loop.py`  
 Report: `reports/eval_match2_v10/top_left_multicam_selection_loop/ranking.md`
 
-Raising conf clears the dual-gold proxy goal. Practical pick: **`p7_thr060_others030`** (P7 must be ≥0.60 to compete; others stay @0.30) → system **P=R=0.915**, HIT, 188 covered frames. Plain `max_conf_070` is stronger P/R but only 120 covered. Prefer-P10 knobs did not help at 0.30.
+Raising conf clears the dual-gold proxy goal. Practical pick: **`p7_thr060_others030`** (P7 must be ≥0.60 to compete; others stay @0.30) → system **P=R=0.915**, HIT, 188 covered frames. Plain `max_conf_070` is stronger P/R but only 120 covered. Prefer-P10 knobs did not help at 0.30. Locked in `multicam_select_policy.py` (**Top Left / P-cam study only**).
+
+## 4quad region survey (8 cams, no gold R/P)
+
+Script: `scripts/gold_set/eval_match2_4quad_multicam_survey.py`  
+Report: `reports/eval_match2_v10/4quad_multicam_survey/survey.md`
+
+When **Cam4plus/Cam5plus** are in the pool, Top Left’s winner flips to **Cam4plus ~79%** (P10 ~21%) — the earlier P7/P10 dual-gold study was **P-cam-only**. Other regions:
+
+| Slot | #1 @0.30 | Share |
+|---|---|---:|
+| Top Left | Cam4plus | ~79% |
+| Top Right | Cam4plus | ~47% (P7 ~29%, P1 ~23%) |
+| Center Start | Cam4plus | ~82% |
+| Bottom Right | (see survey.md) | |
+
+Top Left’s `P7≥0.60` floor does **not** change these shares (winners already high-conf). **Next min-label step:** Cam4plus gold on Center Start (clearest monopoly) or Top Right (more mixed).
 

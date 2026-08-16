@@ -1,0 +1,414 @@
+{
+  "title": "4quad_multicam_survey",
+  "cams": [
+    "P1",
+    "P6",
+    "P7",
+    "P8",
+    "P10",
+    "P12",
+    "Cam4plus",
+    "Cam5plus"
+  ],
+  "top_left_lock": "p7_thr060_others030",
+  "top_left_thr": {
+    "_default": 0.3,
+    "P7": 0.6
+  },
+  "slots": [
+    {
+      "slot": "top_left",
+      "label": "Top Left",
+      "stem": "quad_top_left_t00026.0s",
+      "policies": {
+        "max_conf_030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.7859531772575251,
+            "P10": 0.2140468227424749
+          },
+          "selection_counts": {
+            "Cam4plus": 235,
+            "P10": 64
+          },
+          "thr_by_cam": {
+            "_default": 0.3
+          }
+        },
+        "max_conf_060": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.7859531772575251,
+            "P10": 0.2140468227424749
+          },
+          "selection_counts": {
+            "Cam4plus": 235,
+            "P10": 64
+          },
+          "thr_by_cam": {
+            "_default": 0.6
+          }
+        },
+        "p7_thr060_others030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.7859531772575251,
+            "P10": 0.2140468227424749
+          },
+          "selection_counts": {
+            "Cam4plus": 235,
+            "P10": 64
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "P7": 0.6
+          }
+        },
+        "cam4_thr060_others030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.7859531772575251,
+            "P10": 0.2140468227424749
+          },
+          "selection_counts": {
+            "Cam4plus": 235,
+            "P10": 64
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam4plus": 0.6
+          }
+        },
+        "cam5_thr060_others030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.7859531772575251,
+            "P10": 0.2140468227424749
+          },
+          "selection_counts": {
+            "Cam4plus": 235,
+            "P10": 64
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam5plus": 0.6
+          }
+        }
+      }
+    },
+    {
+      "slot": "top_right",
+      "label": "Top Right",
+      "stem": "quad_top_right_t00125.0s",
+      "policies": {
+        "max_conf_030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.47491638795986624,
+            "P1": 0.23076923076923078,
+            "P7": 0.29431438127090304
+          },
+          "selection_counts": {
+            "P1": 69,
+            "P7": 88,
+            "Cam4plus": 142
+          },
+          "thr_by_cam": {
+            "_default": 0.3
+          }
+        },
+        "max_conf_060": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.47491638795986624,
+            "P1": 0.23076923076923078,
+            "P7": 0.29431438127090304
+          },
+          "selection_counts": {
+            "P1": 69,
+            "P7": 88,
+            "Cam4plus": 142
+          },
+          "thr_by_cam": {
+            "_default": 0.6
+          }
+        },
+        "p7_thr060_others030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.47491638795986624,
+            "P1": 0.23076923076923078,
+            "P7": 0.29431438127090304
+          },
+          "selection_counts": {
+            "P1": 69,
+            "P7": 88,
+            "Cam4plus": 142
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "P7": 0.6
+          }
+        },
+        "cam4_thr060_others030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.47491638795986624,
+            "P1": 0.23076923076923078,
+            "P7": 0.29431438127090304
+          },
+          "selection_counts": {
+            "P1": 69,
+            "P7": 88,
+            "Cam4plus": 142
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam4plus": 0.6
+          }
+        },
+        "cam5_thr060_others030": {
+          "n_frames": 299,
+          "n_selected": 299,
+          "selection_share": {
+            "Cam4plus": 0.47491638795986624,
+            "P1": 0.23076923076923078,
+            "P7": 0.29431438127090304
+          },
+          "selection_counts": {
+            "P1": 69,
+            "P7": 88,
+            "Cam4plus": 142
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam5plus": 0.6
+          }
+        }
+      }
+    },
+    {
+      "slot": "center_start",
+      "label": "Center Start",
+      "stem": "quad_center_start_t00008.0s",
+      "policies": {
+        "max_conf_030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.8166666666666667,
+            "Cam5plus": 0.013333333333333334,
+            "P1": 0.05,
+            "P6": 0.0033333333333333335,
+            "P8": 0.11666666666666667
+          },
+          "selection_counts": {
+            "Cam4plus": 245,
+            "P6": 1,
+            "P8": 35,
+            "P1": 15,
+            "Cam5plus": 4
+          },
+          "thr_by_cam": {
+            "_default": 0.3
+          }
+        },
+        "max_conf_060": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.8166666666666667,
+            "Cam5plus": 0.013333333333333334,
+            "P1": 0.05,
+            "P6": 0.0033333333333333335,
+            "P8": 0.11666666666666667
+          },
+          "selection_counts": {
+            "Cam4plus": 245,
+            "P6": 1,
+            "P8": 35,
+            "P1": 15,
+            "Cam5plus": 4
+          },
+          "thr_by_cam": {
+            "_default": 0.6
+          }
+        },
+        "p7_thr060_others030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.8166666666666667,
+            "Cam5plus": 0.013333333333333334,
+            "P1": 0.05,
+            "P6": 0.0033333333333333335,
+            "P8": 0.11666666666666667
+          },
+          "selection_counts": {
+            "Cam4plus": 245,
+            "P6": 1,
+            "P8": 35,
+            "P1": 15,
+            "Cam5plus": 4
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "P7": 0.6
+          }
+        },
+        "cam4_thr060_others030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.8166666666666667,
+            "Cam5plus": 0.013333333333333334,
+            "P1": 0.05,
+            "P6": 0.0033333333333333335,
+            "P8": 0.11666666666666667
+          },
+          "selection_counts": {
+            "Cam4plus": 245,
+            "P6": 1,
+            "P8": 35,
+            "P1": 15,
+            "Cam5plus": 4
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam4plus": 0.6
+          }
+        },
+        "cam5_thr060_others030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.8166666666666667,
+            "Cam5plus": 0.013333333333333334,
+            "P1": 0.05,
+            "P6": 0.0033333333333333335,
+            "P8": 0.11666666666666667
+          },
+          "selection_counts": {
+            "Cam4plus": 245,
+            "P6": 1,
+            "P8": 35,
+            "P1": 15,
+            "Cam5plus": 4
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam5plus": 0.6
+          }
+        }
+      }
+    },
+    {
+      "slot": "bottom_right",
+      "label": "Bottom Right",
+      "stem": "quad_bottom_right_t00412.0s",
+      "policies": {
+        "max_conf_030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.58,
+            "Cam5plus": 0.2733333333333333,
+            "P8": 0.14666666666666667
+          },
+          "selection_counts": {
+            "Cam5plus": 82,
+            "P8": 44,
+            "Cam4plus": 174
+          },
+          "thr_by_cam": {
+            "_default": 0.3
+          }
+        },
+        "max_conf_060": {
+          "n_frames": 300,
+          "n_selected": 296,
+          "selection_share": {
+            "Cam4plus": 0.57,
+            "Cam5plus": 0.27,
+            "P8": 0.14666666666666667,
+            "none": 0.013333333333333334
+          },
+          "selection_counts": {
+            "Cam5plus": 81,
+            "P8": 44,
+            "Cam4plus": 171,
+            "none": 4
+          },
+          "thr_by_cam": {
+            "_default": 0.6
+          }
+        },
+        "p7_thr060_others030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.58,
+            "Cam5plus": 0.2733333333333333,
+            "P8": 0.14666666666666667
+          },
+          "selection_counts": {
+            "Cam5plus": 82,
+            "P8": 44,
+            "Cam4plus": 174
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "P7": 0.6
+          }
+        },
+        "cam4_thr060_others030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.57,
+            "Cam5plus": 0.28,
+            "P1": 0.0033333333333333335,
+            "P8": 0.14666666666666667
+          },
+          "selection_counts": {
+            "Cam5plus": 84,
+            "P8": 44,
+            "Cam4plus": 171,
+            "P1": 1
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam4plus": 0.6
+          }
+        },
+        "cam5_thr060_others030": {
+          "n_frames": 300,
+          "n_selected": 300,
+          "selection_share": {
+            "Cam4plus": 0.5833333333333334,
+            "Cam5plus": 0.27,
+            "P8": 0.14666666666666667
+          },
+          "selection_counts": {
+            "Cam5plus": 81,
+            "P8": 44,
+            "Cam4plus": 175
+          },
+          "thr_by_cam": {
+            "_default": 0.3,
+            "Cam5plus": 0.6
+          }
+        }
+      }
+    }
+  ]
+}

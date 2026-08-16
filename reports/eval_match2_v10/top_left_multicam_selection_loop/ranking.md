@@ -30,8 +30,8 @@ Several variants **HIT** the dual-gold proxy (P≥0.9 and R≥0.8 on P7∪P10-se
 
 **Caveat:** raising thr shrinks `covered` (frames where a gold cam wins). `max_conf_070` is best P/R but only **120** frames vs baseline **268**. That is not full-window ball recall.
 
-**Practical lock for live path:** `p7_thr060_others030` — P=R=**0.915**, HIT, **188** covered frames (best coverage among HITs that don’t need P10 preference hacks). Alt: `p7_060_prefer_p10_margin10` (192 covered, 0.911).
+**Practical lock for live path (Top Left only):** `p7_thr060_others030` — P=R=**0.915**, HIT, **188** covered. Constant: `multicam_select_policy.TOP_LEFT_THR_BY_CAM`. **Do not copy match-wide** until other quads are surveyed.
 
 Prefer-P10 / soft-consensus / gold-only @0.30 do **not** beat raising the bar on weak P7 boxes.
 
-**Next:** wire `P7≥0.60` (others @0.30) into the live multicam pick; then 5090 latency. Optional: score true all-frame R including empty emits (stricter than this proxy).
+**Next:** 4quad selection survey (who wins per region) → gold only the #1 cam on the next region → thr lock per region → then 5090 latency.
