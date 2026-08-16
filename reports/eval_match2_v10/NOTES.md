@@ -177,3 +177,16 @@ Reports: `top_left_multicam_baseline/`, `top_left_multicam_consensus/` · proxy 
 
 Gate: proxy OK on P10-win frames → next **5090 latency**; need **P7 gold** (pack `match2_4quad_top_left_p7`, route `/4quad-cvat/top_left_p7`) before claiming full-system R/P. Epipolar blocked (no Match 2 extrinsics). Dense SAHI stays out of live path.
 
+## Dual-gold system score (P7 + P10 labeled)
+
+After human P7 gold: score when selected cam is P7 or P10 vs that cam’s XML.
+
+| Slice (max_conf @0.30) | P | R | vs goal R≥0.8 P≥0.9 |
+|---|---:|---:|---|
+| **P7∪P10 system** (covered ~89%) | **0.750** | **0.785** | **MISS** (both short) |
+| P10-selected only | 0.948 | 0.948 | HIT |
+| P7-selected only | 0.601 | 0.652 | MISS — bottleneck |
+| Soft consensus (same dual gold) | 0.744 | 0.776 | MISS; no lift |
+
+**Read:** old P10-only proxy overstated the system. P7-selected frames drag P and R below goal. Next: diagnose P7 max_conf FPs/misses (selection vs detect), not latency yet and not dense SAHI for live.
+

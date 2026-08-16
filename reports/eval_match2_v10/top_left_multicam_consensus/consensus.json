@@ -1,5 +1,5 @@
 {
-  "title": "top_left_multicam_consensus",
+  "title": "top_left_multicam_consensus_dual_gold",
   "baseline_a": {
     "thr": 0.3,
     "emit_thr": null,
@@ -26,6 +26,50 @@
       "P6": 6
     },
     "mean_cams_with_det": 2.0,
+    "proxy_by_cam": {
+      "P10": {
+        "n_frames_scored": 115,
+        "n_gt": 115,
+        "tp": 109,
+        "fp": 6,
+        "fn": 6,
+        "precision": 0.9478260869565217,
+        "recall": 0.9478260869565217,
+        "f1": 0.9478260869565217,
+        "hit_goal_r": true,
+        "hit_goal_p": true,
+        "hit_goal": true,
+        "note": "only timestamps where selected cam is P10"
+      },
+      "P7": {
+        "n_frames_scored": 153,
+        "n_gt": 141,
+        "tp": 92,
+        "fp": 61,
+        "fn": 49,
+        "precision": 0.6013071895424836,
+        "recall": 0.6524822695035462,
+        "f1": 0.6258503401360543,
+        "hit_goal_r": false,
+        "hit_goal_p": false,
+        "hit_goal": false,
+        "note": "only timestamps where selected cam is P7"
+      }
+    },
+    "proxy_p7_or_p10": {
+      "n_frames_scored": 268,
+      "n_gt": 256,
+      "tp": 201,
+      "fp": 67,
+      "fn": 55,
+      "precision": 0.75,
+      "recall": 0.78515625,
+      "f1": 0.767175572519084,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false,
+      "note": "selected cam in {P7,P10}; GT from that cam's gold"
+    },
     "proxy_p10_selected": {
       "n_frames_scored": 115,
       "n_gt": 115,
@@ -35,7 +79,50 @@
       "precision": 0.9478260869565217,
       "recall": 0.9478260869565217,
       "f1": 0.9478260869565217,
+      "hit_goal_r": true,
+      "hit_goal_p": true,
+      "hit_goal": true,
       "note": "only timestamps where selected cam is P10"
+    },
+    "proxy_p7_selected": {
+      "n_frames_scored": 153,
+      "n_gt": 141,
+      "tp": 92,
+      "fp": 61,
+      "fn": 49,
+      "precision": 0.6013071895424836,
+      "recall": 0.6524822695035462,
+      "f1": 0.6258503401360543,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false,
+      "note": "only timestamps where selected cam is P7"
+    },
+    "single_cam": {
+      "P10": {
+        "n_gt": 265,
+        "tp": 140,
+        "fp": 10,
+        "fn": 125,
+        "precision": 0.9333333333333333,
+        "recall": 0.5283018867924528,
+        "f1": 0.6746987951807228,
+        "hit_goal_r": false,
+        "hit_goal_p": true,
+        "hit_goal": false
+      },
+      "P7": {
+        "n_gt": 282,
+        "tp": 151,
+        "fp": 135,
+        "fn": 131,
+        "precision": 0.527972027972028,
+        "recall": 0.5354609929078015,
+        "f1": 0.5316901408450705,
+        "hit_goal_r": false,
+        "hit_goal_p": false,
+        "hit_goal": false
+      }
     },
     "p10_single_cam": {
       "n_gt": 265,
@@ -44,9 +131,25 @@
       "fn": 125,
       "precision": 0.9333333333333333,
       "recall": 0.5283018867924528,
-      "f1": 0.6746987951807228
+      "f1": 0.6746987951807228,
+      "hit_goal_r": false,
+      "hit_goal_p": true,
+      "hit_goal": false
     },
-    "n_proxy_frames": 115
+    "p7_single_cam": {
+      "n_gt": 282,
+      "tp": 151,
+      "fp": 135,
+      "fn": 131,
+      "precision": 0.527972027972028,
+      "recall": 0.5354609929078015,
+      "f1": 0.5316901408450705,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false
+    },
+    "n_proxy_frames": 268,
+    "coverage_share": 0.8933333333333333
   },
   "soft_consensus": {
     "thr": 0.15,
@@ -74,6 +177,50 @@
       "P6": 8
     },
     "mean_cams_with_det": 3.81,
+    "proxy_by_cam": {
+      "P10": {
+        "n_frames_scored": 115,
+        "n_gt": 115,
+        "tp": 109,
+        "fp": 6,
+        "fn": 6,
+        "precision": 0.9478260869565217,
+        "recall": 0.9478260869565217,
+        "f1": 0.9478260869565217,
+        "hit_goal_r": true,
+        "hit_goal_p": true,
+        "hit_goal": true,
+        "note": "only timestamps where selected cam is P10"
+      },
+      "P7": {
+        "n_frames_scored": 155,
+        "n_gt": 144,
+        "tp": 92,
+        "fp": 63,
+        "fn": 52,
+        "precision": 0.5935483870967742,
+        "recall": 0.6388888888888888,
+        "f1": 0.6153846153846153,
+        "hit_goal_r": false,
+        "hit_goal_p": false,
+        "hit_goal": false,
+        "note": "only timestamps where selected cam is P7"
+      }
+    },
+    "proxy_p7_or_p10": {
+      "n_frames_scored": 270,
+      "n_gt": 259,
+      "tp": 201,
+      "fp": 69,
+      "fn": 58,
+      "precision": 0.7444444444444445,
+      "recall": 0.7760617760617761,
+      "f1": 0.7599243856332704,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false,
+      "note": "selected cam in {P7,P10}; GT from that cam's gold"
+    },
     "proxy_p10_selected": {
       "n_frames_scored": 115,
       "n_gt": 115,
@@ -83,7 +230,50 @@
       "precision": 0.9478260869565217,
       "recall": 0.9478260869565217,
       "f1": 0.9478260869565217,
+      "hit_goal_r": true,
+      "hit_goal_p": true,
+      "hit_goal": true,
       "note": "only timestamps where selected cam is P10"
+    },
+    "proxy_p7_selected": {
+      "n_frames_scored": 155,
+      "n_gt": 144,
+      "tp": 92,
+      "fp": 63,
+      "fn": 52,
+      "precision": 0.5935483870967742,
+      "recall": 0.6388888888888888,
+      "f1": 0.6153846153846153,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false,
+      "note": "only timestamps where selected cam is P7"
+    },
+    "single_cam": {
+      "P10": {
+        "n_gt": 265,
+        "tp": 150,
+        "fp": 83,
+        "fn": 115,
+        "precision": 0.6437768240343348,
+        "recall": 0.5660377358490566,
+        "f1": 0.6024096385542169,
+        "hit_goal_r": false,
+        "hit_goal_p": false,
+        "hit_goal": false
+      },
+      "P7": {
+        "n_gt": 282,
+        "tp": 156,
+        "fp": 280,
+        "fn": 126,
+        "precision": 0.3577981651376147,
+        "recall": 0.5531914893617021,
+        "f1": 0.4345403899721449,
+        "hit_goal_r": false,
+        "hit_goal_p": false,
+        "hit_goal": false
+      }
     },
     "p10_single_cam": {
       "n_gt": 265,
@@ -92,9 +282,25 @@
       "fn": 115,
       "precision": 0.6437768240343348,
       "recall": 0.5660377358490566,
-      "f1": 0.6024096385542169
+      "f1": 0.6024096385542169,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false
     },
-    "n_proxy_frames": 115
+    "p7_single_cam": {
+      "n_gt": 282,
+      "tp": 156,
+      "fp": 280,
+      "fn": 126,
+      "precision": 0.3577981651376147,
+      "recall": 0.5531914893617021,
+      "f1": 0.4345403899721449,
+      "hit_goal_r": false,
+      "hit_goal_p": false,
+      "hit_goal": false
+    },
+    "n_proxy_frames": 270,
+    "coverage_share": 0.9
   },
   "goal_r": 0.8,
   "goal_p": 0.9

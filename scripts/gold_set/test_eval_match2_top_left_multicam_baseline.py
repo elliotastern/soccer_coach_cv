@@ -10,9 +10,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "gold_set"))
 
 from eval_match2_top_left_multicam_baseline import (  # noqa: E402
+    GOLD_CAMS,
     P_CAMS,
     filter_rows,
     load_top_left_gt,
+    merge_proxy_scores,
     score_max_conf,
     select_frame,
     write_baseline_report,
@@ -22,6 +24,7 @@ from eval_match2_top_left_multicam_baseline import (  # noqa: E402
 
 def test_six_pcams():
     assert P_CAMS == ["P1", "P6", "P7", "P8", "P10", "P12"]
+    assert GOLD_CAMS == ["P7", "P10"]
 
 
 def test_load_gt_and_filter():
@@ -53,20 +56,28 @@ def test_select_min_cams():
 
 def test_score_and_reports():
     dets = {cam: [[] for _ in range(300)] for cam in P_CAMS}
-    # frame 0: P10 ball
     dets["P10"][0] = [([10.0, 10.0, 10.0, 10.0], 0.85, 10.0)]
+    dets["P7"][1] = [([20.0, 20.0, 10.0, 10.0], 0.9, 10.0)]
     dets["P1"][0] = [([100.0, 100.0, 10.0, 10.0], 0.4, 10.0)]
-    gt = {0: [(10.0, 10.0, 10.0, 10.0)]}
-    a = score_max_conf(dets, gt, thr=0.30, min_cams=1)
+    gt_by_cam = {
+        "P10": {0: [(10.0, 10.0, 10.0, 10.0)]},
+        "P7": {1: [(20.0, 20.0, 10.0, 10.0)]},
+    }
+    a = score_max_conf(dets, gt_by_cam, thr=0.30, min_cams=1)
     assert a["selection_counts"].get("P10", 0) >= 1
-    soft = score_max_conf(dets, gt, thr=0.15, min_cams=2)
+    assert a["selection_counts"].get("P7", 0) >= 1
+    assert a["proxy_p7_or_p10"]["n_frames_scored"] >= 2
+    assert a["proxy_p7_or_p10"]["tp"] >= 2
+    soft = score_max_conf(dets, gt_by_cam, thr=0.15, min_cams=2)
     assert soft["n_selected"] >= 1
     out = Path(tempfile.mkdtemp())
     write_baseline_report(
         out / "b",
         {
             "baseline_a": a,
-            "baseline_b": score_max_conf(dets, gt, thr=0.30, min_cams=1, emit_thr=0.80),
+            "baseline_b": score_max_conf(
+                dets, gt_by_cam, thr=0.30, min_cams=1, emit_thr=0.80
+            ),
         },
     )
     write_consensus_report(
@@ -74,6 +85,8 @@ def test_score_and_reports():
     )
     assert (out / "b" / "baseline.md").is_file()
     assert (out / "c" / "consensus.md").is_file()
+    merged = merge_proxy_scores(a["proxy_p10_selected"], a["proxy_p7_selected"])
+    assert merged["tp"] == a["proxy_p7_or_p10"]["tp"]
 
 
 if __name__ == "__main__":
