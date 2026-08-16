@@ -18,4 +18,4 @@ cd annotation && docker compose -f docker-compose.cvat.yml up -d
 
 Import `cvat/images/` + `cvat/annotations.xml` (CVAT for images 1.1).
 
-**Status:** `gold/annotations.xml` currently matches dense prelabels (not yet human-corrected). Fix in the editor and Save before using as GT.
+**Status:** Human-corrected gold — `gold/annotations.xml` is source of truth (~282 ball boxes / 280 frames; prelabels stay the dense-tile draft).

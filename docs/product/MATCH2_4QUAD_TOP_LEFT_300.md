@@ -67,6 +67,6 @@ Proxy R/P uses **P10-selected frames only** (this gold is P10-only). On the firs
 | **Prelabel** | Offline `sahi_dense_tiles` (640 / 0.4 overlap, topk=3) — accuracy for labeling, **not** the live path |
 | **Build** | `python3 scripts/gold_set/build_4quad_cvat_pack.py --standalone --camera P7 --stem quad_top_left_t00026.0s --slot top_left --label "Top Left P7" --prelabel dense --stride 1 --out data/processed/gold_sets/match2_4quad_top_left_p7` |
 
-Git tracks XML + manifest only (frames local). Until humans correct `gold/annotations.xml`, treat that file as **prelabel draft** (same as `prelabels/`). After labeling, rescore multicam baseline with real P7 GT on P7-selected frames.
+Git tracks XML + manifest only (frames local). **Human-corrected** (`gold/annotations.xml` ≠ prelabels; ~282 GT boxes / 280 frames). Next: rescore multicam baseline with P7 GT on P7-selected frames (plus existing P10 proxy).
 
 
