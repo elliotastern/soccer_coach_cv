@@ -60,4 +60,17 @@ Top Left lock under test: `p7_thr060_others030` ({'_default': 0.3, 'P7': 0.6}).
 
 Top Left `P7≥0.60` lock does **not** move these shares (winners already ≥0.60).
 
+**Label pack in progress:** `match2_4quad_center_start_cam4plus` · http://127.0.0.1:8080/4quad-cvat/center_start_cam4plus
+
+## Verdict
+
+| Slot | Dominant cam @0.30 | Implication |
+|---|---|---|
+| Top Left | **Cam4plus 79%** (P10 21%) | Prior P7/P10 gold was a **P-cam-only** study; full 8-cam system here is Cam4plus-led |
+| Top Right | Cam4plus 47%, P7 29%, P1 23% | Most mixed — needs multi-cam gold later |
+| Center Start | **Cam4plus 82%** | Best single-cam gold target (least user work) |
+| Bottom Right | Cam4plus 58%, Cam5plus 27% | Dual wide-cam |
+
+Top Left `P7≥0.60` lock does **not** move these shares (winners already ≥0.60).
+
 **Next (min labels):** build Cam4plus Center Start 300 pack + dense prelabels → human correct → rescore system vs 80/90 on that region.

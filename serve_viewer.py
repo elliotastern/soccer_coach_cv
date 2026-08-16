@@ -237,6 +237,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             )
             self.end_headers()
             return
+        if quad_one in (
+            '/4quad-cvat/center_start_cam4plus',
+            '/4quad-cvat/center-start-cam4plus',
+            '/4quad-cvat/center_start_Cam4plus',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match2_4quad_center_start_cam4plus/review/editor.html',
+            )
+            self.end_headers()
+            return
         if quad_one in _quad_ranges:
             start, end = _quad_ranges[quad_one]
             frames = ','.join(str(i) for i in range(start, end + 1))

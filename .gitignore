@@ -125,6 +125,16 @@ data/**
 !data/processed/gold_sets/match2_4quad_top_left_p7/prelabels/annotations.xml
 !data/processed/gold_sets/match2_4quad_top_left_p7/cvat/
 !data/processed/gold_sets/match2_4quad_top_left_p7/cvat/annotations.xml
+# Match 2 4quad Center Start Cam4plus (300 frames) — XML/manifest only
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/README.md
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/manifest.json
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/gold/
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/gold/annotations.xml
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/prelabels/
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/prelabels/annotations.xml
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/cvat/
+!data/processed/gold_sets/match2_4quad_center_start_cam4plus/cvat/annotations.xml
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

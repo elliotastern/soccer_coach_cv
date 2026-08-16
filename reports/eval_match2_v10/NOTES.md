@@ -211,5 +211,5 @@ When **Cam4plus/Cam5plus** are in the pool, Top Left’s winner flips to **Cam4p
 | Center Start | Cam4plus | ~82% |
 | Bottom Right | (see survey.md) | |
 
-Top Left’s `P7≥0.60` floor does **not** change these shares (winners already high-conf). **Next min-label step:** Cam4plus gold on Center Start (clearest monopoly) or Top Right (more mixed).
+Top Left’s `P7≥0.60` floor does **not** change these shares (winners already high-conf). **Label pack ready:** `match2_4quad_center_start_cam4plus` · http://127.0.0.1:8080/4quad-cvat/center_start_cam4plus (dense prelabels; human-correct before GT). Alt later: Top Right (more mixed).
 
