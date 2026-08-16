@@ -286,6 +286,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/camera-coverage',
+            '/camera_coverage',
+            '/pitch-coverage',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/camera_pitch_coverage/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/ball_sahi_hurt_test',
             '/ball_sahi_hurt_test/',
             '/sahi-hurt',
@@ -623,6 +635,7 @@ def main():
     print(f"4 quad CVAT: http://127.0.0.1:{port}/4quad-cvat")
     print(f"Ball postproc: http://127.0.0.1:{port}/ball_postprocessing_test")
     print(f"Multicam proxy gallery: http://127.0.0.1:{port}/multicam-proxy")
+    print(f"Camera pitch coverage: http://127.0.0.1:{port}/camera-coverage")
     print(f"SAHI hurt test: http://127.0.0.1:{port}/ball_sahi_hurt_test")
     print(f"SAHI next test: http://127.0.0.1:{port}/ball_sahi_next_test")
     print(f"Match2 harvest: http://127.0.0.1:{port}/match2-harvest")
