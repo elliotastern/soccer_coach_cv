@@ -53,6 +53,7 @@ data/**
 !data/processed/gold_sets/match1_1_100/manifest.json
 !data/processed/gold_sets/match1_1_100/gold/
 !data/processed/gold_sets/match1_1_100/gold/annotations.xml
+!data/processed/gold_sets/match1_1_100/gold/annotations.coco.json
 !data/processed/gold_sets/match1_1_100/prelabels/
 !data/processed/gold_sets/match1_1_100/prelabels/annotations.xml
 # math_1 train gold (XML only — not images/frames)
