@@ -3,137 +3,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Match 2 — camera pitch coverage</title>
+  <title>Match 2 — camera FOV (screenshot-validated)</title>
   <style>
     :root {
-      --bg: #1a1f1a;
-      --panel: #243024;
-      --text: #f2f5f0;
-      --muted: #a3b0a3;
-      --line: #ffffff;
-      --pitch: #2d7a3e;
-      --pitch-dark: #246835;
-      --accent: #e8c547;
+      --bg: #1a1f1a; --panel: #243024; --text: #f2f5f0; --muted: #a3b0a3; --accent: #e8c547;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-    header {
-      padding: 1.25rem 1.5rem 0.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    h1 {
-      font-family: "IBM Plex Serif", Georgia, serif;
-      font-weight: 600;
-      font-size: 1.55rem;
-      margin: 0 0 0.35rem;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.45;
-      max-width: 52rem;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      gap: 1rem;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem 2rem;
-    }
-    @media (max-width: 800px) {
-      .layout { grid-template-columns: 1fr; }
-    }
-    .cams {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
+    body { margin: 0; font-family: "IBM Plex Sans", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 1.25rem 1.5rem 0.5rem; max-width: 1100px; margin: 0 auto; }
+    h1 { font-family: "IBM Plex Serif", Georgia, serif; font-weight: 600; font-size: 1.5rem; margin: 0 0 0.35rem; }
+    .sub { color: var(--muted); font-size: 0.92rem; line-height: 1.45; max-width: 56rem; }
+    .layout { display: grid; grid-template-columns: 230px 1fr; gap: 1rem; max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 2rem; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+    .cams { display: flex; flex-direction: column; gap: 0.35rem; }
     .cams button {
-      text-align: left;
-      border: 1px solid #3a4a3a;
-      background: var(--panel);
-      color: var(--text);
-      padding: 0.65rem 0.75rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
+      text-align: left; border: 1px solid #3a4a3a; background: var(--panel); color: var(--text);
+      padding: 0.6rem 0.7rem; border-radius: 6px; cursor: pointer; font-size: 0.88rem;
     }
     .cams button:hover { border-color: var(--accent); }
-    .cams button.active {
-      background: #2f4a32;
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .cams button .meta {
-      display: block;
-      color: var(--muted);
-      font-size: 0.75rem;
-      margin-top: 0.15rem;
-    }
-    .stage {
-      background: var(--panel);
-      border-radius: 10px;
-      padding: 1rem;
-    }
-    .stage h2 {
-      margin: 0 0 0.35rem;
-      font-size: 1.15rem;
-      font-weight: 600;
-    }
-    .stage .note {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 0.85rem;
-      line-height: 1.4;
-    }
-    svg.pitch {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 6px;
-    }
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 0.85rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
-    .swatch {
-      width: 12px; height: 12px; border-radius: 2px;
-      display: inline-block;
-    }
-    .all-row {
-      margin-top: 0.5rem;
-    }
+    .cams button.active { background: #2f4a32; border-color: var(--accent); color: var(--accent); }
+    .cams button .meta { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 0.15rem; }
+    .stage { background: var(--panel); border-radius: 10px; padding: 1rem; }
+    .stage h2 { margin: 0 0 0.3rem; font-size: 1.1rem; }
+    .note { color: var(--muted); font-size: 0.84rem; margin-bottom: 0.7rem; line-height: 1.4; }
+    .toggles, .moments { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.65rem; font-size: 0.84rem; color: var(--muted); }
+    .toggles label, .moments label { cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; }
+    svg.pitch { width: 100%; height: auto; display: block; border-radius: 6px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 0.75rem; font-size: 0.78rem; color: var(--muted); align-items: center; }
+    .swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; border: 1px solid rgba(255,255,255,0.25); }
+    .bar { width: 120px; height: 11px; border-radius: 2px; background: linear-gradient(90deg, #6b2d2d, #c9a227, #2d8a4a); }
+    .stats, .optimize { margin-top: 0.7rem; font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+    .optimize { border-top: 1px solid #3a4a3a; padding-top: 0.75rem; }
+    .optimize strong { color: var(--text); }
+    .shots { margin-top: 1rem; border-top: 1px solid #3a4a3a; padding-top: 0.85rem; }
+    .shots h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+    .cap { color: var(--muted); font-size: 0.78rem; margin-bottom: 0.55rem; line-height: 1.4; }
+    .shot-main { width: 100%; border-radius: 6px; display: block; background: #111; }
+    .shot-meta { color: var(--muted); font-size: 0.8rem; margin: 0.35rem 0 0.65rem; }
+    .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+    @media (max-width: 800px) { .thumbs { grid-template-columns: repeat(2, 1fr); } }
+    .thumbs button { border: 2px solid #3a4a3a; background: #111; padding: 0; border-radius: 5px; cursor: pointer; overflow: hidden; }
+    .thumbs button.active { border-color: var(--accent); }
+    .thumbs img { width: 100%; display: block; }
+    .thumbs .tlab { display: block; font-size: 0.68rem; color: var(--muted); padding: 0.2rem 0.3rem; text-align: left; }
+    .all-row { margin-top: 0.45rem; }
     .all-row button {
-      width: 100%;
-      border: 1px dashed #5a6a5a;
-      background: transparent;
-      color: var(--muted);
-      padding: 0.55rem;
-      border-radius: 6px;
-      cursor: pointer;
+      width: 100%; border: 1px dashed #5a6a5a; background: transparent; color: var(--muted);
+      padding: 0.5rem; border-radius: 6px; cursor: pointer;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Match 2 camera coverage on the pitch</h1>
+    <h1>Match 2 FOV — redrawn from real frames</h1>
     <p class="sub">
-      Green = in-play pitch (white lines = boundaries). Shaded wedge = <strong>estimated primary FOV</strong>
-      from placement diagram aim + 4quad win rates — not surveyed FOV / calib.
-      Cam4plus / Cam5plus are extras (not on the P-map); shown as wide coverage guesses.
+      Wedges remapped from synced Top Left screenshots (visible goals / center circle / sidelines) — not placement arrows.
+      Heatmap = distance model <em>re-anchored</em> to detections on those frames (P10≈21px, P7≈13px, Cam4plus≈26px at play).
+      Confidence: FOV shapes ~7/10 after screenshot pass; absolute px still ~5/10 without calib.
     </p>
   </header>
 
@@ -142,232 +68,380 @@
     <section class="stage">
       <h2 id="title">—</h2>
       <p class="note" id="blurb"></p>
-      <svg class="pitch" viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg" aria-label="Soccer pitch">
+      <div class="toggles">
+        <label><input type="checkbox" id="togHeat" checked /> Ball-size heatmap</label>
+        <label><input type="checkbox" id="togLabels" checked /> px labels</label>
+        <label><input type="checkbox" id="togFov" checked /> FOV wedge</label>
+      </div>
+      <div class="moments">
+        Preview moment:
+        <label><input type="radio" name="mom" value="150" checked /> f150 (~0:28.5)</label>
+        <label><input type="radio" name="mom" value="097" /> f097 (P10 gold-rich)</label>
+      </div>
+      <svg class="pitch" viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="grass" width="40" height="640" patternUnits="userSpaceOnUse">
             <rect width="20" height="640" fill="#2d7a3e"/>
             <rect x="20" width="20" height="640" fill="#276f38"/>
           </pattern>
-          <linearGradient id="cov" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#e8c547" stop-opacity="0.55"/>
-            <stop offset="100%" stop-color="#e8c547" stop-opacity="0.18"/>
-          </linearGradient>
         </defs>
-        <!-- Outer margin -->
-        <rect x="0" y="0" width="1000" height="640" fill="#1a1f1a"/>
-        <!-- Pitch (FIFA-ish ratio in viewBox) -->
-        <g id="pitchGroup" transform="translate(60,40)">
-          <rect id="turf" x="0" y="0" width="880" height="560" fill="url(#grass)" stroke="#fff" stroke-width="3"/>
-          <!-- Halfway -->
+        <rect width="1000" height="640" fill="#1a1f1a"/>
+        <g transform="translate(60,40)">
+          <rect x="0" y="0" width="880" height="560" fill="url(#grass)" stroke="#fff" stroke-width="3"/>
+          <g id="heat"></g>
           <line x1="440" y1="0" x2="440" y2="560" stroke="#fff" stroke-width="2"/>
           <circle cx="440" cy="280" r="70" fill="none" stroke="#fff" stroke-width="2"/>
           <circle cx="440" cy="280" r="3" fill="#fff"/>
-          <!-- Left penalty -->
           <rect x="0" y="140" width="120" height="280" fill="none" stroke="#fff" stroke-width="2"/>
           <rect x="0" y="200" width="45" height="160" fill="none" stroke="#fff" stroke-width="2"/>
-          <circle cx="80" cy="280" r="3" fill="#fff"/>
-          <path d="M120,210 A60,60 0 0 1 120,350" fill="none" stroke="#fff" stroke-width="2"/>
-          <!-- Right penalty -->
           <rect x="760" y="140" width="120" height="280" fill="none" stroke="#fff" stroke-width="2"/>
           <rect x="835" y="200" width="45" height="160" fill="none" stroke="#fff" stroke-width="2"/>
-          <circle cx="800" cy="280" r="3" fill="#fff"/>
-          <path d="M760,210 A60,60 0 0 0 760,350" fill="none" stroke="#fff" stroke-width="2"/>
-          <!-- Goals -->
           <rect x="-14" y="240" width="14" height="80" fill="none" stroke="#fff" stroke-width="2"/>
           <rect x="880" y="240" width="14" height="80" fill="none" stroke="#fff" stroke-width="2"/>
-          <!-- Coverage + cameras drawn by JS -->
           <g id="coverage"></g>
+          <g id="pxLabels"></g>
           <g id="cameras"></g>
         </g>
       </svg>
       <div class="legend">
-        <span><i class="swatch" style="background:#e8c547;opacity:.7"></i> Estimated primary coverage</span>
-        <span><i class="swatch" style="background:#4aa3ff"></i> Camera mount</span>
-        <span>Left = P1 end · Right = P6 end · Bottom = P7/P8 side · Top = P10/P12 side</span>
+        <span>Ball px @1920</span>
+        <span class="bar"></span>
+        <span><i class="swatch" style="background:#6b2d2d"></i> ≲12 hard</span>
+        <span><i class="swatch" style="background:#c9a227"></i> 12–20</span>
+        <span><i class="swatch" style="background:#2d8a4a"></i> ≳20</span>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="optimize" id="optimize"></div>
+      <div class="shots">
+        <h3>Screenshot validation</h3>
+        <p class="cap">Synced Top Left. Green = v10 @0.30. Use these to check the yellow FOV wedge — if landmarks don’t match, trust the photo.</p>
+        <img class="shot-main" id="shotMain" alt="Selected camera frame" />
+        <div class="shot-meta" id="shotMeta"></div>
+        <div class="thumbs" id="thumbs"></div>
       </div>
     </section>
   </div>
 
   <script>
-    // Pitch coords inside turf: x 0..880 (left→right), y 0..560 (top→bottom in SVG).
-    // Diagram: top of SVG = top touchline (P10/P12), bottom = P7/P8.
+    const PITCH_W = 880, PITCH_H = 560, LEN_M = 105, WID_M = 68, BALL_M = 0.22, IMG_W = 1920;
+    // Screenshot-validated FOVs (landmarks: goals, center circle, sidelines on Top Left f150/f097)
     const CAMS = [
       {
-        id: "P1",
-        mount: [ -20, 420 ],
-        color: "#4aa3ff",
-        // Behind left goal, bottomish → covers left third / left box
-        poly: [[0,80],[0,520],[280,480],[300,200],[120,80]],
-        blurb: "Behind left goal (lower). Strong on left box & left third. Ball large near this end; tiny or lost on the far (right) half.",
-        size: "Large near left goal; often ~20–30px when in box @1920. Weak far side.",
-        wins: "Sometimes Top Right / Center when ball is leftish."
+        id: "P1", mount: [-30, 280], height_m: 6, hfov_deg: 70, color: "#4aa3ff",
+        // Photo: center circle / midfield dominant — NOT a tight left-box cam in this framing
+        poly: [[60,60],[640,40],[660,520],[80,540]],
+        seen: "Center circle + midfield band (left→center). Far from a pure 'left goal only' wedge.",
+        optimize: "Re-aim toward left box OR accept as midfield cam; don’t rely on it for left-corner ball."
       },
       {
-        id: "P6",
-        mount: [ 900, 100 ],
-        color: "#4aa3ff",
-        poly: [[880,40],[880,480],[600,440],[580,80],[760,40]],
-        blurb: "Behind right goal (upper). Strong on right box & right third. Opposite of P1.",
-        size: "Large near right goal; small on left half.",
-        wins: "Rarely tops 4quad max_conf in surveyed windows."
+        id: "P6", mount: [910, 200], height_m: 6, hfov_deg: 70, color: "#4aa3ff",
+        // Photo: midfield foreground, one goal far at top of frame
+        poly: [[100,40],[820,20],[860,360],[120,540]],
+        seen: "Half-length view: midfield large, far goal tiny. Ball at far end likely ≲8px.",
+        optimize: "Good for midfield handoff; bad sole cam for far-goal plays — keep a near-end specialist."
       },
       {
-        id: "P7",
-        mount: [ 220, 580 ],
-        color: "#4aa3ff",
-        poly: [[40,560],[400,560],[420,200],[200,120],[40,280]],
-        blurb: "Bottom touchline, left half, aiming up into the left half. Your Top Left gold partner — ball often small (~12px median).",
-        size: "Top Left gold: median ~12px min-side @1920 (hard).",
-        wins: "P-cam-only Top Left ~51%; with Cam4plus in pool drops a lot."
+        id: "P7", mount: [250, 590], height_m: 5, hfov_deg: 75, color: "#4aa3ff",
+        // Photo: LEFT GOAL + almost full width + center circle on right → nearly whole left half
+        poly: [[0,10],[0,560],[520,560],[540,20],[20,10]],
+        seen: "Almost full left half (goal→midfield), both touchlines. Much wider than old diagram.",
+        optimize: "Strong coverage cam but ball often ~13px on Top Left — raise conf floor or prefer Cam4plus/P10 when larger.",
+        anchor_px: 13, anchor: [200, 120]
       },
       {
-        id: "P8",
-        mount: [ 660, 580 ],
-        color: "#4aa3ff",
-        poly: [[480,560],[840,560],[840,280],[680,120],[460,200]],
-        blurb: "Bottom touchline, right half, aiming up into the right half. Shows up on Center/Bottom Right as a secondary winner.",
-        size: "Comfortable when ball is near bottom-right; small across the pitch.",
-        wins: "Center Start ~12%; Bottom Right ~15%."
+        id: "P8", mount: [700, 590], height_m: 5, hfov_deg: 65, color: "#4aa3ff",
+        // Photo: center left, RIGHT goal + penalty on right
+        poly: [[360,40],[880,20],[880,540],[400,540]],
+        seen: "Right half from midfield → right goal. Matches bottom-right specialist, wide.",
+        optimize: "Primary for right-half attack; pair with Cam4plus/P6 for depth."
       },
       {
-        id: "P10",
-        mount: [ 300, -20 ],
-        color: "#4aa3ff",
-        poly: [[80,0],[420,0],[400,320],[180,400],[60,160]],
-        blurb: "Top touchline, left half, aiming down. Primary Top Left specialist — denser ball (~17px median) than P7 on same clip.",
-        size: "Top Left gold: median ~17px @1920.",
-        wins: "P-cam Top Left ~38%; with Cam4plus still ~21% on that window."
+        id: "P10", mount: [280, -25], height_m: 5, hfov_deg: 62, color: "#4aa3ff",
+        // Photo: midfield/center on one side, corner on other — top-left → center band
+        poly: [[40,0],[520,0],[560,360],[280,560],[40,300]],
+        seen: "Top-left / center band. On f097 ball ~21px (gold-aligned).",
+        optimize: "Keep as Top Left specialist; often sharper than P7 on same play.",
+        anchor_px: 21, anchor: [220, 150]
       },
       {
-        id: "P12",
-        mount: [ 580, -20 ],
-        color: "#4aa3ff",
-        poly: [[460,0],[800,0],[820,160],[700,400],[480,320]],
-        blurb: "Top touchline, right half, aiming down. Mirror of P10 for the right half.",
-        size: "Large near top-right touch; small far bottom/left.",
-        wins: "Low share in the four surveyed windows."
+        id: "P12", mount: [620, -25], height_m: 5, hfov_deg: 65, color: "#4aa3ff",
+        // Photo: LEFT goal large on left, center upper-right — angled across left half
+        poly: [[0,30],[0,500],[420,540],[500,60],[60,20]],
+        seen: "Left goal + into midfield (angled). Overlaps P7/P1 a lot.",
+        optimize: "Redundant with P7 on left half — use as backup or re-aim to top-right half to reduce overlap."
       },
       {
-        id: "Cam4plus",
-        mount: [ 440, 620 ],
-        color: "#ff8c4a",
-        estimated: true,
-        // Wide “master” — covers most of pitch in practice
-        poly: [[40,40],[840,40],[840,520],[40,520]],
-        blurb: "Extra mount (not on P-map). Behaves like a wide master: wins most 4quad frames when in the pool (Center ~82%, Top Left ~79%, Bottom Right ~58%).",
-        size: "Sample dets often ~22–25px @1920 with high conf — larger than touchline specialists on average.",
-        wins: "Default #1 when pool includes wide cams."
+        id: "Cam4plus", mount: [40, 300], height_m: 7.5, hfov_deg: 72, color: "#ff8c4a", estimated: false,
+        // Photo: left sideline vertical, midfield, far goal top-right — LEFT~half, not full pitch
+        poly: [[0,0],[0,560],[500,560],[560,180],[480,0]],
+        seen: "Left sideline master: ~left half to midfield. Ball ~25–27px when in play near left touch. Survey winner.",
+        optimize: "Best default when ball is left/center. Put in pool; don’t pretend it covers right-half deep plays.",
+        anchor_px: 26, anchor: [120, 260]
       },
       {
-        id: "Cam5plus",
-        mount: [ 440, -40 ],
-        color: "#ff8c4a",
-        estimated: true,
-        poly: [[120,60],[760,60],[800,480],[80,480]],
-        blurb: "Extra mount (not on P-map). Secondary wide cam — strong on Bottom Right (~27%), rarely elsewhere in the survey.",
-        size: "Can be large (~30px+) when ball is near its FOV; otherwise quiet.",
-        wins: "Bottom Right secondary; elsewhere low."
+        id: "Cam5plus", mount: [40, 120], height_m: 7.5, hfov_deg: 72, color: "#ff8c4a", estimated: false,
+        // Photo: similar left-sideline → center
+        poly: [[0,20],[0,500],[520,520],[540,60],[40,20]],
+        seen: "Similar left-wide view to Cam4plus (slightly different aim). Overlap heavy.",
+        optimize: "Keep for Bottom Right / redundancy; or re-aim to right half so 4+ and 5+ split the pitch."
       }
     ];
 
+    const heatG = document.getElementById("heat");
     const cov = document.getElementById("coverage");
+    const pxG = document.getElementById("pxLabels");
     const camsG = document.getElementById("cameras");
     const nav = document.getElementById("camNav");
     const title = document.getElementById("title");
     const blurb = document.getElementById("blurb");
-    let active = "P10";
+    const stats = document.getElementById("stats");
+    const optimize = document.getElementById("optimize");
+    const shotMain = document.getElementById("shotMain");
+    const shotMeta = document.getElementById("shotMeta");
+    const thumbs = document.getElementById("thumbs");
+    let active = "Cam4plus";
+    let showMode = "cam";
+    let moment = "150";
+    let manifest = null;
+    const FRAME_BASE = "/reports/eval_match2_v10/camera_pitch_coverage/frames/";
 
-    function polyPoints(poly) {
-      return poly.map(p => p.join(",")).join(" ");
+    function toM(x, y) { return { x: (x / PITCH_W) * LEN_M, y: (y / PITCH_H) * WID_M }; }
+    function rawBallPx(c, px, py) {
+      const m = toM(c.mount[0], c.mount[1]);
+      const p = toM(px, py);
+      const dist = Math.hypot(Math.hypot(p.x - m.x, p.y - m.y), c.height_m);
+      const focal = IMG_W / (2 * Math.tan((c.hfov_deg * Math.PI) / 360));
+      return (BALL_M / dist) * focal;
+    }
+    function calibrate(c) {
+      if (c.anchor_px && c.anchor) {
+        return c.anchor_px / rawBallPx(c, c.anchor[0], c.anchor[1]);
+      }
+      // siblings inherit
+      if (c.id === "P12") return calibrate(CAMS.find(x => x.id === "P10"));
+      if (c.id === "P8") return calibrate(CAMS.find(x => x.id === "P7"));
+      if (c.id === "Cam5plus") return calibrate(CAMS.find(x => x.id === "Cam4plus"));
+      if (c.id === "P1" || c.id === "P6") return 1.05;
+      return 1;
+    }
+    CAMS.forEach(c => { c.scale = calibrate(c); });
+    function ballPx(c, x, y) { return rawBallPx(c, x, y) * c.scale; }
+
+    function colorForPx(px) {
+      const t = Math.max(0, Math.min(1, (px - 8) / 20));
+      let r, g, b;
+      if (t < 0.5) {
+        const u = t / 0.5;
+        r = 107 + u * (201 - 107); g = 45 + u * (162 - 45); b = 45 + u * (39 - 45);
+      } else {
+        const u = (t - 0.5) / 0.5;
+        r = 201 + u * (45 - 201); g = 162 + u * (138 - 162); b = 39 + u * (74 - 39);
+      }
+      return `rgba(${r|0},${g|0},${b|0},0.72)`;
     }
 
-    function drawAllMounts(highlightId) {
+    function polyPoints(poly) { return poly.map(p => p.join(",")).join(" "); }
+
+    function drawHeat(c) {
+      heatG.innerHTML = "";
+      if (!document.getElementById("togHeat").checked || showMode === "all") return;
+      const cols = 16, rows = 10, cw = PITCH_W / cols, rh = PITCH_H / rows;
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+        const cx = (i + 0.5) * cw, cy = (j + 0.5) * rh;
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", i * cw); rect.setAttribute("y", j * rh);
+        rect.setAttribute("width", cw + 0.5); rect.setAttribute("height", rh + 0.5);
+        rect.setAttribute("fill", colorForPx(ballPx(c, cx, cy)));
+        heatG.appendChild(rect);
+      }
+    }
+
+    function drawPxLabels(c) {
+      pxG.innerHTML = "";
+      if (!document.getElementById("togLabels").checked || showMode === "all") return;
+      const cols = 8, rows = 5, cw = PITCH_W / cols, rh = PITCH_H / rows;
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+        const cx = (i + 0.5) * cw, cy = (j + 0.5) * rh;
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("x", cx); t.setAttribute("y", cy + 4);
+        t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "13");
+        t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#fff");
+        t.setAttribute("stroke", "#111"); t.setAttribute("stroke-width", "2.5");
+        t.setAttribute("paint-order", "stroke");
+        t.textContent = Math.round(ballPx(c, cx, cy));
+        pxG.appendChild(t);
+      }
+    }
+
+    function drawFov(c) {
+      cov.innerHTML = "";
+      if (showMode === "all") {
+        CAMS.forEach(cam => {
+          const p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+          p.setAttribute("points", polyPoints(cam.poly));
+          p.setAttribute("fill", "#e8c547"); p.setAttribute("fill-opacity", "0.1");
+          p.setAttribute("stroke", "#e8c547"); p.setAttribute("stroke-width", "1.5");
+          cov.appendChild(p);
+        });
+        return;
+      }
+      if (!document.getElementById("togFov").checked) return;
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      p.setAttribute("points", polyPoints(c.poly));
+      p.setAttribute("fill", "none"); p.setAttribute("stroke", "#e8c547");
+      p.setAttribute("stroke-width", "3");
+      cov.appendChild(p);
+    }
+
+    function drawMounts(hilite) {
       camsG.innerHTML = "";
       CAMS.forEach(c => {
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circ.setAttribute("cx", c.mount[0]);
-        circ.setAttribute("cy", c.mount[1]);
-        circ.setAttribute("r", c.id === highlightId ? 14 : 10);
-        circ.setAttribute("fill", c.color);
-        circ.setAttribute("stroke", "#fff");
-        circ.setAttribute("stroke-width", c.id === highlightId ? "3" : "2");
+        circ.setAttribute("cx", c.mount[0]); circ.setAttribute("cy", c.mount[1]);
+        circ.setAttribute("r", c.id === hilite ? 14 : 10);
+        circ.setAttribute("fill", c.color); circ.setAttribute("stroke", "#fff");
+        circ.setAttribute("stroke-width", c.id === hilite ? "3" : "2");
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.setAttribute("x", c.mount[0]);
-        label.setAttribute("y", c.mount[1] + 4);
-        label.setAttribute("text-anchor", "middle");
-        label.setAttribute("font-size", "9");
-        label.setAttribute("font-weight", "700");
-        label.setAttribute("fill", "#111");
-        label.textContent = c.id.replace("Cam", "C").replace("plus", "+");
-        if (c.id.startsWith("Cam")) label.textContent = c.id === "Cam4plus" ? "4+" : "5+";
-        g.appendChild(circ);
-        g.appendChild(label);
-        camsG.appendChild(g);
+        label.setAttribute("x", c.mount[0]); label.setAttribute("y", c.mount[1] + 4);
+        label.setAttribute("text-anchor", "middle"); label.setAttribute("font-size", "9");
+        label.setAttribute("font-weight", "700"); label.setAttribute("fill", "#111");
+        label.textContent = c.id.startsWith("Cam") ? (c.id === "Cam4plus" ? "4+" : "5+") : c.id;
+        g.appendChild(circ); g.appendChild(label); camsG.appendChild(g);
       });
+    }
+
+    function shotFile(cam) {
+      return FRAME_BASE + cam + "_top_left_f" + moment.padStart(3, "0") + ".jpg";
+    }
+
+    function detMeta(cam) {
+      if (!manifest || !manifest.moments) return null;
+      const m = manifest.moments.find(x => String(x.frame_idx) === String(parseInt(moment, 10)));
+      if (!m) return null;
+      return m.frames.find(f => f.cam === cam);
+    }
+
+    function updateShot(id) {
+      if (id === "ALL") {
+        shotMain.removeAttribute("src");
+        shotMeta.textContent = "Pick a camera.";
+      } else {
+        shotMain.src = shotFile(id) + "?v=2";
+        const row = detMeta(id);
+        shotMeta.textContent = row
+          ? (row.n_dets
+              ? `${id} f${moment}: det conf ${row.best_conf}, side ${row.best_side_px}px @1920`
+              : `${id} f${moment}: no ball @0.30`)
+          : `${id} preview`;
+      }
+      [...thumbs.querySelectorAll("button")].forEach(b => b.classList.toggle("active", b.dataset.id === id));
+    }
+
+    function buildThumbs() {
+      thumbs.innerHTML = "";
+      CAMS.forEach(c => {
+        const b = document.createElement("button");
+        b.type = "button"; b.dataset.id = c.id;
+        b.onclick = () => show(c.id);
+        const img = document.createElement("img");
+        img.src = shotFile(c.id) + "?v=2"; img.alt = c.id; img.loading = "lazy";
+        img.className = "thumbImg";
+        const lab = document.createElement("span"); lab.className = "tlab"; lab.textContent = c.id;
+        b.appendChild(img); b.appendChild(lab); thumbs.appendChild(b);
+      });
+    }
+
+    function refreshThumbs() {
+      [...thumbs.querySelectorAll("img.thumbImg")].forEach((img, i) => {
+        img.src = shotFile(CAMS[i].id) + "?v=2";
+      });
+      updateShot(active === "ALL" ? "ALL" : active);
+    }
+
+    function summarize(c) {
+      const vals = [];
+      for (let j = 0; j < 5; j++) for (let i = 0; i < 8; i++) {
+        vals.push(ballPx(c, ((i + 0.5) / 8) * PITCH_W, ((j + 0.5) / 5) * PITCH_H));
+      }
+      vals.sort((a, b) => a - b);
+      const inFov = [];
+      for (let j = 0; j < 10; j++) for (let i = 0; i < 16; i++) {
+        const x = ((i + 0.5) / 16) * PITCH_W, y = ((j + 0.5) / 10) * PITCH_H;
+        if (pointInPoly(x, y, c.poly)) inFov.push(ballPx(c, x, y));
+      }
+      inFov.sort((a, b) => a - b);
+      const ge15 = inFov.filter(v => v >= 15).length;
+      return {
+        med: vals[vals.length >> 1],
+        fovMed: inFov.length ? inFov[inFov.length >> 1] : 0,
+        fovGoodPct: inFov.length ? (100 * ge15) / inFov.length : 0,
+        fovN: inFov.length
+      };
+    }
+
+    function pointInPoly(x, y, poly) {
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+        const inter = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi + 1e-9) + xi);
+        if (inter) inside = !inside;
+      }
+      return inside;
     }
 
     function show(id) {
-      active = id;
+      showMode = "cam"; active = id;
       const c = CAMS.find(x => x.id === id);
-      cov.innerHTML = "";
-      const p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-      p.setAttribute("points", polyPoints(c.poly));
-      p.setAttribute("fill", "url(#cov)");
-      p.setAttribute("stroke", "#e8c547");
-      p.setAttribute("stroke-width", "2");
-      p.setAttribute("stroke-dasharray", c.estimated ? "8 6" : "0");
-      cov.appendChild(p);
-      drawAllMounts(id);
-      title.textContent = c.id + (c.estimated ? " (estimated — not on P-map)" : "");
-      blurb.innerHTML =
-        c.blurb +
-        "<br><br><strong>Ball size:</strong> " + c.size +
-        "<br><strong>Survey wins:</strong> " + c.wins;
-      [...nav.querySelectorAll("button[data-id]")].forEach(b => {
-        b.classList.toggle("active", b.dataset.id === id);
-      });
+      drawHeat(c); drawFov(c); drawPxLabels(c); drawMounts(id);
+      const s = summarize(c);
+      title.textContent = c.id;
+      blurb.innerHTML = `<strong>From photos:</strong> ${c.seen}`;
+      stats.innerHTML =
+        `Inside FOV wedge: ~<b>${s.fovGoodPct.toFixed(0)}%</b> of cells ≥15px (model) · FOV median ~<b>${Math.round(s.fovMed)}px</b>`;
+      optimize.innerHTML = `<strong>Optimize ${c.id}:</strong> ${c.optimize}`;
+      [...nav.querySelectorAll("button[data-id]")].forEach(b => b.classList.toggle("active", b.dataset.id === id));
+      updateShot(id);
     }
 
     function showAll() {
-      active = "ALL";
-      cov.innerHTML = "";
-      CAMS.filter(c => !c.estimated).forEach((c, i) => {
-        const p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        p.setAttribute("points", polyPoints(c.poly));
-        p.setAttribute("fill", "#e8c547");
-        p.setAttribute("fill-opacity", "0.12");
-        p.setAttribute("stroke", "#e8c547");
-        p.setAttribute("stroke-width", "1.5");
-        p.setAttribute("stroke-opacity", "0.7");
-        cov.appendChild(p);
-      });
-      drawAllMounts(null);
-      title.textContent = "All 6 P-cams (overlap)";
-      blurb.textContent =
-        "Overlapping estimated FOVs for the product P-cam ring. Center of pitch is at the edge of several views — Cam4plus fills that gap when included.";
-      [...nav.querySelectorAll("button[data-id]")].forEach(b => {
-        b.classList.toggle("active", b.dataset.id === "ALL");
-      });
+      showMode = "all"; active = "ALL";
+      heatG.innerHTML = ""; pxG.innerHTML = "";
+      drawFov(null); drawMounts(null);
+      title.textContent = "All cams FOV overlap (screenshot-based)";
+      blurb.textContent = "Yellow outlines = remapped FOVs. Heavy overlap on left half (P7, P12, Cam4+, Cam5+). Right half thinner.";
+      stats.textContent = "";
+      optimize.innerHTML = "<strong>System optimize:</strong> Split left/right masters (aim Cam5+ to right half), keep P10/P8 as touchline sharpeners, stop counting tiny far-cam boxes as winners (thr floors), prefer Cam4+ when it has ≥20px.";
+      [...nav.querySelectorAll("button[data-id]")].forEach(b => b.classList.toggle("active", b.dataset.id === "ALL"));
+      updateShot("ALL");
     }
+
+    function redraw() { if (showMode === "all") showAll(); else show(active); }
 
     CAMS.forEach(c => {
       const b = document.createElement("button");
       b.dataset.id = c.id;
-      b.innerHTML = c.id + '<span class="meta">' + (c.estimated ? "extra · estimated FOV" : "P-map mount") + "</span>";
+      b.innerHTML = c.id + '<span class="meta">screenshot-validated FOV</span>';
       b.onclick = () => show(c.id);
       nav.appendChild(b);
     });
     const all = document.createElement("div");
     all.className = "all-row";
     const ab = document.createElement("button");
-    ab.dataset.id = "ALL";
-    ab.textContent = "Show all 6 P-cams overlap";
+    ab.dataset.id = "ALL"; ab.textContent = "Show all FOV overlap";
     ab.onclick = showAll;
-    all.appendChild(ab);
-    nav.appendChild(all);
+    all.appendChild(ab); nav.appendChild(all);
 
-    show("P10");
+    ["togHeat", "togLabels", "togFov"].forEach(id => {
+      document.getElementById(id).addEventListener("change", redraw);
+    });
+    document.querySelectorAll('input[name="mom"]').forEach(r => {
+      r.addEventListener("change", e => { moment = e.target.value; refreshThumbs(); });
+    });
+
+    buildThumbs();
+    fetch(FRAME_BASE + "manifest.json").then(r => r.json()).then(m => { manifest = m; updateShot(active); }).catch(() => {});
+    show("Cam4plus");
   </script>
 </body>
 </html>

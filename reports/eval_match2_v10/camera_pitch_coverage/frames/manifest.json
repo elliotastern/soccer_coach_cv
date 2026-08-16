@@ -1,0 +1,156 @@
+{
+  "note": "Synced Top Left frames for FOV validation (diagram redrawn from landmarks)",
+  "stem": "quad_top_left_t00026.0s",
+  "moments": [
+    {
+      "frame_idx": 150,
+      "clock_approx": "~0:28.5",
+      "frames": [
+        {
+          "cam": "P1",
+          "file": "P1_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P6",
+          "file": "P6_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P7",
+          "file": "P7_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 2,
+          "best_conf": 0.45,
+          "best_side_px": 13.1
+        },
+        {
+          "cam": "P8",
+          "file": "P8_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P10",
+          "file": "P10_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P12",
+          "file": "P12_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "Cam4plus",
+          "file": "Cam4plus_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 1,
+          "best_conf": 0.795,
+          "best_side_px": 25.1
+        },
+        {
+          "cam": "Cam5plus",
+          "file": "Cam5plus_top_left_f150.jpg",
+          "stem": "quad_top_left_t00026.0s",
+          "frame_idx": 150,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        }
+      ]
+    },
+    {
+      "frame_idx": 97,
+      "clock_approx": "gold-rich f97",
+      "frames": [
+        {
+          "cam": "P1",
+          "file": "P1_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P6",
+          "file": "P6_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P7",
+          "file": "P7_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 1,
+          "best_conf": 0.488,
+          "best_side_px": 13.0
+        },
+        {
+          "cam": "P8",
+          "file": "P8_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "P10",
+          "file": "P10_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 1,
+          "best_conf": 0.698,
+          "best_side_px": 21.0
+        },
+        {
+          "cam": "P12",
+          "file": "P12_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        },
+        {
+          "cam": "Cam4plus",
+          "file": "Cam4plus_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 1,
+          "best_conf": 0.792,
+          "best_side_px": 26.6
+        },
+        {
+          "cam": "Cam5plus",
+          "file": "Cam5plus_top_left_f097.jpg",
+          "frame_idx": 97,
+          "n_dets": 0,
+          "best_conf": null,
+          "best_side_px": null
+        }
+      ]
+    }
+  ],
+  "primary_preview_frame": 150,
+  "detect": "v10 thr0.30 no SAHI topk2 @1920"
+}
