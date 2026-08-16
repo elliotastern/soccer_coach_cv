@@ -69,7 +69,7 @@ def parse_args():
     p.add_argument("--overlay-width", type=int, default=1280)
     p.add_argument(
         "--select-camera",
-        choices=["random", "max_conf", "size_weighted"],
+        choices=["random", "max_conf", "size_weighted", "largest_ball"],
         default="random",
     )
     p.add_argument(

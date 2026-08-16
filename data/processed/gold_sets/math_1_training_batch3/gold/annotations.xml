@@ -1,0 +1,287 @@
+<?xml version='1.0' encoding='utf-8'?>
+<annotations>
+  <version>1.1</version>
+  <meta>
+    <task>
+      <id>0</id>
+      <name>strip_100</name>
+      <size>80</size>
+      <mode>annotation</mode>
+      <overlap>0</overlap>
+      <bugtracker />
+      <created />
+      <updated />
+      <subset />
+      <start_frame>0</start_frame>
+      <stop_frame>79</stop_frame>
+      <frame_filter />
+      <segments />
+      <owner />
+      <assignee />
+      <labels>
+        <label>
+          <name>player</name>
+          <color>#ff0000</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>ball</name>
+          <color>#00ff00</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pass</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value />
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>dribble</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value />
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>shot</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value />
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>recovery</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value />
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>movement</name>
+          <color>#0000ff</color>
+          <attributes>
+            <attribute>
+              <name>confidence</name>
+              <mutable>false</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values />
+            </attribute>
+            <attribute>
+              <name>involved_players</name>
+              <mutable>false</mutable>
+              <input_type>text</input_type>
+              <default_value />
+              <values />
+            </attribute>
+          </attributes>
+        </label>
+      </labels>
+    </task>
+  </meta>
+  <track id="0" label="ball" source="manual">
+    <box frame="1" xtl="1311.85" ytl="433.52" xbr="1329.29" ybr="447.49" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.120</attribute>
+    </box>
+    <box frame="2" xtl="1271.00" ytl="271.00" xbr="1289.00" ybr="289.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="12" xtl="875.00" ytl="226.00" xbr="891.00" ybr="240.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.309</attribute>
+    </box>
+    <box frame="14" xtl="1382.00" ytl="437.00" xbr="1408.00" ybr="456.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.110</attribute>
+    </box>
+    <box frame="15" xtl="1111.00" ytl="459.00" xbr="1128.00" ybr="473.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.219</attribute>
+    </box>
+    <box frame="24" xtl="1814.00" ytl="172.00" xbr="1832.00" ybr="190.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="25" xtl="1783.32" ytl="180.90" xbr="1806.65" ybr="207.13" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.410</attribute>
+    </box>
+    <box frame="26" xtl="194.49" ytl="506.29" xbr="210.43" ybr="522.68" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.091</attribute>
+    </box>
+    <box frame="27" xtl="229.00" ytl="141.00" xbr="240.00" ybr="152.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.362</attribute>
+    </box>
+    <box frame="28" xtl="1586.00" ytl="242.00" xbr="1604.00" ybr="262.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.387</attribute>
+    </box>
+    <box frame="29" xtl="1782.75" ytl="180.70" xbr="1805.55" ybr="207.93" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.252</attribute>
+    </box>
+    <box frame="30" xtl="1586.00" ytl="242.00" xbr="1604.00" ybr="262.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="33" xtl="531.35" ytl="357.00" xbr="552.00" ybr="373.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.576</attribute>
+    </box>
+    <box frame="34" xtl="1586.00" ytl="248.00" xbr="1600.00" ybr="262.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.127</attribute>
+    </box>
+    <box frame="35" xtl="1586.00" ytl="242.00" xbr="1604.00" ybr="262.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.110</attribute>
+    </box>
+    <box frame="36" xtl="1603.00" ytl="347.00" xbr="1614.00" ybr="359.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.206</attribute>
+    </box>
+    <box frame="37" xtl="1115.52" ytl="106.30" xbr="1127.25" ybr="114.85" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.122</attribute>
+    </box>
+    <box frame="38" xtl="1032.00" ytl="272.00" xbr="1047.00" ybr="288.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.350</attribute>
+    </box>
+    <box frame="39" xtl="694.16" ytl="238.24" xbr="712.36" ybr="251.94" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.565</attribute>
+    </box>
+    <box frame="42" xtl="216.90" ytl="243.74" xbr="229.02" ybr="254.43" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.152</attribute>
+    </box>
+    <box frame="50" xtl="1621.00" ytl="348.00" xbr="1632.00" ybr="360.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.253</attribute>
+    </box>
+    <box frame="51" xtl="1168.00" ytl="218.00" xbr="1182.00" ybr="232.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="58" xtl="824.00" ytl="198.00" xbr="837.00" ybr="210.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.176</attribute>
+    </box>
+    <box frame="63" xtl="68.96" ytl="854.31" xbr="94.31" ybr="879.99" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.264</attribute>
+    </box>
+    <box frame="65" xtl="46.00" ytl="851.00" xbr="60.00" ybr="865.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="69" xtl="743.00" ytl="300.00" xbr="757.00" ybr="314.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="72" xtl="652.00" ytl="445.00" xbr="664.00" ybr="457.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="73" xtl="651.00" ytl="441.00" xbr="665.00" ybr="455.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="74" xtl="121.00" ytl="511.00" xbr="135.00" ybr="525.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="75" xtl="112.00" ytl="515.00" xbr="126.00" ybr="528.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.303</attribute>
+    </box>
+    <box frame="76" xtl="654.00" ytl="444.00" xbr="666.00" ybr="456.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="77" xtl="652.00" ytl="444.00" xbr="666.00" ybr="458.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="78" xtl="654.00" ytl="444.00" xbr="666.00" ybr="456.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+    <box frame="79" xtl="649.00" ytl="444.00" xbr="661.00" ybr="456.00" outside="0" occluded="0" keyframe="1">
+      <attribute name="confidence">0.000</attribute>
+    </box>
+      <box frame="0" keyframe="1" outside="0" occluded="0" xtl="1318.00" ytl="266.00" xbr="1332.00" ybr="280.00" z_order="0"></box>
+    <box frame="3" keyframe="1" outside="0" occluded="0" xtl="1318.00" ytl="266.00" xbr="1332.00" ybr="280.00" z_order="0"></box>
+    <box frame="4" keyframe="1" outside="0" occluded="0" xtl="1318.00" ytl="266.00" xbr="1332.00" ybr="280.00" z_order="0"></box>
+    <box frame="5" keyframe="1" outside="0" occluded="0" xtl="1317.00" ytl="266.00" xbr="1331.00" ybr="280.00" z_order="0"></box>
+    <box frame="22" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="23" keyframe="1" outside="0" occluded="0" xtl="1758.00" ytl="233.00" xbr="1772.00" ybr="247.00" z_order="0"></box>
+    <box frame="31" keyframe="1" outside="0" occluded="0" xtl="1552.00" ytl="236.00" xbr="1570.00" ybr="254.00" z_order="0"></box>
+    <box frame="48" keyframe="1" outside="0" occluded="0" xtl="1171.00" ytl="232.00" xbr="1185.00" ybr="246.00" z_order="0"></box>
+    <box frame="64" keyframe="1" outside="0" occluded="0" xtl="46.00" ytl="851.00" xbr="60.00" ybr="865.00" z_order="0"></box>
+    <box frame="66" keyframe="1" outside="0" occluded="0" xtl="703.00" ytl="274.00" xbr="717.00" ybr="288.00" z_order="0"></box>
+    <box frame="67" keyframe="1" outside="0" occluded="0" xtl="723.00" ytl="263.00" xbr="737.00" ybr="277.00" z_order="0"></box>
+    <box frame="6" keyframe="1" outside="0" occluded="0" xtl="1317.00" ytl="266.00" xbr="1331.00" ybr="280.00" z_order="0"></box>
+    <box frame="7" keyframe="1" outside="0" occluded="0" xtl="1317.00" ytl="266.00" xbr="1331.00" ybr="280.00" z_order="0"></box>
+    <box frame="8" keyframe="1" outside="0" occluded="0" xtl="1317.00" ytl="266.00" xbr="1331.00" ybr="280.00" z_order="0"></box>
+    <box frame="9" keyframe="1" outside="0" occluded="0" xtl="1318.00" ytl="266.00" xbr="1332.00" ybr="280.00" z_order="0"></box>
+    <box frame="10" keyframe="1" outside="0" occluded="0" xtl="1318.00" ytl="266.00" xbr="1332.00" ybr="280.00" z_order="0"></box>
+    <box frame="11" keyframe="1" outside="0" occluded="0" xtl="1318.00" ytl="266.00" xbr="1332.00" ybr="280.00" z_order="0"></box>
+    <box frame="16" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="17" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="18" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="19" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="20" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="21" keyframe="1" outside="0" occluded="0" xtl="1856.00" ytl="125.00" xbr="1874.00" ybr="143.00" z_order="0"></box>
+    <box frame="44" keyframe="1" outside="0" occluded="0" xtl="1171.00" ytl="232.00" xbr="1185.00" ybr="246.00" z_order="0"></box>
+    <box frame="52" keyframe="1" outside="0" occluded="0" xtl="1168.00" ytl="218.00" xbr="1182.00" ybr="232.00" z_order="0"></box>
+    <box frame="53" keyframe="1" outside="0" occluded="0" xtl="824.00" ytl="198.00" xbr="837.00" ybr="210.00" z_order="0"></box>
+    <box frame="62" keyframe="1" outside="0" occluded="0" xtl="46.00" ytl="851.00" xbr="60.00" ybr="865.00" z_order="0"></box>
+    <box frame="68" keyframe="1" outside="0" occluded="0" xtl="723.00" ytl="263.00" xbr="737.00" ybr="277.00" z_order="0"></box>
+    <box frame="70" keyframe="1" outside="0" occluded="0" xtl="652.00" ytl="445.00" xbr="664.00" ybr="457.00" z_order="0"></box>
+    <box frame="71" keyframe="1" outside="0" occluded="0" xtl="652.00" ytl="445.00" xbr="664.00" ybr="457.00" z_order="0"></box>
+    <box frame="13" keyframe="1" outside="0" occluded="0" xtl="167.00" ytl="237.00" xbr="181.00" ybr="251.00" z_order="0"></box>
+    <box frame="41" keyframe="1" outside="0" occluded="0" xtl="1781.00" ytl="181.00" xbr="1805.00" ybr="207.00" z_order="0"></box>
+</track>
+</annotations>

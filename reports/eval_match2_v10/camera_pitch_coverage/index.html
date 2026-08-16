@@ -142,10 +142,11 @@
       },
       {
         id: "P7", mount: [250, 590], height_m: 5, hfov_deg: 75, color: "#4aa3ff",
-        // Photo: LEFT GOAL + almost full width + center circle on right → nearly whole left half
-        poly: [[0,10],[0,560],[520,560],[540,20],[20,10]],
-        seen: "Almost full left half (goal→midfield), both touchlines. Much wider than old diagram.",
-        optimize: "Strong coverage cam but ball often ~13px on Top Left — raise conf floor or prefer Cam4plus/P10 when larger.",
+        // Photo: left goal + left half → past center circle, BUT near-left corner is OUT of frame
+        // (bottom of image cuts field before near touchline meets left goal line)
+        poly: [[0,5],[0,400],[90,490],[300,560],[520,560],[540,25],[25,5]],
+        seen: "Left half → midfield (center circle in). Far (top) left corner in; near-left corner NOT covered.",
+        optimize: "Do not assign near-left corner to P7 — need Cam4plus/P10 or a cam that sees that touchline. Ball often ~13px; thr floor or prefer larger-ball cams.",
         anchor_px: 13, anchor: [200, 120]
       },
       {
@@ -172,18 +173,19 @@
       },
       {
         id: "Cam4plus", mount: [40, 300], height_m: 7.5, hfov_deg: 72, color: "#ff8c4a", estimated: false,
-        // Photo: left sideline vertical, midfield, far goal top-right — LEFT~half, not full pitch
+        // Opposite long-side from Cam5plus. Top Left stills: ~that half → midfield; ball ~25–27px.
         poly: [[0,0],[0,560],[500,560],[560,180],[480,0]],
-        seen: "Left sideline master: ~left half to midfield. Ball ~25–27px when in play near left touch. Survey winner.",
-        optimize: "Best default when ball is left/center. Put in pool; don’t pretend it covers right-half deep plays.",
+        seen: "One long-side master (vs Cam5 on the opposite side). Strong on Top Left (~25–27px). Survey often picks it.",
+        optimize: "Keep in pool as that-side default. Don’t re-aim toward Cam5’s half — they already split sides.",
         anchor_px: 26, anchor: [120, 260]
       },
       {
-        id: "Cam5plus", mount: [40, 120], height_m: 7.5, hfov_deg: 72, color: "#ff8c4a", estimated: false,
-        // Photo: similar left-sideline → center
-        poly: [[0,20],[0,500],[520,520],[540,60],[40,20]],
-        seen: "Similar left-wide view to Cam4plus (slightly different aim). Overlap heavy.",
-        optimize: "Keep for Bottom Right / redundancy; or re-aim to right half so 4+ and 5+ split the pitch."
+        id: "Cam5plus", mount: [840, 260], height_m: 7.5, hfov_deg: 72, color: "#ff8c4a", estimated: false,
+        // Opposite long-side from Cam4plus (user-confirmed). Top Left stills can look “same fence-left”
+        // in image space even when mounts are opposite — do not treat as Cam4 twin.
+        poly: [[380,20],[880,0],[880,560],[420,540],[360,200]],
+        seen: "Opposite-side master from Cam4plus. Complements rather than duplicates left-half P-cams.",
+        optimize: "Keep aimed at its half; put in pool. Priority is selection vs Cam4+, not moving it onto Cam4’s side."
       }
     ];
 
@@ -409,9 +411,9 @@
       heatG.innerHTML = ""; pxG.innerHTML = "";
       drawFov(null); drawMounts(null);
       title.textContent = "All cams FOV overlap (screenshot-based)";
-      blurb.textContent = "Yellow outlines = remapped FOVs. Heavy overlap on left half (P7, P12, Cam4+, Cam5+). Right half thinner.";
-      stats.textContent = "";
-      optimize.innerHTML = "<strong>System optimize:</strong> Split left/right masters (aim Cam5+ to right half), keep P10/P8 as touchline sharpeners, stop counting tiny far-cam boxes as winners (thr floors), prefer Cam4+ when it has ≥20px.";
+      blurb.textContent = "Yellow outlines = remapped FOVs. Cam4+ and Cam5+ are opposite long-side masters. P-cam overlap to watch: P7/P12 left band.";
+      stats.textContent = "Screenshot FOVs · opposite-side 4+/5+ · P7 near-corner cut";
+      optimize.innerHTML = "<strong>System optimize:</strong> Keep Cam4+/Cam5+ as opposite-side masters (don’t re-aim 5+ onto 4+). Fix P7 near-corner, P8 goal buffer, P12 off P7’s left fight. Prefer ≥20px winner + thr floors on tiny far cams.";
       [...nav.querySelectorAll("button[data-id]")].forEach(b => b.classList.toggle("active", b.dataset.id === "ALL"));
       updateShot("ALL");
     }

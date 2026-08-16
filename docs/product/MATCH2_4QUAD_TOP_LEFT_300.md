@@ -67,6 +67,21 @@ Proxy R/P uses **P10-selected frames only** (this gold is P10-only). On the firs
 | **Prelabel** | Offline `sahi_dense_tiles` (640 / 0.4 overlap, topk=3) — accuracy for labeling, **not** the live path |
 | **Build** | `python3 scripts/gold_set/build_4quad_cvat_pack.py --standalone --camera P7 --stem quad_top_left_t00026.0s --slot top_left --label "Top Left P7" --prelabel dense --stride 1 --out data/processed/gold_sets/match2_4quad_top_left_p7` |
 
-Git tracks XML + manifest only (frames local). **Human-corrected** (`gold/annotations.xml` ≠ prelabels; ~282 GT boxes / 280 frames). Next: rescore multicam baseline with P7 GT on P7-selected frames (plus existing P10 proxy).
+Git tracks XML + manifest only (frames local). **Human-corrected** (`gold/annotations.xml` ≠ prelabels; ~282 GT boxes / 280 frames).
+
+## Cam4plus companion pack (validated 2026-08-16)
+
+| | |
+|---|---|
+| **Pack path** | `data/processed/gold_sets/match2_4quad_top_left_cam4plus/` |
+| **Camera / clock** | **Cam4plus**, same Match 2 clock **0:26–0:31** (synced with P10/P7) |
+| **Size** | **299** frames with ball boxes in gold (314 boxes) |
+| **Source clip** | `reports/eval_match2_v10/4quad_test/source/quad_top_left_t00026.0s_Cam4plus.mp4` |
+| **Review UI** | http://127.0.0.1:8080/4quad-cvat/top_left_cam4plus |
+| **Prelabel** | From 4quad survey det cache @0.30 (human Save = validated gold) |
+
+**Registry of all validated packs:** [VALIDATED_GOLD_REGISTRY.md](VALIDATED_GOLD_REGISTRY.md) · checksums [gold_annotations.sha256](gold_annotations.sha256).
+
+Next: rescore 8-cam pool lock (`pool8_largest_ball_p7_thr060`) with P7+P10+Cam4plus gold on selected frames.
 
 

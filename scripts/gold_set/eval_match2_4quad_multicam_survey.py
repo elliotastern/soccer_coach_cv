@@ -32,6 +32,7 @@ from multicam_select_policy import (  # noqa: E402
     BASELINE_THR,
     QUAD_SLOTS,
     SURVEY_CAMS,
+    TOP_LEFT_PCAM_ONLY_POLICY_ID,
     TOP_LEFT_POLICY_ID,
     TOP_LEFT_THR_BY_CAM,
     thr_for_cam,
@@ -137,7 +138,7 @@ def pad_missing_cams(dets: dict, n_frames: int) -> dict:
     return out
 
 
-def select_share(dets: dict, n_frames: int, thr_by_cam: dict) -> dict:
+def select_share(dets: dict, n_frames: int, thr_by_cam: dict, pick_mode: str = "max_conf") -> dict:
     counts = Counter()
     n_selected = 0
     for i in range(n_frames):
@@ -149,7 +150,7 @@ def select_share(dets: dict, n_frames: int, thr_by_cam: dict) -> dict:
         if not active:
             counts["none"] += 1
             continue
-        cam, _pred = pick_selected(active, "max_conf")
+        cam, _pred = pick_selected(active, pick_mode)
         if cam is None:
             counts["none"] += 1
             continue
@@ -161,16 +162,18 @@ def select_share(dets: dict, n_frames: int, thr_by_cam: dict) -> dict:
         "selection_share": {k: v / n_frames for k, v in sorted(counts.items())},
         "selection_counts": dict(counts),
         "thr_by_cam": thr_by_cam,
+        "pick_mode": pick_mode,
     }
 
 
-def policies_for_slot() -> list[tuple[str, dict]]:
+def policies_for_slot() -> list[tuple[str, dict, str]]:
     return [
-        ("max_conf_030", {"_default": 0.30}),
-        ("max_conf_060", {"_default": 0.60}),
-        (TOP_LEFT_POLICY_ID, dict(TOP_LEFT_THR_BY_CAM)),
-        ("cam4_thr060_others030", {"_default": 0.30, "Cam4plus": 0.60}),
-        ("cam5_thr060_others030", {"_default": 0.30, "Cam5plus": 0.60}),
+        ("max_conf_030", {"_default": 0.30}, "max_conf"),
+        ("max_conf_060", {"_default": 0.60}, "max_conf"),
+        (TOP_LEFT_POLICY_ID, dict(TOP_LEFT_THR_BY_CAM), "largest_ball"),
+        (TOP_LEFT_PCAM_ONLY_POLICY_ID, dict(TOP_LEFT_THR_BY_CAM), "max_conf"),
+        ("cam4_thr060_others030", {"_default": 0.30, "Cam4plus": 0.60}, "max_conf"),
+        ("cam5_thr060_others030", {"_default": 0.30, "Cam5plus": 0.60}, "max_conf"),
     ]
 
 
@@ -228,8 +231,8 @@ def main() -> int:
             "stem": spec["stem"],
             "policies": {},
         }
-        for pid, thr_map in policies_for_slot():
-            scored = select_share(dets, n, thr_map)
+        for pid, thr_map, pick_mode in policies_for_slot():
+            scored = select_share(dets, n, thr_map, pick_mode)
             slot_row["policies"][pid] = scored
             top = sorted(
                 ((c, v) for c, v in scored["selection_share"].items() if c != "none"),

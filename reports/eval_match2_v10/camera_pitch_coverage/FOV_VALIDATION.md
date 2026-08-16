@@ -8,17 +8,17 @@
 ## Screenshot vs old diagram
 | Cam | Fix |
 |---|---|
-| P7 | Was left wedge → almost **full left half** |
+| P7 | Was left wedge → left half → midfield, but **near-left corner cut off** (photo: bottom frame ends before corner) |
 | P10 | Wider top-left→center band |
 | P1 | Not left-box only → **midfield** view |
-| Cam4plus | Not full pitch → **left half / sideline master** |
-| Cam5plus | Overlaps Cam4plus heavily |
+| Cam4plus | Sideline master for **its** long side (not full pitch) |
+| Cam5plus | **Opposite long side** from Cam4plus (user-confirmed) — not a Cam4 twin. Top Left stills can look similar in image space (fence-left framing) even when mounts differ |
 | P8 | Right half mid→goal (confirmed) |
 | P12 | Overlaps left-half with P7 |
 
 ## Optimize (conceptual)
-1. **Pool:** Cam4plus + P-cams; don’t pretend one wide cam covers all.
-2. **Split masters:** re-aim Cam5plus to **right** half to cut left overlap.
-3. **Selection:** prefer larger-ball cam (Cam4plus/P10) over tiny far views (thr floors).
-4. **Zoom/aim:** touchline cams for local ≳15–20px; hand off by region.
-5. **Don’t add cams** until overlap is reduced — P7/P12/4+/5+ fight over the same left half.
+1. **Pool:** Cam4plus + Cam5plus + P-cams; treat 4+/5+ as opposite-side masters.
+2. **Do not** re-aim Cam5 onto Cam4’s half — they already split sides.
+3. **Selection:** prefer larger-ball cam (often Cam4+/P10 on Top Left) over tiny far views (thr floors).
+4. **Zoom/aim:** P-cam specialists for local ≳15–20px; hand off by region (P7 near-corner gap, P8 goal buffer).
+5. **P-cam overlap** to cut: P7/P12 (and optionally P1) on the same left band — not Cam4 vs Cam5.

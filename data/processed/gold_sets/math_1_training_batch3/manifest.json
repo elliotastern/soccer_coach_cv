@@ -1,0 +1,1650 @@
+{
+  "match_dir": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1",
+  "seed": 20260801,
+  "detect_threshold": 0.2,
+  "enhance_ball": true,
+  "n_frames": 80,
+  "strip_size": [
+    1920,
+    1080
+  ],
+  "sampling": "fn_audit_partial_scores_pack_from_scores",
+  "fn_audit_ref": "reports/fn_audit_gold049_v6_epoch100.txt",
+  "exclude_manifests": [
+    "/Volumes/LaCie/Projects/Soccer Coach CV/data/processed/gold_sets/match1_1_100/manifest.json",
+    "/Volumes/LaCie/Projects/Soccer Coach CV/data/processed/gold_sets/math_1_training/manifest.json",
+    "/Volumes/LaCie/Projects/Soccer Coach CV/data/processed/gold_sets/math_1_training_batch2/manifest.json"
+  ],
+  "strata": {
+    "uncertain_ball": 30,
+    "fill": 35,
+    "miss_like": 15
+  },
+  "camera_counts": {
+    "cam 11": 25,
+    "cam 13": 18,
+    "cam 8": 19,
+    "cam 9": 18
+  },
+  "ball_frame_count": 57,
+  "scale_to_strip": [
+    {
+      "strip_frame": 0,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 1,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 2,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 3,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 4,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 5,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 6,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 7,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 8,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 9,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 10,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 11,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 12,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 13,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 14,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 15,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 16,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 17,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 18,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 19,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 20,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 21,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 22,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 23,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 24,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 25,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 26,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 27,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 28,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 29,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 30,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 31,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 32,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 33,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 34,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 35,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 36,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 37,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 38,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 39,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 40,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 41,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 42,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 43,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 44,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 45,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 46,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 47,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 48,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 49,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 50,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 51,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 52,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 53,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 54,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 55,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 56,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 57,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 58,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 59,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 60,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 61,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 62,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 63,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 64,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 65,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 66,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 67,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 68,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 69,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 70,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 71,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 72,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 73,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 74,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 75,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 76,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 77,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 78,
+      "sx": 0.5,
+      "sy": 0.5
+    },
+    {
+      "strip_frame": 79,
+      "sx": 0.5,
+      "sy": 0.5
+    }
+  ],
+  "frames": [
+    {
+      "strip_frame": 0,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 5920,
+      "image": "cam11_f005920.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.20757727324962616,
+      "min_ball_area": 1620.9596867742948
+    },
+    {
+      "strip_frame": 1,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000017100050000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000017100050000.mp4",
+      "frame_idx": 7789,
+      "image": "cam11_f007789.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.4590721130371094,
+      "min_ball_area": 7896.643851064146
+    },
+    {
+      "strip_frame": 2,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 2628,
+      "image": "cam11_f002628.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.43370383977890015,
+      "min_ball_area": 1579.9032480716705
+    },
+    {
+      "strip_frame": 3,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 3089,
+      "image": "cam11_f003089.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.24294890463352203,
+      "min_ball_area": 3138.0572629552335
+    },
+    {
+      "strip_frame": 4,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 4247,
+      "image": "cam11_f004247.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.4478122591972351,
+      "min_ball_area": 7974.605047013611
+    },
+    {
+      "strip_frame": 5,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 5370,
+      "image": "cam11_f005370.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 30,
+      "max_ball_conf": 0.253276526927948,
+      "min_ball_area": 8561.356521993876
+    },
+    {
+      "strip_frame": 6,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 9504,
+      "image": "cam11_f009504.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 7,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 12164,
+      "image": "cam11_f012164.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.3659033179283142,
+      "min_ball_area": 5784.905565500259
+    },
+    {
+      "strip_frame": 8,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 20600,
+      "image": "cam11_f020600.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 9,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 21063,
+      "image": "cam11_f021063.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.26667362451553345,
+      "min_ball_area": 3251.234413444996
+    },
+    {
+      "strip_frame": 10,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 22984,
+      "image": "cam11_f022984.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 27,
+      "max_ball_conf": 0.2839537560939789,
+      "min_ball_area": 10231.969876162708
+    },
+    {
+      "strip_frame": 11,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 27474,
+      "image": "cam11_f027474.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 22,
+      "max_ball_conf": 0.2366352528333664,
+      "min_ball_area": 1242.4575378894806
+    },
+    {
+      "strip_frame": 12,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 29198,
+      "image": "cam11_f029198.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 17,
+      "max_ball_conf": 0.38514676690101624,
+      "min_ball_area": 932.6463557593524
+    },
+    {
+      "strip_frame": 13,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 30113,
+      "image": "cam11_f030113.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 18,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 14,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 30988,
+      "image": "cam11_f030988.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 15,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 32500,
+      "image": "cam11_f032500.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.246550515294075,
+      "min_ball_area": 1002.010291993618
+    },
+    {
+      "strip_frame": 16,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 33242,
+      "image": "cam11_f033242.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 15,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 17,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 34748,
+      "image": "cam11_f034748.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 18,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 39382,
+      "image": "cam11_f039382.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.3820672631263733,
+      "min_ball_area": 5030.870574489236
+    },
+    {
+      "strip_frame": 19,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 43004,
+      "image": "cam11_f043004.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 16,
+      "max_ball_conf": 0.39226385951042175,
+      "min_ball_area": 4667.73304506205
+    },
+    {
+      "strip_frame": 20,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 46041,
+      "image": "cam11_f046041.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.4961355924606323,
+      "min_ball_area": 4423.32784421742
+    },
+    {
+      "strip_frame": 21,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 46973,
+      "image": "cam11_f046973.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.47200441360473633,
+      "min_ball_area": 4677.9580608364195
+    },
+    {
+      "strip_frame": 22,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 51722,
+      "image": "cam11_f051722.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.44429484009742737,
+      "min_ball_area": 1194.0373596735299
+    },
+    {
+      "strip_frame": 23,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000018900000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000018900000000.mp4",
+      "frame_idx": 53842,
+      "image": "cam11_f053842.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.22285689413547516,
+      "min_ball_area": 1167.800769969821
+    },
+    {
+      "strip_frame": 24,
+      "camera": "cam 11",
+      "video_rel": "cam 11/0000000020400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 11/0000000020400000000.mp4",
+      "frame_idx": 364,
+      "image": "cam11_f000364.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 15,
+      "max_ball_conf": 0.4772650897502899,
+      "min_ball_area": 2767.0567417144775
+    },
+    {
+      "strip_frame": 25,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 1375,
+      "image": "cam13_f001375.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 12,
+      "max_ball_conf": 0.4609560966491699,
+      "min_ball_area": 2543.334106117487
+    },
+    {
+      "strip_frame": 26,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 11109,
+      "image": "cam13_f011109.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.40601831674575806,
+      "min_ball_area": 2732.9948959350586
+    },
+    {
+      "strip_frame": 27,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 11747,
+      "image": "cam13_f011747.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.39700379967689514,
+      "min_ball_area": 1010.9200953487307
+    },
+    {
+      "strip_frame": 28,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 12532,
+      "image": "cam13_f012532.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.37591490149497986,
+      "min_ball_area": 3036.1688244193792
+    },
+    {
+      "strip_frame": 29,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000017700010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000017700010000.mp4",
+      "frame_idx": 13864,
+      "image": "cam13_f013864.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.2708038091659546,
+      "min_ball_area": 620.4174644080922
+    },
+    {
+      "strip_frame": 30,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 1167,
+      "image": "cam13_f001167.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 31,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 4142,
+      "image": "cam13_f004142.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 32,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 8077,
+      "image": "cam13_f008077.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.4238067865371704,
+      "min_ball_area": 1481.3027076423168
+    },
+    {
+      "strip_frame": 33,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 11031,
+      "image": "cam13_f011031.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.5680791735649109,
+      "min_ball_area": 1333.131015315652
+    },
+    {
+      "strip_frame": 34,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 14976,
+      "image": "cam13_f014976.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 35,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 20674,
+      "image": "cam13_f020674.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 36,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 24555,
+      "image": "cam13_f024555.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.2045910358428955,
+      "min_ball_area": 496.0502908229828
+    },
+    {
+      "strip_frame": 37,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 30508,
+      "image": "cam13_f030508.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.36897724866867065,
+      "min_ball_area": 3218.387321088114
+    },
+    {
+      "strip_frame": 38,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 32668,
+      "image": "cam13_f032668.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.3541899025440216,
+      "min_ball_area": 966.8503557443619
+    },
+    {
+      "strip_frame": 39,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 36630,
+      "image": "cam13_f036630.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.5852243900299072,
+      "min_ball_area": 1003.6530968099833
+    },
+    {
+      "strip_frame": 40,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 40737,
+      "image": "cam13_f040737.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 41,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 42806,
+      "image": "cam13_f042806.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 19,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 42,
+      "camera": "cam 13",
+      "video_rel": "cam 13/0000000019200000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 13/0000000019200000000.mp4",
+      "frame_idx": 43094,
+      "image": "cam13_f043094.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 43,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 2782,
+      "image": "cam8_f002782.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 44,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 6139,
+      "image": "cam8_f006139.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.6677653789520264,
+      "min_ball_area": 5108.662802666426
+    },
+    {
+      "strip_frame": 45,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 8567,
+      "image": "cam8_f008567.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 44,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 46,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 12206,
+      "image": "cam8_f012206.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.2770945429801941,
+      "min_ball_area": 1553.2942360639572
+    },
+    {
+      "strip_frame": 47,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 14975,
+      "image": "cam8_f014975.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.20479816198349,
+      "min_ball_area": 1461.183134978637
+    },
+    {
+      "strip_frame": 48,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 23422,
+      "image": "cam8_f023422.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.3168652355670929,
+      "min_ball_area": 2440.531150817871
+    },
+    {
+      "strip_frame": 49,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 26990,
+      "image": "cam8_f026990.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 50,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000018000010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000018000010000.mp4",
+      "frame_idx": 27633,
+      "image": "cam8_f027633.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.2592223882675171,
+      "min_ball_area": 498.93676824867725
+    },
+    {
+      "strip_frame": 51,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 3684,
+      "image": "cam8_f003684.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.3745758533477783,
+      "min_ball_area": 1262.3661597371101
+    },
+    {
+      "strip_frame": 52,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 7322,
+      "image": "cam8_f007322.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.2062486708164215,
+      "min_ball_area": 1211.5581923583522
+    },
+    {
+      "strip_frame": 53,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 10497,
+      "image": "cam8_f010497.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 54,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 12312,
+      "image": "cam8_f012312.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.31261610984802246,
+      "min_ball_area": 1287.6644629240036
+    },
+    {
+      "strip_frame": 55,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 15782,
+      "image": "cam8_f015782.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 56,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 16596,
+      "image": "cam8_f016596.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.2986137866973877,
+      "min_ball_area": 1587.4186906032264
+    },
+    {
+      "strip_frame": 57,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 17988,
+      "image": "cam8_f017988.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 58,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 20082,
+      "image": "cam8_f020082.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 59,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 28183,
+      "image": "cam8_f028183.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "miss_like",
+      "n_ball": 0,
+      "n_player": 0,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 60,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 30892,
+      "image": "cam8_f030892.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 27,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 61,
+      "camera": "cam 8",
+      "video_rel": "cam 8/0000000019400000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 8/0000000019400000000.mp4",
+      "frame_idx": 36503,
+      "image": "cam8_f036503.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 0,
+      "n_player": 32,
+      "max_ball_conf": 0.0,
+      "min_ball_area": 0.0
+    },
+    {
+      "strip_frame": 62,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000017600010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000017600010000.mp4",
+      "frame_idx": 6596,
+      "image": "cam9_f006596.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.6709837317466736,
+      "min_ball_area": 749.4478387869895
+    },
+    {
+      "strip_frame": 63,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000017600010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000017600010000.mp4",
+      "frame_idx": 7680,
+      "image": "cam9_f007680.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.609533965587616,
+      "min_ball_area": 2687.1365442872047
+    },
+    {
+      "strip_frame": 64,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000017600010000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000017600010000.mp4",
+      "frame_idx": 8596,
+      "image": "cam9_f008596.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 21,
+      "max_ball_conf": 0.6363614797592163,
+      "min_ball_area": 4773.824183881283
+    },
+    {
+      "strip_frame": 65,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 1808,
+      "image": "cam9_f001808.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.6752829551696777,
+      "min_ball_area": 5208.144844293594
+    },
+    {
+      "strip_frame": 66,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 4384,
+      "image": "cam9_f004384.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.6717661619186401,
+      "min_ball_area": 1089.1249328926206
+    },
+    {
+      "strip_frame": 67,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 5987,
+      "image": "cam9_f005987.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 26,
+      "max_ball_conf": 0.6908907294273376,
+      "min_ball_area": 4944.1316375136375
+    },
+    {
+      "strip_frame": 68,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 8694,
+      "image": "cam9_f008694.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.6338833570480347,
+      "min_ball_area": 4710.865754574537
+    },
+    {
+      "strip_frame": 69,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 9100,
+      "image": "cam9_f009100.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.665949285030365,
+      "min_ball_area": 5084.295898675919
+    },
+    {
+      "strip_frame": 70,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 9723,
+      "image": "cam9_f009723.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 18,
+      "max_ball_conf": 0.6762844324111938,
+      "min_ball_area": 2368.2976323366165
+    },
+    {
+      "strip_frame": 71,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 10024,
+      "image": "cam9_f010024.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.6410905122756958,
+      "min_ball_area": 4922.710737884045
+    },
+    {
+      "strip_frame": 72,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 11100,
+      "image": "cam9_f011100.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.6915314197540283,
+      "min_ball_area": 5402.348734796047
+    },
+    {
+      "strip_frame": 73,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 15427,
+      "image": "cam9_f015427.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.42112261056900024,
+      "min_ball_area": 4847.222923278809
+    },
+    {
+      "strip_frame": 74,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 16419,
+      "image": "cam9_f016419.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 1,
+      "n_player": 0,
+      "max_ball_conf": 0.5252285003662109,
+      "min_ball_area": 5134.397933095694
+    },
+    {
+      "strip_frame": 75,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 16729,
+      "image": "cam9_f016729.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 14,
+      "max_ball_conf": 0.554543137550354,
+      "min_ball_area": 711.7213317640126
+    },
+    {
+      "strip_frame": 76,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 18301,
+      "image": "cam9_f018301.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 1,
+      "n_player": 16,
+      "max_ball_conf": 0.4772542417049408,
+      "min_ball_area": 5101.54843300581
+    },
+    {
+      "strip_frame": 77,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 20258,
+      "image": "cam9_f020258.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.4447033405303955,
+      "min_ball_area": 1336.8723569959402
+    },
+    {
+      "strip_frame": 78,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 21334,
+      "image": "cam9_f021334.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "fill",
+      "n_ball": 2,
+      "n_player": 0,
+      "max_ball_conf": 0.4318593144416809,
+      "min_ball_area": 3100.4926721528172
+    },
+    {
+      "strip_frame": 79,
+      "camera": "cam 9",
+      "video_rel": "cam 9/0000000019100000000.mp4",
+      "video_path": "/Volumes/LaCie/Projects/Soccer Coach CV/data/raw/Match 1/Match 1 -1/cam 9/0000000019100000000.mp4",
+      "frame_idx": 22118,
+      "image": "cam9_f022118.jpg",
+      "width": 3840,
+      "height": 2160,
+      "stratum": "uncertain_ball",
+      "n_ball": 2,
+      "n_player": 17,
+      "max_ball_conf": 0.5505201816558838,
+      "min_ball_area": 2163.113592661917
+    }
+  ],
+  "note": "Prelabels only. Correct then promote to gold/ before training.",
+  "review_mode": "image_sequence",
+  "editor": "http://127.0.0.1:8765/batch3",
+  "prelabels": "empty_precision_first",
+  "status": "READY_FOR_LABELING",
+  "precision_prelabel": {
+    "thr": 0.8,
+    "n_ball_boxes": 0,
+    "frames_with_ball": 0
+  },
+  "assist_prelabel": {
+    "thr": 0.5,
+    "n_boxes": 17,
+    "frames_with": 17,
+    "policy": "human_verify_required"
+  }
+}

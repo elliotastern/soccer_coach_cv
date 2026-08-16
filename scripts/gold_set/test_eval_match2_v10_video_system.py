@@ -41,6 +41,18 @@ def test_pick_selected_max_conf():
     assert pred[1] == 0.92
 
 
+def test_pick_selected_largest_ball():
+    cam, pred = pick_selected(
+        {
+            "Cam5plus": [([0, 0, 40, 40], 0.70, 40.0)],
+            "Cam4plus": [([0, 0, 20, 20], 0.92, 20.0)],
+        },
+        "largest_ball",
+    )
+    assert cam == "Cam5plus"
+    assert pred[2] == 40.0
+
+
 def test_metrics_pass_and_hollow():
     ok = metrics_block(tp=8, fp=0, fn=2, n_emitted=8)
     assert ok["P_emit"] == 1.0
@@ -57,6 +69,7 @@ def test_metrics_pass_and_hollow():
 def main() -> int:
     test_iou_and_match()
     test_pick_selected_max_conf()
+    test_pick_selected_largest_ball()
     test_metrics_pass_and_hollow()
     print("ok")
     return 0

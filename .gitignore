@@ -51,8 +51,23 @@ data/**
 !data/processed/gold_sets/match1_1_100/
 !data/processed/gold_sets/match1_1_100/README.md
 !data/processed/gold_sets/match1_1_100/manifest.json
+!data/processed/gold_sets/match1_1_100/gold/
+!data/processed/gold_sets/match1_1_100/gold/annotations.xml
 !data/processed/gold_sets/match1_1_100/prelabels/
 !data/processed/gold_sets/match1_1_100/prelabels/annotations.xml
+# math_1 train gold (XML only — not images/frames)
+!data/processed/gold_sets/math_1_training/
+!data/processed/gold_sets/math_1_training/README.md
+!data/processed/gold_sets/math_1_training/manifest.json
+!data/processed/gold_sets/math_1_training/gold/
+!data/processed/gold_sets/math_1_training/gold/annotations.xml
+!data/processed/gold_sets/math_1_training/gold/annotations.coco.json
+!data/processed/gold_sets/math_1_training_batch3/
+!data/processed/gold_sets/math_1_training_batch3/README.md
+!data/processed/gold_sets/math_1_training_batch3/manifest.json
+!data/processed/gold_sets/math_1_training_batch3/gold/
+!data/processed/gold_sets/math_1_training_batch3/gold/annotations.xml
+!data/processed/gold_sets/math_1_training_batch3/gold/annotations.coco.json
 # Match2 large-ball accepted50 labels (XML/manifest/keep — not images)
 !data/processed/gold_sets/match2_large_ball_accepted50/
 !data/processed/gold_sets/match2_large_ball_accepted50/README.md
@@ -135,6 +150,16 @@ data/**
 !data/processed/gold_sets/match2_4quad_center_start_cam4plus/prelabels/annotations.xml
 !data/processed/gold_sets/match2_4quad_center_start_cam4plus/cvat/
 !data/processed/gold_sets/match2_4quad_center_start_cam4plus/cvat/annotations.xml
+# Match 2 4quad Top Left Cam4plus (300 frames) — XML/manifest only; human-validated 2026-08-16
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/README.md
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/manifest.json
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/gold/
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/gold/annotations.xml
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/prelabels/
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/prelabels/annotations.xml
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/cvat/
+!data/processed/gold_sets/match2_4quad_top_left_cam4plus/cvat/annotations.xml
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

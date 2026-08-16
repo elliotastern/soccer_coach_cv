@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts" / "gold_set"))
 from multicam_select_policy import (  # noqa: E402
     QUAD_SLOTS,
     SURVEY_CAMS,
+    TOP_LEFT_PCAM_ONLY_POLICY_ID,
     TOP_LEFT_POLICY_ID,
     thr_for_cam,
 )
@@ -18,11 +19,12 @@ from eval_match2_4quad_multicam_survey import select_share  # noqa: E402
 
 
 def test_policy():
-    assert TOP_LEFT_POLICY_ID == "p7_thr060_others030"
+    assert TOP_LEFT_POLICY_ID == "pool8_largest_ball_p7_thr060"
     assert thr_for_cam({"_default": 0.3, "P7": 0.6}, "P7") == 0.6
     assert thr_for_cam({"_default": 0.3, "P7": 0.6}, "P10") == 0.3
     assert len(QUAD_SLOTS) == 4
     assert "Cam4plus" in SURVEY_CAMS
+    assert QUAD_SLOTS[0]["locked_pick"] == "largest_ball"
 
 
 def test_select_share():

@@ -1,0 +1,257 @@
+{
+  "locked": {
+    "id": "pool8_largest_ball_p7_thr060",
+    "pool": [
+      "P1",
+      "P6",
+      "P7",
+      "P8",
+      "P10",
+      "P12",
+      "Cam4plus",
+      "Cam5plus"
+    ],
+    "thr_by_cam": {
+      "_default": 0.3,
+      "P7": 0.6
+    },
+    "pick_mode": "largest_ball",
+    "note": "Top Left: Cam4+/Cam5+/P-cams, P7\u22650.60 others\u22650.30, largest_ball then conf. Dual-gold P/R only covers frames where P7 or P10 wins. Do not assume this thr map for Center/Bottom/Top Right without a survey.",
+    "goal_r": 0.8,
+    "goal_p": 0.9
+  },
+  "goal_r": 0.8,
+  "goal_p": 0.9,
+  "gold_cams": [
+    "Cam4plus",
+    "P10",
+    "P7"
+  ],
+  "cam4_gold": true,
+  "ranking": [
+    {
+      "id": "pcam_max_conf_030",
+      "why": "old baseline: 6 P-cams max_conf @0.30",
+      "precision": 0.7490636704119851,
+      "recall": 0.7843137254901961,
+      "f1": 0.7662835249042146,
+      "n_covered": 267,
+      "n_selected": 294,
+      "n_unscored": 27,
+      "hit_goal": false,
+      "selection_share": {
+        "P1": 0.006688963210702341,
+        "P10": 0.38127090301003347,
+        "P12": 0.043478260869565216,
+        "P6": 0.020066889632107024,
+        "P7": 0.5117056856187291,
+        "P8": 0.020066889632107024,
+        "none": 0.016722408026755852
+      },
+      "selection_counts": {
+        "P10": 114,
+        "P7": 153,
+        "P12": 13,
+        "none": 5,
+        "P8": 6,
+        "P1": 2,
+        "P6": 6
+      },
+      "proxy": {
+        "P10": {
+          "p": 0.9473684210526315,
+          "r": 0.9473684210526315
+        },
+        "P7": {
+          "p": 0.6013071895424836,
+          "r": 0.6524822695035462
+        },
+        "Cam4plus": {
+          "p": 0.0,
+          "r": 0.0
+        }
+      }
+    },
+    {
+      "id": "p7_thr060_others030",
+      "why": "prior lock: 6 P-cams, P7\u22650.60, max_conf",
+      "precision": 0.9144385026737968,
+      "recall": 0.9144385026737968,
+      "f1": 0.9144385026737968,
+      "n_covered": 187,
+      "n_selected": 249,
+      "n_unscored": 62,
+      "hit_goal": true,
+      "selection_share": {
+        "P1": 0.016722408026755852,
+        "P10": 0.4080267558528428,
+        "P12": 0.08361204013377926,
+        "P6": 0.03678929765886288,
+        "P7": 0.21739130434782608,
+        "P8": 0.07023411371237458,
+        "none": 0.16722408026755853
+      },
+      "selection_counts": {
+        "P10": 122,
+        "P12": 25,
+        "P7": 65,
+        "P8": 21,
+        "none": 50,
+        "P1": 5,
+        "P6": 11
+      },
+      "proxy": {
+        "P10": {
+          "p": 0.9426229508196722,
+          "r": 0.9426229508196722
+        },
+        "P7": {
+          "p": 0.8615384615384616,
+          "r": 0.8615384615384616
+        },
+        "Cam4plus": {
+          "p": 0.0,
+          "r": 0.0
+        }
+      }
+    },
+    {
+      "id": "pool8_max_conf_p7_thr060",
+      "why": "8-cam pool, P7\u22650.60, max_conf (not size)",
+      "precision": 0.9966555183946488,
+      "recall": 0.9738562091503268,
+      "f1": 0.9851239669421488,
+      "n_covered": 299,
+      "n_selected": 299,
+      "n_unscored": 0,
+      "hit_goal": true,
+      "selection_share": {
+        "Cam4plus": 0.7859531772575251,
+        "P10": 0.2140468227424749
+      },
+      "selection_counts": {
+        "Cam4plus": 235,
+        "P10": 64
+      },
+      "proxy": {
+        "P10": {
+          "p": 1.0,
+          "r": 1.0
+        },
+        "P7": {
+          "p": 0.0,
+          "r": 0.0
+        },
+        "Cam4plus": {
+          "p": 0.9957446808510638,
+          "r": 0.9669421487603306
+        }
+      }
+    },
+    {
+      "id": "pool8_largest_ball_p7_thr060",
+      "why": "LOCKED: 8-cam pool, P7\u22650.60, largest_ball",
+      "precision": 0.9927797833935018,
+      "recall": 0.9482758620689655,
+      "f1": 0.9700176366843034,
+      "n_covered": 277,
+      "n_selected": 299,
+      "n_unscored": 22,
+      "hit_goal": true,
+      "selection_share": {
+        "Cam4plus": 0.9264214046822743,
+        "Cam5plus": 0.06020066889632107,
+        "P8": 0.013377926421404682
+      },
+      "selection_counts": {
+        "Cam4plus": 277,
+        "P8": 4,
+        "Cam5plus": 18
+      },
+      "proxy": {
+        "P10": {
+          "p": 0.0,
+          "r": 0.0
+        },
+        "P7": {
+          "p": 0.0,
+          "r": 0.0
+        },
+        "Cam4plus": {
+          "p": 0.9927797833935018,
+          "r": 0.9482758620689655
+        }
+      }
+    },
+    {
+      "id": "pool8_largest_ball_030",
+      "why": "8-cam largest_ball @0.30 all cams",
+      "precision": 0.9927797833935018,
+      "recall": 0.9482758620689655,
+      "f1": 0.9700176366843034,
+      "n_covered": 277,
+      "n_selected": 299,
+      "n_unscored": 22,
+      "hit_goal": true,
+      "selection_share": {
+        "Cam4plus": 0.9264214046822743,
+        "Cam5plus": 0.06020066889632107,
+        "P8": 0.013377926421404682
+      },
+      "selection_counts": {
+        "Cam4plus": 277,
+        "P8": 4,
+        "Cam5plus": 18
+      },
+      "proxy": {
+        "P10": {
+          "p": 0.0,
+          "r": 0.0
+        },
+        "P7": {
+          "p": 0.0,
+          "r": 0.0
+        },
+        "Cam4plus": {
+          "p": 0.9927797833935018,
+          "r": 0.9482758620689655
+        }
+      }
+    }
+  ],
+  "locked_result": {
+    "id": "pool8_largest_ball_p7_thr060",
+    "why": "LOCKED: 8-cam pool, P7\u22650.60, largest_ball",
+    "precision": 0.9927797833935018,
+    "recall": 0.9482758620689655,
+    "f1": 0.9700176366843034,
+    "n_covered": 277,
+    "n_selected": 299,
+    "n_unscored": 22,
+    "hit_goal": true,
+    "selection_share": {
+      "Cam4plus": 0.9264214046822743,
+      "Cam5plus": 0.06020066889632107,
+      "P8": 0.013377926421404682
+    },
+    "selection_counts": {
+      "Cam4plus": 277,
+      "P8": 4,
+      "Cam5plus": 18
+    },
+    "proxy": {
+      "P10": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "P7": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "Cam4plus": {
+        "p": 0.9927797833935018,
+        "r": 0.9482758620689655
+      }
+    }
+  }
+}

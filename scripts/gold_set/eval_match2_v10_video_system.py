@@ -102,12 +102,19 @@ def pick_selected(cam_preds: dict, mode: str):
     for cam, preds in cam_preds.items():
         if not preds:
             continue
-        box, conf, side = preds[0]
-        score = conf * side if mode == "size_weighted" else conf
-        cands.append((score, cam, preds[0]))
+        if mode == "largest_ball":
+            pred = max(preds, key=lambda p: (float(p[2]), float(p[1])))
+            key = (float(pred[2]), float(pred[1]))
+        elif mode == "size_weighted":
+            pred = preds[0]
+            key = (float(pred[1]) * float(pred[2]),)
+        else:
+            pred = preds[0]
+            key = (float(pred[1]),)
+        cands.append((key, cam, pred))
     if not cands:
         return None, None
-    cands.sort(key=lambda x: -x[0])
+    cands.sort(key=lambda x: x[0], reverse=True)
     return cands[0][1], cands[0][2]
 
 

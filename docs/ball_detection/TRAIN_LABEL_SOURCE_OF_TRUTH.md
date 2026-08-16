@@ -11,9 +11,9 @@
 3. **After every editor save**, re-export COCO before rebuilding a train pack.
 4. **Eval Gold100** (`match1_1_100`) stays out of **train**. It may appear only in the pack `test/` split (strip 0–49 ball frames) from `match1_1_100/gold/`.
    **Match 2:** `match2_gold_frames` is eval-only. Train from `match2_train_label100/gold/` via `match2_train_test/{train,valid,test}`.
-   **Match2 Top Left 300-frame gold labels** (`match2_4quad_top_left`): continuous P10 0:26–0:31 clip (300 @ 60 fps). Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](../product/MATCH2_4QUAD_TOP_LEFT_300.md). Use `gold/annotations.xml` only.
+   **Match2 Top Left 300-frame gold labels** (`match2_4quad_top_left`): continuous P10 0:26–0:31 clip (300 @ 60 fps). Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](../product/MATCH2_4QUAD_TOP_LEFT_300.md). Companions: `match2_4quad_top_left_p7`, `match2_4quad_top_left_cam4plus`. Use `gold/annotations.xml` only.
 5. **COCO is full-res:** editor XML is strip/review (1920×1080); `export_gold_coco.py` scales boxes into `images/` space (3840×2160).
-
+6. **Registry:** every human-validated pack is listed in [VALIDATED_GOLD_REGISTRY.md](../product/VALIDATED_GOLD_REGISTRY.md) with SHA256. After Save, update checksums and push XML to GitHub.
 ## `math_1_training` layout
 
 ```text

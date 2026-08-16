@@ -1,0 +1,22 @@
+{
+  "pack": "match2_4quad_top_left_cam4plus",
+  "camera": "Cam4plus",
+  "stride": 1,
+  "n_frames": 299,
+  "prelabel": "from_det_cache_thr030",
+  "n_frames_with_ball_prelabel": 299,
+  "clips": [
+    {
+      "slot": "top_left",
+      "label": "Top Left Cam4plus",
+      "stem": "quad_top_left_t00026.0s",
+      "camera": "Cam4plus"
+    }
+  ],
+  "checkpoint": "models/v10_snaps/post_train/checkpoint.pth",
+  "note": "Prelabels from 4quad survey cache @0.30. Human-correct: match ball in play only; delete sideline/spare balls.",
+  "validated": true,
+  "validated_date": "2026-08-16",
+  "gold_ball_boxes": 314,
+  "gold_frames_with_ball": 299
+}
