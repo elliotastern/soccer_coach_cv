@@ -1,0 +1,735 @@
+{
+  "title": "4quad_locked_policy_survey",
+  "locked_policy": {
+    "id": "pool8_largest_ball_p7_thr060",
+    "pool": [
+      "P1",
+      "P6",
+      "P7",
+      "P8",
+      "P10",
+      "P12",
+      "Cam4plus",
+      "Cam5plus"
+    ],
+    "thr_by_cam": {
+      "_default": 0.3,
+      "P7": 0.6
+    },
+    "pick_mode": "largest_ball",
+    "note": "Top Left: Cam4+/Cam5+/P-cams, P7\u22650.60 others\u22650.30, largest_ball then conf. Dual-gold P/R only covers frames where P7 or P10 wins. Do not assume this thr map for Center/Bottom/Top Right without a survey.",
+    "goal_r": 0.8,
+    "goal_p": 0.9
+  },
+  "goal_r": 0.8,
+  "goal_p": 0.9,
+  "slots": [
+    {
+      "slot": "top_left",
+      "label": "Top Left",
+      "stem": "quad_top_left_t00026.0s",
+      "n_frames": 299,
+      "locked": {
+        "n_frames": 299,
+        "n_selected": 299,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.9264214046822743,
+          "Cam5plus": 0.06020066889632107,
+          "P8": 0.013377926421404682
+        },
+        "selection_counts": {
+          "Cam4plus": 277,
+          "P8": 4,
+          "Cam5plus": 18
+        },
+        "top_winners": [
+          {
+            "cam": "Cam4plus",
+            "share": 0.9264214046822743,
+            "n": 277
+          },
+          {
+            "cam": "Cam5plus",
+            "share": 0.06020066889632107,
+            "n": 18
+          },
+          {
+            "cam": "P8",
+            "share": 0.013377926421404682,
+            "n": 4
+          }
+        ],
+        "selected_side_px": {
+          "n": 299,
+          "mean": 25.74,
+          "median": 25.38,
+          "p10": 23.53,
+          "p90": 26.88,
+          "frac_ge_20px": 1.0
+        },
+        "selected_conf": {
+          "n": 299,
+          "mean": 0.75,
+          "median": 0.78,
+          "p10": 0.74,
+          "p90": 0.8,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P8": {
+            "n": 4,
+            "mean": 25.59,
+            "median": 25.59,
+            "p10": 25.04,
+            "p90": 25.65,
+            "frac_ge_20px": 1.0
+          },
+          "Cam4plus": {
+            "n": 277,
+            "mean": 25.18,
+            "median": 25.21,
+            "p10": 23.39,
+            "p90": 26.45,
+            "frac_ge_20px": 1.0
+          },
+          "Cam5plus": {
+            "n": 18,
+            "mean": 34.34,
+            "median": 34.22,
+            "p10": 33.68,
+            "p90": 34.89,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "largest_ball",
+        "thr_by_cam": {
+          "_default": 0.3,
+          "P7": 0.6
+        }
+      },
+      "baseline_max_conf_030": {
+        "n_frames": 299,
+        "n_selected": 299,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.7859531772575251,
+          "P10": 0.2140468227424749
+        },
+        "selection_counts": {
+          "Cam4plus": 235,
+          "P10": 64
+        },
+        "top_winners": [
+          {
+            "cam": "Cam4plus",
+            "share": 0.7859531772575251,
+            "n": 235
+          },
+          {
+            "cam": "P10",
+            "share": 0.2140468227424749,
+            "n": 64
+          }
+        ],
+        "selected_side_px": {
+          "n": 299,
+          "mean": 24.19,
+          "median": 24.5,
+          "p10": 21.71,
+          "p90": 26.2,
+          "frac_ge_20px": 0.963
+        },
+        "selected_conf": {
+          "n": 299,
+          "mean": 0.79,
+          "median": 0.79,
+          "p10": 0.76,
+          "p90": 0.84,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P10": {
+            "n": 64,
+            "mean": 21.55,
+            "median": 21.92,
+            "p10": 17.74,
+            "p90": 23.84,
+            "frac_ge_20px": 0.828
+          },
+          "Cam4plus": {
+            "n": 235,
+            "mean": 24.91,
+            "median": 24.79,
+            "p10": 23.19,
+            "p90": 26.25,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "max_conf",
+        "thr_by_cam": {
+          "_default": 0.3
+        }
+      },
+      "flags": {
+        "winner": "Cam4plus",
+        "need_label": false,
+        "reasons": [],
+        "priority": "ok"
+      }
+    },
+    {
+      "slot": "top_right",
+      "label": "Top Right",
+      "stem": "quad_top_right_t00125.0s",
+      "n_frames": 299,
+      "locked": {
+        "n_frames": 299,
+        "n_selected": 299,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.2976588628762542,
+          "Cam5plus": 0.4983277591973244,
+          "P1": 0.2040133779264214
+        },
+        "selection_counts": {
+          "P1": 61,
+          "Cam4plus": 89,
+          "Cam5plus": 149
+        },
+        "top_winners": [
+          {
+            "cam": "Cam5plus",
+            "share": 0.4983277591973244,
+            "n": 149
+          },
+          {
+            "cam": "Cam4plus",
+            "share": 0.2976588628762542,
+            "n": 89
+          },
+          {
+            "cam": "P1",
+            "share": 0.2040133779264214,
+            "n": 61
+          }
+        ],
+        "selected_side_px": {
+          "n": 299,
+          "mean": 29.19,
+          "median": 30.84,
+          "p10": 23.91,
+          "p90": 33.52,
+          "frac_ge_20px": 1.0
+        },
+        "selected_conf": {
+          "n": 299,
+          "mean": 0.61,
+          "median": 0.63,
+          "p10": 0.36,
+          "p90": 0.83,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P1": {
+            "n": 61,
+            "mean": 31.51,
+            "median": 32.04,
+            "p10": 28.06,
+            "p90": 33.69,
+            "frac_ge_20px": 1.0
+          },
+          "Cam4plus": {
+            "n": 89,
+            "mean": 24.56,
+            "median": 24.33,
+            "p10": 23.2,
+            "p90": 26.58,
+            "frac_ge_20px": 1.0
+          },
+          "Cam5plus": {
+            "n": 149,
+            "mean": 31.02,
+            "median": 32.02,
+            "p10": 25.22,
+            "p90": 34.01,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "largest_ball",
+        "thr_by_cam": {
+          "_default": 0.3,
+          "P7": 0.6
+        }
+      },
+      "baseline_max_conf_030": {
+        "n_frames": 299,
+        "n_selected": 299,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.47491638795986624,
+          "P1": 0.23076923076923078,
+          "P7": 0.29431438127090304
+        },
+        "selection_counts": {
+          "P1": 69,
+          "P7": 88,
+          "Cam4plus": 142
+        },
+        "top_winners": [
+          {
+            "cam": "Cam4plus",
+            "share": 0.47491638795986624,
+            "n": 142
+          },
+          {
+            "cam": "P7",
+            "share": 0.29431438127090304,
+            "n": 88
+          },
+          {
+            "cam": "P1",
+            "share": 0.23076923076923078,
+            "n": 69
+          }
+        ],
+        "selected_side_px": {
+          "n": 299,
+          "mean": 25.12,
+          "median": 24.2,
+          "p10": 20.82,
+          "p90": 31.63,
+          "frac_ge_20px": 0.94
+        },
+        "selected_conf": {
+          "n": 299,
+          "mean": 0.81,
+          "median": 0.79,
+          "p10": 0.77,
+          "p90": 0.87,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P1": {
+            "n": 69,
+            "mean": 31.19,
+            "median": 31.18,
+            "p10": 28.59,
+            "p90": 33.2,
+            "frac_ge_20px": 1.0
+          },
+          "P7": {
+            "n": 88,
+            "mean": 22.22,
+            "median": 22.22,
+            "p10": 19.62,
+            "p90": 25.11,
+            "frac_ge_20px": 0.795
+          },
+          "Cam4plus": {
+            "n": 142,
+            "mean": 23.98,
+            "median": 24.04,
+            "p10": 22.9,
+            "p90": 24.73,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "max_conf",
+        "thr_by_cam": {
+          "_default": 0.3
+        }
+      },
+      "flags": {
+        "winner": "Cam5plus",
+        "need_label": false,
+        "reasons": [
+          "winner=Cam5plus unscored (no gold this slot)"
+        ],
+        "priority": "watch"
+      }
+    },
+    {
+      "slot": "center_start",
+      "label": "Center Start",
+      "stem": "quad_center_start_t00008.0s",
+      "n_frames": 300,
+      "locked": {
+        "n_frames": 300,
+        "n_selected": 300,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.47333333333333333,
+          "Cam5plus": 0.46,
+          "P1": 0.06666666666666667
+        },
+        "selection_counts": {
+          "Cam4plus": 142,
+          "Cam5plus": 138,
+          "P1": 20
+        },
+        "top_winners": [
+          {
+            "cam": "Cam4plus",
+            "share": 0.47333333333333333,
+            "n": 142
+          },
+          {
+            "cam": "Cam5plus",
+            "share": 0.46,
+            "n": 138
+          },
+          {
+            "cam": "P1",
+            "share": 0.06666666666666667,
+            "n": 20
+          }
+        ],
+        "selected_side_px": {
+          "n": 300,
+          "mean": 28.6,
+          "median": 25.68,
+          "p10": 23.91,
+          "p90": 34.15,
+          "frac_ge_20px": 1.0
+        },
+        "selected_conf": {
+          "n": 300,
+          "mean": 0.6,
+          "median": 0.64,
+          "p10": 0.35,
+          "p90": 0.79,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P1": {
+            "n": 20,
+            "mean": 25.99,
+            "median": 25.57,
+            "p10": 24.55,
+            "p90": 27.82,
+            "frac_ge_20px": 1.0
+          },
+          "Cam4plus": {
+            "n": 142,
+            "mean": 24.43,
+            "median": 24.41,
+            "p10": 23.71,
+            "p90": 25.16,
+            "frac_ge_20px": 1.0
+          },
+          "Cam5plus": {
+            "n": 138,
+            "mean": 33.28,
+            "median": 33.54,
+            "p10": 32.05,
+            "p90": 34.56,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "largest_ball",
+        "thr_by_cam": {
+          "_default": 0.3,
+          "P7": 0.6
+        }
+      },
+      "baseline_max_conf_030": {
+        "n_frames": 300,
+        "n_selected": 300,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.8166666666666667,
+          "Cam5plus": 0.013333333333333334,
+          "P1": 0.05,
+          "P6": 0.0033333333333333335,
+          "P8": 0.11666666666666667
+        },
+        "selection_counts": {
+          "Cam4plus": 245,
+          "P6": 1,
+          "P8": 35,
+          "P1": 15,
+          "Cam5plus": 4
+        },
+        "top_winners": [
+          {
+            "cam": "Cam4plus",
+            "share": 0.8166666666666667,
+            "n": 245
+          },
+          {
+            "cam": "P8",
+            "share": 0.11666666666666667,
+            "n": 35
+          },
+          {
+            "cam": "P1",
+            "share": 0.05,
+            "n": 15
+          },
+          {
+            "cam": "Cam5plus",
+            "share": 0.013333333333333334,
+            "n": 4
+          }
+        ],
+        "selected_side_px": {
+          "n": 300,
+          "mean": 23.55,
+          "median": 24.16,
+          "p10": 19.89,
+          "p90": 25.09,
+          "frac_ge_20px": 0.897
+        },
+        "selected_conf": {
+          "n": 300,
+          "mean": 0.77,
+          "median": 0.77,
+          "p10": 0.75,
+          "p90": 0.8,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P1": {
+            "n": 15,
+            "mean": 20.92,
+            "median": 20.96,
+            "p10": 18.98,
+            "p90": 22.65,
+            "frac_ge_20px": 0.8
+          },
+          "P6": {
+            "n": 1,
+            "mean": 20.6,
+            "median": 20.6,
+            "p10": 20.6,
+            "p90": 20.6,
+            "frac_ge_20px": 1.0
+          },
+          "P8": {
+            "n": 35,
+            "mean": 19.18,
+            "median": 18.93,
+            "p10": 17.73,
+            "p90": 20.49,
+            "frac_ge_20px": 0.229
+          },
+          "Cam4plus": {
+            "n": 245,
+            "mean": 24.36,
+            "median": 24.34,
+            "p10": 23.61,
+            "p90": 25.15,
+            "frac_ge_20px": 1.0
+          },
+          "Cam5plus": {
+            "n": 4,
+            "mean": 22.43,
+            "median": 22.42,
+            "p10": 19.88,
+            "p90": 24.41,
+            "frac_ge_20px": 0.75
+          }
+        },
+        "pick_mode": "max_conf",
+        "thr_by_cam": {
+          "_default": 0.3
+        }
+      },
+      "flags": {
+        "winner": "Cam4plus",
+        "need_label": false,
+        "reasons": [
+          "winner=Cam4plus unscored (no gold this slot)"
+        ],
+        "priority": "watch"
+      }
+    },
+    {
+      "slot": "bottom_right",
+      "label": "Bottom Right",
+      "stem": "quad_bottom_right_t00412.0s",
+      "n_frames": 300,
+      "locked": {
+        "n_frames": 300,
+        "n_selected": 300,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.27666666666666667,
+          "Cam5plus": 0.6333333333333333,
+          "P1": 0.0033333333333333335,
+          "P8": 0.08666666666666667
+        },
+        "selection_counts": {
+          "P8": 26,
+          "Cam5plus": 190,
+          "Cam4plus": 83,
+          "P1": 1
+        },
+        "top_winners": [
+          {
+            "cam": "Cam5plus",
+            "share": 0.6333333333333333,
+            "n": 190
+          },
+          {
+            "cam": "Cam4plus",
+            "share": 0.27666666666666667,
+            "n": 83
+          },
+          {
+            "cam": "P8",
+            "share": 0.08666666666666667,
+            "n": 26
+          },
+          {
+            "cam": "P1",
+            "share": 0.0033333333333333335,
+            "n": 1
+          }
+        ],
+        "selected_side_px": {
+          "n": 300,
+          "mean": 28.41,
+          "median": 27.34,
+          "p10": 22.39,
+          "p90": 35.76,
+          "frac_ge_20px": 1.0
+        },
+        "selected_conf": {
+          "n": 300,
+          "mean": 0.64,
+          "median": 0.72,
+          "p10": 0.35,
+          "p90": 0.86,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P1": {
+            "n": 1,
+            "mean": 23.19,
+            "median": 23.19,
+            "p10": 23.19,
+            "p90": 23.19,
+            "frac_ge_20px": 1.0
+          },
+          "P8": {
+            "n": 26,
+            "mean": 26.98,
+            "median": 27.08,
+            "p10": 21.67,
+            "p90": 31.1,
+            "frac_ge_20px": 1.0
+          },
+          "Cam4plus": {
+            "n": 83,
+            "mean": 23.04,
+            "median": 22.97,
+            "p10": 21.61,
+            "p90": 24.64,
+            "frac_ge_20px": 1.0
+          },
+          "Cam5plus": {
+            "n": 190,
+            "mean": 30.97,
+            "median": 31.01,
+            "p10": 24.87,
+            "p90": 35.96,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "largest_ball",
+        "thr_by_cam": {
+          "_default": 0.3,
+          "P7": 0.6
+        }
+      },
+      "baseline_max_conf_030": {
+        "n_frames": 300,
+        "n_selected": 300,
+        "n_none": 0,
+        "selection_share": {
+          "Cam4plus": 0.58,
+          "Cam5plus": 0.2733333333333333,
+          "P8": 0.14666666666666667
+        },
+        "selection_counts": {
+          "Cam5plus": 82,
+          "P8": 44,
+          "Cam4plus": 174
+        },
+        "top_winners": [
+          {
+            "cam": "Cam4plus",
+            "share": 0.58,
+            "n": 174
+          },
+          {
+            "cam": "Cam5plus",
+            "share": 0.2733333333333333,
+            "n": 82
+          },
+          {
+            "cam": "P8",
+            "share": 0.14666666666666667,
+            "n": 44
+          }
+        ],
+        "selected_side_px": {
+          "n": 300,
+          "mean": 24.45,
+          "median": 23.94,
+          "p10": 21.68,
+          "p90": 28.13,
+          "frac_ge_20px": 0.997
+        },
+        "selected_conf": {
+          "n": 300,
+          "mean": 0.76,
+          "median": 0.74,
+          "p10": 0.67,
+          "p90": 0.87,
+          "frac_ge_20px": 0.0
+        },
+        "side_px_by_cam": {
+          "P8": {
+            "n": 44,
+            "mean": 23.76,
+            "median": 22.67,
+            "p10": 20.94,
+            "p90": 29.49,
+            "frac_ge_20px": 0.977
+          },
+          "Cam4plus": {
+            "n": 174,
+            "mean": 23.38,
+            "median": 23.37,
+            "p10": 21.71,
+            "p90": 24.98,
+            "frac_ge_20px": 1.0
+          },
+          "Cam5plus": {
+            "n": 82,
+            "mean": 27.1,
+            "median": 27.13,
+            "p10": 24.31,
+            "p90": 29.65,
+            "frac_ge_20px": 1.0
+          }
+        },
+        "pick_mode": "max_conf",
+        "thr_by_cam": {
+          "_default": 0.3
+        }
+      },
+      "flags": {
+        "winner": "Cam5plus",
+        "need_label": false,
+        "reasons": [
+          "winner=Cam5plus unscored (no gold this slot)"
+        ],
+        "priority": "watch"
+      }
+    }
+  ]
+}
