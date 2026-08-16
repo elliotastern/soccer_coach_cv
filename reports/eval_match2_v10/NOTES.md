@@ -190,3 +190,10 @@ After human P7 gold: score when selected cam is P7 or P10 vs that cam’s XML.
 
 **Read:** old P10-only proxy overstated the system. P7-selected frames drag P and R below goal. Next: diagnose P7 max_conf FPs/misses (selection vs detect), not latency yet and not dense SAHI for live.
 
+## Selection fix loop (cache only)
+
+Script: `scripts/gold_set/eval_top_left_multicam_selection_loop.py`  
+Report: `reports/eval_match2_v10/top_left_multicam_selection_loop/ranking.md`
+
+Raising conf clears the dual-gold proxy goal. Practical pick: **`p7_thr060_others030`** (P7 must be ≥0.60 to compete; others stay @0.30) → system **P=R=0.915**, HIT, 188 covered frames. Plain `max_conf_070` is stronger P/R but only 120 covered. Prefer-P10 knobs did not help at 0.30.
+
