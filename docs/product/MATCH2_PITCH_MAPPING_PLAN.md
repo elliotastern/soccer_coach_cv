@@ -41,3 +41,4 @@
 - **C FAIL:** Overlays do **not** follow real pitch lines (Cam4 ≈ axis-aligned frame quad; Cam5 ≈ thin mid strip). Auto landmarks are not trustworthy for bounds.
 - **Stop / handoff:** Need one **manual** click calib per master cam (`scripts/calibrate_homography.py` or equivalent) for Cam4plus + Cam5plus. Do not wire auto H into `pick_product`.
 - Loop: every **15m** (`AGENT_LOOP_TICK_pitch_map`) — on next ticks, only advance D–F after manual H lands; otherwise idle.
+- **2026-08-16:** Soft gates (hysteresis / N-frame emit) moved to sibling plan `MATCH2_NOISE_PRECISION_PLAN.md` so progress is not blocked on manual H.

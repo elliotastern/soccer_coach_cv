@@ -1,0 +1,9 @@
+{
+  "stem": "rand_t00967.4s",
+  "label": "Random 16:07",
+  "clock": "16:07\u201316:13",
+  "policy": "pool8_largest_ball_p7_thr060",
+  "n_frames": 90,
+  "map_note": "Pitch (x,y) uses FOV-approximate projection from camera_pitch_coverage wedges until Cam*_manual.json homographies exist. Absolute meters are provisional.",
+  "overlay": "reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_967/rand_t00967.4s_video_pitch.mp4"
+}

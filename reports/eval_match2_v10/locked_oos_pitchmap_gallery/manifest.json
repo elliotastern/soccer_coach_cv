@@ -1,0 +1,51 @@
+[
+  {
+    "id": "bottom_right",
+    "label": "Bottom Right (6:52)",
+    "clock": "6:52\u20136:58",
+    "url": "/reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap/quad_bottom_right_t00412.0s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap/"
+  },
+  {
+    "id": "top_right",
+    "label": "Top Right (2:05)",
+    "clock": "2:05\u20132:10",
+    "url": "/reports/eval_match2_v10/locked_oos_demo_top_right_pitchmap/quad_top_right_t00125.0s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_demo_top_right_pitchmap/"
+  },
+  {
+    "id": "rand_391",
+    "label": "Random 6:32",
+    "clock": "6:32\u20136:38",
+    "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_391/rand_t00391.9s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_391/"
+  },
+  {
+    "id": "rand_621",
+    "label": "Random 10:22",
+    "clock": "10:22\u201310:28",
+    "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_621/rand_t00621.7s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_621/"
+  },
+  {
+    "id": "rand_967",
+    "label": "Random 16:07",
+    "clock": "16:07\u201316:13",
+    "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_967/rand_t00967.4s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_967/"
+  },
+  {
+    "id": "rand_1125",
+    "label": "Random 18:46",
+    "clock": "18:46\u201318:52",
+    "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1125/rand_t01125.5s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1125/"
+  },
+  {
+    "id": "rand_1221",
+    "label": "Random 20:21",
+    "clock": "20:21\u201320:27",
+    "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1221/rand_t01221.4s_video_pitch.mp4",
+    "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1221/"
+  }
+]

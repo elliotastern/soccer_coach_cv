@@ -1,0 +1,980 @@
+[
+  {
+    "i": 0,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 2,
+    "cam": "P1",
+    "conf": 0.33577704429626465,
+    "px": [
+      23.247049808502197,
+      301.23121643066406
+    ],
+    "pitch_m": [
+      -43.84,
+      -10.47
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 4,
+    "cam": "P1",
+    "conf": 0.44209539890289307,
+    "px": [
+      24.290132999420166,
+      300.9592590332031
+    ],
+    "pitch_m": [
+      -43.8,
+      -10.49
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 6,
+    "cam": "P1",
+    "conf": 0.5717803835868835,
+    "px": [
+      25.08732509613037,
+      299.2658386230469
+    ],
+    "pitch_m": [
+      -43.77,
+      -10.58
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 8,
+    "cam": "P1",
+    "conf": 0.5557177066802979,
+    "px": [
+      24.66631841659546,
+      300.55780029296875
+    ],
+    "pitch_m": [
+      -43.79,
+      -10.51
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 10,
+    "cam": "Cam5plus",
+    "conf": 0.3887234032154083,
+    "px": [
+      1910.3717041015625,
+      438.41123962402344
+    ],
+    "pitch_m": [
+      52.22,
+      -4.88
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 12,
+    "cam": "Cam5plus",
+    "conf": 0.49873054027557373,
+    "px": [
+      1913.0977783203125,
+      437.94775390625
+    ],
+    "pitch_m": [
+      52.31,
+      -4.92
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 14,
+    "cam": "Cam5plus",
+    "conf": 0.4842996299266815,
+    "px": [
+      1913.96826171875,
+      432.257568359375
+    ],
+    "pitch_m": [
+      52.34,
+      -5.28
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 16,
+    "cam": "Cam5plus",
+    "conf": 0.33776113390922546,
+    "px": [
+      1914.09619140625,
+      432.6724853515625
+    ],
+    "pitch_m": [
+      52.34,
+      -5.25
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 18,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 20,
+    "cam": "P1",
+    "conf": 0.3450174927711487,
+    "px": [
+      56.33705139160156,
+      292.19337463378906
+    ],
+    "pitch_m": [
+      -42.66,
+      -11.0
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 22,
+    "cam": "P1",
+    "conf": 0.4617234766483307,
+    "px": [
+      21.408154010772705,
+      301.3870849609375
+    ],
+    "pitch_m": [
+      -43.9,
+      -10.46
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 24,
+    "cam": "P1",
+    "conf": 0.41598573327064514,
+    "px": [
+      21.700727939605713,
+      300.4794006347656
+    ],
+    "pitch_m": [
+      -43.89,
+      -10.51
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 26,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 28,
+    "cam": "P8",
+    "conf": 0.30212774872779846,
+    "px": [
+      3.8509917557239532,
+      295.14520263671875
+    ],
+    "pitch_m": [
+      -8.05,
+      -11.56
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 30,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 32,
+    "cam": "P6",
+    "conf": 0.31497910618782043,
+    "px": [
+      700.5266723632812,
+      447.35174560546875
+    ],
+    "pitch_m": [
+      -0.06,
+      -9.32
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 34,
+    "cam": "P6",
+    "conf": 0.4050239324569702,
+    "px": [
+      699.4861755371094,
+      447.630859375
+    ],
+    "pitch_m": [
+      -0.11,
+      -9.31
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 36,
+    "cam": "P1",
+    "conf": 0.418582022190094,
+    "px": [
+      468.5558776855469,
+      279.71006774902344
+    ],
+    "pitch_m": [
+      -27.82,
+      -12.2
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 38,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 40,
+    "cam": "P1",
+    "conf": 0.412670761346817,
+    "px": [
+      1218.62353515625,
+      38.03696060180664
+    ],
+    "pitch_m": [
+      -1.31,
+      -26.2
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 42,
+    "cam": "P1",
+    "conf": 0.32604315876960754,
+    "px": [
+      54.790361404418945,
+      287.1616516113281
+    ],
+    "pitch_m": [
+      -42.73,
+      -11.27
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 44,
+    "cam": "P1",
+    "conf": 0.33490392565727234,
+    "px": [
+      54.96910858154297,
+      286.4075164794922
+    ],
+    "pitch_m": [
+      -42.73,
+      -11.31
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 46,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 48,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 50,
+    "cam": "P1",
+    "conf": 0.3721555173397064,
+    "px": [
+      60.013771057128906,
+      285.7124481201172
+    ],
+    "pitch_m": [
+      -42.54,
+      -11.36
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 52,
+    "cam": "P1",
+    "conf": 0.6141001582145691,
+    "px": [
+      61.14130973815918,
+      286.6340789794922
+    ],
+    "pitch_m": [
+      -42.5,
+      -11.31
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 54,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 56,
+    "cam": "P1",
+    "conf": 0.3277130424976349,
+    "px": [
+      469.7440643310547,
+      278.5066833496094
+    ],
+    "pitch_m": [
+      -27.78,
+      -12.26
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 58,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 60,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 62,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 64,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 66,
+    "cam": "P1",
+    "conf": 0.37188905477523804,
+    "px": [
+      61.07710838317871,
+      284.98960876464844
+    ],
+    "pitch_m": [
+      -42.51,
+      -11.4
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 68,
+    "cam": "P1",
+    "conf": 0.32285842299461365,
+    "px": [
+      1180.6744384765625,
+      38.98850631713867
+    ],
+    "pitch_m": [
+      -2.68,
+      -26.1
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 70,
+    "cam": "P1",
+    "conf": 0.3205720782279968,
+    "px": [
+      1037.4440307617188,
+      41.413143157958984
+    ],
+    "pitch_m": [
+      -7.84,
+      -25.79
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 72,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 74,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 76,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 78,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 80,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 82,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 84,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 86,
+    "cam": "P1",
+    "conf": 0.36662983894348145,
+    "px": [
+      812.2059631347656,
+      62.64372634887695
+    ],
+    "pitch_m": [
+      -15.91,
+      -24.36
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 88,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 90,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 92,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 94,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 96,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 98,
+    "cam": "P1",
+    "conf": 0.3875584602355957,
+    "px": [
+      78.37559127807617,
+      276.20281982421875
+    ],
+    "pitch_m": [
+      -41.9,
+      -11.89
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 100,
+    "cam": "P6",
+    "conf": 0.4450767934322357,
+    "px": [
+      1017.5017395019531,
+      120.5180435180664
+    ],
+    "pitch_m": [
+      13.12,
+      -25.42
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 102,
+    "cam": "P6",
+    "conf": 0.3821142017841339,
+    "px": [
+      1021.280517578125,
+      119.01492309570312
+    ],
+    "pitch_m": [
+      13.27,
+      -25.49
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 104,
+    "cam": "P6",
+    "conf": 0.37449911236763,
+    "px": [
+      1020.6213073730469,
+      119.83263778686523
+    ],
+    "pitch_m": [
+      13.25,
+      -25.46
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 106,
+    "cam": "P6",
+    "conf": 0.3822261095046997,
+    "px": [
+      1021.0870666503906,
+      119.4361343383789
+    ],
+    "pitch_m": [
+      13.27,
+      -25.48
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 108,
+    "cam": "P6",
+    "conf": 0.3045264184474945,
+    "px": [
+      1021.1840209960938,
+      118.16785430908203
+    ],
+    "pitch_m": [
+      13.27,
+      -25.53
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 110,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 112,
+    "cam": "P1",
+    "conf": 0.37511196732521057,
+    "px": [
+      1082.5555419921875,
+      48.73525810241699
+    ],
+    "pitch_m": [
+      -6.19,
+      -25.45
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 114,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 116,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 118,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 120,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 122,
+    "cam": "P1",
+    "conf": 0.454955518245697,
+    "px": [
+      403.7494812011719,
+      286.6848449707031
+    ],
+    "pitch_m": [
+      -30.15,
+      -11.74
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 124,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 126,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 128,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 130,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 132,
+    "cam": "P1",
+    "conf": 0.31992217898368835,
+    "px": [
+      445.4985046386719,
+      281.5747528076172
+    ],
+    "pitch_m": [
+      -28.65,
+      -12.07
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 134,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 136,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 138,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 140,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 142,
+    "cam": "P1",
+    "conf": 0.3144333064556122,
+    "px": [
+      203.09556579589844,
+      304.6892395019531
+    ],
+    "pitch_m": [
+      -37.34,
+      -10.51
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 144,
+    "cam": "P1",
+    "conf": 0.3470357060432434,
+    "px": [
+      209.0563735961914,
+      304.0201721191406
+    ],
+    "pitch_m": [
+      -37.13,
+      -10.56
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 146,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 148,
+    "cam": "P1",
+    "conf": 0.34877410531044006,
+    "px": [
+      221.3866424560547,
+      299.7093811035156
+    ],
+    "pitch_m": [
+      -36.69,
+      -10.8
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 150,
+    "cam": "P1",
+    "conf": 0.36768513917922974,
+    "px": [
+      449.6397399902344,
+      284.0032043457031
+    ],
+    "pitch_m": [
+      -28.5,
+      -11.94
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 152,
+    "cam": "P1",
+    "conf": 0.38787347078323364,
+    "px": [
+      224.32666015625,
+      300.66615295410156
+    ],
+    "pitch_m": [
+      -36.59,
+      -10.76
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 154,
+    "cam": "P1",
+    "conf": 0.34728217124938965,
+    "px": [
+      226.6413116455078,
+      301.06068420410156
+    ],
+    "pitch_m": [
+      -36.5,
+      -10.74
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 156,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 158,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 160,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 162,
+    "cam": "P1",
+    "conf": 0.3616194427013397,
+    "px": [
+      488.2421875,
+      273.2102813720703
+    ],
+    "pitch_m": [
+      -27.13,
+      -12.57
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 164,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 166,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 168,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 170,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 172,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 174,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none"
+  },
+  {
+    "i": 176,
+    "cam": "Cam4plus",
+    "conf": 0.6067838072776794,
+    "px": [
+      1464.6582641601562,
+      448.91175842285156
+    ],
+    "pitch_m": [
+      1.95,
+      -24.29
+    ],
+    "map": "fov_approx"
+  },
+  {
+    "i": 178,
+    "cam": "Cam4plus",
+    "conf": 0.5807701349258423,
+    "px": [
+      1459.751220703125,
+      449.2279357910156
+    ],
+    "pitch_m": [
+      1.87,
+      -24.27
+    ],
+    "map": "fov_approx"
+  }
+]

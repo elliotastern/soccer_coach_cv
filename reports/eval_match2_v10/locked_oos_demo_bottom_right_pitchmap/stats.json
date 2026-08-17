@@ -1,0 +1,9 @@
+{
+  "slot": "bottom_right",
+  "label": "Bottom Right OOS \u2014 video + pitch (x,y)",
+  "clock": "6:52\u20136:58",
+  "policy": "pool8_largest_ball_p7_thr060",
+  "n_frames": 90,
+  "map_note": "Pitch (x,y) uses FOV-approximate projection from camera_pitch_coverage wedges until Cam*_manual.json homographies exist. Absolute meters are provisional.",
+  "overlay": "reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap/quad_bottom_right_t00412.0s_video_pitch.mp4"
+}

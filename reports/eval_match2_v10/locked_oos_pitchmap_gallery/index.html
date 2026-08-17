@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Match 2 — video + pitch (x,y)</title>
+<style>
+:root { --bg:#121612; --panel:#1c241c; --text:#eef2ee; --muted:#9aab9a; --accent:#e8c547; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:"IBM Plex Sans",Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
+main { max-width: 1280px; margin: 0 auto; padding: 1.2rem 1.4rem 2rem; }
+h1 { font-family:"IBM Plex Serif",Georgia,serif; font-size:1.45rem; font-weight:600; margin:0 0 .35rem; }
+.sub { color:var(--muted); font-size:.9rem; line-height:1.45; margin-bottom:1rem; max-width:52rem; }
+.bar { display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; margin-bottom:.9rem; }
+label { color:var(--muted); font-size:.85rem; }
+select {
+  background:var(--panel); color:var(--text); border:1px solid #3a4a3a;
+  padding:.55rem .7rem; border-radius:6px; font-size:.95rem; min-width:min(100%, 420px);
+}
+select:focus { outline:1px solid var(--accent); }
+video { width:100%; background:#000; border-radius:8px; display:block; }
+.meta { margin-top:.65rem; color:var(--muted); font-size:.82rem; }
+code { color:var(--accent); }
+</style>
+</head><body><main>
+<h1>Match 2 — locked pick + pitch (x,y)</h1>
+<p class="sub">
+  Dropdown: Bottom Right + Top Right OOS, plus 5 random Match 2 windows.
+  Left panel = selected cam / ball; right = 2D pitch meters (FOV-approximate until manual H).
+</p>
+<div class="bar">
+  <label for="clip">Clip</label>
+  <select id="clip"><option value="bottom_right" data-src="/reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap/quad_bottom_right_t00412.0s_video_pitch.mp4">Bottom Right (6:52) · 6:52–6:58</option>
+<option value="top_right" data-src="/reports/eval_match2_v10/locked_oos_demo_top_right_pitchmap/quad_top_right_t00125.0s_video_pitch.mp4">Top Right (2:05) · 2:05–2:10</option>
+<option value="rand_391" data-src="/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_391/rand_t00391.9s_video_pitch.mp4">Random 6:32 · 6:32–6:38</option>
+<option value="rand_621" data-src="/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_621/rand_t00621.7s_video_pitch.mp4">Random 10:22 · 10:22–10:28</option>
+<option value="rand_967" data-src="/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_967/rand_t00967.4s_video_pitch.mp4">Random 16:07 · 16:07–16:13</option>
+<option value="rand_1125" data-src="/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1125/rand_t01125.5s_video_pitch.mp4">Random 18:46 · 18:46–18:52</option>
+<option value="rand_1221" data-src="/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1221/rand_t01221.4s_video_pitch.mp4">Random 20:21 · 20:21–20:27</option></select>
+</div>
+<video id="player" controls autoplay muted loop></video>
+<p class="meta" id="meta"></p>
+<script>
+const entries = [{"id": "bottom_right", "label": "Bottom Right (6:52)", "clock": "6:52\u20136:58", "url": "/reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap/quad_bottom_right_t00412.0s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap/"}, {"id": "top_right", "label": "Top Right (2:05)", "clock": "2:05\u20132:10", "url": "/reports/eval_match2_v10/locked_oos_demo_top_right_pitchmap/quad_top_right_t00125.0s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_demo_top_right_pitchmap/"}, {"id": "rand_391", "label": "Random 6:32", "clock": "6:32\u20136:38", "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_391/rand_t00391.9s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_391/"}, {"id": "rand_621", "label": "Random 10:22", "clock": "10:22\u201310:28", "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_621/rand_t00621.7s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_621/"}, {"id": "rand_967", "label": "Random 16:07", "clock": "16:07\u201316:13", "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_967/rand_t00967.4s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_967/"}, {"id": "rand_1125", "label": "Random 18:46", "clock": "18:46\u201318:52", "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1125/rand_t01125.5s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1125/"}, {"id": "rand_1221", "label": "Random 20:21", "clock": "20:21\u201320:27", "url": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1221/rand_t01221.4s_video_pitch.mp4", "page": "/reports/eval_match2_v10/locked_oos_pitchmap_gallery/clips/rand_1221/"}];
+const byId = Object.fromEntries(entries.map(e => [e.id, e]));
+const sel = document.getElementById('clip');
+const player = document.getElementById('player');
+const meta = document.getElementById('meta');
+function show(id) {
+  const e = byId[id];
+  if (!e) return;
+  player.src = e.url;
+  player.play().catch(() => {});
+  meta.innerHTML = `<b>${e.label}</b> · ${e.clock} · <code>${e.id}</code>`;
+  history.replaceState(null, '', '#' + id);
+}
+sel.addEventListener('change', () => show(sel.value));
+const initial = (location.hash || '').slice(1) || entries[0].id;
+if (byId[initial]) sel.value = initial;
+show(sel.value);
+</script>
+</main></body></html>
