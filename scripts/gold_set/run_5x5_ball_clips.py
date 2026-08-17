@@ -523,8 +523,17 @@ def step_bestcam(acc: dict, step: dict):
     job = step["job"]
     args = step["args"]
     idx = step["idx"]
-    picked = select_frame(job["tracks"], {"names": job["names"], "idx": idx, "mode": args.select_camera})
-    acc["n_frames"] += 1
+    frames = step["frames"]
+    frames_by_cam = {name: fr for name, fr in zip(job["names"], frames)}
+    picked = select_frame(
+        job["tracks"],
+        {
+            "names": job["names"],
+            "idx": idx,
+            "mode": args.select_camera,
+            "frames_by_cam": frames_by_cam,
+        },
+    )    acc["n_frames"] += 1
     acc["wins"][picked["cam"] if picked["cam"] else "none"] += 1
     if picked["raw"] is not None:
         acc["n_raw"] += 1
@@ -550,8 +559,9 @@ def select_frame(tracks: dict, spec: dict):
     idx = spec["idx"]
     pred_map = {name: pred_list(tracks[name]["raws"][idx]) for name in names}
     mode = spec["mode"]
+    frames_by_cam = spec.get("frames_by_cam")
     if mode == "locked":
-        cam, raw_pred = pick_product(pred_map)
+        cam, raw_pred = pick_product(pred_map, frames_by_cam=frames_by_cam)
     else:
         cam, raw_pred = pick_selected(pred_map, mode)
     emit_pred = tracks[cam]["emits"][idx] if cam else None

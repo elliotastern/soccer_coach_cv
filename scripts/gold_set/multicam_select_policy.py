@@ -128,10 +128,19 @@ def filter_pred_map(pred_map: dict, thr_by_cam: dict | None = None) -> dict:
     return out
 
 
-def pick_product(pred_map: dict, mode: str | None = None, thr_by_cam: dict | None = None):
-    """Product multicam pick: thr floors then largest_ball (or override mode)."""
+def pick_product(
+    pred_map: dict,
+    mode: str | None = None,
+    thr_by_cam: dict | None = None,
+    frames_by_cam: dict | None = None,
+):
+    """Product multicam pick: thr floors, optional on-pitch gate, then largest_ball."""
     from eval_match2_v10_video_system import pick_selected
 
     pick_mode = PRODUCT_PICK_MODE if mode in (None, "locked") else mode
     active = filter_pred_map(pred_map, thr_by_cam)
+    if frames_by_cam:
+        from src.perception.pitch_mask import filter_pred_map_on_pitch
+
+        active = filter_pred_map_on_pitch(frames_by_cam, active)
     return pick_selected(active, pick_mode)

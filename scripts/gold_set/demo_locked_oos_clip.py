@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Out-of-sample demo: locked pick on Top Right 4quad (not Top Left gold).
+"""Out-of-sample demo: locked pick on a 4quad window (not Top Left gold).
 
-Uses existing det cache + source clips (no re-detect). Writes overlay MP4,
-contact sheet, and HTML under reports/eval_match2_v10/locked_oos_demo/.
-Never trains.
+Uses existing det cache + source clips (no re-detect). Default slot is
+bottom_right. Writes overlay MP4, contact sheet, and HTML under
+reports/eval_match2_v10/locked_oos_demo_<slot>/. Never trains.
 """
 from __future__ import annotations
 
@@ -39,11 +39,30 @@ SRC = ROOT / "reports/eval_match2_v10/4quad_test/source"
 OUT = ROOT / "reports/eval_match2_v10/locked_oos_demo"
 DETECT_W = 1920
 
+SLOTS = {
+    "top_right": {
+        "stem": "quad_top_right_t00125.0s",
+        "label": "Top Right (out-of-sample vs Top Left gold)",
+        "clock": "2:05–2:10",
+    },
+    "bottom_right": {
+        "stem": "quad_bottom_right_t00412.0s",
+        "label": "Bottom Right (out-of-sample vs Top Left gold)",
+        "clock": "6:52–6:58",
+    },
+    "center_start": {
+        "stem": "quad_center_start_t00008.0s",
+        "label": "Center Start (out-of-sample vs Top Left gold)",
+        "clock": "0:08–0:13",
+    },
+}
+
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--cache", type=Path, default=CACHE)
-    p.add_argument("--out", type=Path, default=OUT)
+    p.add_argument("--slot", choices=sorted(SLOTS), default="bottom_right")
+    p.add_argument("--cache", type=Path, default=None)
+    p.add_argument("--out", type=Path, default=None)
     p.add_argument("--stride", type=int, default=2, help="write every Nth frame")
     p.add_argument("--max-frames", type=int, default=150)
     return p.parse_args()
@@ -114,13 +133,21 @@ def contact_sheet(frames, cols=5, cell=320):
 
 def main() -> int:
     args = parse_args()
-    if not args.cache.is_file():
-        raise FileNotFoundError(args.cache)
-    dets = cache_load(args.cache)
+    meta = SLOTS[args.slot]
+    stem = meta["stem"]
+    label = meta["label"]
+    clock = meta["clock"]
+    out = args.out or (ROOT / f"reports/eval_match2_v10/locked_oos_demo_{args.slot}")
+    out = out if out.is_absolute() else (ROOT / out)
+    cache = args.cache or (
+        ROOT / f"reports/eval_match2_v10/4quad_multicam_survey/det_cache_{args.slot}_thr010.json"
+    )
+    cache = cache if cache.is_absolute() else (ROOT / cache)
+    dets = cache_load(cache)
     n_cache = len(next(iter(dets.values())))
     n = min(args.max_frames * args.stride, n_cache)
-    args.out.mkdir(parents=True, exist_ok=True)
-    caps = open_caps(STEM)
+    out.mkdir(parents=True, exist_ok=True)
+    caps = open_caps(stem)
     fps = float(caps[SURVEY_CAMS[0]].get(cv2.CAP_PROP_FPS) or 30.0) / args.stride
 
     writer = None
@@ -128,7 +155,7 @@ def main() -> int:
     sides = []
     thumbs = []
     written = 0
-    raw_path = args.out / f"{STEM}_locked_overlay.mp4"
+    raw_path = out / f"{stem}_locked_overlay.mp4"
 
     for i in range(n):
         frames = {}
@@ -144,7 +171,10 @@ def main() -> int:
         if i % args.stride != 0:
             continue
         active = filter_active(dets, i, SURVEY_CAMS, TOP_LEFT_THR_BY_CAM)
-        cam, pred = pick_product(active) if active else (None, None)
+        if active:
+            cam, pred = pick_product(active, frames_by_cam=frames)
+        else:
+            cam, pred = None, None
         wins[cam or "none"] += 1
         if pred is not None:
             sides.append(float(pred[2]))
@@ -169,16 +199,16 @@ def main() -> int:
         encode_h264(raw_path)
 
     sheet = contact_sheet(thumbs)
-    sheet_path = args.out / f"{STEM}_locked_contact.jpg"
+    sheet_path = out / f"{stem}_locked_contact.jpg"
     cv2.imwrite(str(sheet_path), sheet, [int(cv2.IMWRITE_JPEG_QUALITY), 88])
 
     med = sorted(sides)[len(sides) // 2] if sides else None
     ge20 = (sum(1 for s in sides if s >= 20) / len(sides)) if sides else 0.0
     top = [{"cam": c, "n": v, "share": v / written} for c, v in wins.most_common()]
     stats = {
-        "slot": SLOT,
-        "label": LABEL,
-        "clock": CLOCK,
+        "slot": args.slot,
+        "label": label,
+        "clock": clock,
         "policy": PRODUCT_POLICY_ID,
         "n_frames_written": written,
         "stride": args.stride,
@@ -189,12 +219,13 @@ def main() -> int:
         "contact": str(sheet_path.relative_to(ROOT)),
         "note": "Out-of-sample vs Top Left gold/labels. Picks from survey det cache + locked policy.",
     }
-    (args.out / "stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
+    (out / "stats.json").write_text(json.dumps(stats, indent=2), encoding="utf-8")
 
-    ov_url = f"/reports/eval_match2_v10/locked_oos_demo/{raw_path.name}"
-    sheet_url = f"/reports/eval_match2_v10/locked_oos_demo/{sheet_path.name}"
+    rel = out.relative_to(ROOT)
+    ov_url = f"/{rel.as_posix()}/{raw_path.name}"
+    sheet_url = f"/{rel.as_posix()}/{sheet_path.name}"
     html = f"""<!doctype html>
-<html><head><meta charset="utf-8"><title>Locked OOS — Top Right</title>
+<html><head><meta charset="utf-8"><title>Locked OOS — {args.slot}</title>
 <style>
 body{{font-family:ui-sans-serif,system-ui;margin:24px;background:#111;color:#eee}}
 h1{{font-size:1.4rem}} .meta{{opacity:.85;margin-bottom:16px}}
@@ -204,7 +235,7 @@ code{{background:#222;padding:2px 6px;border-radius:4px}}
 </style></head><body>
 <h1>Locked pick — out-of-sample</h1>
 <div class="meta">
-  <div><b>{LABEL}</b> · clock {CLOCK}</div>
+  <div><b>{label}</b> · clock {clock}</div>
   <div>Policy <code>{PRODUCT_POLICY_ID}</code> · frames {written} · median ball {med}px · ≥20px {ge20:.0%}</div>
   <div>Winners: {', '.join(f"{t['cam']} {t['share']*100:.0f}%" for t in top[:4])}</div>
   <div>Not Top Left gold window — this is a holdout clip.</div>
@@ -213,16 +244,16 @@ code{{background:#222;padding:2px 6px;border-radius:4px}}
 <div><img src="{sheet_url}" alt="contact"></div>
 </body></html>
 """
-    (args.out / "index.html").write_text(html, encoding="utf-8")
-    (args.out / "readme.md").write_text(
-        f"# Locked OOS demo\n\n{LABEL}\n\n"
+    (out / "index.html").write_text(html, encoding="utf-8")
+    (out / "readme.md").write_text(
+        f"# Locked OOS demo — {args.slot}\n\n{label}\n\n"
         f"- Overlay: `{raw_path.name}`\n"
         f"- Contact: `{sheet_path.name}`\n"
-        f"- Open: http://127.0.0.1:8080/reports/eval_match2_v10/locked_oos_demo/\n",
+        f"- Open: http://127.0.0.1:8080/{rel.as_posix()}/\n",
         encoding="utf-8",
     )
     print(json.dumps(stats, indent=2), flush=True)
-    print(f"wrote {args.out / 'index.html'}", flush=True)
+    print(f"wrote {out / 'index.html'}", flush=True)
     return 0
 
 

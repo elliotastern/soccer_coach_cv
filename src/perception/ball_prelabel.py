@@ -277,12 +277,15 @@ class BallPrelabelConfig:
     slice_size: int = 960
     overlap: float = 0.2
     use_size_filter: bool = True
+    use_pitch_filter: bool = True  # drop sideline / brown-track FPs (spare balls, bins)
     use_multiscale: bool = False
     multiscale_factor: float = 1.5
     topk: int = 2
     use_kalman: bool = False
     max_side: float = 120.0
     min_side: float = 4.0
+    pitch_min_green: float = 0.22
+    pitch_max_brown: float = 0.50
 
 
 class BallPrelabeler:
@@ -301,6 +304,8 @@ class BallPrelabeler:
         return self.detect_pil(Image.fromarray(rgb))
 
     def detect_pil(self, pil_image: Image.Image) -> List[Detection]:
+        import cv2
+
         cfg = self.config
         tile_thr = cfg.tile_threshold if cfg.tile_threshold is not None else max(cfg.threshold, 0.4)
         img_w = float(pil_image.size[0])
@@ -347,6 +352,16 @@ class BallPrelabeler:
                 tile_dets = sahi_recover_only(full_before, tile_dets, max_iou=0.1)
             dets = nms_balls(list(full_before) + list(tile_dets), iou_thr=0.4)
         dets = topk_balls(dets, k=cfg.topk)
+        if cfg.use_pitch_filter:
+            from src.perception.pitch_mask import filter_dets_on_pitch
+
+            frame_bgr = cv2.cvtColor(np.array(pil_image.convert("RGB")), cv2.COLOR_RGB2BGR)
+            dets = filter_dets_on_pitch(
+                frame_bgr,
+                dets,
+                min_green=cfg.pitch_min_green,
+                max_brown=cfg.pitch_max_brown,
+            )
         if self.kalman is not None:
             dets = self.kalman.step(dets)
         return dets
