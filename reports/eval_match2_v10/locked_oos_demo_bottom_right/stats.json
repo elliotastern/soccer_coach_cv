@@ -1,0 +1,40 @@
+{
+  "slot": "bottom_right",
+  "label": "Bottom Right (out-of-sample vs Top Left gold)",
+  "clock": "6:52\u20136:58",
+  "policy": "pool8_largest_ball_p7_thr060",
+  "n_frames_written": 150,
+  "stride": 2,
+  "winners": [
+    {
+      "cam": "P1",
+      "n": 60,
+      "share": 0.4
+    },
+    {
+      "cam": "Cam5plus",
+      "n": 55,
+      "share": 0.36666666666666664
+    },
+    {
+      "cam": "none",
+      "n": 26,
+      "share": 0.17333333333333334
+    },
+    {
+      "cam": "Cam4plus",
+      "n": 8,
+      "share": 0.05333333333333334
+    },
+    {
+      "cam": "P12",
+      "n": 1,
+      "share": 0.006666666666666667
+    }
+  ],
+  "median_side_px": 19.581130981445312,
+  "frac_ge_20px": 0.468,
+  "overlay": "reports/eval_match2_v10/locked_oos_demo_bottom_right/quad_bottom_right_t00412.0s_locked_overlay.mp4",
+  "contact": "reports/eval_match2_v10/locked_oos_demo_bottom_right/quad_bottom_right_t00412.0s_locked_contact.jpg",
+  "note": "Out-of-sample vs Top Left gold/labels. Picks from survey det cache + locked policy."
+}
