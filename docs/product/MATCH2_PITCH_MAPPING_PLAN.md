@@ -33,12 +33,27 @@
 - If auto H fails landmarks → stop loop; ask user for one manual calib click session (`scripts/calibrate_homography.py`).
 - If H looks good → finish E–F without user.
 
+## Auto-v2 (landmark improve loop)
+
+| Step | Do | Done when |
+|---|---|---|
+| **A1** | `scripts/gold_set/auto_match2_homography.py` multi-frame CLI | Runnable for Cam4+/Cam5+ |
+| **A2** | Hard overlay gate + `*_overlay_v2.jpg` | Rejects prior bad autos |
+| **A3** | ≤3 retries (stems/frames/refine); detect @1280 then scale H | Status notes attempt |
+| **A4–A5** | `in_pitch_bounds` + wire into pick | Only if **both** cams `pass=true` |
+| **A6** | If exhausted → manual handoff; idle loop | User click session |
+
 ## Status
 
 - **2026-08-16:** Plan created. Color gate shipped (`9642282`).
 - **A done:** No prior Match 2 H JSON on disk.
 - **B done (numeric):** Auto H written for Cam4plus + Cam5plus under `reports/eval_match2_v10/match2_pitch_calib/` (OpenCV 5 Hough `(N,4)` unpack fixed).
-- **C FAIL:** Overlays do **not** follow real pitch lines (Cam4 ≈ axis-aligned frame quad; Cam5 ≈ thin mid strip). Auto landmarks are not trustworthy for bounds.
-- **Stop / handoff:** Need one **manual** click calib per master cam (`scripts/calibrate_homography.py` or equivalent) for Cam4plus + Cam5plus. Do not wire auto H into `pick_product`.
-- Loop: every **15m** (`AGENT_LOOP_TICK_pitch_map`) — on next ticks, only advance D–F after manual H lands; otherwise idle.
-- **2026-08-16:** Soft gates (hysteresis / N-frame emit) moved to sibling plan `MATCH2_NOISE_PRECISION_PLAN.md` so progress is not blocked on manual H.
+- **C FAIL (v1):** Overlays did **not** follow real pitch lines (Cam4 ≈ axis-aligned frame quad; Cam5 ≈ thin mid strip).
+- **2026-08-17 Auto-v2:**
+  - **A1–A3 done.** CLI + gate + 3 retries. Artifacts: `match2_pitch_calib/auto_v2_status.json`, overlays `*_overlay_v2.jpg`.
+  - **Cam4plus: PASS** on `tl_dist_off` → `Cam4plus_auto_v2.json` (do not promote alone).
+  - **Cam5plus: FAIL** all 3 attempts (`thin_axis_aligned_band` / thin mid strip) → `Cam5plus_auto_v2_FAILED.json`.
+  - **A4–A5 blocked:** both cams must pass. Helper `src/mapping/pitch_bounds.py` exists but is **not** wired into `pick_product`.
+  - **Manual fallback handoff:** please run `scripts/calibrate_homography.py` for **Cam5plus** (and optionally re-validate Cam4plus). Still frames under `reports/eval_match2_v10/match2_pitch_calib/stills/`.
+- Loop: every **15m** (`AGENT_LOOP_TICK_auto_h`) — idle until `Cam5plus_manual.json` (or both `*_auto_v2.json` with pass) lands; then resume D–F.
+- **2026-08-16:** Soft gates (hysteresis / N-frame emit) live in `MATCH2_NOISE_PRECISION_PLAN.md`.

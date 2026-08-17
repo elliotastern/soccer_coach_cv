@@ -1,0 +1,228 @@
+{
+  "cams": {
+    "Cam4plus": {
+      "pass": true,
+      "chosen_tag": "tl_dist_off",
+      "path": "reports/eval_match2_v10/match2_pitch_calib/Cam4plus_auto_v2.json",
+      "gate": {
+        "pass": true,
+        "reason": "ok",
+        "corners": [
+          [
+            -181.9,
+            395.3
+          ],
+          [
+            1860.6,
+            459.6
+          ],
+          [
+            1797.7,
+            661.1
+          ],
+          [
+            -105.4,
+            658.7
+          ]
+        ],
+        "span_px": [
+          2042.5,
+          265.8
+        ],
+        "corners_near_frame": 4,
+        "center_img": [
+          969.4,
+          549.9
+        ],
+        "circ_span_px": 337.9,
+        "y_pair_gap": 232.4,
+        "x_pair_gap": 1972.8
+      }
+    },
+    "Cam5plus": {
+      "cam": "Cam5plus",
+      "pass": false,
+      "attempts": [
+        {
+          "cam": "Cam5plus",
+          "tag": "tl_dist_off",
+          "stem": "quad_top_left_t00026.0s",
+          "n_frames_loaded": 12,
+          "correct_distortion": false,
+          "detect_w": 1280,
+          "scale_to_native": 3.0,
+          "pass": false,
+          "estimate_ok": true,
+          "center_circle_detected": false,
+          "y_axis_scale": 1.0,
+          "landmark_debug": {
+            "ok": true,
+            "note": "skipped_second_detect_pass",
+            "center_circle_detected": false,
+            "y_axis_scale": 1.0
+          },
+          "gate": {
+            "pass": false,
+            "reason": "thin_axis_aligned_band",
+            "corners": [
+              [
+                0.0,
+                247.0
+              ],
+              [
+                1280.0,
+                247.0
+              ],
+              [
+                1280.0,
+                404.0
+              ],
+              [
+                0.0,
+                404.0
+              ]
+            ],
+            "span_px": [
+              1280.0,
+              157.0
+            ],
+            "corners_near_frame": 4,
+            "center_img": [
+              640.0,
+              325.5
+            ],
+            "circ_span_px": 223.1,
+            "y_pair_gap": 157.0,
+            "x_pair_gap": 1280.0
+          },
+          "native_wh": [
+            3840,
+            2160
+          ],
+          "overlay": "reports/eval_match2_v10/match2_pitch_calib/Cam5plus_tl_dist_off_overlay_v2.jpg"
+        },
+        {
+          "cam": "Cam5plus",
+          "tag": "br_dist_off",
+          "stem": "quad_bottom_right_t00412.0s",
+          "n_frames_loaded": 12,
+          "correct_distortion": false,
+          "detect_w": 1280,
+          "scale_to_native": 3.0,
+          "pass": false,
+          "estimate_ok": true,
+          "center_circle_detected": false,
+          "y_axis_scale": 1.0,
+          "landmark_debug": {
+            "ok": true,
+            "note": "skipped_second_detect_pass",
+            "center_circle_detected": false,
+            "y_axis_scale": 1.0
+          },
+          "gate": {
+            "pass": false,
+            "reason": "thin_axis_aligned_band",
+            "corners": [
+              [
+                0.0,
+                485.5
+              ],
+              [
+                1280.0,
+                485.5
+              ],
+              [
+                1280.0,
+                319.5
+              ],
+              [
+                -0.0,
+                319.5
+              ]
+            ],
+            "span_px": [
+              1280.0,
+              166.0
+            ],
+            "corners_near_frame": 4,
+            "center_img": [
+              640.0,
+              402.5
+            ],
+            "circ_span_px": 223.1,
+            "y_pair_gap": 166.0,
+            "x_pair_gap": 1280.0
+          },
+          "native_wh": [
+            3840,
+            2160
+          ],
+          "overlay": "reports/eval_match2_v10/match2_pitch_calib/Cam5plus_br_dist_off_overlay_v2.jpg"
+        },
+        {
+          "cam": "Cam5plus",
+          "tag": "tl_more_frames",
+          "stem": "quad_top_left_t00026.0s",
+          "n_frames_loaded": 16,
+          "correct_distortion": false,
+          "detect_w": 1280,
+          "scale_to_native": 3.0,
+          "pass": false,
+          "estimate_ok": true,
+          "center_circle_detected": false,
+          "y_axis_scale": 1.0,
+          "landmark_debug": {
+            "ok": true,
+            "note": "skipped_second_detect_pass",
+            "center_circle_detected": false,
+            "y_axis_scale": 1.0
+          },
+          "gate": {
+            "pass": false,
+            "reason": "span_y_too_small,aspect_too_flat,thin_axis_aligned_band",
+            "corners": [
+              [
+                37.1,
+                319.7
+              ],
+              [
+                1311.0,
+                320.2
+              ],
+              [
+                1323.8,
+                408.1
+              ],
+              [
+                27.2,
+                397.7
+              ]
+            ],
+            "span_px": [
+              1296.6,
+              88.4
+            ],
+            "corners_near_frame": 4,
+            "center_img": [
+              636.6,
+              360.9
+            ],
+            "circ_span_px": 223.2,
+            "y_pair_gap": 82.9,
+            "x_pair_gap": 1285.2
+          },
+          "native_wh": [
+            3840,
+            2160
+          ],
+          "overlay": "reports/eval_match2_v10/match2_pitch_calib/Cam5plus_tl_more_frames_overlay_v2.jpg"
+        }
+      ],
+      "chosen_tag": null,
+      "handoff": "manual_calib"
+    }
+  },
+  "all_pass": false,
+  "next": "manual_fallback_handoff",
+  "note": "Cam4plus auto_v2 PASSED (tl_dist_off). Cam5plus failed 3/3 (thin_axis_aligned_band). Do not wire H into pick. Ask user for manual calibrate_homography.py on Cam5plus (and optionally re-check Cam4)."
+}

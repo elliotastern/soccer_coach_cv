@@ -1,0 +1,71 @@
+{
+  "camera": "Cam4plus",
+  "version": "auto_v2",
+  "pass": true,
+  "tag": "tl_dist_off",
+  "stem": "quad_top_left_t00026.0s",
+  "H": [
+    [
+      0.04180510321968481,
+      0.0020092650097788016,
+      -41.62946013403275
+    ],
+    [
+      -0.0036413558430217403,
+      0.23007131747614218,
+      -122.98106132206075
+    ],
+    [
+      -9.838167678868466e-05,
+      -0.00024093850372142964,
+      1.0
+    ]
+  ],
+  "source": "HomographyEstimator.estimate_averaged+overlay_gate",
+  "n_frames": 20,
+  "pitch_length_m": 105.0,
+  "pitch_width_m": 68.0,
+  "center_circle_detected": false,
+  "y_axis_scale": 1.0,
+  "gate": {
+    "pass": true,
+    "reason": "ok",
+    "corners": [
+      [
+        -181.9,
+        395.3
+      ],
+      [
+        1860.6,
+        459.6
+      ],
+      [
+        1797.7,
+        661.1
+      ],
+      [
+        -105.4,
+        658.7
+      ]
+    ],
+    "span_px": [
+      2042.5,
+      265.8
+    ],
+    "corners_near_frame": 4,
+    "center_img": [
+      969.4,
+      549.9
+    ],
+    "circ_span_px": 337.9,
+    "y_pair_gap": 232.4,
+    "x_pair_gap": 1972.8
+  },
+  "landmark_debug": {
+    "ok": true,
+    "note": "skipped_second_detect_pass",
+    "center_circle_detected": false,
+    "y_axis_scale": 1.0
+  },
+  "overlay": "reports/eval_match2_v10/match2_pitch_calib/Cam4plus_tl_dist_off_overlay_v2.jpg"
+}
