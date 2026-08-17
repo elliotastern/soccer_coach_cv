@@ -27,6 +27,29 @@ def test_policy():
     assert QUAD_SLOTS[0]["locked_pick"] == "largest_ball"
 
 
+def test_pick_product_floors_p7():
+    from multicam_select_policy import pick_product
+
+    # P7 larger ball but below 0.60 floor → Cam4plus wins
+    cam, pred = pick_product(
+        {
+            "P7": [([0, 0, 40, 40], 0.55, 40.0)],
+            "Cam4plus": [([0, 0, 26, 26], 0.70, 26.0)],
+        }
+    )
+    assert cam == "Cam4plus"
+    assert pred[2] == 26.0
+    # P7 clears floor and is larger → P7 wins
+    cam2, pred2 = pick_product(
+        {
+            "P7": [([0, 0, 40, 40], 0.65, 40.0)],
+            "Cam4plus": [([0, 0, 26, 26], 0.90, 26.0)],
+        }
+    )
+    assert cam2 == "P7"
+    assert pred2[2] == 40.0
+
+
 def test_select_share():
     n = 3
     dets = {cam: [[] for _ in range(n)] for cam in SURVEY_CAMS}
@@ -39,5 +62,6 @@ def test_select_share():
 
 if __name__ == "__main__":
     test_policy()
+    test_pick_product_floors_p7()
     test_select_share()
     print("ok")

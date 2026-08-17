@@ -213,3 +213,12 @@ When **Cam4plus/Cam5plus** are in the pool, Top Left’s winner flips to **Cam4p
 
 Top Left’s `P7≥0.60` floor does **not** change these shares (winners already high-conf). **Label pack ready:** `match2_4quad_center_start_cam4plus` · http://127.0.0.1:8080/4quad-cvat/center_start_cam4plus (dense prelabels; human-correct before GT). Alt later: Top Right (more mixed).
 
+## Product pick lock (2026-08-16)
+
+Wired into live/batch path as select mode **`locked`**:
+- `multicam_select_policy.pick_product()` — P7≥0.60 others≥0.30 then `largest_ball`
+- `run_5x5_ball_clips.py --quad-test` defaults to `locked` + all 8 Match 2 cams
+- `eval_match2_v10_video_system.py` strip uses `locked` for Cam4+/Cam5+ best-cam
+
+Policy id: `pool8_largest_ball_p7_thr060`. Top Left gold HIT; other 4quads size-OK (see `4quad_locked_policy_survey/`).
+

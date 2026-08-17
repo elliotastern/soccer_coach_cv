@@ -312,12 +312,17 @@ def run_dual_cam_strip(model, args):
 
 
 def score_strip_selection(cam_rows, mode: str, key: str, n: int):
+    from multicam_select_policy import pick_product
+
     n_emitted = 0
     confs = []
     per_cam = {name: 0 for name in cam_rows}
     for i in range(n):
         pred_map = {name: cam_rows[name]["rows"][i][key] for name in cam_rows}
-        cam, pred = pick_selected(pred_map, mode)
+        if mode == "locked":
+            cam, pred = pick_product(pred_map)
+        else:
+            cam, pred = pick_selected(pred_map, mode)
         if pred is None:
             continue
         n_emitted += 1
@@ -329,6 +334,7 @@ def score_strip_selection(cam_rows, mode: str, key: str, n: int):
         "emit_rate": n_emitted / n if n else 0.0,
         "mean_conf": (sum(confs) / len(confs)) if confs else None,
         "per_cam": per_cam,
+        "pick_mode": mode,
         "note": "no GT on this strip — n_emitted/rate only, not P_emit",
     }
 
@@ -350,6 +356,8 @@ def gold_in_strip(items, start_frame: int, n: int, cam_names):
 
 
 def score_gold_on_strip(items, cam_rows, start_frame: int, n: int, mode: str):
+    from multicam_select_policy import pick_product
+
     scored = []
     tp = fp = fn = 0
     n_emitted = 0
@@ -363,7 +371,10 @@ def score_gold_on_strip(items, cam_rows, start_frame: int, n: int, mode: str):
         pred_map = {
             name: cam_rows[name]["rows"][strip_i]["emit"] for name in cam_rows
         }
-        cam, pred = pick_selected(pred_map, mode)
+        if mode == "locked":
+            cam, pred = pick_product(pred_map)
+        else:
+            cam, pred = pick_selected(pred_map, mode)
         preds = [pred] if pred is not None else []
         if cam != item["camera"]:
             scored.append({
@@ -422,10 +433,12 @@ def tile_contact(frames, cols=10, cell=320):
 
 
 def write_strip_visuals(out_dir: Path, cam_rows, n: int):
+    from multicam_select_policy import pick_product
+
     annotated = []
     for i in range(n):
         pred_map = {name: cam_rows[name]["rows"][i]["emit"] for name in cam_rows}
-        cam, pred = pick_selected(pred_map, "max_conf")
+        cam, pred = pick_product(pred_map)
         if cam is None:
             frame = cam_rows["Cam5plus"]["frames"][i]
             annotated.append(draw_pred(frame, None, "none"))
@@ -440,7 +453,7 @@ def write_strip_visuals(out_dir: Path, cam_rows, n: int):
 
 def write_md(path: Path, report: dict):
     gold = report.get("gold_warmup_emit") or {}
-    strip = report.get("strip_track_emit_max_conf") or {}
+    strip = report.get("strip_track_emit_locked") or report.get("strip_track_emit_max_conf") or {}
     pe = gold.get("P_emit")
     pe_s = f"{pe:.3f}" if pe is not None else "none"
     lines = [
@@ -461,12 +474,13 @@ def write_md(path: Path, report: dict):
         f"- hollow: {gold.get('hollow')}",
         f"- clear-ball R: {report.get('gold_clear_ball', {}).get('recall')}",
         "",
-        "## Product strip — Cam5plus/Cam4plus best-cam (no GT on full strip)",
+        "## Product strip — Cam5plus/Cam4plus locked pick (largest_ball)",
         "",
         f"- n_emitted: **{strip.get('n_emitted')}** / {strip.get('n_frames')} "
         f"(rate {strip.get('emit_rate')})",
         f"- mean emit conf: {strip.get('mean_conf')}",
         f"- per cam: {strip.get('per_cam')}",
+        f"- pick: {strip.get('pick_mode', 'locked')}",
         "",
         report.get("read", ""),
         "",
@@ -497,12 +511,12 @@ def main():
     if not args.skip_strip:
         cam_rows, start_frame, fps = run_dual_cam_strip(model, args)
         n = args.num_frames
-        strip_sel = score_strip_selection(cam_rows, "max_conf", "emit", n)
-        strip_raw = score_strip_selection(cam_rows, "max_conf", "raw", n)
+        strip_sel = score_strip_selection(cam_rows, "locked", "emit", n)
+        strip_raw = score_strip_selection(cam_rows, "locked", "raw", n)
         overlap = gold_in_strip(
             items, start_frame, n, [name for name, _ in MASTER_CAMS]
         )
-        strip_gold = score_gold_on_strip(items, cam_rows, start_frame, n, "max_conf")
+        strip_gold = score_gold_on_strip(items, cam_rows, start_frame, n, "locked")
         args.out.parent.mkdir(parents=True, exist_ok=True)
         vis = write_strip_visuals(args.out.parent, cam_rows, n)
         print(f"contact: {vis}", flush=True)
@@ -515,7 +529,7 @@ def main():
 
     read = (
         "P_emit/FPs come from held-out Match 2 gold 50 with video warmup + emit gate. "
-        "The Cam5plus/Cam4plus strip reports product n_emitted (how often we publish). "
+        "The Cam5plus/Cam4plus strip uses product pick (locked: thr floors + largest_ball). "
         "Strip has no full GT; overlapping gold frames are scored separately."
     )
     report = {
@@ -531,8 +545,8 @@ def main():
         "gold_warmup_emit": gold_emit,
         "gold_warmup_raw": gold_raw,
         "gold_clear_ball": gold_clear,
-        "strip_track_emit_max_conf": strip_sel,
-        "strip_raw_max_conf": strip_raw,
+        "strip_track_emit_locked": strip_sel,
+        "strip_raw_locked": strip_raw,
         "strip_gold_overlap": overlap,
         "strip_gold_scored": strip_gold,
         "read": read,

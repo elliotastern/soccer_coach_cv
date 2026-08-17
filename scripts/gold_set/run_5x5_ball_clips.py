@@ -2,8 +2,9 @@
 """5x5 clips: 5 random 5-second Match 2 windows, product ball stack.
 
 Detect 0.3 → ByteTrack → emit 0.80. Optional best-camera pick across
-all Match 2 views. Writes source clips, overlays, JSON, HTML.
-Never trains. Real Match 2 footage only.
+all Match 2 views. `--quad-test` uses product lock (`locked` =
+P7 thr floor + largest_ball on 8 cams). Writes source clips, overlays,
+JSON, HTML. Never trains. Real Match 2 footage only.
 """
 from __future__ import annotations
 
@@ -29,6 +30,11 @@ from eval_match2_v10_video_system import (  # noqa: E402
     make_tracker,
     pick_selected,
     raw_emit_from_dets,
+)
+from multicam_select_policy import (  # noqa: E402
+    PRODUCT_PICK_MODE,
+    PRODUCT_POLICY_ID,
+    pick_product,
 )
 
 CLIP_SEC = 5.0
@@ -69,8 +75,9 @@ def parse_args():
     p.add_argument("--overlay-width", type=int, default=1280)
     p.add_argument(
         "--select-camera",
-        choices=["random", "max_conf", "size_weighted", "largest_ball"],
+        choices=["random", "max_conf", "size_weighted", "largest_ball", "locked"],
         default="random",
+        help="locked = product policy (P7 thr floor + largest_ball)",
     )
     p.add_argument(
         "--cameras",
@@ -542,7 +549,11 @@ def select_frame(tracks: dict, spec: dict):
     names = spec["names"]
     idx = spec["idx"]
     pred_map = {name: pred_list(tracks[name]["raws"][idx]) for name in names}
-    cam, raw_pred = pick_selected(pred_map, spec["mode"])
+    mode = spec["mode"]
+    if mode == "locked":
+        cam, raw_pred = pick_product(pred_map)
+    else:
+        cam, raw_pred = pick_selected(pred_map, mode)
     emit_pred = tracks[cam]["emits"][idx] if cam else None
     return {"cam": cam, "raw": raw_pred, "emit": emit_pred}
 
@@ -990,7 +1001,7 @@ document.querySelectorAll(".clip").forEach((clip) => {
 def main() -> int:
     args = parse_args()
     if args.quad_test:
-        args.select_camera = "max_conf"
+        args.select_camera = "locked"
         args.cameras = "all_match2"
         default_out = ROOT / "reports" / "eval_match2_v10" / PACK_NAME
         if args.out == default_out:
@@ -1011,6 +1022,8 @@ def main() -> int:
         "min_thr": args.min_thr,
         "emit_thresh": args.emit_thresh,
         "select_camera": args.select_camera,
+        "select_policy_id": PRODUCT_POLICY_ID if args.select_camera == "locked" else None,
+        "select_pick_mode": PRODUCT_PICK_MODE if args.select_camera == "locked" else args.select_camera,
         "cameras": args.cameras,
         "checkpoint": str(args.ball_checkpoint),
         "clips": pack["clips"],

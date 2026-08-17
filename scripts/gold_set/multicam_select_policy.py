@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Locked multicam pick policies (per-region notes).
+"""Locked multicam pick policies (product + per-region notes).
 
-Top Left product lock (software #1):
+Product lock (`pool8_largest_ball_p7_thr060` / select mode `locked`):
   pool = 6 P-cams + Cam4plus + Cam5plus
   thr  = P7≥0.60, others≥0.30
   pick = largest ball side, then conf
 
-P7∪P10 dual-gold still scores only when a gold cam wins. Cam4+/Cam5+ frames
-need their own gold before match-wide R/P is honest. Other quads: survey before
-copying this thr map.
+Use `pick_product(pred_map)` from live/batch paths. Top Left gold HIT;
+other 4quad regions size-OK in `4quad_locked_policy_survey/`.
 """
 from __future__ import annotations
 
@@ -20,10 +19,15 @@ TOP_LEFT_THR_BY_CAM = {
 TOP_LEFT_PICK_MODE = "largest_ball"
 TOP_LEFT_POLICY_ID = "pool8_largest_ball_p7_thr060"
 TOP_LEFT_POLICY_NOTE = (
-    "Top Left: Cam4+/Cam5+/P-cams, P7≥0.60 others≥0.30, largest_ball then conf. "
-    "Dual-gold P/R only covers frames where P7 or P10 wins. "
-    "Do not assume this thr map for Center/Bottom/Top Right without a survey."
+    "Product lock (Match 2 8-cam): Cam4+/Cam5+/P-cams, P7≥0.60 others≥0.30, "
+    "largest_ball then conf. Top Left gold HIT; other 4quads size-OK in survey. "
+    "Wire via pick_product() / select mode `locked`."
 )
+
+# Aliases used by live/batch path
+PRODUCT_POLICY_ID = TOP_LEFT_POLICY_ID
+PRODUCT_THR_BY_CAM = TOP_LEFT_THR_BY_CAM
+PRODUCT_PICK_MODE = TOP_LEFT_PICK_MODE
 
 # Prior P-cam-only lock (kept for comparison / rollback).
 TOP_LEFT_PCAM_ONLY_POLICY_ID = "p7_thr060_others030"
@@ -35,6 +39,7 @@ GOAL_P = 0.90
 P_CAMS = ["P1", "P6", "P7", "P8", "P10", "P12"]
 SURVEY_CAMS = P_CAMS + ["Cam4plus", "Cam5plus"]
 TOP_LEFT_POOL = list(SURVEY_CAMS)
+PRODUCT_POOL = list(TOP_LEFT_POOL)
 
 QUAD_SLOTS = [
     {
@@ -107,3 +112,26 @@ def locked_top_left_spec() -> dict:
         "goal_r": GOAL_R,
         "goal_p": GOAL_P,
     }
+
+
+def filter_pred_map(pred_map: dict, thr_by_cam: dict | None = None) -> dict:
+    """Drop cams whose best conf is below per-cam floor. preds = list of (box, conf, side)."""
+    thr_map = thr_by_cam if thr_by_cam is not None else PRODUCT_THR_BY_CAM
+    out = {}
+    for cam, preds in pred_map.items():
+        if not preds:
+            continue
+        thr = thr_for_cam(thr_map, cam)
+        kept = [p for p in preds if float(p[1]) >= thr]
+        if kept:
+            out[cam] = kept
+    return out
+
+
+def pick_product(pred_map: dict, mode: str | None = None, thr_by_cam: dict | None = None):
+    """Product multicam pick: thr floors then largest_ball (or override mode)."""
+    from eval_match2_v10_video_system import pick_selected
+
+    pick_mode = PRODUCT_PICK_MODE if mode in (None, "locked") else mode
+    active = filter_pred_map(pred_map, thr_by_cam)
+    return pick_selected(active, pick_mode)
