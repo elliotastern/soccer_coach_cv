@@ -222,3 +222,7 @@ Wired into live/batch path as select mode **`locked`**:
 
 Policy id: `pool8_largest_ball_p7_thr060`. Top Left gold HIT; other 4quads size-OK (see `4quad_locked_policy_survey/`).
 
+
+## Pitch mapping next (2026-08-16)
+
+Plan: [MATCH2_PITCH_MAPPING_PLAN.md](../../docs/product/MATCH2_PITCH_MAPPING_PLAN.md) — auto H for Cam4+/Cam5+ then pitch-bounds off-pitch gate.
