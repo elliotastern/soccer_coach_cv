@@ -1,0 +1,27 @@
+{
+  "camera": "Cam4plus",
+  "stem": "quad_top_left_t00026.0s",
+  "H": [
+    [
+      0.057911385296468935,
+      2.0614861664744685e-20,
+      -67.75632079686865
+    ],
+    [
+      -3.4607850911472486e-18,
+      0.05791138925115447,
+      -31.967087220100247
+    ],
+    [
+      8.824553792569112e-19,
+      6.112330113019945e-11,
+      1.0
+    ]
+  ],
+  "source": "HomographyEstimator.estimate_averaged",
+  "n_frames": 8,
+  "pitch_length_m": 105.0,
+  "pitch_width_m": 68.0,
+  "center_circle_detected": true,
+  "y_axis_scale": 1.0
+}

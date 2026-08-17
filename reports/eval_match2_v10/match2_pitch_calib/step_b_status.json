@@ -1,0 +1,19 @@
+{
+  "Cam4plus": {
+    "ok": true,
+    "path": "reports/eval_match2_v10/match2_pitch_calib/Cam4plus_top_left_auto.json"
+  },
+  "Cam5plus": {
+    "ok": true,
+    "estimate_ok": true,
+    "n_frames": 5,
+    "seconds": 43.1,
+    "frame_wh": [
+      960,
+      540
+    ],
+    "center_circle_detected": true,
+    "y_axis_scale": 1.0,
+    "path": "reports/eval_match2_v10/match2_pitch_calib/Cam5plus_top_left_auto.json"
+  }
+}

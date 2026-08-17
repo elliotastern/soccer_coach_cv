@@ -1,0 +1,56 @@
+{
+  "Cam4plus": {
+    "overlay": "reports/eval_match2_v10/match2_pitch_calib/Cam4plus_top_left_overlay.jpg",
+    "corners_img": [
+      [
+        263,
+        -35
+      ],
+      [
+        2077,
+        -35
+      ],
+      [
+        2077,
+        1139
+      ],
+      [
+        263,
+        1139
+      ]
+    ],
+    "span_px": [
+      1814,
+      1174
+    ],
+    "corners_near_frame": 4,
+    "pass_heuristic": true
+  },
+  "Cam5plus": {
+    "overlay": "reports/eval_match2_v10/match2_pitch_calib/Cam5plus_top_left_overlay.jpg",
+    "corners_img": [
+      [
+        0,
+        952
+      ],
+      [
+        3840,
+        952
+      ],
+      [
+        3840,
+        1286
+      ],
+      [
+        0,
+        1286
+      ]
+    ],
+    "span_px": [
+      3840,
+      334
+    ],
+    "corners_near_frame": 4,
+    "pass_heuristic": true
+  }
+}

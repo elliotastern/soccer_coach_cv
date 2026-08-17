@@ -17,6 +17,15 @@ except ImportError:
     _SKIMAGE_AVAILABLE = False
 
 
+def _line_xyxy(line) -> Tuple[int, int, int, int]:
+    """Unpack Hough line as (x1,y1,x2,y2). OpenCV 5 returns (N,4); older (N,1,4)."""
+    arr = np.asarray(line).reshape(-1)
+    if arr.size < 4:
+        raise ValueError(f"line has <4 values: {arr}")
+    x1, y1, x2, y2 = arr[:4]
+    return int(x1), int(y1), int(x2), int(y2)
+
+
 @dataclass
 class PitchKeypoint:
     """Detected pitch keypoint with confidence"""
@@ -513,6 +522,7 @@ class PitchKeypointDetector:
                 )
                 
                 if lines is not None and len(lines) > 0:
+                    lines = np.asarray(lines).reshape(-1, 4)
                     # Scale lines back to original image size if downscaled
                     if scale_factor < 1.0:
                         lines = (lines / scale_factor).astype(np.int32)
@@ -578,11 +588,14 @@ class PitchKeypointDetector:
         
         if lines is None:
             return []
-        
+
+        # OpenCV 5: (N,4); OpenCV 4: (N,1,4) — normalize to (N,4)
+        lines = np.asarray(lines).reshape(-1, 4)
+
         # Scale lines back to original image size if downscaled
         if scale_factor < 1.0:
             lines = (lines / scale_factor).astype(np.int32)
-        
+
         return lines
     
     def _detect_goals_improved_lines(self, image: np.ndarray, lines: List[np.ndarray]) -> List[PitchKeypoint]:
@@ -637,27 +650,27 @@ class PitchKeypointDetector:
         vertical_lines = []  # Goal posts
         horizontal_lines = []  # Crossbars
         
-        for line in hough_lines:
-            x1, y1, x2, y2 = line[0]
-            
+        for line in np.asarray(hough_lines).reshape(-1, 4):
+            x1, y1, x2, y2 = [int(v) for v in line]
+
             # Calculate angle (0 = horizontal, 90 = vertical)
             if x2 != x1:
                 angle = np.arctan2(y2 - y1, x2 - x1) * 180.0 / np.pi
             else:
                 angle = 90.0
-            
+
             # Normalize angle to 0-180 range
             angle = abs(angle)
             if angle > 90:
                 angle = 180 - angle
-            
+
             # Filter for vertical posts (80-100 degrees, with tolerance for perspective)
             if 75 <= angle <= 105:
                 vertical_lines.append((x1, y1, x2, y2, angle))
             # Filter for horizontal crossbars (0-15 or 165-180 degrees)
             elif angle <= 15 or angle >= 165:
                 horizontal_lines.append((x1, y1, x2, y2, angle))
-        
+
         # Step 5: Spatial logic - detect goal structure (2 vertical + 1 horizontal)
         # Group vertical lines by x-position (goal posts should be close together)
         left_region_lines = [l for l in vertical_lines if l[0] < w / 2]
@@ -760,10 +773,10 @@ class PitchKeypointDetector:
         # Find vertical lines near goal positions
         vertical_lines = []
         for line in lines:
-            x1, y1, x2, y2 = line[0]
+            x1, y1, x2, y2 = _line_xyxy(line)
             # Check if line is mostly vertical
             if abs(x2 - x1) < 20:  # Vertical line threshold
-                vertical_lines.append(line[0])
+                vertical_lines.append(_line_xyxy(line))
         
         # Detect goal posts as vertical structures
         # Goals are typically white posts, detect using template matching or edge detection
@@ -788,7 +801,7 @@ class PitchKeypointDetector:
             # Find average x position of vertical lines
             x_positions = []
             for line in left_goal_lines:
-                x1, y1, x2, y2 = line[0]
+                x1, y1, x2, y2 = _line_xyxy(line)
                 # Check if line is mostly vertical
                 if abs(x2 - x1) < abs(y2 - y1) * 0.3:  # More vertical than horizontal
                     x_positions.append((x1 + x2) / 2)
@@ -807,7 +820,7 @@ class PitchKeypointDetector:
         if right_goal_lines is not None and len(right_goal_lines) > 0:
             x_positions = []
             for line in right_goal_lines:
-                x1, y1, x2, y2 = line[0]
+                x1, y1, x2, y2 = _line_xyxy(line)
                 if abs(x2 - x1) < abs(y2 - y1) * 0.3:
                     x_positions.append((x1 + x2) / 2 + int(w * 0.85))  # Adjust for region offset
             
@@ -843,7 +856,7 @@ class PitchKeypointDetector:
         horizontal_lines = []
         
         for line in lines:
-            x1, y1, x2, y2 = line[0]
+            x1, y1, x2, y2 = _line_xyxy(line)
             # Check if line is mostly horizontal with better metric
             line_length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
             if line_length > 0:
@@ -853,7 +866,7 @@ class PitchKeypointDetector:
                     avg_y = (y1 + y2) / 2
                     # Check if near center (wider tolerance)
                     if abs(avg_y - center_y) < h * 0.15:  # Within 15% of center
-                        horizontal_lines.append((line[0], avg_y, (x1 + x2) / 2))
+                        horizontal_lines.append((_line_xyxy(line), avg_y, (x1 + x2) / 2))
         
         if horizontal_lines:
             # Use median for more robust position
@@ -1179,7 +1192,7 @@ class PitchKeypointDetector:
             lines_p = cv2.HoughLinesP(region, 1, np.pi/180, 30, minLineLength=50, maxLineGap=10)
             if lines_p is not None:
                 for line in lines_p:
-                    x1, y1, x2, y2 = line[0]
+                    x1, y1, x2, y2 = _line_xyxy(line)
                     angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
                     if abs(angle) > 75 and abs(angle) < 105:
                         # Store as (x_center, y_top, y_bottom)
@@ -1300,7 +1313,7 @@ class PitchKeypointDetector:
             if lines_h is not None:
                 horizontal_lines = []
                 for line in lines_h:
-                    x1, y1, x2, y2 = line[0]
+                    x1, y1, x2, y2 = _line_xyxy(line)
                     # Check if horizontal (angle close to 0 or 180)
                     angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
                     if abs(angle) < 15 or abs(angle) > 165:
@@ -2798,10 +2811,10 @@ class PitchKeypointDetector:
         intersections = []
         
         for i, line1 in enumerate(lines):
-            x1, y1, x2, y2 = line1[0]
+            x1, y1, x2, y2 = _line_xyxy(line1)
             
             for line2 in lines[i+1:]:
-                x3, y3, x4, y4 = line2[0]
+                x3, y3, x4, y4 = _line_xyxy(line2)
                 
                 # Calculate intersection
                 denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
@@ -2840,7 +2853,7 @@ class PitchKeypointDetector:
         # Lower minimum length (was 0.3, now 0.2) to catch shorter but valid touchlines
         horizontal_lines = []
         for line in lines:
-            x1, y1, x2, y2 = line[0]
+            x1, y1, x2, y2 = _line_xyxy(line)
             # Check if line is roughly horizontal (more lenient threshold)
             if abs(y2 - y1) < abs(x2 - x1) * 0.5:  # More horizontal than vertical (was 0.3)
                 length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -2856,7 +2869,10 @@ class PitchKeypointDetector:
         num_touchlines = min(4, len(horizontal_lines))
         if num_touchlines >= 2:
             # Sort by y position (top line has smaller y)
-            sorted_lines = sorted(horizontal_lines[:num_touchlines], key=lambda x: (x[0][0][1] + x[0][0][3]) / 2)
+            sorted_lines = sorted(
+                horizontal_lines[:num_touchlines],
+                key=lambda x: (_line_xyxy(x[0])[1] + _line_xyxy(x[0])[3]) / 2,
+            )
             
             # Use topmost and bottommost lines as primary touchlines
             # But also consider intermediate lines if they're near edges
@@ -2866,7 +2882,7 @@ class PitchKeypointDetector:
             
             selected_lines = []
             for line, length in sorted_lines:
-                x1, y1, x2, y2 = line[0]
+                x1, y1, x2, y2 = _line_xyxy(line)
                 mid_y = (y1 + y2) / 2
                 # Prefer lines near edges
                 if mid_y < top_edge_y or mid_y > bottom_edge_y:
@@ -2876,12 +2892,15 @@ class PitchKeypointDetector:
             if len(selected_lines) >= 2:
                 selected_lines = sorted(selected_lines, key=lambda x: x[2])[:2]
             elif len(sorted_lines) >= 2:
-                selected_lines = [(line, length, (line[0][1] + line[0][3]) / 2) for line, length in sorted_lines[:2]]
+                selected_lines = [
+                    (line, length, (_line_xyxy(line)[1] + _line_xyxy(line)[3]) / 2)
+                    for line, length in sorted_lines[:2]
+                ]
             else:
                 selected_lines = []
             
             for i, (line, length, mid_y) in enumerate(selected_lines):
-                x1, y1, x2, y2 = line[0]
+                x1, y1, x2, y2 = _line_xyxy(line)
                 
                 # Determine which touchline (top or bottom) based on y position
                 # Top touchline (smaller y) maps to y = -pitch_width/2 = -34m

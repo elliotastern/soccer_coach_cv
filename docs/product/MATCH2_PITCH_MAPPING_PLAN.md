@@ -35,4 +35,9 @@
 
 ## Status
 
-- **2026-08-16:** Plan created. Color gate shipped (`9642282`). Loop starts at step A→B.
+- **2026-08-16:** Plan created. Color gate shipped (`9642282`).
+- **A done:** No prior Match 2 H JSON on disk.
+- **B done (numeric):** Auto H written for Cam4plus + Cam5plus under `reports/eval_match2_v10/match2_pitch_calib/` (OpenCV 5 Hough `(N,4)` unpack fixed).
+- **C FAIL:** Overlays do **not** follow real pitch lines (Cam4 ≈ axis-aligned frame quad; Cam5 ≈ thin mid strip). Auto landmarks are not trustworthy for bounds.
+- **Stop / handoff:** Need one **manual** click calib per master cam (`scripts/calibrate_homography.py` or equivalent) for Cam4plus + Cam5plus. Do not wire auto H into `pick_product`.
+- Loop: every **15m** (`AGENT_LOOP_TICK_pitch_map`) — on next ticks, only advance D–F after manual H lands; otherwise idle.

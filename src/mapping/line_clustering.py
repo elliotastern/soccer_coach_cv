@@ -7,6 +7,14 @@ import numpy as np
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
 
+
+def line_xyxy(line):
+    """Unpack Hough line as (x1,y1,x2,y2). OpenCV 5: (N,4); older: (N,1,4)."""
+    arr = np.asarray(line).reshape(-1)
+    x1, y1, x2, y2 = arr[:4]
+    return int(x1), int(y1), int(x2), int(y2)
+
+
 try:
     from sklearn.cluster import DBSCAN
     _SKLEARN_AVAILABLE = True
@@ -25,7 +33,7 @@ class MergedLine:
 
 def _segment_to_rho_theta(segment: np.ndarray) -> Tuple[float, float]:
     """Convert segment [x1,y1,x2,y2] to Hough (rho, theta)."""
-    x1, y1, x2, y2 = segment[0]
+    x1, y1, x2, y2 = line_xyxy(segment)
     dx, dy = x2 - x1, y2 - y1
     length = np.sqrt(dx * dx + dy * dy)
     if length < 1e-6:
@@ -41,7 +49,7 @@ def _segment_to_rho_theta(segment: np.ndarray) -> Tuple[float, float]:
 
 def _segment_to_line_equation(segment: np.ndarray) -> Tuple[float, float, float]:
     """Convert segment to line equation ax + by + c = 0 (normalized)."""
-    x1, y1, x2, y2 = segment[0]
+    x1, y1, x2, y2 = line_xyxy(segment)
     a = y2 - y1
     b = x1 - x2
     c = x2 * y1 - x1 * y2
@@ -78,9 +86,9 @@ def _estimate_vanishing_point_ransac(
     n = len(lines)
     intersections = []
     for i in range(n):
-        x1, y1, x2, y2 = lines[i][0]
+        x1, y1, x2, y2 = line_xyxy(lines[i])
         for j in range(i + 1, n):
-            x3, y3, x4, y4 = lines[j][0]
+            x3, y3, x4, y4 = line_xyxy(lines[j])
             denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
             if abs(denom) < 1e-6:
                 continue
@@ -101,7 +109,7 @@ def _estimate_vanishing_point_ransac(
         vpx, vpy = (pts[i] + pts[j]) / 2.0
         inliers = 0
         for line in lines:
-            x1, y1, x2, y2 = line[0]
+            x1, y1, x2, y2 = line_xyxy(line)
             # Distance from VP to line
             a, b, c = _segment_to_line_equation(line)
             dist = abs(a * vpx + b * vpy + c)
@@ -131,7 +139,7 @@ def _classify_longitudinal_transversal(
     longitudinal = []
     transversal = []
     for seg in lines:
-        x1, y1, x2, y2 = seg[0]
+        x1, y1, x2, y2 = line_xyxy(seg)
         a, b, c = _segment_to_line_equation(seg)
         dist_vp_to_line = abs(a * vpx + b * vpy + c)
         if dist_vp_to_line < vp_distance_threshold:

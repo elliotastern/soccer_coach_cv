@@ -8,6 +8,13 @@ from typing import List, Tuple, Optional, Dict
 import torch
 
 
+def _line_xyxy(line):
+    arr = np.asarray(line).reshape(-1)
+    x1, y1, x2, y2 = arr[:4]
+    return int(x1), int(y1), int(x2), int(y2)
+
+
+
 def detect_pitch_keypoints(image: np.ndarray) -> Optional[np.ndarray]:
     """
     Detect pitch keypoints (corners, penalty box, center circle)
@@ -31,7 +38,7 @@ def detect_pitch_keypoints(image: np.ndarray) -> Optional[np.ndarray]:
     # Extract line endpoints
     keypoints = []
     for line in lines:
-        x1, y1, x2, y2 = line[0]
+        x1, y1, x2, y2 = _line_xyxy(line)
         keypoints.append([x1, y1])
         keypoints.append([x2, y2])
     
