@@ -1,6 +1,6 @@
 {
   "stem": "quad_top_right_t00125.0s",
-  "label": "Top Right OOS \u2014 video + pitch (x,y)",
+  "label": "Top Right (2:05)",
   "clock": "2:05\u20132:10",
   "policy": "pool8_largest_ball_p7_thr060",
   "n_frames": 90,

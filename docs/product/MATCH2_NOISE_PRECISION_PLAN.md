@@ -46,4 +46,5 @@
 - **2026-08-16 (loop):** Steps **1–2 landed** in `StickyCamPicker` (`HYSTERESIS_K=5`, `EMIT_N=3`) + unit tests. Wired into pitchmap demo.
   - Bottom Right before→after: cam switches **12→0**, big jumps (>8m) **15→3** (0 on switch).
   - Top Right: switches **0** after sticky (track).
-- **Next:** Step 3 re-render full gallery; Step 4 Top Left gold score.
+- **2026-08-16:** Step **3 done** — full `locked_oos_pitchmap_gallery` force-re-rendered with sticky. All 7 clips: **0 cam switches** on pitch trail; big jumps ≤4/clip.
+- **Next:** Step 4 Top Left gold score.

@@ -182,11 +182,16 @@ def detect_clip(model, stem: str, stride: int) -> Path:
     return cache_path
 
 
-def render_one(clip: dict, max_frames: int, stride: int) -> dict:
+def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) -> dict:
     out = clip["out"]
     out.mkdir(parents=True, exist_ok=True)
     mp4 = out / f"{clip['stem']}_video_pitch.mp4"
-    if mp4.is_file() and mp4.stat().st_size > 1000 and (out / "index.html").is_file():
+    if (
+        not force
+        and mp4.is_file()
+        and mp4.stat().st_size > 1000
+        and (out / "index.html").is_file()
+    ):
         print(f"reuse render {clip['id']}", flush=True)
         return {
             "id": clip["id"],
@@ -195,6 +200,8 @@ def render_one(clip: dict, max_frames: int, stride: int) -> dict:
             "url": f"/{out.relative_to(ROOT).as_posix()}/{mp4.name}",
             "page": f"/{out.relative_to(ROOT).as_posix()}/",
         }
+    if force and mp4.is_file():
+        mp4.unlink()
     # call pitchmap via argv
     argv = [
         "demo_locked_oos_pitchmap.py",
@@ -258,7 +265,7 @@ code {{ color:var(--accent); }}
 <h1>Match 2 — locked pick + pitch (x,y)</h1>
 <p class="sub">
   Dropdown: Bottom Right + Top Right OOS, plus 5 random Match 2 windows.
-  Left panel = selected cam / ball; right = 2D pitch meters (FOV-approximate until manual H).
+  Left panel = selected cam / ball; right = 2D pitch meters (sticky cam K=5 + emit N=3; FOV-approx until manual H).
 </p>
 <div class="bar">
   <label for="clip">Clip</label>
@@ -301,6 +308,7 @@ def parse_args():
     p.add_argument("--stride", type=int, default=DETECT_STRIDE)
     p.add_argument("--max-frames", type=int, default=90)
     p.add_argument("--skip-detect", action="store_true")
+    p.add_argument("--force", action="store_true", help="re-render pitchmap mp4s even if present")
     return p.parse_args()
 
 
@@ -345,7 +353,7 @@ def main() -> int:
     # monkey: ensure pitchmap supports custom args — render all
     entries = []
     for clip in clips:
-        entries.append(render_one(clip, args.max_frames, args.stride))
+        entries.append(render_one(clip, args.max_frames, args.stride, force=args.force))
 
     write_gallery(entries)
     print(json.dumps({"gallery": str(GALLERY.relative_to(ROOT)), "n": len(entries)}, indent=2))
