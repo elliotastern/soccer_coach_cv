@@ -47,4 +47,10 @@
   - Bottom Right before→after: cam switches **12→0**, big jumps (>8m) **15→3** (0 on switch).
   - Top Right: switches **0** after sticky (track).
 - **2026-08-16:** Step **3 done** — full `locked_oos_pitchmap_gallery` force-re-rendered with sticky. All 7 clips: **0 cam switches** on pitch trail; big jumps ≤4/clip.
-- **Next:** Step 4 Top Left gold score.
+- **2026-08-16:** Step **4 done** — Top Left gold (P10/P7/Cam4+):
+  - raw locked: **P=0.993 R=0.948 HIT**
+  - sticky held (K=5): **P=0.993 R=0.951 HIT** (ΔP +0.0pp, ΔR +0.3pp)
+  - sticky emit (N=3): **P=0.997 R=0.957 HIT**
+  - Artifact: `reports/eval_match2_v10/top_left_pool8_selection/sticky_vs_locked_gold.json`
+  - Verdict: **keep sticky** — no P regression; still HIT.
+- **Next:** Step 5 blocked on manual H (`Cam*_manual.json`). Idle until calib; optional product-path wire of `StickyCamPicker` into live `pick_product` callers beyond pitchmap.

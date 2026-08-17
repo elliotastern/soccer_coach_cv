@@ -1,0 +1,108 @@
+{
+  "policy": "pool8_largest_ball_p7_thr060",
+  "goal": {
+    "P": 0.9,
+    "R": 0.8
+  },
+  "baseline_raw": {
+    "mode": "raw",
+    "k": 5,
+    "n": 3,
+    "precision": 0.9927797833935018,
+    "recall": 0.9482758620689655,
+    "f1": 0.9700176366843034,
+    "hit_goal": true,
+    "n_covered": 277,
+    "n_selected": 299,
+    "n_none": 0,
+    "selection_counts": {
+      "Cam4plus": 277,
+      "P8": 4,
+      "Cam5plus": 18
+    },
+    "proxy": {
+      "P10": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "P7": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "Cam4plus": {
+        "p": 0.9927797833935018,
+        "r": 0.9482758620689655
+      }
+    }
+  },
+  "sticky_held": {
+    "mode": "sticky_held",
+    "k": 5,
+    "n": 3,
+    "precision": 0.9931506849315068,
+    "recall": 0.9508196721311475,
+    "f1": 0.9715242881072027,
+    "hit_goal": true,
+    "n_covered": 292,
+    "n_selected": 299,
+    "n_none": 0,
+    "selection_counts": {
+      "Cam4plus": 292,
+      "Cam5plus": 7
+    },
+    "proxy": {
+      "P10": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "P7": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "Cam4plus": {
+        "p": 0.9931506849315068,
+        "r": 0.9508196721311475
+      }
+    }
+  },
+  "sticky_emit": {
+    "mode": "sticky_emit",
+    "k": 5,
+    "n": 3,
+    "precision": 0.996551724137931,
+    "recall": 0.956953642384106,
+    "f1": 0.9763513513513513,
+    "hit_goal": true,
+    "n_covered": 290,
+    "n_selected": 295,
+    "n_none": 4,
+    "selection_counts": {
+      "none": 4,
+      "Cam4plus": 290,
+      "Cam5plus": 5
+    },
+    "proxy": {
+      "P10": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "P7": {
+        "p": 0.0,
+        "r": 0.0
+      },
+      "Cam4plus": {
+        "p": 0.996551724137931,
+        "r": 0.956953642384106
+      }
+    }
+  },
+  "delta_held_vs_raw_pp": {
+    "P": 0.04,
+    "R": 0.25
+  },
+  "delta_emit_vs_raw_pp": {
+    "P": 0.38,
+    "R": 0.87
+  },
+  "verdict": "KEEP sticky_held \u2014 still HIT; noise gates OK for product viz"
+}
