@@ -25,6 +25,7 @@ from multicam_select_policy import (  # noqa: E402
     PRODUCT_POLICY_ID,
     SURVEY_CAMS,
     TOP_LEFT_THR_BY_CAM,
+    StickyCamPicker,
     filter_active,
     pick_product,
 )
@@ -259,6 +260,8 @@ def encode_h264(path: Path):
         "-preset", "veryfast", "-crf", "20", "-movflags", "+faststart", "-an", str(tmp),
     ]
     subprocess.run(cmd, check=True)
+    if not tmp.is_file():
+        raise RuntimeError(f"ffmpeg failed to write {tmp}")
     tmp.replace(path)
 
 
@@ -307,6 +310,7 @@ def main() -> int:
     track = []
     trail = []
     written = 0
+    sticky = StickyCamPicker()
 
     for i in range(n):
         frames = {}
@@ -324,23 +328,26 @@ def main() -> int:
 
         active = filter_active(dets, i, SURVEY_CAMS, TOP_LEFT_THR_BY_CAM)
         if active:
-            cam, pred = pick_product(active, frames_by_cam=frames)
+            raw_cam, raw_pred = pick_product(active, frames_by_cam=frames)
         else:
-            cam, pred = None, None
+            raw_cam, raw_pred = None, None
+        cam, pred = sticky.step(raw_cam, raw_pred)
+        emit_cam, emit_pred = sticky.emit(cam, pred)
 
         ball_xy = None
         mode = "none"
-        if cam and pred is not None and H_by_cam.get(cam) is not None:
-            box, conf, side = pred
+        if emit_cam and emit_pred is not None and H_by_cam.get(emit_cam) is not None:
+            box, conf, side = emit_pred
             cx = box[0] + box[2] / 2
             cy = box[1] + box[3] / 2
-            ball_xy = pixel_to_pitch(H_by_cam[cam], cx, cy)
-            mode = mode_by_cam.get(cam, "?")
+            ball_xy = pixel_to_pitch(H_by_cam[emit_cam], cx, cy)
+            mode = mode_by_cam.get(emit_cam, "?")
             if ball_xy is not None:
                 trail.append(ball_xy)
 
-        left = paint_video(frames[cam] if cam else next(iter(frames.values())), cam, pred, 960)
-        right = draw_pitch(960, left.shape[0], ball_xy, cam, mode, trail)
+        paint_cam = cam if cam in frames else next(iter(frames))
+        left = paint_video(frames[paint_cam], cam, pred, 960)
+        right = draw_pitch(960, left.shape[0], ball_xy, emit_cam, mode, trail)
         combo = np.hstack([left, right])
         if writer is None:
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")

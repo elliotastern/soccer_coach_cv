@@ -1,5 +1,5 @@
 {
-  "slot": "bottom_right",
+  "stem": "quad_bottom_right_t00412.0s",
   "label": "Bottom Right OOS \u2014 video + pitch (x,y)",
   "clock": "6:52\u20136:58",
   "policy": "pool8_largest_ball_p7_thr060",

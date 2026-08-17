@@ -29,6 +29,12 @@ PRODUCT_POLICY_ID = TOP_LEFT_POLICY_ID
 PRODUCT_THR_BY_CAM = TOP_LEFT_THR_BY_CAM
 PRODUCT_PICK_MODE = TOP_LEFT_PICK_MODE
 
+# Soft gates (MATCH2_NOISE_PRECISION_PLAN): cam hysteresis + emit stickiness
+HYSTERESIS_K = 5  # challenger must win K frames to steal cam
+EMIT_N = 3  # same cam must win N frames before emit/plot
+SIDE_MARGIN_PX = 2.0  # challenger side must beat incumbent by this
+CONF_MARGIN = 0.05
+
 # Prior P-cam-only lock (kept for comparison / rollback).
 TOP_LEFT_PCAM_ONLY_POLICY_ID = "p7_thr060_others030"
 
@@ -144,3 +150,102 @@ def pick_product(
 
         active = filter_pred_map_on_pitch(frames_by_cam, active)
     return pick_selected(active, pick_mode)
+
+
+def challenger_beats(incumbent_pred, chall_pred, side_margin=SIDE_MARGIN_PX, conf_margin=CONF_MARGIN):
+    """True if challenger is clearly better than incumbent (side then conf)."""
+    if incumbent_pred is None:
+        return True
+    if chall_pred is None:
+        return False
+    i_side, i_conf = float(incumbent_pred[2]), float(incumbent_pred[1])
+    c_side, c_conf = float(chall_pred[2]), float(chall_pred[1])
+    if c_side >= i_side + side_margin:
+        return True
+    if c_side + 1e-6 >= i_side and c_conf >= i_conf + conf_margin:
+        return True
+    return False
+
+
+class StickyCamPicker:
+    """Cam hysteresis (K) + emit stickiness (N) around raw pick_product."""
+
+    def __init__(self, k: int = HYSTERESIS_K, n: int = EMIT_N):
+        self.k = int(k)
+        self.n = int(n)
+        self.cam = None
+        self.pred = None
+        self.challenger = None
+        self.challenger_streak = 0
+        self.hold_streak = 0
+
+    def step(self, raw_cam, raw_pred):
+        """Apply hysteresis. Returns (held_cam, held_pred)."""
+        if raw_cam is None or raw_pred is None:
+            self.challenger = None
+            self.challenger_streak = 0
+            self.hold_streak = 0
+            self.cam, self.pred = None, None
+            return None, None
+
+        if self.cam is None:
+            self.cam, self.pred = raw_cam, raw_pred
+            self.hold_streak = 1
+            self.challenger = None
+            self.challenger_streak = 0
+            return self.cam, self.pred
+
+        if raw_cam == self.cam:
+            self.pred = raw_pred
+            self.hold_streak += 1
+            self.challenger = None
+            self.challenger_streak = 0
+            return self.cam, self.pred
+
+        # Different cam proposing
+        if not challenger_beats(self.pred, raw_pred):
+            self.hold_streak += 1
+            self.challenger = None
+            self.challenger_streak = 0
+            return self.cam, self.pred
+
+        if self.challenger != raw_cam:
+            self.challenger = raw_cam
+            self.challenger_streak = 1
+        else:
+            self.challenger_streak += 1
+
+        if self.challenger_streak >= self.k:
+            self.cam, self.pred = raw_cam, raw_pred
+            self.hold_streak = 1
+            self.challenger = None
+            self.challenger_streak = 0
+        else:
+            self.hold_streak += 1
+        return self.cam, self.pred
+
+    def emit(self, cam, pred):
+        """Gate emit/plot until same cam held for N frames."""
+        if cam is None or pred is None:
+            return None, None
+        if self.hold_streak < self.n:
+            return None, None
+        return cam, pred
+
+
+def pick_product_sticky(
+    pred_map: dict,
+    state: StickyCamPicker,
+    mode: str | None = None,
+    thr_by_cam: dict | None = None,
+    frames_by_cam: dict | None = None,
+    apply_emit_gate: bool = True,
+):
+    """pick_product + hysteresis (+ optional N-frame emit gate)."""
+    raw_cam, raw_pred = pick_product(
+        pred_map, mode=mode, thr_by_cam=thr_by_cam, frames_by_cam=frames_by_cam
+    )
+    cam, pred = state.step(raw_cam, raw_pred)
+    if apply_emit_gate:
+        return state.emit(cam, pred)
+    return cam, pred
