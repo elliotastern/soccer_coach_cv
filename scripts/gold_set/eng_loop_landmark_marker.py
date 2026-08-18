@@ -8,7 +8,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "reports/eval_match3/landmark_dashboard/eng_loop"
-URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=mark-easy"
+URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=names-html21b"
 CAMS = ["P10", "P7", "P9", "P8", "P1", "P6"]
 WANT = {
     "P10": ["Halfway Left Sideline", "South Left Corner", "Center Spot", "Center Circle Left"],
@@ -41,9 +41,10 @@ def main() -> int:
         missing = []
         for cam in CAMS:
             page.locator(f'.cams button[data-id="{cam}"]').click()
-            page.wait_for_timeout(280)
+            page.wait_for_selector("#nameLabels .name-tag")
+            page.wait_for_timeout(200)
             labels = page.evaluate(
-                """() => [...document.querySelectorAll('#names text')]
+                """() => [...document.querySelectorAll('#nameLabels .name-tag, #names text')]
                     .map(t => (t.textContent || '').trim()).filter(Boolean)"""
             )
             joined = " ".join(labels)
@@ -57,13 +58,13 @@ def main() -> int:
                 missing.append(f"{cam}: find hint too short: {find}")
             overlap = page.evaluate(
                 """() => {
-                  const pills = [...document.querySelectorAll('#names rect.name-pill')];
-                  const boxes = pills.map(r => r.getBBox());
+                  const pills = [...document.querySelectorAll('#nameLabels .name-tag')];
+                  const boxes = pills.map(r => r.getBoundingClientRect());
                   for (let i = 0; i < boxes.length; i++) {
                     for (let j = i + 1; j < boxes.length; j++) {
                       const a = boxes[i], b = boxes[j];
-                      const hit = a.x < b.x + b.width && a.x + a.width > b.x &&
-                        a.y < b.y + b.height && a.y + a.height > b.y;
+                      const hit = a.left < b.right && a.right > b.left &&
+                        a.top < b.bottom && a.bottom > b.top;
                       if (hit) return `${i}:${j}`;
                     }
                   }
@@ -72,6 +73,19 @@ def main() -> int:
             )
             if overlap:
                 missing.append(f"{cam}: pill overlap {overlap}")
+            sizes = page.evaluate(
+                """() => [...document.querySelectorAll('#nameLabels .name-tag')].map(t => {
+                    const b = t.getBoundingClientRect();
+                    const fs = parseFloat(getComputedStyle(t).fontSize);
+                    return { t: t.textContent.trim(), h: b.height, fs };
+                  })"""
+            )
+            print(cam, sizes)
+            for row in sizes:
+                if row["fs"] < 20 or row["h"] < 28:
+                    missing.append(
+                        f"{cam}: '{row['t']}' fs={row['fs']:.1f} h={row['h']:.1f}"
+                    )
             for n in WANT[cam]:
                 if n not in joined:
                     missing.append(f"{cam}: missing '{n}' in {labels}")

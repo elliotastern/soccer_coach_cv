@@ -27,7 +27,7 @@ h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
 .cams button.saved .meta { color: var(--good); }
 .work {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) 360px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(460px, 0.95fr);
   gap: 1rem;
   align-items: start;
 }
@@ -72,10 +72,26 @@ button.act:disabled { opacity: .4; cursor: not-allowed; }
 .status { margin-top: .35rem; font-size: .8rem; color: var(--muted); min-height: 1.1em; }
 .status.ok { color: var(--good); }
 .status.err { color: #e07a7a; }
-.map-panel h2 { margin: 0 0 .2rem; font-size: .95rem; }
-.map-panel .hint { color: var(--muted); font-size: .76rem; line-height: 1.35; margin: 0 0 .4rem; }
+.map-panel h2 { margin: 0 0 .2rem; font-size: 1.05rem; }
+.map-panel .hint { color: var(--muted); font-size: .88rem; line-height: 1.35; margin: 0 0 .45rem; }
+.map-plot { position: relative; }
 svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; border-radius: 6px; }
-#names { overflow: visible; }
+#names { overflow: hidden; }
+#nameLabels { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.name-tag {
+  position: absolute; transform: translate(-50%, -50%);
+  font-size: 21px; font-weight: 750; line-height: 1.15;
+  padding: .28rem .5rem; background: #0e140e; color: #f7f4e8;
+  border: 2.5px solid var(--accent); border-radius: 4px; white-space: nowrap;
+}
+.compass-n, .compass-s, .compass-w, .compass-e {
+  position: absolute; color: var(--accent); font-size: 16px; font-weight: 800;
+  letter-spacing: .04em; pointer-events: none;
+}
+.compass-n { left: 50%; top: 6px; transform: translateX(-50%); }
+.compass-s { left: 50%; bottom: 6px; transform: translateX(-50%); }
+.compass-w { left: 14px; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); }
+.compass-e { right: 14px; top: 50%; transform: translate(50%, -50%) rotate(90deg); }
 </style>
 </head>
 <body>
@@ -114,7 +130,10 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
     <aside class="map-panel">
       <h2>Where on the pitch</h2>
       <p class="hint">Yellow = next click. Green = already marked. Left/right are from P1 looking north.</p>
-      <svg class="pitch" id="names" viewBox="-220 -100 1000 1120"></svg>
+      <div class="map-plot">
+        <svg class="pitch" id="names" viewBox="-220 -100 1000 1120"></svg>
+        <div id="nameLabels"></div>
+      </div>
     </aside>
   </div>
 </div>
@@ -180,6 +199,7 @@ function drawPitchLines(svg) {
   g.setAttribute("fill", "none");
   g.setAttribute("stroke", "#cfe6cf");
   g.setAttribute("stroke-width", "2");
+  g.setAttribute("vector-effect", "non-scaling-stroke");
   const rect = document.createElementNS(ns, "rect");
   rect.setAttribute("x", 0); rect.setAttribute("y", 0);
   rect.setAttribute("width", SVG_W); rect.setAttribute("height", SVG_H);
@@ -205,36 +225,6 @@ function drawPitchLines(svg) {
   box(-52.5, 9.16, -47, -9.16);
   box(47, 9.16, 52.5, -9.16);
   svg.appendChild(g);
-  function lab(x, y, s, size) {
-    const t = document.createElementNS(ns, "text");
-    t.setAttribute("x", x); t.setAttribute("y", y);
-    t.setAttribute("text-anchor", "middle");
-    t.setAttribute("fill", "#e8c547");
-    t.setAttribute("font-size", String(size));
-    t.setAttribute("font-weight", "700");
-    t.textContent = s;
-    svg.appendChild(t);
-  }
-  lab(SVG_W / 2, -28, "NORTH · P6", 15);
-  lab(SVG_W / 2, SVG_H + 52, "SOUTH · P1", 15);
-  const wl = document.createElementNS(ns, "text");
-  wl.setAttribute("x", -36); wl.setAttribute("y", SVG_H / 2);
-  wl.setAttribute("text-anchor", "middle");
-  wl.setAttribute("fill", "#e8c547");
-  wl.setAttribute("font-size", "13");
-  wl.setAttribute("font-weight", "700");
-  wl.setAttribute("transform", `rotate(-90 ${-36} ${SVG_H / 2})`);
-  wl.textContent = "LEFT";
-  svg.appendChild(wl);
-  const el = document.createElementNS(ns, "text");
-  el.setAttribute("x", SVG_W + 36); el.setAttribute("y", SVG_H / 2);
-  el.setAttribute("text-anchor", "middle");
-  el.setAttribute("fill", "#e8c547");
-  el.setAttribute("font-size", "13");
-  el.setAttribute("font-weight", "700");
-  el.setAttribute("transform", `rotate(90 ${SVG_W + 36} ${SVG_H / 2})`);
-  el.textContent = "RIGHT";
-  svg.appendChild(el);
 }
 
 function currentOrder() {
@@ -250,31 +240,46 @@ function orderTitle(key) {
   return ORDER_TITLES[key] || (data.order_titles && data.order_titles[key]) || key.replaceAll("_", " ");
 }
 
-function measureLabel(label, size) {
-  const svg = document.getElementById("names");
-  const ns = "http://www.w3.org/2000/svg";
-  const t = document.createElementNS(ns, "text");
-  t.setAttribute("font-size", String(size));
-  t.setAttribute("font-weight", "700");
-  t.setAttribute("font-family", "IBM Plex Sans, Segoe UI, sans-serif");
-  t.textContent = label;
-  svg.appendChild(t);
-  const w = t.getComputedTextLength();
-  t.remove();
-  return w;
+function measureTag(label) {
+  const el = document.createElement("span");
+  el.className = "name-tag";
+  el.style.visibility = "hidden";
+  el.style.left = "0";
+  el.style.top = "0";
+  el.textContent = label;
+  document.body.appendChild(el);
+  const tw = el.offsetWidth, th = el.offsetHeight;
+  el.remove();
+  return [tw, th];
 }
 
 function overlaps(a, b) {
-  return Math.abs(a.lx - b.lx) < (a.tw + b.tw) / 2 + 14 &&
-    Math.abs(a.ly - b.ly) < (a.th + b.th) / 2 + 12;
+  return Math.abs(a.lx - b.lx) < (a.tw + b.tw) / 2 + 10 &&
+    Math.abs(a.ly - b.ly) < (a.th + b.th) / 2 + 10;
 }
 
-function hitsDot(lab, pts) {
-  const x0 = lab.lx - lab.tw / 2 - 14;
-  const x1 = lab.lx + lab.tw / 2 + 14;
-  const y0 = lab.ly - lab.th / 2 - 14;
-  const y1 = lab.ly + lab.th / 2 + 14;
-  return pts.some(({ p }) => p[0] > x0 && p[0] < x1 && p[1] > y0 && p[1] < y1);
+function hitsDotPx(lab, dots) {
+  const x0 = lab.lx - lab.tw / 2 - 16;
+  const x1 = lab.lx + lab.tw / 2 + 16;
+  const y0 = lab.ly - lab.th / 2 - 16;
+  const y1 = lab.ly + lab.th / 2 + 16;
+  return dots.some(([x, y]) => x > x0 && x < x1 && y > y0 && y < y1);
+}
+
+function svgToPx(svg, x, y) {
+  const pt = svg.createSVGPoint();
+  pt.x = x; pt.y = y;
+  const p = pt.matrixTransform(svg.getScreenCTM());
+  const r = svg.getBoundingClientRect();
+  return [p.x - r.left, p.y - r.top];
+}
+
+function pxToSvg(svg, x, y) {
+  const r = svg.getBoundingClientRect();
+  const pt = svg.createSVGPoint();
+  pt.x = r.left + x; pt.y = r.top + y;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return [p.x, p.y];
 }
 
 const LABEL_DIR = {
@@ -284,9 +289,9 @@ const LABEL_DIR = {
   right_near_corner: [-0.95, -1.15],
   left_far_corner: [0.95, 1.15],
   right_far_corner: [0.95, -1.15],
-  center: [1.65, 0.95],
-  circle_near: [0.25, 1.6],
-  circle_far: [-0.25, 1.6],
+  center: [1.85, -0.15],
+  circle_near: [0.15, 1.85],
+  circle_far: [-0.15, 1.85],
   left_box_goal_near: [-1.2, -0.95],
   left_box_goal_far: [1.2, -0.95],
   left_box_18_near: [1.55, 0.2],
@@ -303,105 +308,147 @@ const DIR_TRIES = [
   [0.4, 1.6], [0.4, -1.6], [-0.4, 1.6], [-0.4, -1.6],
 ];
 
-function placeNameLabels(pts) {
-  const size = 18;
-  const th = 34;
-  const xmin = -208, xmax = 768, ymin = -84, ymax = 1004;
+function clusterBounds(pts) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  pts.forEach(({ p }) => {
+    x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]);
+    x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]);
+  });
+  return { x0, y0, x1, y1 };
+}
+
+function fitNamesView(svg, pts) {
+  const c = clusterBounds(pts);
+  let w = c.x1 - c.x0, h = c.y1 - c.y0;
+  const minW = 400, minH = 340;
+  if (w < minW) {
+    const m = (minW - w) / 2;
+    c.x0 -= m; c.x1 += m; w = minW;
+  }
+  if (h < minH) {
+    const m = (minH - h) / 2;
+    c.y0 -= m; c.y1 += m; h = minH;
+  }
+  const pad = 70;
+  svg.setAttribute("viewBox", `${c.x0 - pad} ${c.y0 - pad} ${w + pad * 2} ${h + pad * 2}`);
+}
+
+function placeNameLabelsPx(svg, pts) {
+  const box = svg.getBoundingClientRect();
+  const dots = pts.map(({ p }) => svgToPx(svg, p[0], p[1]));
+  const xmin = 36, xmax = box.width - 36, ymin = 28, ymax = box.height - 28;
   const placed = [];
-  pts.forEach(({ lm, i, p }) => {
-    const [x, y] = p;
+  pts.forEach(({ lm, i }, idx) => {
+    const [x, y] = dots[idx];
     const label = `${i + 1}  ${prettyName(lm)}`;
-    const tw = Math.ceil(measureLabel(label, size) + 28);
+    const [tw, th] = measureTag(label);
     const dirs = [LABEL_DIR[lm.name] || [1, 0], ...DIR_TRIES];
     let chosen = null;
     dirs.some((dir) => {
       const len = Math.hypot(dir[0], dir[1]) || 1;
-      for (let dist = 78; dist <= 220; dist += 24) {
+      for (let dist = 56; dist <= 170; dist += 18) {
         let lx = x + (dir[0] / len) * dist;
         let ly = y + (dir[1] / len) * dist;
         lx = Math.min(xmax - tw / 2, Math.max(xmin + tw / 2, lx));
         ly = Math.min(ymax - th / 2, Math.max(ymin + th / 2, ly));
         const cand = { lx, ly, tw, th, label };
-        if (!placed.some(p0 => overlaps(p0, cand)) && !hitsDot(cand, pts)) {
+        if (!placed.some(p0 => overlaps(p0, cand)) && !hitsDotPx(cand, dots)) {
           chosen = cand;
           return true;
         }
       }
       return false;
     });
-    placed.push(chosen || { lx: x + 90, ly: y + 70, tw, th, label });
+    placed.push(chosen || { lx: x + 70, ly: y + 48, tw, th, label });
   });
   return placed;
 }
 
-function markLandmarks(svg, withNames) {
+function markLandmarks(svg, pts, labels) {
   const ns = "http://www.w3.org/2000/svg";
-  const order = currentOrder();
-  const pts = order.map((lm, i) => ({ lm, i, p: m2svg(lm.xy[0], lm.xy[1]) }));
-  const labels = withNames ? placeNameLabels(pts) : [];
-  if (withNames) {
-    labels.forEach((lab, i) => {
-      const [x, y] = pts[i].p;
-      const line = document.createElementNS(ns, "line");
-      line.setAttribute("x1", x); line.setAttribute("y1", y);
-      line.setAttribute("x2", lab.lx); line.setAttribute("y2", lab.ly);
-      line.setAttribute("stroke", "#e8c547");
-      line.setAttribute("stroke-width", "2.2");
-      svg.appendChild(line);
-    });
-  }
+  labels.forEach((lab, i) => {
+    const [x, y] = pts[i].p;
+    const [sx, sy] = pxToSvg(svg, lab.lx, lab.ly);
+    const line = document.createElementNS(ns, "line");
+    line.setAttribute("x1", x); line.setAttribute("y1", y);
+    line.setAttribute("x2", sx); line.setAttribute("y2", sy);
+    line.setAttribute("stroke", "#e8c547");
+    line.setAttribute("stroke-width", "2.5");
+    line.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.appendChild(line);
+  });
   pts.forEach(({ i, p }) => {
     const [x, y] = p;
-    const r = withNames ? (i === active ? 16 : 14) : (i === active ? 11 : 9);
+    const r = i === active ? 13 : 11;
     const c = document.createElementNS(ns, "circle");
     c.setAttribute("cx", x); c.setAttribute("cy", y);
     c.setAttribute("r", r);
     c.setAttribute("fill", clicks[i] ? "#6dbf7a" : "#e8c547");
     c.setAttribute("stroke", i === active ? "#fff" : "#111");
     c.setAttribute("stroke-width", i === active ? 3 : 2);
+    c.setAttribute("vector-effect", "non-scaling-stroke");
     c.style.cursor = "pointer";
     c.addEventListener("click", () => { active = i; refresh(); });
     svg.appendChild(c);
     const num = document.createElementNS(ns, "text");
     num.setAttribute("x", x);
-    num.setAttribute("y", y + (withNames ? 6 : 4));
+    num.setAttribute("y", y + 5);
     num.setAttribute("text-anchor", "middle");
-    num.setAttribute("font-size", withNames ? "16" : "12");
+    num.setAttribute("font-size", "15");
     num.setAttribute("font-weight", "800");
     num.setAttribute("fill", "#111");
     num.textContent = String(i + 1);
     num.style.pointerEvents = "none";
     svg.appendChild(num);
   });
+}
+
+function visibleCompass(svg) {
+  const vb = svg.viewBox.baseVal;
+  const x0 = vb.x, x1 = vb.x + vb.width, y0 = vb.y, y1 = vb.y + vb.height;
+  const tags = [];
+  if (y0 <= 24) tags.push(["compass-n", "NORTH · P6"]);
+  if (y1 >= SVG_H - 24) tags.push(["compass-s", "SOUTH · P1"]);
+  if (x0 <= 24) tags.push(["compass-w", "LEFT"]);
+  if (x1 >= SVG_W - 24) tags.push(["compass-e", "RIGHT"]);
+  return tags;
+}
+
+function drawCompass(svg) {
+  const box = document.getElementById("nameLabels");
+  visibleCompass(svg).forEach(([cls, text]) => {
+    const el = document.createElement("div");
+    el.className = cls;
+    el.textContent = text;
+    box.appendChild(el);
+  });
+}
+
+function drawHtmlTags(labels) {
+  const box = document.getElementById("nameLabels");
+  box.innerHTML = "";
   labels.forEach((lab) => {
-    const bg = document.createElementNS(ns, "rect");
-    bg.setAttribute("x", lab.lx - lab.tw / 2);
-    bg.setAttribute("y", lab.ly - lab.th / 2);
-    bg.setAttribute("width", lab.tw);
-    bg.setAttribute("height", lab.th);
-    bg.setAttribute("class", "name-pill");
-    bg.setAttribute("fill", "#0e140e");
-    bg.setAttribute("stroke", "#e8c547");
-    bg.setAttribute("stroke-width", "1.8");
-    svg.appendChild(bg);
-    const t = document.createElementNS(ns, "text");
-    t.setAttribute("x", lab.lx);
-    t.setAttribute("y", lab.ly + 6);
-    t.setAttribute("text-anchor", "middle");
-    t.setAttribute("font-size", "18");
-    t.setAttribute("font-family", "IBM Plex Sans, Segoe UI, sans-serif");
-    t.setAttribute("font-weight", "700");
-    t.setAttribute("fill", "#f7f4e8");
-    t.textContent = lab.label;
-    svg.appendChild(t);
+    const el = document.createElement("span");
+    el.className = "name-tag";
+    el.textContent = lab.label;
+    el.style.left = lab.lx + "px";
+    el.style.top = lab.ly + "px";
+    box.appendChild(el);
   });
 }
 
 function renderNames() {
   const svg = document.getElementById("names");
   svg.innerHTML = "";
+  document.getElementById("nameLabels").innerHTML = "";
   drawPitchLines(svg);
-  markLandmarks(svg, true);
+  const pts = currentOrder().map((lm, i) => ({ lm, i, p: m2svg(lm.xy[0], lm.xy[1]) }));
+  fitNamesView(svg, pts);
+  svg.getBoundingClientRect();
+  const labels = placeNameLabelsPx(svg, pts);
+  markLandmarks(svg, pts, labels);
+  drawHtmlTags(labels);
+  drawCompass(svg);
 }
 
 function renderDots() {
@@ -542,7 +589,7 @@ function renderNav() {
   });
 }
 
-fetch("cams.json?v=mark-easy").then(r => r.json()).then(j => {
+fetch("cams.json?v=names-html21b").then(r => r.json()).then(j => {
   data = j;
   const sel = document.getElementById("order");
   Object.keys(data.orders).forEach(k => {
