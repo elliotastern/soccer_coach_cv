@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>landmark_marker</title>
+<style>
+:root {
+  --bg: #121612; --panel: #1c241c; --text: #eef2ee; --muted: #9aab9a;
+  --accent: #e8c547; --line: #3a4a3a; --good: #6dbf7a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "IBM Plex Sans", Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+header { padding: 1.1rem 1.4rem 0.4rem; max-width: 1480px; margin: 0 auto; }
+h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 1.45rem; font-weight: 600; margin: 0 0 .3rem; }
+.sub { color: var(--muted); font-size: .9rem; line-height: 1.45; max-width: 54rem; }
+.layout { max-width: 1480px; margin: 0 auto; padding: 0.8rem 1.4rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.top {
+  display: grid;
+  grid-template-columns: 1fr 220px 220px;
+  gap: 1rem;
+  align-items: start;
+}
+@media (max-width: 1100px) { .top { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px) { .top { grid-template-columns: 1fr; } }
+.compass-panel { background: var(--panel); border-radius: 10px; padding: .85rem; }
+.compass-panel h2 { margin: 0 0 .25rem; font-size: 1.05rem; }
+svg.compass { width: 100%; height: auto; display: block; }
+.pitch-panel svg.pitch { max-height: 420px; width: auto; max-width: 100%; margin: 0 auto; }
+.names-panel { max-width: 860px; padding: .7rem .9rem; overflow: visible; }
+.names-panel svg.pitch { max-height: 920px; width: 100%; max-width: 820px; margin: 0 auto; }
+.picker, .pitch-panel, .names-panel, .stage {
+  background: var(--panel); border-radius: 10px; padding: .85rem;
+}
+.picker h2, .pitch-panel h2, .names-panel h2 { margin: 0 0 .25rem; font-size: 1.05rem; }
+.cams { display: flex; flex-wrap: wrap; gap: .3rem; }
+.cams button {
+  text-align: left; border: 1px solid var(--line); background: #121612; color: var(--text);
+  padding: .5rem .65rem; border-radius: 6px; cursor: pointer; font-size: .86rem;
+}
+.cams button:hover { border-color: var(--accent); }
+.cams button.active { background: #2f4a32; border-color: var(--accent); color: var(--accent); }
+.cams button .meta { display: block; color: var(--muted); font-size: .7rem; margin-top: .12rem; }
+.cams button.saved .meta { color: var(--good); }
+.hint { color: var(--muted); font-size: .82rem; line-height: 1.4; margin: 0 0 .55rem; }
+.bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: .55rem 0 .15rem; }
+select, button.act {
+  background: #121612; color: var(--text); border: 1px solid var(--line);
+  padding: .45rem .6rem; border-radius: 6px; font-size: .85rem;
+}
+button.act { cursor: pointer; }
+button.act.primary { background: var(--accent); color: #1a1a12; border-color: var(--accent); font-weight: 600; }
+button.act:disabled { opacity: .45; cursor: not-allowed; }
+#stillWrap { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
+#still { width: 100%; display: block; cursor: crosshair; }
+#dots { position: absolute; inset: 0; pointer-events: none; }
+.dot {
+  position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+  background: var(--accent); color: #111; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; border: 2px solid #111;
+}
+.legend { margin-top: .55rem; font-size: .8rem; color: var(--muted); }
+.legend b { color: var(--accent); font-weight: 600; }
+svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; border-radius: 6px; }
+.names-panel { max-width: 860px; padding: .7rem .9rem; overflow: visible; }
+.names-panel h2 { font-size: .9rem; }
+.names-panel .hint { font-size: .74rem; margin-bottom: .35rem; }
+#names { max-width: 820px; overflow: visible; }
+.status { margin-top: .45rem; font-size: .8rem; color: var(--muted); min-height: 1.2em; }
+.status.ok { color: var(--good); }
+.status.err { color: #e07a7a; }
+</style>
+</head>
+<body>
+<header>
+  <h1>landmark_marker</h1>
+  <p class="sub">
+    Ends are south / north (P1 / P6). Sides are left / right from P1 looking toward P6.
+  </p>
+</header>
+<div class="layout">
+  <div class="top">
+    <section class="picker">
+      <h2 id="title">—</h2>
+      <p class="hint" id="hint">Load a camera, then click point 1 on the still.</p>
+      <nav class="cams" id="camNav"></nav>
+      <div class="bar">
+        <label for="order">Landmark set</label>
+        <select id="order"></select>
+        <button class="act" id="undo" type="button">Undo</button>
+        <button class="act" id="clear" type="button">Clear</button>
+        <button class="act primary" id="save" type="button" disabled>Save map</button>
+      </div>
+      <p class="status" id="status"></p>
+    </section>
+    <aside class="compass-panel">
+      <h2>Pitch compass</h2>
+      <p class="hint">South = P1. Left/right = from P1 looking north.</p>
+      <svg class="compass" viewBox="0 0 320 440" role="img" aria-label="Pitch: north P6, south P1, left and right from P1">
+        <rect width="320" height="440" fill="#1c241c"/>
+        <text x="160" y="22" text-anchor="middle" fill="#e8c547" font-size="17" font-weight="700">NORTH</text>
+        <text x="160" y="40" text-anchor="middle" fill="#cfe6cf" font-size="12">P6 / P_Goal2</text>
+        <rect x="78" y="54" width="164" height="316" fill="#1a3a22" stroke="#cfe6cf" stroke-width="2"/>
+        <line x1="78" y1="212" x2="242" y2="212" stroke="#cfe6cf" stroke-width="2"/>
+        <circle cx="160" cy="212" r="28" fill="none" stroke="#cfe6cf" stroke-width="2"/>
+        <circle cx="160" cy="212" r="3" fill="#e8c547"/>
+        <rect x="78" y="54" width="164" height="48" fill="none" stroke="#cfe6cf" stroke-width="1.5"/>
+        <rect x="78" y="322" width="164" height="48" fill="none" stroke="#cfe6cf" stroke-width="1.5"/>
+        <text x="160" y="80" text-anchor="middle" fill="#e8c547" font-size="11">P6 goal</text>
+        <text x="160" y="350" text-anchor="middle" fill="#e8c547" font-size="11">P1 goal</text>
+        <text x="8" y="198" fill="#e8c547" font-size="13" font-weight="700">LEFT</text>
+        <text x="8" y="214" fill="#9aab9a" font-size="11">from P1</text>
+        <text x="252" y="198" fill="#e8c547" font-size="13" font-weight="700">RIGHT</text>
+        <text x="252" y="214" fill="#9aab9a" font-size="11">from P1</text>
+        <text x="160" y="406" text-anchor="middle" fill="#e8c547" font-size="17" font-weight="700">SOUTH</text>
+        <text x="160" y="424" text-anchor="middle" fill="#cfe6cf" font-size="12">P1 / P_Goal1</text>
+      </svg>
+    </aside>
+    <aside class="pitch-panel">
+      <h2>Pitch targets</h2>
+      <p class="hint">Numbers match the click order. Click a number here to jump to that slot.</p>
+      <svg class="pitch" id="pitch" viewBox="-80 -48 720 980"></svg>
+    </aside>
+  </div>
+  <section class="stage">
+    <div id="stillWrap">
+      <img id="still" alt="camera still"/>
+      <div id="dots"></div>
+    </div>
+    <p class="legend" id="legend"></p>
+  </section>
+  <section class="names-panel">
+    <h2>Landmark names</h2>
+    <p class="hint">Each target on this camera’s set, labeled on the field.</p>
+      <svg class="pitch" id="names" viewBox="-220 -100 1000 1120"></svg>
+  </section>
+</div>
+<script>
+const PL = 105, PW = 68, SVG_W = 560, SVG_H = 880;
+const DISPLAY = {
+  halfway_near_touch: "Halfway Left Sideline",
+  halfway_far_touch: "Halfway Right Sideline",
+  left_near_corner: "South Left Corner",
+  right_near_corner: "North Left Corner",
+  left_far_corner: "South Right Corner",
+  right_far_corner: "North Right Corner",
+  center: "Center Spot",
+  circle_near: "Center Circle Left",
+  circle_far: "Center Circle Right",
+  left_box_goal_near: "South Left Goal-Line Corner",
+  left_box_goal_far: "South Right Goal-Line Corner",
+  left_box_18_near: "South Left 18-Yard Corner",
+  left_penalty_spot: "South Penalty Spot",
+  right_box_goal_near: "North Left Goal-Line Corner",
+  right_box_goal_far: "North Right Goal-Line Corner",
+  right_box_18_near: "North Left 18-Yard Corner",
+  right_penalty_spot: "North Penalty Spot",
+};
+const ORDER_TITLES = {
+  quad_near_left: "South Left Quarter",
+  quad_near_right: "North Left Quarter",
+  quad_far_left: "South Right Quarter",
+  quad_far_right: "North Right Quarter",
+  goal_left: "South Goal Box",
+  goal_right: "North Goal Box",
+};
+let data = null, cam = null, clicks = [null, null, null, null], active = 0;
+
+function m2svg(x, y) {
+  const sx = (PW / 2 - y) / PW * SVG_W;
+  const sy = (PL / 2 - x) / PL * SVG_H;
+  return [sx, sy];
+}
+
+function drawPitchLines(svg) {
+  const ns = "http://www.w3.org/2000/svg";
+  const g = document.createElementNS(ns, "g");
+  g.setAttribute("fill", "none");
+  g.setAttribute("stroke", "#cfe6cf");
+  g.setAttribute("stroke-width", "2");
+  const rect = document.createElementNS(ns, "rect");
+  rect.setAttribute("x", 0); rect.setAttribute("y", 0);
+  rect.setAttribute("width", SVG_W); rect.setAttribute("height", SVG_H);
+  g.appendChild(rect);
+  const mid = document.createElementNS(ns, "line");
+  mid.setAttribute("x1", 0); mid.setAttribute("y1", SVG_H / 2);
+  mid.setAttribute("x2", SVG_W); mid.setAttribute("y2", SVG_H / 2);
+  g.appendChild(mid);
+  const circ = document.createElementNS(ns, "circle");
+  const [cx, cy] = m2svg(0, 0);
+  circ.setAttribute("cx", cx); circ.setAttribute("cy", cy);
+  circ.setAttribute("r", 9.15 / PL * SVG_H);
+  g.appendChild(circ);
+  function box(x0, y0, x1, y1) {
+    const [a, b] = m2svg(x0, y0), [c, d] = m2svg(x1, y1);
+    const r = document.createElementNS(ns, "rect");
+    r.setAttribute("x", Math.min(a, c)); r.setAttribute("y", Math.min(b, d));
+    r.setAttribute("width", Math.abs(c - a)); r.setAttribute("height", Math.abs(d - b));
+    g.appendChild(r);
+  }
+  box(-52.5, 20.16, -36, -20.16);
+  box(36, 20.16, 52.5, -20.16);
+  box(-52.5, 9.16, -47, -9.16);
+  box(47, 9.16, 52.5, -9.16);
+  svg.appendChild(g);
+  function lab(x, y, s, size) {
+    const t = document.createElementNS(ns, "text");
+    t.setAttribute("x", x); t.setAttribute("y", y);
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("fill", "#e8c547");
+    t.setAttribute("font-size", String(size));
+    t.setAttribute("font-weight", "700");
+    t.textContent = s;
+    svg.appendChild(t);
+  }
+  lab(SVG_W / 2, -28, "NORTH · P6", 15);
+  lab(SVG_W / 2, SVG_H + 52, "SOUTH · P1", 15);
+  const wl = document.createElementNS(ns, "text");
+  wl.setAttribute("x", -36); wl.setAttribute("y", SVG_H / 2);
+  wl.setAttribute("text-anchor", "middle");
+  wl.setAttribute("fill", "#e8c547");
+  wl.setAttribute("font-size", "13");
+  wl.setAttribute("font-weight", "700");
+  wl.setAttribute("transform", `rotate(-90 ${-36} ${SVG_H / 2})`);
+  wl.textContent = "LEFT";
+  svg.appendChild(wl);
+  const el = document.createElementNS(ns, "text");
+  el.setAttribute("x", SVG_W + 36); el.setAttribute("y", SVG_H / 2);
+  el.setAttribute("text-anchor", "middle");
+  el.setAttribute("fill", "#e8c547");
+  el.setAttribute("font-size", "13");
+  el.setAttribute("font-weight", "700");
+  el.setAttribute("transform", `rotate(90 ${SVG_W + 36} ${SVG_H / 2})`);
+  el.textContent = "RIGHT";
+  svg.appendChild(el);
+}
+
+function currentOrder() {
+  const key = document.getElementById("order").value;
+  return data.orders[key];
+}
+
+function prettyName(lm) {
+  return DISPLAY[lm.name] || lm.label || (lm.name || "").replaceAll("_", " ");
+}
+
+function orderTitle(key) {
+  return ORDER_TITLES[key] || (data.order_titles && data.order_titles[key]) || key.replaceAll("_", " ");
+}
+
+function measureLabel(label, size) {
+  const svg = document.getElementById("names");
+  const ns = "http://www.w3.org/2000/svg";
+  const t = document.createElementNS(ns, "text");
+  t.setAttribute("font-size", String(size));
+  t.setAttribute("font-weight", "700");
+  t.setAttribute("font-family", "IBM Plex Sans, Segoe UI, sans-serif");
+  t.textContent = label;
+  svg.appendChild(t);
+  const w = t.getComputedTextLength();
+  t.remove();
+  return w;
+}
+
+function overlaps(a, b) {
+  return Math.abs(a.lx - b.lx) < (a.tw + b.tw) / 2 + 14 &&
+    Math.abs(a.ly - b.ly) < (a.th + b.th) / 2 + 12;
+}
+
+function hitsDot(lab, pts) {
+  const x0 = lab.lx - lab.tw / 2 - 14;
+  const x1 = lab.lx + lab.tw / 2 + 14;
+  const y0 = lab.ly - lab.th / 2 - 14;
+  const y1 = lab.ly + lab.th / 2 + 14;
+  return pts.some(({ p }) => p[0] > x0 && p[0] < x1 && p[1] > y0 && p[1] < y1);
+}
+
+const LABEL_DIR = {
+  halfway_near_touch: [0.9, -1.35],
+  halfway_far_touch: [-0.9, -1.35],
+  left_near_corner: [-0.95, 1.15],
+  right_near_corner: [-0.95, -1.15],
+  left_far_corner: [0.95, 1.15],
+  right_far_corner: [0.95, -1.15],
+  center: [1.65, 0.95],
+  circle_near: [0.25, 1.6],
+  circle_far: [-0.25, 1.6],
+  left_box_goal_near: [-1.2, -0.95],
+  left_box_goal_far: [1.2, -0.95],
+  left_box_18_near: [1.55, 0.2],
+  left_penalty_spot: [1.75, -1.05],
+  right_box_goal_near: [-1.2, 0.95],
+  right_box_goal_far: [1.2, 0.95],
+  right_box_18_near: [1.55, -0.2],
+  right_penalty_spot: [1.6, 0.7],
+};
+
+const DIR_TRIES = [
+  [1, 0], [-1, 0], [0, 1], [0, -1],
+  [1, 1], [1, -1], [-1, 1], [-1, -1],
+  [0.4, 1.6], [0.4, -1.6], [-0.4, 1.6], [-0.4, -1.6],
+];
+
+function placeNameLabels(pts) {
+  const size = 18;
+  const th = 34;
+  const xmin = -208, xmax = 768, ymin = -84, ymax = 1004;
+  const placed = [];
+  pts.forEach(({ lm, i, p }) => {
+    const [x, y] = p;
+    const label = `${i + 1}  ${prettyName(lm)}`;
+    const tw = Math.ceil(measureLabel(label, size) + 28);
+    const dirs = [LABEL_DIR[lm.name] || [1, 0], ...DIR_TRIES];
+    let chosen = null;
+    dirs.some((dir) => {
+      const len = Math.hypot(dir[0], dir[1]) || 1;
+      for (let dist = 78; dist <= 220; dist += 24) {
+        let lx = x + (dir[0] / len) * dist;
+        let ly = y + (dir[1] / len) * dist;
+        lx = Math.min(xmax - tw / 2, Math.max(xmin + tw / 2, lx));
+        ly = Math.min(ymax - th / 2, Math.max(ymin + th / 2, ly));
+        const cand = { lx, ly, tw, th, label };
+        if (!placed.some(p0 => overlaps(p0, cand)) && !hitsDot(cand, pts)) {
+          chosen = cand;
+          return true;
+        }
+      }
+      return false;
+    });
+    placed.push(chosen || { lx: x + 90, ly: y + 70, tw, th, label });
+  });
+  return placed;
+}
+
+function markLandmarks(svg, withNames) {
+  const ns = "http://www.w3.org/2000/svg";
+  const order = currentOrder();
+  const pts = order.map((lm, i) => ({ lm, i, p: m2svg(lm.xy[0], lm.xy[1]) }));
+  const labels = withNames ? placeNameLabels(pts) : [];
+  if (withNames) {
+    labels.forEach((lab, i) => {
+      const [x, y] = pts[i].p;
+      const line = document.createElementNS(ns, "line");
+      line.setAttribute("x1", x); line.setAttribute("y1", y);
+      line.setAttribute("x2", lab.lx); line.setAttribute("y2", lab.ly);
+      line.setAttribute("stroke", "#e8c547");
+      line.setAttribute("stroke-width", "2.2");
+      svg.appendChild(line);
+    });
+  }
+  pts.forEach(({ i, p }) => {
+    const [x, y] = p;
+    const r = withNames ? (i === active ? 16 : 14) : (i === active ? 11 : 9);
+    const c = document.createElementNS(ns, "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y);
+    c.setAttribute("r", r);
+    c.setAttribute("fill", clicks[i] ? "#6dbf7a" : "#e8c547");
+    c.setAttribute("stroke", i === active ? "#fff" : "#111");
+    c.setAttribute("stroke-width", i === active ? 3 : 2);
+    c.style.cursor = "pointer";
+    c.addEventListener("click", () => { active = i; refresh(); });
+    svg.appendChild(c);
+    const num = document.createElementNS(ns, "text");
+    num.setAttribute("x", x);
+    num.setAttribute("y", y + (withNames ? 6 : 4));
+    num.setAttribute("text-anchor", "middle");
+    num.setAttribute("font-size", withNames ? "16" : "12");
+    num.setAttribute("font-weight", "800");
+    num.setAttribute("fill", "#111");
+    num.textContent = String(i + 1);
+    num.style.pointerEvents = "none";
+    svg.appendChild(num);
+  });
+  labels.forEach((lab) => {
+    const bg = document.createElementNS(ns, "rect");
+    bg.setAttribute("x", lab.lx - lab.tw / 2);
+    bg.setAttribute("y", lab.ly - lab.th / 2);
+    bg.setAttribute("width", lab.tw);
+    bg.setAttribute("height", lab.th);
+    bg.setAttribute("class", "name-pill");
+    bg.setAttribute("fill", "#0e140e");
+    bg.setAttribute("stroke", "#e8c547");
+    bg.setAttribute("stroke-width", "1.8");
+    svg.appendChild(bg);
+    const t = document.createElementNS(ns, "text");
+    t.setAttribute("x", lab.lx);
+    t.setAttribute("y", lab.ly + 6);
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("font-size", "18");
+    t.setAttribute("font-family", "IBM Plex Sans, Segoe UI, sans-serif");
+    t.setAttribute("font-weight", "700");
+    t.setAttribute("fill", "#f7f4e8");
+    t.textContent = lab.label;
+    svg.appendChild(t);
+  });
+}
+
+function renderPitch() {
+  const svg = document.getElementById("pitch");
+  svg.innerHTML = "";
+  drawPitchLines(svg);
+  markLandmarks(svg, false);
+}
+
+function renderNames() {
+  const svg = document.getElementById("names");
+  svg.innerHTML = "";
+  drawPitchLines(svg);
+  markLandmarks(svg, true);
+}
+
+function renderDots() {
+  const box = document.getElementById("dots");
+  const img = document.getElementById("still");
+  box.innerHTML = "";
+  const sx = img.clientWidth / img.naturalWidth;
+  const sy = img.clientHeight / img.naturalHeight;
+  clicks.forEach((pt, i) => {
+    if (!pt) return;
+    const d = document.createElement("div");
+    d.className = "dot";
+    d.textContent = String(i + 1);
+    d.style.left = (pt[0] * sx) + "px";
+    d.style.top = (pt[1] * sy) + "px";
+    box.appendChild(d);
+  });
+}
+
+function nReady() { return clicks.filter(Boolean).length; }
+
+function refresh() {
+  const spec = data.cams.find(c => c.id === cam);
+  document.getElementById("title").textContent = `${spec.id} — ${orderTitle(document.getElementById("order").value)}`;
+  const order = currentOrder();
+  const next = order[active];
+  document.getElementById("hint").textContent =
+    `Point ${active + 1}/4: ${prettyName(next)}  ·  pitch (${next.xy[0]}, ${next.xy[1]}) m`;
+  document.getElementById("legend").innerHTML = order.map((lm, i) => {
+    const mark = clicks[i] ? "✓" : (i === active ? "→" : "·");
+    return `<b>${mark} ${i + 1}</b> ${prettyName(lm)}`;
+  }).join(" &nbsp; ");
+  document.getElementById("save").disabled = nReady() !== 4;
+  renderPitch();
+  renderNames();
+  renderDots();
+}
+
+function selectCam(id) {
+  cam = id;
+  const spec = data.cams.find(c => c.id === cam);
+  document.getElementById("order").value = spec.order;
+  clicks = [null, null, null, null];
+  active = 0;
+  document.getElementById("still").src = spec.still + "?t=" + Date.now();
+  [...document.querySelectorAll(".cams button")].forEach(b => {
+    b.classList.toggle("active", b.dataset.id === id);
+  });
+  document.getElementById("status").textContent = spec.saved ? "Saved map on disk — click to revise." : "";
+  document.getElementById("status").className = spec.saved ? "status ok" : "status";
+  fetch(`/reports/eval_match3/match3_pitch_calib/${id}_manual.json`)
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      if (!j || j.camera !== id) return;
+      document.getElementById("order").value = j.order;
+      clicks = j.image_points.map(p => [p[0], p[1]]);
+      active = 0;
+      refresh();
+    }).catch(() => {});
+  refresh();
+}
+
+function onStillClick(ev) {
+  const img = document.getElementById("still");
+  const r = img.getBoundingClientRect();
+  const x = (ev.clientX - r.left) * (img.naturalWidth / r.width);
+  const y = (ev.clientY - r.top) * (img.naturalHeight / r.height);
+  clicks[active] = [x, y];
+  active = Math.min(active + 1, 3);
+  refresh();
+}
+
+async function save() {
+  const status = document.getElementById("status");
+  status.textContent = "Saving…";
+  status.className = "status";
+  const body = {
+    camera: cam,
+    order: document.getElementById("order").value,
+    image_points: clicks,
+  };
+  const r = await fetch("/save_match3_landmark", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json();
+  if (!j.ok) {
+    status.textContent = j.error || "Save failed";
+    status.className = "status err";
+    return;
+  }
+  status.textContent = "Saved " + j.path;
+  status.className = "status ok";
+  data.cams.find(c => c.id === cam).saved = true;
+  renderNav();
+}
+
+function renderNav() {
+  const nav = document.getElementById("camNav");
+  nav.innerHTML = "";
+  data.cams.forEach(c => {
+    const b = document.createElement("button");
+    b.dataset.id = c.id;
+    b.classList.toggle("active", c.id === cam);
+    b.classList.toggle("saved", !!c.saved);
+    b.innerHTML = `${c.id}<span class="meta">${c.saved ? "map saved" : orderTitle(c.order)}</span>`;
+    b.addEventListener("click", () => selectCam(c.id));
+    nav.appendChild(b);
+  });
+}
+
+fetch("cams.json?v=quad-map").then(r => r.json()).then(j => {
+  data = j;
+  const sel = document.getElementById("order");
+  Object.keys(data.orders).forEach(k => {
+    const o = document.createElement("option");
+    o.value = k; o.textContent = orderTitle(k);
+    sel.appendChild(o);
+  });
+  sel.addEventListener("change", () => { clicks = [null, null, null, null]; active = 0; refresh(); });
+  document.getElementById("still").addEventListener("click", onStillClick);
+  document.getElementById("still").addEventListener("load", renderDots);
+  window.addEventListener("resize", renderDots);
+  document.getElementById("undo").addEventListener("click", () => {
+    const i = [...clicks].map((p, idx) => p ? idx : -1).filter(x => x >= 0).pop();
+    if (i == null) return;
+    clicks[i] = null; active = i; refresh();
+  });
+  document.getElementById("clear").addEventListener("click", () => {
+    clicks = [null, null, null, null]; active = 0; refresh();
+  });
+  document.getElementById("save").addEventListener("click", save);
+  renderNav();
+  selectCam(data.cams[0].id);
+});
+</script>
+</body>
+</html>

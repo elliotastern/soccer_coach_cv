@@ -1,0 +1,309 @@
+{
+  "title": "landmark_marker",
+  "pitch_length_m": 105.0,
+  "pitch_width_m": 68.0,
+  "order_titles": {
+    "quad_near_left": "South Left Quarter",
+    "quad_near_right": "North Left Quarter",
+    "quad_far_left": "South Right Quarter",
+    "quad_far_right": "North Right Quarter",
+    "goal_left": "South Goal Box",
+    "goal_right": "North Goal Box"
+  },
+  "orders": {
+    "quad_near_left": [
+      {
+        "name": "halfway_near_touch",
+        "label": "Halfway Left Sideline",
+        "xy": [
+          0.0,
+          34.0
+        ]
+      },
+      {
+        "name": "left_near_corner",
+        "label": "South Left Corner",
+        "xy": [
+          -52.5,
+          34.0
+        ]
+      },
+      {
+        "name": "center",
+        "label": "Center Spot",
+        "xy": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "circle_near",
+        "label": "Center Circle Left",
+        "xy": [
+          0.0,
+          9.15
+        ]
+      }
+    ],
+    "quad_near_right": [
+      {
+        "name": "halfway_near_touch",
+        "label": "Halfway Left Sideline",
+        "xy": [
+          0.0,
+          34.0
+        ]
+      },
+      {
+        "name": "right_near_corner",
+        "label": "North Left Corner",
+        "xy": [
+          52.5,
+          34.0
+        ]
+      },
+      {
+        "name": "center",
+        "label": "Center Spot",
+        "xy": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "circle_near",
+        "label": "Center Circle Left",
+        "xy": [
+          0.0,
+          9.15
+        ]
+      }
+    ],
+    "quad_far_left": [
+      {
+        "name": "halfway_far_touch",
+        "label": "Halfway Right Sideline",
+        "xy": [
+          0.0,
+          -34.0
+        ]
+      },
+      {
+        "name": "left_far_corner",
+        "label": "South Right Corner",
+        "xy": [
+          -52.5,
+          -34.0
+        ]
+      },
+      {
+        "name": "center",
+        "label": "Center Spot",
+        "xy": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "circle_far",
+        "label": "Center Circle Right",
+        "xy": [
+          0.0,
+          -9.15
+        ]
+      }
+    ],
+    "quad_far_right": [
+      {
+        "name": "halfway_far_touch",
+        "label": "Halfway Right Sideline",
+        "xy": [
+          0.0,
+          -34.0
+        ]
+      },
+      {
+        "name": "right_far_corner",
+        "label": "North Right Corner",
+        "xy": [
+          52.5,
+          -34.0
+        ]
+      },
+      {
+        "name": "center",
+        "label": "Center Spot",
+        "xy": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "circle_far",
+        "label": "Center Circle Right",
+        "xy": [
+          0.0,
+          -9.15
+        ]
+      }
+    ],
+    "goal_left": [
+      {
+        "name": "left_box_goal_near",
+        "label": "South Left Goal-Line Corner",
+        "xy": [
+          -52.5,
+          20.16
+        ]
+      },
+      {
+        "name": "left_box_goal_far",
+        "label": "South Right Goal-Line Corner",
+        "xy": [
+          -52.5,
+          -20.16
+        ]
+      },
+      {
+        "name": "left_box_18_near",
+        "label": "South Left 18-Yard Corner",
+        "xy": [
+          -36.0,
+          20.16
+        ]
+      },
+      {
+        "name": "left_penalty_spot",
+        "label": "South Penalty Spot",
+        "xy": [
+          -41.5,
+          0.0
+        ]
+      }
+    ],
+    "goal_right": [
+      {
+        "name": "right_box_goal_near",
+        "label": "North Left Goal-Line Corner",
+        "xy": [
+          52.5,
+          20.16
+        ]
+      },
+      {
+        "name": "right_box_goal_far",
+        "label": "North Right Goal-Line Corner",
+        "xy": [
+          52.5,
+          -20.16
+        ]
+      },
+      {
+        "name": "right_box_18_near",
+        "label": "North Left 18-Yard Corner",
+        "xy": [
+          36.0,
+          20.16
+        ]
+      },
+      {
+        "name": "right_penalty_spot",
+        "label": "North Penalty Spot",
+        "xy": [
+          41.5,
+          0.0
+        ]
+      }
+    ]
+  },
+  "cams": [
+    {
+      "id": "P10",
+      "label": "P10 \u2014 South Left Quarter",
+      "order": "quad_near_left",
+      "still": "stills/P10.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P7",
+      "label": "P7 \u2014 South Right Quarter",
+      "order": "quad_far_left",
+      "still": "stills/P7.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P9",
+      "label": "P9 \u2014 North Left Quarter",
+      "order": "quad_near_right",
+      "still": "stills/P9.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P8",
+      "label": "P8 \u2014 North Right Quarter",
+      "order": "quad_far_right",
+      "still": "stills/P8.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P1",
+      "label": "P1 \u2014 South Goal Box",
+      "order": "goal_left",
+      "still": "stills/P1.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P6",
+      "label": "P6 \u2014 North Goal Box",
+      "order": "goal_right",
+      "still": "stills/P6.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P_Goal1",
+      "label": "P_Goal1 \u2014 South Goal Box",
+      "order": "goal_left",
+      "still": "stills/P_Goal1.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    },
+    {
+      "id": "P_Goal2",
+      "label": "P_Goal2 \u2014 North Goal Box",
+      "order": "goal_right",
+      "still": "stills/P_Goal2.jpg",
+      "image_wh": [
+        1920,
+        1080
+      ],
+      "saved": false
+    }
+  ]
+}

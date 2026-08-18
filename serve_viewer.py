@@ -9,6 +9,7 @@ import socketserver
 import os
 import json
 import socket
+import sys
 from pathlib import Path
 
 PORT = 8080
@@ -298,6 +299,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/match2-aim',
+            '/match2-aim/',
+            '/aim-zoom',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/aim_zoom_guide/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/camera-coverage',
             '/camera_coverage',
             '/pitch-coverage',
@@ -306,6 +319,45 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header(
                 'Location',
                 '/reports/eval_match2_v10/camera_pitch_coverage/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-pitchmap',
+            '/match3-pitchmap/',
+            '/match3_pitchmap',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/pitchmap_gallery/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/landmark_marker',
+            '/landmark_marker/',
+            '/match3-landmarks',
+            '/match3-landmarks/',
+            '/match3_landmarks',
+            '/match3-landmark',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/landmark_dashboard/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match2-pitchmap',
+            '/match2-pitchmap/',
+            '/pitchmap',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match2_v10/locked_oos_pitchmap_gallery/index.html',
             )
             self.end_headers()
             return
@@ -488,6 +540,30 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
     def do_POST(self):
+        if self.path == '/save_match3_landmark':
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                from match3_landmarks import save_clicks
+                result = save_clicks(
+                    str(data['camera']),
+                    str(data['order']),
+                    data['image_points'],
+                )
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
         if self.path == '/save_marks':
             try:
                 content_length = int(self.headers.get('Content-Length', 0))
@@ -648,6 +724,10 @@ def main():
     print(f"Ball postproc: http://127.0.0.1:{port}/ball_postprocessing_test")
     print(f"Multicam proxy gallery: http://127.0.0.1:{port}/multicam-proxy")
     print(f"Camera pitch coverage: http://127.0.0.1:{port}/camera-coverage")
+    print(f"Match2 aim/zoom guide: http://127.0.0.1:{port}/match2-aim")
+    print(f"Match3 pitchmap: http://127.0.0.1:{port}/match3-pitchmap")
+    print(f"landmark_marker: http://127.0.0.1:{port}/landmark_marker")
+    print(f"Match2 pitchmap: http://127.0.0.1:{port}/match2-pitchmap")
     print(f"SAHI hurt test: http://127.0.0.1:{port}/ball_sahi_hurt_test")
     print(f"SAHI next test: http://127.0.0.1:{port}/ball_sahi_next_test")
     print(f"Match2 harvest: http://127.0.0.1:{port}/match2-harvest")
