@@ -11,129 +11,112 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: "IBM Plex Sans", Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
-header { padding: 1.1rem 1.4rem 0.4rem; max-width: 1480px; margin: 0 auto; }
-h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 1.45rem; font-weight: 600; margin: 0 0 .3rem; }
-.sub { color: var(--muted); font-size: .9rem; line-height: 1.45; max-width: 54rem; }
-.layout { max-width: 1480px; margin: 0 auto; padding: 0.8rem 1.4rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
-.top {
-  display: grid;
-  grid-template-columns: 1fr 220px 220px;
-  gap: 1rem;
-  align-items: start;
-}
-@media (max-width: 1100px) { .top { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 700px) { .top { grid-template-columns: 1fr; } }
-.compass-panel { background: var(--panel); border-radius: 10px; padding: .85rem; }
-.compass-panel h2 { margin: 0 0 .25rem; font-size: 1.05rem; }
-svg.compass { width: 100%; height: auto; display: block; }
-.pitch-panel svg.pitch { max-height: 420px; width: auto; max-width: 100%; margin: 0 auto; }
-.names-panel { max-width: 860px; padding: .7rem .9rem; overflow: visible; }
-.names-panel svg.pitch { max-height: 920px; width: 100%; max-width: 820px; margin: 0 auto; }
-.picker, .pitch-panel, .names-panel, .stage {
-  background: var(--panel); border-radius: 10px; padding: .85rem;
-}
-.picker h2, .pitch-panel h2, .names-panel h2 { margin: 0 0 .25rem; font-size: 1.05rem; }
+header { padding: .7rem 1.2rem .2rem; max-width: 1560px; margin: 0 auto; }
+h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
+.layout { max-width: 1560px; margin: 0 auto; padding: .4rem 1.2rem 1.4rem; }
+.picker { padding: .2rem 0 .55rem; }
+.picker h2 { display: none; }
 .cams { display: flex; flex-wrap: wrap; gap: .3rem; }
 .cams button {
-  text-align: left; border: 1px solid var(--line); background: #121612; color: var(--text);
-  padding: .5rem .65rem; border-radius: 6px; cursor: pointer; font-size: .86rem;
+  text-align: left; border: 1px solid var(--line); background: #1c241c; color: var(--text);
+  padding: .4rem .55rem; border-radius: 6px; cursor: pointer; font-size: .82rem;
 }
 .cams button:hover { border-color: var(--accent); }
 .cams button.active { background: #2f4a32; border-color: var(--accent); color: var(--accent); }
-.cams button .meta { display: block; color: var(--muted); font-size: .7rem; margin-top: .12rem; }
+.cams button .meta { display: block; color: var(--muted); font-size: .68rem; margin-top: .08rem; }
 .cams button.saved .meta { color: var(--good); }
-.hint { color: var(--muted); font-size: .82rem; line-height: 1.4; margin: 0 0 .55rem; }
-.bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: .55rem 0 .15rem; }
-select, button.act {
-  background: #121612; color: var(--text); border: 1px solid var(--line);
-  padding: .45rem .6rem; border-radius: 6px; font-size: .85rem;
+.work {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) 360px;
+  gap: 1rem;
+  align-items: start;
 }
-button.act { cursor: pointer; }
-button.act.primary { background: var(--accent); color: #1a1a12; border-color: var(--accent); font-weight: 600; }
-button.act:disabled { opacity: .45; cursor: not-allowed; }
+@media (max-width: 980px) { .work { grid-template-columns: 1fr; } }
+.stage, .map-panel { background: var(--panel); border-radius: 10px; padding: .75rem; }
+.task {
+  background: var(--accent); color: #1a1a12; border-radius: 8px;
+  padding: .7rem .85rem .75rem; margin-bottom: .65rem;
+}
+.task.done { background: var(--good); }
+.task .n { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.task .what { font-size: 1.45rem; font-weight: 750; line-height: 1.15; margin: .12rem 0 .15rem; }
+.task .find { font-size: .92rem; line-height: 1.35; }
 #stillWrap { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
 #still { width: 100%; display: block; cursor: crosshair; }
 #dots { position: absolute; inset: 0; pointer-events: none; }
 .dot {
-  position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
-  background: var(--accent); color: #111; font-size: 11px; font-weight: 700;
+  position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
+  background: var(--accent); color: #111; font-size: 13px; font-weight: 800;
   display: flex; align-items: center; justify-content: center; border: 2px solid #111;
+  cursor: pointer; pointer-events: auto;
 }
-.legend { margin-top: .55rem; font-size: .8rem; color: var(--muted); }
-.legend b { color: var(--accent); font-weight: 600; }
-svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; border-radius: 6px; }
-.names-panel { max-width: 860px; padding: .7rem .9rem; overflow: visible; }
-.names-panel h2 { font-size: .9rem; }
-.names-panel .hint { font-size: .74rem; margin-bottom: .35rem; }
-#names { max-width: 820px; overflow: visible; }
-.status { margin-top: .45rem; font-size: .8rem; color: var(--muted); min-height: 1.2em; }
+.dot.active { outline: 3px solid #fff; }
+.steps { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; margin: .55rem 0 .2rem; }
+.steps button {
+  text-align: left; background: #121612; color: var(--text); border: 1px solid var(--line);
+  border-radius: 6px; padding: .4rem .5rem; cursor: pointer; font-size: .8rem;
+}
+.steps button.on { border-color: var(--accent); color: var(--accent); }
+.steps button.ok { border-color: var(--good); color: var(--good); }
+.steps b { display: inline-block; min-width: 1.1rem; }
+.bar { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .45rem; }
+select, button.act {
+  background: #121612; color: var(--text); border: 1px solid var(--line);
+  padding: .4rem .55rem; border-radius: 6px; font-size: .84rem;
+}
+button.act { cursor: pointer; }
+button.act.primary { background: var(--accent); color: #1a1a12; border-color: var(--accent); font-weight: 700; }
+button.act:disabled { opacity: .4; cursor: not-allowed; }
+.adv { margin-top: .35rem; color: var(--muted); font-size: .75rem; }
+.adv summary { cursor: pointer; }
+.status { margin-top: .35rem; font-size: .8rem; color: var(--muted); min-height: 1.1em; }
 .status.ok { color: var(--good); }
 .status.err { color: #e07a7a; }
+.map-panel h2 { margin: 0 0 .2rem; font-size: .95rem; }
+.map-panel .hint { color: var(--muted); font-size: .76rem; line-height: 1.35; margin: 0 0 .4rem; }
+svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; border-radius: 6px; }
+#names { overflow: visible; }
 </style>
 </head>
 <body>
 <header>
-  <h1>landmark_marker</h1>
-  <p class="sub">
-    Ends are south / north (P1 / P6). Sides are left / right from P1 looking toward P6.
-  </p>
+  <h1>Click 4 pitch points on the photo</h1>
 </header>
 <div class="layout">
-  <div class="top">
-    <section class="picker">
-      <h2 id="title">—</h2>
-      <p class="hint" id="hint">Load a camera, then click point 1 on the still.</p>
-      <nav class="cams" id="camNav"></nav>
+  <section class="picker">
+    <h2 id="title">—</h2>
+    <nav class="cams" id="camNav"></nav>
+  </section>
+  <div class="work">
+    <section class="stage">
+      <div class="task" id="task">
+        <div class="n" id="taskN">Click 1 of 4</div>
+        <div class="what" id="taskWhat">—</div>
+        <div class="find" id="taskFind"></div>
+      </div>
+      <div id="stillWrap">
+        <img id="still" alt="camera still"/>
+        <div id="dots"></div>
+      </div>
+      <div class="steps" id="steps"></div>
       <div class="bar">
-        <label for="order">Landmark set</label>
-        <select id="order"></select>
         <button class="act" id="undo" type="button">Undo</button>
         <button class="act" id="clear" type="button">Clear</button>
         <button class="act primary" id="save" type="button" disabled>Save map</button>
       </div>
+      <details class="adv">
+        <summary>Change landmark set</summary>
+        <label for="order">This camera’s 4 points</label>
+        <select id="order"></select>
+      </details>
       <p class="status" id="status"></p>
     </section>
-    <aside class="compass-panel">
-      <h2>Pitch compass</h2>
-      <p class="hint">South = P1. Left/right = from P1 looking north.</p>
-      <svg class="compass" viewBox="0 0 320 440" role="img" aria-label="Pitch: north P6, south P1, left and right from P1">
-        <rect width="320" height="440" fill="#1c241c"/>
-        <text x="160" y="22" text-anchor="middle" fill="#e8c547" font-size="17" font-weight="700">NORTH</text>
-        <text x="160" y="40" text-anchor="middle" fill="#cfe6cf" font-size="12">P6 / P_Goal2</text>
-        <rect x="78" y="54" width="164" height="316" fill="#1a3a22" stroke="#cfe6cf" stroke-width="2"/>
-        <line x1="78" y1="212" x2="242" y2="212" stroke="#cfe6cf" stroke-width="2"/>
-        <circle cx="160" cy="212" r="28" fill="none" stroke="#cfe6cf" stroke-width="2"/>
-        <circle cx="160" cy="212" r="3" fill="#e8c547"/>
-        <rect x="78" y="54" width="164" height="48" fill="none" stroke="#cfe6cf" stroke-width="1.5"/>
-        <rect x="78" y="322" width="164" height="48" fill="none" stroke="#cfe6cf" stroke-width="1.5"/>
-        <text x="160" y="80" text-anchor="middle" fill="#e8c547" font-size="11">P6 goal</text>
-        <text x="160" y="350" text-anchor="middle" fill="#e8c547" font-size="11">P1 goal</text>
-        <text x="8" y="198" fill="#e8c547" font-size="13" font-weight="700">LEFT</text>
-        <text x="8" y="214" fill="#9aab9a" font-size="11">from P1</text>
-        <text x="252" y="198" fill="#e8c547" font-size="13" font-weight="700">RIGHT</text>
-        <text x="252" y="214" fill="#9aab9a" font-size="11">from P1</text>
-        <text x="160" y="406" text-anchor="middle" fill="#e8c547" font-size="17" font-weight="700">SOUTH</text>
-        <text x="160" y="424" text-anchor="middle" fill="#cfe6cf" font-size="12">P1 / P_Goal1</text>
-      </svg>
-    </aside>
-    <aside class="pitch-panel">
-      <h2>Pitch targets</h2>
-      <p class="hint">Numbers match the click order. Click a number here to jump to that slot.</p>
-      <svg class="pitch" id="pitch" viewBox="-80 -48 720 980"></svg>
+    <aside class="map-panel">
+      <h2>Where on the pitch</h2>
+      <p class="hint">Yellow = next click. Green = already marked. Left/right are from P1 looking north.</p>
+      <svg class="pitch" id="names" viewBox="-220 -100 1000 1120"></svg>
     </aside>
   </div>
-  <section class="stage">
-    <div id="stillWrap">
-      <img id="still" alt="camera still"/>
-      <div id="dots"></div>
-    </div>
-    <p class="legend" id="legend"></p>
-  </section>
-  <section class="names-panel">
-    <h2>Landmark names</h2>
-    <p class="hint">Each target on this camera’s set, labeled on the field.</p>
-      <svg class="pitch" id="names" viewBox="-220 -100 1000 1120"></svg>
-  </section>
 </div>
 <script>
 const PL = 105, PW = 68, SVG_W = 560, SVG_H = 880;
@@ -163,6 +146,25 @@ const ORDER_TITLES = {
   quad_far_right: "North Right Quarter",
   goal_left: "South Goal Box",
   goal_right: "North Goal Box",
+};
+const FIND = {
+  halfway_near_touch: "The halfway line where it meets the left touchline (P1’s left).",
+  halfway_far_touch: "The halfway line where it meets the right touchline (P1’s right).",
+  left_near_corner: "Corner flag at P1’s end, on the left.",
+  right_near_corner: "Corner flag at P6’s end, on the left.",
+  left_far_corner: "Corner flag at P1’s end, on the right.",
+  right_far_corner: "Corner flag at P6’s end, on the right.",
+  center: "Kickoff spot — dead middle of the center circle.",
+  circle_near: "Where the halfway line crosses the center circle on the left.",
+  circle_far: "Where the halfway line crosses the center circle on the right.",
+  left_box_goal_near: "P1 goal line, left corner of the 18-yard box.",
+  left_box_goal_far: "P1 goal line, right corner of the 18-yard box.",
+  left_box_18_near: "P1 box, left corner of the 18-yard line (not the goal line).",
+  left_penalty_spot: "Penalty mark in front of the P1 goal.",
+  right_box_goal_near: "P6 goal line, left corner of the 18-yard box.",
+  right_box_goal_far: "P6 goal line, right corner of the 18-yard box.",
+  right_box_18_near: "P6 box, left corner of the 18-yard line (not the goal line).",
+  right_penalty_spot: "Penalty mark in front of the P6 goal.",
 };
 let data = null, cam = null, clicks = [null, null, null, null], active = 0;
 
@@ -395,13 +397,6 @@ function markLandmarks(svg, withNames) {
   });
 }
 
-function renderPitch() {
-  const svg = document.getElementById("pitch");
-  svg.innerHTML = "";
-  drawPitchLines(svg);
-  markLandmarks(svg, false);
-}
-
 function renderNames() {
   const svg = document.getElementById("names");
   svg.innerHTML = "";
@@ -413,16 +408,38 @@ function renderDots() {
   const box = document.getElementById("dots");
   const img = document.getElementById("still");
   box.innerHTML = "";
+  if (!img.naturalWidth) return;
   const sx = img.clientWidth / img.naturalWidth;
   const sy = img.clientHeight / img.naturalHeight;
   clicks.forEach((pt, i) => {
     if (!pt) return;
     const d = document.createElement("div");
-    d.className = "dot";
+    d.className = "dot" + (i === active ? " active" : "");
     d.textContent = String(i + 1);
+    d.title = prettyName(currentOrder()[i]);
     d.style.left = (pt[0] * sx) + "px";
     d.style.top = (pt[1] * sy) + "px";
+    d.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      active = i;
+      refresh();
+    });
     box.appendChild(d);
+  });
+}
+
+function renderSteps() {
+  const order = currentOrder();
+  const box = document.getElementById("steps");
+  box.innerHTML = "";
+  order.forEach((lm, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    const done = !!clicks[i];
+    b.className = done ? "ok" : (i === active ? "on" : "");
+    b.innerHTML = `<b>${done ? "✓" : i + 1}</b> ${prettyName(lm)}`;
+    b.addEventListener("click", () => { active = i; refresh(); });
+    box.appendChild(b);
   });
 }
 
@@ -430,18 +447,23 @@ function nReady() { return clicks.filter(Boolean).length; }
 
 function refresh() {
   const spec = data.cams.find(c => c.id === cam);
-  document.getElementById("title").textContent = `${spec.id} — ${orderTitle(document.getElementById("order").value)}`;
   const order = currentOrder();
   const next = order[active];
-  document.getElementById("hint").textContent =
-    `Point ${active + 1}/4: ${prettyName(next)}  ·  pitch (${next.xy[0]}, ${next.xy[1]}) m`;
-  document.getElementById("legend").innerHTML = order.map((lm, i) => {
-    const mark = clicks[i] ? "✓" : (i === active ? "→" : "·");
-    return `<b>${mark} ${i + 1}</b> ${prettyName(lm)}`;
-  }).join(" &nbsp; ");
-  document.getElementById("save").disabled = nReady() !== 4;
-  renderPitch();
+  const done = nReady() === 4;
+  const task = document.getElementById("task");
+  task.classList.toggle("done", done);
+  document.getElementById("taskN").textContent = done
+    ? `${spec.id} · 4 of 4 marked`
+    : `${spec.id} · click ${active + 1} of 4`;
+  document.getElementById("taskWhat").textContent = done
+    ? "Save map"
+    : prettyName(next);
+  document.getElementById("taskFind").textContent = done
+    ? "All four points are on the photo. Save, or click a number to fix one."
+    : (FIND[next.name] || "Click that point on the photo.");
+  document.getElementById("save").disabled = !done;
   renderNames();
+  renderSteps();
   renderDots();
 }
 
@@ -475,7 +497,8 @@ function onStillClick(ev) {
   const x = (ev.clientX - r.left) * (img.naturalWidth / r.width);
   const y = (ev.clientY - r.top) * (img.naturalHeight / r.height);
   clicks[active] = [x, y];
-  active = Math.min(active + 1, 3);
+  const nxt = clicks.findIndex(p => !p);
+  if (nxt !== -1) active = nxt;
   refresh();
 }
 
@@ -519,7 +542,7 @@ function renderNav() {
   });
 }
 
-fetch("cams.json?v=quad-map").then(r => r.json()).then(j => {
+fetch("cams.json?v=mark-easy").then(r => r.json()).then(j => {
   data = j;
   const sel = document.getElementById("order");
   Object.keys(data.orders).forEach(k => {
@@ -529,12 +552,17 @@ fetch("cams.json?v=quad-map").then(r => r.json()).then(j => {
   });
   sel.addEventListener("change", () => { clicks = [null, null, null, null]; active = 0; refresh(); });
   document.getElementById("still").addEventListener("click", onStillClick);
-  document.getElementById("still").addEventListener("load", renderDots);
+  document.getElementById("still").addEventListener("load", () => { renderDots(); refresh(); });
   window.addEventListener("resize", renderDots);
   document.getElementById("undo").addEventListener("click", () => {
     const i = [...clicks].map((p, idx) => p ? idx : -1).filter(x => x >= 0).pop();
     if (i == null) return;
     clicks[i] = null; active = i; refresh();
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.target.closest("input, select, textarea")) return;
+    if (ev.key === "z") document.getElementById("undo").click();
+    if (ev.key >= "1" && ev.key <= "4") { active = Number(ev.key) - 1; refresh(); }
   });
   document.getElementById("clear").addEventListener("click", () => {
     clicks = [null, null, null, null]; active = 0; refresh();
