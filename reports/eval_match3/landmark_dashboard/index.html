@@ -83,6 +83,26 @@ button.act:disabled { opacity: .4; cursor: not-allowed; }
 .status.err { color: #e07a7a; }
 .map-panel h2 { margin: 0 0 .2rem; font-size: 1.05rem; }
 .map-panel .hint { color: var(--muted); font-size: .88rem; line-height: 1.35; margin: 0 0 .45rem; }
+.map-key {
+  display: flex; flex-wrap: wrap; gap: .35rem .55rem; margin: 0 0 .55rem;
+  font-size: .78rem; color: var(--muted);
+}
+.map-key span {
+  display: inline-flex; align-items: center; gap: .28rem;
+  border: 1px solid var(--line); border-radius: 999px; padding: .18rem .45rem;
+  background: #141a14;
+}
+.map-key .swatch {
+  width: .7rem; height: .7rem; border-radius: 50%; display: inline-block;
+  border: 1.5px solid #111;
+}
+.map-key .swatch.yellow { background: var(--accent); }
+.map-key .swatch.grey { background: #c5d4c5; }
+.map-key .swatch.cam { background: #1e2c1e; border-color: var(--accent); }
+.map-orient {
+  margin: 0 0 .45rem; font-size: .9rem; font-weight: 700; color: var(--accent);
+  letter-spacing: .02em;
+}
 .map-plot { position: relative; }
 svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; border-radius: 6px; }
 #names { overflow: hidden; }
@@ -94,20 +114,31 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
   border: 2.5px solid var(--accent); border-radius: 4px;
   white-space: normal; max-width: 9.6rem; text-align: center;
 }
+.name-tag.active-tag {
+  border-width: 3.5px; box-shadow: 0 0 0 3px rgba(232, 197, 71, .35);
+  font-size: 22px;
+}
 .map-frame { display: flex; flex-direction: column; gap: .2rem; overflow: visible; }
-.map-row { display: flex; align-items: stretch; gap: .2rem; overflow: visible; }
+.map-row { display: flex; align-items: stretch; gap: .35rem; overflow: visible; }
 .map-plot { position: relative; flex: 1; min-width: 0; overflow: visible; }
 .compass-n, .compass-s {
-  text-align: center; color: var(--accent); font-size: 15px; font-weight: 800;
-  letter-spacing: .05em;
+  text-align: center; color: var(--accent); font-size: 18px; font-weight: 800;
+  letter-spacing: .06em; line-height: 1.15;
+}
+.compass-n small, .compass-s small {
+  display: block; font-size: .72rem; font-weight: 650; color: var(--muted);
+  letter-spacing: .04em; margin-top: .1rem;
 }
 .compass-w, .compass-e {
-  color: var(--accent); font-size: 14px; font-weight: 800; letter-spacing: .05em;
-  display: flex; align-items: center; justify-content: center;
-  width: 22px; flex: 0 0 22px; writing-mode: vertical-rl;
-  position: relative; z-index: 2;
+  color: var(--accent); font-size: 16px; font-weight: 800; letter-spacing: .05em;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 34px; flex: 0 0 34px; writing-mode: vertical-rl;
+  position: relative; z-index: 2; gap: .35rem;
 }
 .compass-w { transform: rotate(180deg); }
+.compass-w small, .compass-e small {
+  font-size: .68rem; font-weight: 650; color: var(--muted);
+}
 </style>
 </head>
 <body>
@@ -146,18 +177,24 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
     </section>
     <aside class="map-panel">
       <h2>Where on the pitch</h2>
-      <p class="hint">Yellow = next click. Defaults mark both sidelines. Grey dots = other points you can use. Goal box at both ends. Labels stay clear of the lines. P chips = camera positions. Left/right are from P1 looking north.</p>
+      <p class="map-orient" id="mapOrient" data-orient="p1-north">Looking north from P1 · left / right from that view</p>
+      <div class="map-key" id="mapKey" data-legend="1">
+        <span data-key="yellow"><i class="swatch yellow"></i>Next click</span>
+        <span data-key="grey"><i class="swatch grey"></i>Other points</span>
+        <span data-key="cam"><i class="swatch cam"></i>Cameras (P)</span>
+      </div>
+      <p class="hint">Click the yellow numbered spot on the photo. Labels stay off the lines. Goal boxes at both ends.</p>
       <div class="map-frame">
-        <div class="compass-n">NORTH · P6</div>
+        <div class="compass-n" data-compass="north">NORTH · P6<small>far goal</small></div>
         <div class="map-row">
-          <div class="compass-w">LEFT</div>
+          <div class="compass-w" data-compass="left">LEFT<small>P10 · P9</small></div>
           <div class="map-plot">
             <svg class="pitch" id="names" viewBox="-320 -230 1200 1340"></svg>
             <div id="nameLabels"></div>
           </div>
-          <div class="compass-e">RIGHT</div>
+          <div class="compass-e" data-compass="right">RIGHT<small>P7 · P8</small></div>
         </div>
-        <div class="compass-s">SOUTH · P1</div>
+        <div class="compass-s" data-compass="south">SOUTH · P1<small>near goal · you</small></div>
       </div>
     </aside>
   </div>
@@ -288,6 +325,33 @@ function drawPitchLines(svg) {
   box(36, 20.16, 52.5, -20.16, "north");
   penaltyArc(-41.5, -80, 80, x => x >= -36.05);
   penaltyArc(41.5, 100, 260, x => x <= 36.05);
+  const [ax0, ay0] = m2svg(-38, 0), [ax1, ay1] = m2svg(38, 0);
+  const arrow = document.createElementNS(ns, "line");
+  arrow.setAttribute("x1", ax0); arrow.setAttribute("y1", ay0);
+  arrow.setAttribute("x2", ax1); arrow.setAttribute("y2", ay1);
+  arrow.setAttribute("stroke", "#e8c547");
+  arrow.setAttribute("stroke-width", "3");
+  arrow.setAttribute("stroke-dasharray", "10 8");
+  arrow.setAttribute("opacity", "0.55");
+  arrow.setAttribute("data-look", "north");
+  arrow.setAttribute("vector-effect", "non-scaling-stroke");
+  g.appendChild(arrow);
+  const head = document.createElementNS(ns, "polygon");
+  head.setAttribute("points", `${ax1},${ay1 - 14} ${ax1 + 18},${ay1} ${ax1},${ay1 + 14}`);
+  head.setAttribute("fill", "#e8c547");
+  head.setAttribute("opacity", "0.7");
+  head.setAttribute("data-look", "north-head");
+  g.appendChild(head);
+  const look = document.createElementNS(ns, "text");
+  look.setAttribute("x", (ax0 + ax1) / 2 + 18);
+  look.setAttribute("y", ay0 - 16);
+  look.setAttribute("fill", "#e8c547");
+  look.setAttribute("font-size", "22");
+  look.setAttribute("font-weight", "800");
+  look.setAttribute("opacity", "0.85");
+  look.setAttribute("data-look-label", "1");
+  look.textContent = "looking north";
+  g.appendChild(look);
   svg.appendChild(g);
 }
 
@@ -660,16 +724,17 @@ function markLandmarks(svg, pts, labels) {
   });
   pts.forEach(({ i, p, lm }) => {
     const [x, y] = p;
-    const r = i === active ? 18 : 15;
+    const r = i === active ? 22 : 15;
     const c = document.createElementNS(ns, "circle");
     c.setAttribute("cx", x); c.setAttribute("cy", y);
     c.setAttribute("r", r);
     c.setAttribute("data-slot", String(i));
     c.setAttribute("data-name", lm.name);
+    c.setAttribute("data-active", i === active ? "1" : "0");
     c.classList.add("lm-dot");
     c.setAttribute("fill", clicks[i] ? "#6dbf7a" : "#e8c547");
     c.setAttribute("stroke", i === active ? "#fff" : "#111");
-    c.setAttribute("stroke-width", i === active ? 3 : 2);
+    c.setAttribute("stroke-width", i === active ? 4 : 2);
     c.setAttribute("vector-effect", "non-scaling-stroke");
     c.style.cursor = "pointer";
     c.addEventListener("click", () => { active = i; refresh(); });
@@ -693,11 +758,13 @@ function drawHtmlTags(labels) {
   box.innerHTML = "";
   labels.forEach((lab) => {
     const el = document.createElement("span");
-    el.className = lab.quiet ? "name-tag quiet" : "name-tag";
+    const on = lab.slot === active;
+    el.className = (lab.quiet ? "name-tag quiet" : "name-tag") + (on ? " active-tag" : "");
     el.textContent = lab.label;
     if (lab.name) el.dataset.name = lab.name;
     if (lab.slot != null) {
       el.dataset.slot = String(lab.slot);
+      el.dataset.active = on ? "1" : "0";
     }
     el.style.left = (lab.lx + pad_x) + "px";
     el.style.top = (lab.ly + pad_y) + "px";
