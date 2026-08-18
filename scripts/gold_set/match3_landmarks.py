@@ -146,10 +146,10 @@ def families():
     return {k: names for k in ORDERS}
 
 CAMS = [
-    {"id": "P10", "label": "P10 — South, both sidelines", "order": "both_sides_south"},
-    {"id": "P7", "label": "P7 — South, both sidelines", "order": "both_sides_south"},
-    {"id": "P9", "label": "P9 — toward goal, both sidelines", "order": "both_sides_north"},
-    {"id": "P8", "label": "P8 — North, both sidelines", "order": "both_sides_north"},
+    {"id": "P10", "label": "P10 — South left, both sidelines", "order": "both_sides_south"},
+    {"id": "P7", "label": "P7 — South right, both sidelines", "order": "both_sides_south"},
+    {"id": "P8", "label": "P8 — North left, both sidelines", "order": "both_sides_north"},
+    {"id": "P9", "label": "P9 — North right, toward goal", "order": "both_sides_north"},
     {"id": "P1", "label": "P1 — Goal close", "order": "goal_right"},
     {"id": "P6", "label": "P6 — North", "order": "goal_right"},
     {"id": "P_Goal1", "label": "P_Goal1 — Goal", "order": "goal_right"},

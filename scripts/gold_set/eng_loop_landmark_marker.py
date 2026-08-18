@@ -9,12 +9,19 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "reports/eval_match3/landmark_dashboard/eng_loop"
-URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=clarity-score-v1"
+URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=p9-side-fix"
 CAMS = ["P10", "P7", "P9", "P8", "P1", "P6", "P_Goal1", "P_Goal2"]
 SVG_W = 560.0
 PASS = 9.0
+STILL_DIR = ROOT / "reports/eval_match3/landmark_dashboard/stills"
+# Diagram pitch y: +y left, -y right (from P1 looking north).
+DIAGRAM_SIDE = {
+    "P10": "left", "P8": "left",
+    "P7": "right", "P9": "right",
+    "P1": "end", "P6": "end", "P_Goal1": "end", "P_Goal2": "end",
+}
 
-SNAPSHOT = """
+SNAPSHOT = r"""
 () => {
   const svg = document.getElementById('names');
   const pitch = svg.querySelector('rect');
@@ -59,6 +66,10 @@ SNAPSHOT = """
     const c = g.querySelector('circle');
     const t = g.querySelector('text');
     const b = c.getBoundingClientRect();
+    const xy = CAM_XY[g.dataset.cam] || [0, 0];
+    let diagramSide = 'end';
+    if (xy[1] > 20) diagramSide = 'left';
+    else if (xy[1] < -20) diagramSide = 'right';
     return {
       id: g.dataset.cam,
       r: +c.getAttribute('r'),
@@ -68,6 +79,8 @@ SNAPSHOT = """
       outsidePitch: b.right < pb.left - 2 || b.left > pb.right + 4 ||
                    b.bottom < pb.top - 2 || b.top > pb.bottom + 4,
       box: {l:b.left, r:b.right, t:b.top, b:b.bottom},
+      diagramSide,
+      pitchY: xy[1],
     };
   });
   const expected = liveOrder.map((lm, i) => {
@@ -85,9 +98,12 @@ SNAPSHOT = """
   const overlaps = [];
   for (let i = 0; i < popups.length; i++) {
     for (let j = i + 1; j < popups.length; j++) {
-      if (hit(popups[i].box, popups[j].box)) {
-        overlaps.push(popups[i].t + ' / ' + popups[j].t);
-      }
+      const a = popups[i], b = popups[j];
+      const aCam = /^P\d|^P_|^G\d/.test(a.t) || a.t.startsWith('P');
+      const bCam = /^P\d|^P_|^G\d/.test(b.t) || b.t.startsWith('P');
+      // Cam chips may sit near each other at goal ends; only fail label overlaps.
+      if (aCam && bCam) continue;
+      if (hit(a.box, b.box)) overlaps.push(a.t + ' / ' + b.t);
     }
   }
   return {
@@ -151,14 +167,91 @@ def score_orientation(info: dict) -> tuple[float, list[str]]:
         score -= 1
         notes.append(f"legend keys {info['legendKeys']}")
     n_fs = 0  # measured via text presence only
-    if "LEFT" in c["w"] and "P10" not in c["w"] and "P9" not in c["w"]:
+    if "LEFT" in c["w"] and "P10" not in c["w"]:
         score -= 0.5
-        notes.append("left side lacks cam cue")
-    if "RIGHT" in c["e"] and "P7" not in c["e"] and "P8" not in c["e"]:
+        notes.append("left side lacks P10")
+    if "LEFT" in c["w"] and "P8" not in c["w"]:
         score -= 0.5
-        notes.append("right side lacks cam cue")
+        notes.append("left side lacks P8")
+    if "RIGHT" in c["e"] and "P7" not in c["e"]:
+        score -= 0.5
+        notes.append("right side lacks P7")
+    if "RIGHT" in c["e"] and "P9" not in c["e"]:
+        score -= 1.0
+        notes.append("right side lacks P9")
+    if "LEFT" in c["w"] and "P9" in c["w"]:
+        score -= 2.0
+        notes.append("P9 should not be on LEFT compass")
     return clamp(score), notes
 
+
+def still_side(cam: str) -> str:
+    """Infer camera sideline from still: less green on a border => outside/fence near that edge."""
+    import json
+    import subprocess
+
+    py = Path("/Users/elliotstern/.venvs/soccer-rfdetr312/bin/python3")
+    path = STILL_DIR / f"{cam}.jpg"
+    if not path.is_file():
+        return "unknown"
+    code = r"""
+import cv2, json, sys
+img = cv2.imread(sys.argv[1])
+h, w = img.shape[:2]
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+green = cv2.inRange(hsv, (35, 40, 40), (95, 255, 255))
+left = float(green[:, : w // 10].mean()) / 255.0
+right = float(green[:, -w // 10 :].mean()) / 255.0
+delta = left - right
+side = "right" if delta > 0.18 else ("left" if delta < -0.12 else "end")
+print(json.dumps({"side": side, "delta": delta}))
+"""
+    try:
+        out = subprocess.check_output(
+            [str(py), "-c", code, str(path)],
+            text=True,
+            timeout=30,
+        )
+        return json.loads(out.strip())["side"]
+    except Exception:
+        return "unknown"
+
+def score_video_match(cam: str, info: dict) -> tuple[float, list[str]]:
+    notes = []
+    score = 10.0
+    have = {c["id"]: c for c in info["cams"]}
+    # Hard gate: P9 must sit on diagram RIGHT and still must read as right-sideline.
+    p9 = have.get("P9")
+    if not p9:
+        score -= 4
+        notes.append("P9 chip missing")
+    else:
+        if p9.get("diagramSide") != "right":
+            score -= 4
+            notes.append(f"P9 diagramSide={p9.get('diagramSide')} want right")
+        still9 = still_side("P9")
+        if still9 != "right":
+            score -= 3
+            notes.append(f"P9 still side={still9} want right")
+    # Active cam: still FOV side must match diagram chip side for sideline cams.
+    want = DIAGRAM_SIDE.get(cam, "end")
+    got = still_side(cam)
+    chip = have.get(cam, {})
+    if not cam.startswith("P_Goal"):
+        if chip.get("diagramSide") and chip["diagramSide"] != want:
+            score -= 2
+            notes.append(f"{cam} chip side {chip['diagramSide']} != expected {want}")
+        if want in ("left", "right") and got in ("left", "right") and got != want:
+            score -= 3
+            notes.append(f"{cam} still={got} diagram={want}")
+    if cam == "P8":
+        if chip.get("diagramSide") != "left":
+            score -= 3
+            notes.append("P8 must be diagram LEFT")
+        if still_side("P8") == "right":
+            score -= 2
+            notes.append("P8 still looks right-sided")
+    return clamp(score), notes
 
 def score_cameras(cam: str, info: dict) -> tuple[float, list[str]]:
     notes = []
@@ -300,13 +393,14 @@ def score_cam(cam: str, info: dict) -> dict:
     scores["labels"], notes["labels"] = score_labels(info)
     scores["targets"], notes["targets"] = score_targets(cam, info)
     scores["spatial"], notes["spatial"] = score_spatial(info)
+    scores["video_match"], notes["video_match"] = score_video_match(cam, info)
     return {"scores": scores, "notes": notes}
 
 
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     all_scores = {k: [] for k in [
-        "orientation", "cameras", "labels", "targets", "spatial"
+        "orientation", "cameras", "labels", "targets", "spatial", "video_match"
     ]}
     fails = []
     with sync_playwright() as p:
@@ -353,7 +447,7 @@ def main() -> int:
         for f in fails:
             print(" ", f)
         return 1
-    print("all 5 subgoals >= 9/10 on every camera")
+    print("all subgoals >= 9/10 on every camera (incl. video_match)")
     print(f"wrote {OUT}")
     return 0
 

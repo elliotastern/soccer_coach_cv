@@ -679,7 +679,7 @@
   "cams": [
     {
       "id": "P10",
-      "label": "P10 \u2014 South, both sidelines",
+      "label": "P10 \u2014 South left, both sidelines",
       "order": "both_sides_south",
       "still": "stills/P10.jpg",
       "image_wh": [
@@ -690,7 +690,7 @@
     },
     {
       "id": "P7",
-      "label": "P7 \u2014 South, both sidelines",
+      "label": "P7 \u2014 South right, both sidelines",
       "order": "both_sides_south",
       "still": "stills/P7.jpg",
       "image_wh": [
@@ -700,10 +700,10 @@
       "saved": true
     },
     {
-      "id": "P9",
-      "label": "P9 \u2014 toward goal, both sidelines",
+      "id": "P8",
+      "label": "P8 \u2014 North left, both sidelines",
       "order": "both_sides_north",
-      "still": "stills/P9.jpg",
+      "still": "stills/P8.jpg",
       "image_wh": [
         1920,
         1080
@@ -711,10 +711,10 @@
       "saved": false
     },
     {
-      "id": "P8",
-      "label": "P8 \u2014 North, both sidelines",
+      "id": "P9",
+      "label": "P9 \u2014 North right, toward goal",
       "order": "both_sides_north",
-      "still": "stills/P8.jpg",
+      "still": "stills/P9.jpg",
       "image_wh": [
         1920,
         1080

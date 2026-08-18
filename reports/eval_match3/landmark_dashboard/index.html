@@ -187,12 +187,12 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
       <div class="map-frame">
         <div class="compass-n" data-compass="north">NORTH · P6<small>far goal</small></div>
         <div class="map-row">
-          <div class="compass-w" data-compass="left">LEFT<small>P10 · P9</small></div>
+          <div class="compass-w" data-compass="left">LEFT<small>P10 · P8</small></div>
           <div class="map-plot">
             <svg class="pitch" id="names" viewBox="-320 -230 1200 1340"></svg>
             <div id="nameLabels"></div>
           </div>
-          <div class="compass-e" data-compass="right">RIGHT<small>P7 · P8</small></div>
+          <div class="compass-e" data-compass="right">RIGHT<small>P7 · P9</small></div>
         </div>
         <div class="compass-s" data-compass="south">SOUTH · P1<small>near goal · you</small></div>
       </div>
@@ -207,10 +207,11 @@ const CAM_XY = {
   P6: [72, 0],
   P10: [-34, 50],
   P7: [-34, -50],
-  P9: [34, 50],
-  P8: [34, -50],
-  P_Goal1: [-72, 22],
-  P_Goal2: [72, -22],
+  // P9 still has fence/outside on image-right → physical RIGHT sideline (not north-left).
+  P9: [28, -50],
+  P8: [28, 50],
+  P_Goal1: [-78, 36],
+  P_Goal2: [78, -36],
 };
 const DISPLAY = {
   halfway_near_touch: "Halfway Left Sideline",
