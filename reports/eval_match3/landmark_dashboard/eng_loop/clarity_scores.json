@@ -1,0 +1,18 @@
+{
+  "mins": {
+    "orientation": 10.0,
+    "cameras": 10.0,
+    "labels": 10.0,
+    "targets": 10.0,
+    "spatial": 10.0
+  },
+  "means": {
+    "orientation": 10.0,
+    "cameras": 10.0,
+    "labels": 10.0,
+    "targets": 10.0,
+    "spatial": 10.0
+  },
+  "pass": 9.0,
+  "fails": []
+}
