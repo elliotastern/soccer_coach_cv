@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Both goal boxes on the pitch; P9 still is the lengthwise camera."""
+"""Both goal boxes on the pitch; P9 uses P9-004 corner/goal FOV (user ref)."""
 from __future__ import annotations
 
 from match3_landmarks import (
@@ -34,11 +34,11 @@ def main() -> int:
         if n not in on_pitch:
             print("box point missing from pitch", n)
             return 1
-    if RAW_FILE["P9"].name != "P1-006.mp4":
-        print("P9 must use P1-006.mp4")
+    if RAW_FILE["P9"].name != "P9-004.mp4":
+        print("P9 must use P9-004.mp4 (user corner/goal ref)")
         return 1
-    if RAW_FILE["P1"].name != "P9-004.mp4":
-        print("P1 must use P9-004.mp4")
+    if RAW_FILE["P1"].name != "P1-006.mp4":
+        print("P1 must use P1-006.mp4")
         return 1
     fam = families()
     for key, names in fam.items():

@@ -14,13 +14,13 @@ DASH = ROOT / "reports/eval_match3/landmark_dashboard"
 STILL_DIR = DASH / "stills"
 CALIB_DIR = ROOT / "reports/eval_match3/match3_pitch_calib"
 MATCH3_RAW = ROOT / "data/raw/Match 3"
-# File prefixes were wrong for P1/P9: P9 is the lengthwise view in P1-006.mp4.
+# P9 = corner/goal FOV (goal on image-left); matches user ref + filename P9-004.
 RAW_FILE = {
-    "P1": MATCH3_RAW / "P9-004.mp4",
+    "P1": MATCH3_RAW / "P1-006.mp4",
     "P6": MATCH3_RAW / "P6-003.mp4",
     "P7": MATCH3_RAW / "P7-001.mp4",
     "P8": MATCH3_RAW / "p8-005.mp4",
-    "P9": MATCH3_RAW / "P1-006.mp4",
+    "P9": MATCH3_RAW / "P9-004.mp4",
     "P10": MATCH3_RAW / "P10-002.mp4",
     "P_Goal1": MATCH3_RAW / "P_Goal1-007.mp4",
     "P_Goal2": MATCH3_RAW / "P_Goal2-008.mp4",
@@ -149,8 +149,8 @@ CAMS = [
     {"id": "P10", "label": "P10 — South left, both sidelines", "order": "both_sides_south"},
     {"id": "P7", "label": "P7 — South right, both sidelines", "order": "both_sides_south"},
     {"id": "P8", "label": "P8 — North left, both sidelines", "order": "both_sides_north"},
-    {"id": "P9", "label": "P9 — North right, toward goal", "order": "both_sides_north"},
-    {"id": "P1", "label": "P1 — Goal close", "order": "goal_right"},
+    {"id": "P9", "label": "P9 — North right corner / goal", "order": "goal_right"},
+    {"id": "P1", "label": "P1 — South, lengthwise toward goal", "order": "both_sides_south"},
     {"id": "P6", "label": "P6 — North", "order": "goal_right"},
     {"id": "P_Goal1", "label": "P_Goal1 — Goal", "order": "goal_right"},
     {"id": "P_Goal2", "label": "P_Goal2 — Goal", "order": "goal_right"},

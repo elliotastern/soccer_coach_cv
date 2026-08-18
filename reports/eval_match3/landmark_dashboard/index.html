@@ -207,8 +207,8 @@ const CAM_XY = {
   P6: [72, 0],
   P10: [-34, 50],
   P7: [-34, -50],
-  // P9 still has fence/outside on image-right → physical RIGHT sideline (not north-left).
-  P9: [28, -50],
+  // P9 = north-right (corner/goal FOV). Chip mid-right so goal-box labels stay clear.
+  P9: [34, -58],
   P8: [28, 50],
   P_Goal1: [-78, 36],
   P_Goal2: [78, -36],
@@ -448,11 +448,12 @@ function labBox(lab) {
 
 function camObstacleBoxes(svg) {
   const sr = svg.getBoundingClientRect();
+  const pad = 14;
   return [...svg.querySelectorAll("[data-cam] circle")].map((c) => {
     const b = c.getBoundingClientRect();
     return {
-      l: b.left - sr.left, r: b.right - sr.left,
-      t: b.top - sr.top, b: b.bottom - sr.top,
+      l: b.left - sr.left - pad, r: b.right - sr.left + pad,
+      t: b.top - sr.top - pad, b: b.bottom - sr.top + pad,
     };
   });
 }
@@ -567,10 +568,10 @@ const LABEL_DIR = {
   left_post_near: [-0.55, 1.55],
   left_post_far: [0.55, 1.55],
   left_penalty_spot: [0.15, -1.45],
-  right_box_goal_near: [-1.35, -1.15],
-  right_box_goal_far: [1.35, -1.15],
-  right_box_18_near: [-1.6, 0.35],
-  right_box_18_far: [1.6, 0.35],
+  right_box_goal_near: [-1.55, -1.35],
+  right_box_goal_far: [1.9, -1.55],
+  right_box_18_near: [-1.75, 0.55],
+  right_box_18_far: [2.1, 0.85],
   right_post_near: [-0.55, -1.55],
   right_post_far: [0.55, -1.55],
   right_penalty_spot: [0.15, 1.45],
@@ -640,7 +641,7 @@ function placeNameLabelsPx(svg, pts) {
     if (hitsDotPx(cand, dots, skip_i == null ? -1 : skip_i)) return true;
     if (hitsPitchLinesPx(svg, cand, 8)) return true;
     const bb = labBox(cand);
-    if (cams.some(c => rectOverlap(bb, c, 8))) return true;
+    if (cams.some(c => rectOverlap(bb, c, 14))) return true;
     return false;
   }
 

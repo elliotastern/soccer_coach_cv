@@ -9,11 +9,12 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "reports/eval_match3/landmark_dashboard/eng_loop"
-URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=p9-side-fix"
+URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=p9-user-ref3"
 CAMS = ["P10", "P7", "P9", "P8", "P1", "P6", "P_Goal1", "P_Goal2"]
 SVG_W = 560.0
 PASS = 9.0
 STILL_DIR = ROOT / "reports/eval_match3/landmark_dashboard/stills"
+P9_REF = ROOT / "reports/eval_match3/landmark_dashboard/refs/P9_user_reference.png"
 # Diagram pitch y: +y left, -y right (from P1 looking north).
 DIAGRAM_SIDE = {
     "P10": "left", "P8": "left",
@@ -216,11 +217,46 @@ print(json.dumps({"side": side, "delta": delta}))
     except Exception:
         return "unknown"
 
+
+def p9_matches_user_ref() -> tuple[bool, float]:
+    """Corner/goal FOV: green-band heuristic is misleading; match user reference still."""
+    import subprocess
+
+    py = Path("/Users/elliotstern/.venvs/soccer-rfdetr312/bin/python3")
+    still = STILL_DIR / "P9.jpg"
+    if not still.is_file() or not P9_REF.is_file():
+        return False, 0.0
+    code = r"""
+import cv2, json, sys
+import numpy as np
+def feat(img):
+    w = 320
+    h = int(round(img.shape[0] * w / img.shape[1]))
+    small = cv2.resize(img, (w, h), interpolation=cv2.INTER_AREA)
+    hist = cv2.calcHist([small],[0,1,2], None, [8,8,8], [0,256,0,256,0,256]).flatten()
+    hist = hist / (hist.sum() + 1e-9)
+    return hist
+a = cv2.imread(sys.argv[1]); b = cv2.imread(sys.argv[2])
+corr = float(np.corrcoef(feat(a), feat(b))[0,1])
+print(json.dumps({"corr": corr}))
+"""
+    try:
+        out = subprocess.check_output(
+            [str(py), "-c", code, str(still), str(P9_REF)],
+            text=True,
+            timeout=30,
+        )
+        corr = float(json.loads(out.strip())["corr"])
+        return corr >= 0.85, corr
+    except Exception:
+        return False, 0.0
+
+
 def score_video_match(cam: str, info: dict) -> tuple[float, list[str]]:
     notes = []
     score = 10.0
     have = {c["id"]: c for c in info["cams"]}
-    # Hard gate: P9 must sit on diagram RIGHT and still must read as right-sideline.
+    # Hard gate: P9 on diagram RIGHT and still matches user corner/goal reference.
     p9 = have.get("P9")
     if not p9:
         score -= 4
@@ -229,15 +265,16 @@ def score_video_match(cam: str, info: dict) -> tuple[float, list[str]]:
         if p9.get("diagramSide") != "right":
             score -= 4
             notes.append(f"P9 diagramSide={p9.get('diagramSide')} want right")
-        still9 = still_side("P9")
-        if still9 != "right":
-            score -= 3
-            notes.append(f"P9 still side={still9} want right")
+        ok_ref, corr = p9_matches_user_ref()
+        if not ok_ref:
+            score -= 4
+            notes.append(f"P9 still≠user ref corr={corr:.3f}")
     # Active cam: still FOV side must match diagram chip side for sideline cams.
+    # P9 is a corner/goal FOV (goal on image-left) — skip green-band left/right gate.
     want = DIAGRAM_SIDE.get(cam, "end")
     got = still_side(cam)
     chip = have.get(cam, {})
-    if not cam.startswith("P_Goal"):
+    if not cam.startswith("P_Goal") and cam != "P9":
         if chip.get("diagramSide") and chip["diagramSide"] != want:
             score -= 2
             notes.append(f"{cam} chip side {chip['diagramSide']} != expected {want}")
