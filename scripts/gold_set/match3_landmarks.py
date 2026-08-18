@@ -13,6 +13,18 @@ ROOT = Path(__file__).resolve().parents[2]
 DASH = ROOT / "reports/eval_match3/landmark_dashboard"
 STILL_DIR = DASH / "stills"
 CALIB_DIR = ROOT / "reports/eval_match3/match3_pitch_calib"
+MATCH3_RAW = ROOT / "data/raw/Match 3"
+# File prefixes were wrong for P1/P9: P9 is the lengthwise view in P1-006.mp4.
+RAW_FILE = {
+    "P1": MATCH3_RAW / "P9-004.mp4",
+    "P6": MATCH3_RAW / "P6-003.mp4",
+    "P7": MATCH3_RAW / "P7-001.mp4",
+    "P8": MATCH3_RAW / "p8-005.mp4",
+    "P9": MATCH3_RAW / "P1-006.mp4",
+    "P10": MATCH3_RAW / "P10-002.mp4",
+    "P_Goal1": MATCH3_RAW / "P_Goal1-007.mp4",
+    "P_Goal2": MATCH3_RAW / "P_Goal2-008.mp4",
+}
 SRC = ROOT / "reports/eval_match3/pitchmap_gallery/source"
 STEM = "rand_t00627.9s"
 DETECT_W = 1920
@@ -32,13 +44,21 @@ DISPLAY = {
     "left_box_goal_near": "South Left Goal-Line Corner",
     "left_box_goal_far": "South Right Goal-Line Corner",
     "left_box_18_near": "South Left 18-Yard Corner",
+    "left_box_18_far": "South Right 18-Yard Corner",
+    "left_post_near": "South Left Goal Post",
+    "left_post_far": "South Right Goal Post",
     "left_penalty_spot": "South Penalty Spot",
     "right_box_goal_near": "North Left Goal-Line Corner",
     "right_box_goal_far": "North Right Goal-Line Corner",
     "right_box_18_near": "North Left 18-Yard Corner",
+    "right_box_18_far": "North Right 18-Yard Corner",
+    "right_post_near": "North Left Goal Post",
+    "right_post_far": "North Right Goal Post",
     "right_penalty_spot": "North Penalty Spot",
 }
 ORDER_TITLES = {
+    "both_sides_south": "South · both sidelines",
+    "both_sides_north": "North · both sidelines",
     "quad_near_left": "South Left Quarter",
     "quad_near_right": "North Left Quarter",
     "quad_far_left": "South Right Quarter",
@@ -47,6 +67,18 @@ ORDER_TITLES = {
     "goal_right": "North Goal Box",
 }
 ORDERS = {
+    "both_sides_south": [
+        ("halfway_near_touch", (0.0, PW / 2)),
+        ("halfway_far_touch", (0.0, -PW / 2)),
+        ("left_near_corner", (-PL / 2, PW / 2)),
+        ("left_far_corner", (-PL / 2, -PW / 2)),
+    ],
+    "both_sides_north": [
+        ("halfway_near_touch", (0.0, PW / 2)),
+        ("halfway_far_touch", (0.0, -PW / 2)),
+        ("right_near_corner", (PL / 2, PW / 2)),
+        ("right_far_corner", (PL / 2, -PW / 2)),
+    ],
     "quad_near_left": [
         ("halfway_near_touch", (0.0, PW / 2)),
         ("left_near_corner", (-PL / 2, PW / 2)),
@@ -75,25 +107,53 @@ ORDERS = {
         ("left_box_goal_near", (-PL / 2, PEN_HW)),
         ("left_box_goal_far", (-PL / 2, -PEN_HW)),
         ("left_box_18_near", (-PL / 2 + PEN_D, PEN_HW)),
-        ("left_penalty_spot", (-PL / 2 + PSPOT, 0.0)),
+        ("left_box_18_far", (-PL / 2 + PEN_D, -PEN_HW)),
     ],
     "goal_right": [
         ("right_box_goal_near", (PL / 2, PEN_HW)),
         ("right_box_goal_far", (PL / 2, -PEN_HW)),
         ("right_box_18_near", (PL / 2 - PEN_D, PEN_HW)),
-        ("right_penalty_spot", (PL / 2 - PSPOT, 0.0)),
+        ("right_box_18_far", (PL / 2 - PEN_D, -PEN_HW)),
     ],
 }
 
+EXTRA_XY = {
+    "left_box_18_far": (-PL / 2 + PEN_D, -PEN_HW),
+    "left_post_near": (-PL / 2, 3.66),
+    "left_post_far": (-PL / 2, -3.66),
+    "left_penalty_spot": (-PL / 2 + PSPOT, 0.0),
+    "right_box_18_far": (PL / 2 - PEN_D, -PEN_HW),
+    "right_post_near": (PL / 2, 3.66),
+    "right_post_far": (PL / 2, -3.66),
+    "right_penalty_spot": (PL / 2 - PSPOT, 0.0),
+}
+
+
+def all_landmarks():
+    out = {n: (float(x), float(y)) for n, (x, y) in EXTRA_XY.items()}
+    for pts in ORDERS.values():
+        for n, xy in pts:
+            out[n] = (float(xy[0]), float(xy[1]))
+    return out
+
+
+def on_pitch_names():
+    return list(all_landmarks())
+
+
+def families():
+    names = on_pitch_names()
+    return {k: names for k in ORDERS}
+
 CAMS = [
-    {"id": "P10", "label": "P10 — South Left Quarter", "order": "quad_near_left"},
-    {"id": "P7", "label": "P7 — South Right Quarter", "order": "quad_far_left"},
-    {"id": "P9", "label": "P9 — North Left Quarter", "order": "quad_near_right"},
-    {"id": "P8", "label": "P8 — North Right Quarter", "order": "quad_far_right"},
-    {"id": "P1", "label": "P1 — South Goal Box", "order": "goal_left"},
-    {"id": "P6", "label": "P6 — North Goal Box", "order": "goal_right"},
-    {"id": "P_Goal1", "label": "P_Goal1 — South Goal Box", "order": "goal_left"},
-    {"id": "P_Goal2", "label": "P_Goal2 — North Goal Box", "order": "goal_right"},
+    {"id": "P10", "label": "P10 — South, both sidelines", "order": "both_sides_south"},
+    {"id": "P7", "label": "P7 — South, both sidelines", "order": "both_sides_south"},
+    {"id": "P9", "label": "P9 — toward goal, both sidelines", "order": "both_sides_north"},
+    {"id": "P8", "label": "P8 — North, both sidelines", "order": "both_sides_north"},
+    {"id": "P1", "label": "P1 — Goal close", "order": "goal_right"},
+    {"id": "P6", "label": "P6 — North", "order": "goal_right"},
+    {"id": "P_Goal1", "label": "P_Goal1 — Goal", "order": "goal_right"},
+    {"id": "P_Goal2", "label": "P_Goal2 — Goal", "order": "goal_right"},
 ]
 
 
@@ -107,14 +167,14 @@ def resize_w(frame, width=DETECT_W):
 def extract_still(cam: str) -> Path:
     STILL_DIR.mkdir(parents=True, exist_ok=True)
     dest = STILL_DIR / f"{cam}.jpg"
-    src = SRC / f"{STEM}_{cam}.mp4"
+    src = RAW_FILE[cam]
     if not src.is_file():
         raise FileNotFoundError(src)
     cap = cv2.VideoCapture(str(src))
     if not cap.isOpened():
         raise RuntimeError(f"open failed {src}")
-    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 1)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, min(30, max(0, n // 4)))
+    fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, int(30.0 * fps))
     ok, fr = cap.read()
     cap.release()
     if not ok:
@@ -127,17 +187,30 @@ def extract_still(cam: str) -> Path:
 def write_manifest() -> Path:
     DASH.mkdir(parents=True, exist_ok=True)
     cams = []
+    allowed = set(on_pitch_names())
     for spec in CAMS:
         still = STILL_DIR / f"{spec['id']}.jpg"
         img = cv2.imread(str(still))
         h, w = (img.shape[0], img.shape[1]) if img is not None else (1080, 1920)
-        saved = (CALIB_DIR / f"{spec['id']}_manual.json").is_file()
+        calib = CALIB_DIR / f"{spec['id']}_manual.json"
+        saved = False
+        if calib.is_file():
+            rec = json.loads(calib.read_text(encoding="utf-8"))
+            names = rec.get("landmark_names") or []
+            saved = len(names) == 4 and all(n in allowed for n in names)
         cams.append({**spec, "still": f"stills/{spec['id']}.jpg", "image_wh": [w, h], "saved": saved})
+    catalog = all_landmarks()
     payload = {
         "title": "landmark_marker",
         "pitch_length_m": PL,
         "pitch_width_m": PW,
         "order_titles": ORDER_TITLES,
+        "landmarks": {
+            n: {"label": DISPLAY[n], "xy": [xy[0], xy[1]]}
+            for n, xy in catalog.items()
+        },
+        "families": families(),
+        "on_pitch": on_pitch_names(),
         "orders": {
             k: [
                 {"name": n, "label": DISPLAY[n], "xy": [x, y]}
@@ -188,16 +261,32 @@ def draw_overlay(img, H, clicks, names):
     return vis
 
 
-def save_clicks(cam: str, order_name: str, image_points: list) -> dict:
+def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=None) -> dict:
     if cam not in {c["id"] for c in CAMS}:
         raise ValueError(f"unknown cam {cam}")
-    if order_name not in ORDERS:
-        raise ValueError(f"unknown order {order_name}")
+    catalog = all_landmarks()
+    allowed = set(on_pitch_names())
+    if landmark_names:
+        names = [str(n) for n in landmark_names]
+        if len(names) != 4:
+            raise ValueError("need 4 landmarks")
+        if len(set(names)) != 4:
+            raise ValueError("need 4 different landmarks")
+        missing = [n for n in names if n not in catalog]
+        if missing:
+            raise ValueError(f"unknown landmarks {missing}")
+        off = [n for n in names if n not in allowed]
+        if off:
+            raise ValueError(f"not on this pitch {off}")
+        pitch_pts = [catalog[n] for n in names]
+    else:
+        if order_name not in ORDERS:
+            raise ValueError(f"unknown order {order_name}")
+        order = ORDERS[order_name]
+        names = [n for n, _ in order]
+        pitch_pts = [xy for _, xy in order]
     if len(image_points) != 4:
         raise ValueError("need 4 image points")
-    order = ORDERS[order_name]
-    names = [n for n, _ in order]
-    pitch_pts = [xy for _, xy in order]
     still = STILL_DIR / f"{cam}.jpg"
     img = cv2.imread(str(still))
     if img is None:

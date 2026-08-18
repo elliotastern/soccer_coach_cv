@@ -27,7 +27,7 @@ h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
 .cams button.saved .meta { color: var(--good); }
 .work {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(460px, 0.95fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(520px, 1.05fr);
   gap: 1rem;
   align-items: start;
 }
@@ -41,6 +41,15 @@ h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
 .task .n { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .task .what { font-size: 1.45rem; font-weight: 750; line-height: 1.15; margin: .12rem 0 .15rem; }
 .task .find { font-size: .92rem; line-height: 1.35; }
+.swaps { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; }
+.swaps .lab {
+  width: 100%; font-size: .7rem; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: #5a4a12;
+}
+.swaps button {
+  background: #fff8d6; border: 1px solid #1a1a12; color: #1a1a12;
+  border-radius: 6px; padding: .28rem .45rem; cursor: pointer; font-size: .8rem;
+}
 #stillWrap { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
 #still { width: 100%; display: block; cursor: crosshair; }
 #dots { position: absolute; inset: 0; pointer-events: none; }
@@ -77,21 +86,28 @@ button.act:disabled { opacity: .4; cursor: not-allowed; }
 .map-plot { position: relative; }
 svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; border-radius: 6px; }
 #names { overflow: hidden; }
-#nameLabels { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+#nameLabels { position: absolute; inset: -12px -72px; pointer-events: none; overflow: visible; }
 .name-tag {
   position: absolute; transform: translate(-50%, -50%);
-  font-size: 21px; font-weight: 750; line-height: 1.15;
-  padding: .28rem .5rem; background: #0e140e; color: #f7f4e8;
-  border: 2.5px solid var(--accent); border-radius: 4px; white-space: nowrap;
+  font-size: 20px; font-weight: 750; line-height: 1.15;
+  padding: .28rem .45rem; background: #0e140e; color: #f7f4e8;
+  border: 2.5px solid var(--accent); border-radius: 4px;
+  white-space: normal; max-width: 9.6rem; text-align: center;
 }
-.compass-n, .compass-s, .compass-w, .compass-e {
-  position: absolute; color: var(--accent); font-size: 16px; font-weight: 800;
-  letter-spacing: .04em; pointer-events: none;
+.map-frame { display: flex; flex-direction: column; gap: .2rem; overflow: visible; }
+.map-row { display: flex; align-items: stretch; gap: .2rem; overflow: visible; }
+.map-plot { position: relative; flex: 1; min-width: 0; overflow: visible; }
+.compass-n, .compass-s {
+  text-align: center; color: var(--accent); font-size: 15px; font-weight: 800;
+  letter-spacing: .05em;
 }
-.compass-n { left: 50%; top: 6px; transform: translateX(-50%); }
-.compass-s { left: 50%; bottom: 6px; transform: translateX(-50%); }
-.compass-w { left: 14px; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); }
-.compass-e { right: 14px; top: 50%; transform: translate(50%, -50%) rotate(90deg); }
+.compass-w, .compass-e {
+  color: var(--accent); font-size: 14px; font-weight: 800; letter-spacing: .05em;
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; flex: 0 0 22px; writing-mode: vertical-rl;
+  position: relative; z-index: 2;
+}
+.compass-w { transform: rotate(180deg); }
 </style>
 </head>
 <body>
@@ -109,6 +125,7 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
         <div class="n" id="taskN">Click 1 of 4</div>
         <div class="what" id="taskWhat">—</div>
         <div class="find" id="taskFind"></div>
+        <div class="swaps" id="swaps"></div>
       </div>
       <div id="stillWrap">
         <img id="still" alt="camera still"/>
@@ -129,16 +146,35 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
     </section>
     <aside class="map-panel">
       <h2>Where on the pitch</h2>
-      <p class="hint">Yellow = next click. Green = already marked. Left/right are from P1 looking north.</p>
-      <div class="map-plot">
-        <svg class="pitch" id="names" viewBox="-220 -100 1000 1120"></svg>
-        <div id="nameLabels"></div>
+      <p class="hint">Yellow = next click. Defaults mark both sidelines. Grey dots = other points you can use. Goal box at both ends. Labels stay clear of the lines. P chips = camera positions. Left/right are from P1 looking north.</p>
+      <div class="map-frame">
+        <div class="compass-n">NORTH · P6</div>
+        <div class="map-row">
+          <div class="compass-w">LEFT</div>
+          <div class="map-plot">
+            <svg class="pitch" id="names" viewBox="-320 -230 1200 1340"></svg>
+            <div id="nameLabels"></div>
+          </div>
+          <div class="compass-e">RIGHT</div>
+        </div>
+        <div class="compass-s">SOUTH · P1</div>
       </div>
     </aside>
   </div>
 </div>
 <script>
 const PL = 105, PW = 68, SVG_W = 560, SVG_H = 880;
+// Pitch meters: +x = north (P6), -x = south (P1); +y = left, -y = right from P1 looking north.
+const CAM_XY = {
+  P1: [-72, 0],
+  P6: [72, 0],
+  P10: [-34, 50],
+  P7: [-34, -50],
+  P9: [34, 50],
+  P8: [34, -50],
+  P_Goal1: [-72, 22],
+  P_Goal2: [72, -22],
+};
 const DISPLAY = {
   halfway_near_touch: "Halfway Left Sideline",
   halfway_far_touch: "Halfway Right Sideline",
@@ -152,13 +188,21 @@ const DISPLAY = {
   left_box_goal_near: "South Left Goal-Line Corner",
   left_box_goal_far: "South Right Goal-Line Corner",
   left_box_18_near: "South Left 18-Yard Corner",
+  left_box_18_far: "South Right 18-Yard Corner",
+  left_post_near: "South Left Goal Post",
+  left_post_far: "South Right Goal Post",
   left_penalty_spot: "South Penalty Spot",
   right_box_goal_near: "North Left Goal-Line Corner",
   right_box_goal_far: "North Right Goal-Line Corner",
   right_box_18_near: "North Left 18-Yard Corner",
+  right_box_18_far: "North Right 18-Yard Corner",
+  right_post_near: "North Left Goal Post",
+  right_post_far: "North Right Goal Post",
   right_penalty_spot: "North Penalty Spot",
 };
 const ORDER_TITLES = {
+  both_sides_south: "South · both sidelines",
+  both_sides_north: "North · both sidelines",
   quad_near_left: "South Left Quarter",
   quad_near_right: "North Left Quarter",
   quad_far_left: "South Right Quarter",
@@ -179,13 +223,19 @@ const FIND = {
   left_box_goal_near: "P1 goal line, left corner of the 18-yard box.",
   left_box_goal_far: "P1 goal line, right corner of the 18-yard box.",
   left_box_18_near: "P1 box, left corner of the 18-yard line (not the goal line).",
+  left_box_18_far: "P1 box, right corner of the 18-yard line (not the goal line).",
+  left_post_near: "Left goal post at P1’s end (P1’s left).",
+  left_post_far: "Right goal post at P1’s end (P1’s right).",
   left_penalty_spot: "Penalty mark in front of the P1 goal.",
   right_box_goal_near: "P6 goal line, left corner of the 18-yard box.",
   right_box_goal_far: "P6 goal line, right corner of the 18-yard box.",
   right_box_18_near: "P6 box, left corner of the 18-yard line (not the goal line).",
+  right_box_18_far: "P6 box, right corner of the 18-yard line (not the goal line).",
+  right_post_near: "Left goal post at P6’s end (P1’s left).",
+  right_post_far: "Right goal post at P6’s end (P1’s right).",
   right_penalty_spot: "Penalty mark in front of the P6 goal.",
 };
-let data = null, cam = null, clicks = [null, null, null, null], active = 0;
+let data = null, cam = null, liveOrder = [], clicks = [null, null, null, null], active = 0;
 
 function m2svg(x, y) {
   const sx = (PW / 2 - y) / PW * SVG_W;
@@ -213,23 +263,83 @@ function drawPitchLines(svg) {
   circ.setAttribute("cx", cx); circ.setAttribute("cy", cy);
   circ.setAttribute("r", 9.15 / PL * SVG_H);
   g.appendChild(circ);
-  function box(x0, y0, x1, y1) {
+  function box(x0, y0, x1, y1, end) {
     const [a, b] = m2svg(x0, y0), [c, d] = m2svg(x1, y1);
     const r = document.createElementNS(ns, "rect");
     r.setAttribute("x", Math.min(a, c)); r.setAttribute("y", Math.min(b, d));
     r.setAttribute("width", Math.abs(c - a)); r.setAttribute("height", Math.abs(d - b));
+    r.setAttribute("data-box", end);
     g.appendChild(r);
   }
-  box(-52.5, 20.16, -36, -20.16);
-  box(36, 20.16, 52.5, -20.16);
-  box(-52.5, 9.16, -47, -9.16);
-  box(47, 9.16, 52.5, -9.16);
+  function penaltyArc(spotX, deg0, deg1, keep) {
+    const arc = [];
+    const pr = 9.15;
+    for (let deg = deg0; deg <= deg1; deg += 3) {
+      const a = deg * Math.PI / 180;
+      const x = spotX + pr * Math.cos(a);
+      const y = pr * Math.sin(a);
+      if (keep(x)) arc.push(m2svg(x, y));
+    }
+    const poly = document.createElementNS(ns, "polyline");
+    poly.setAttribute("points", arc.map(p => p.join(",")).join(" "));
+    g.appendChild(poly);
+  }
+  box(-52.5, 20.16, -36, -20.16, "south");
+  box(36, 20.16, 52.5, -20.16, "north");
+  penaltyArc(-41.5, -80, 80, x => x >= -36.05);
+  penaltyArc(41.5, 100, 260, x => x <= 36.05);
   svg.appendChild(g);
 }
 
+function markCameras(svg) {
+  const ns = "http://www.w3.org/2000/svg";
+  const ids = (data.cams || []).map(c => c.id);
+  Object.keys(CAM_XY).forEach((id) => {
+    if (ids.length && !ids.includes(id)) return;
+    const [mx, my] = CAM_XY[id];
+    const [x, y] = m2svg(mx, my);
+    const on = id === cam;
+    const short = id.replace("P_Goal", "G");
+    const g = document.createElementNS(ns, "g");
+    g.setAttribute("data-cam", id);
+    g.style.cursor = "pointer";
+    const c = document.createElementNS(ns, "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y);
+    c.setAttribute("r", on ? 52 : 46);
+    c.setAttribute("fill", on ? "#e8c547" : "#1e2c1e");
+    c.setAttribute("stroke", on ? "#fff" : "#e8c547");
+    c.setAttribute("stroke-width", on ? "5" : "3.5");
+    c.setAttribute("vector-effect", "non-scaling-stroke");
+    const t = document.createElementNS(ns, "text");
+    t.setAttribute("x", x); t.setAttribute("y", y + 11);
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("font-size", short.length > 2 ? "28" : "32");
+    t.setAttribute("font-weight", "800");
+    t.setAttribute("fill", on ? "#111" : "#f4efd0");
+    t.setAttribute("data-cam-label", id);
+    t.style.pointerEvents = "none";
+    t.textContent = short;
+    g.appendChild(c);
+    g.appendChild(t);
+    g.addEventListener("click", () => selectCam(id));
+    svg.appendChild(g);
+  });
+}
+
 function currentOrder() {
+  return liveOrder;
+}
+
+function landmarkSpec(name) {
+  const rec = data.landmarks[name];
+  return { name, label: rec.label, xy: rec.xy };
+}
+
+function setLiveFromOrder() {
   const key = document.getElementById("order").value;
-  return data.orders[key];
+  liveOrder = data.orders[key].map(lm => ({
+    name: lm.name, label: lm.label, xy: lm.xy.slice(),
+  }));
 }
 
 function prettyName(lm) {
@@ -258,12 +368,105 @@ function overlaps(a, b) {
     Math.abs(a.ly - b.ly) < (a.th + b.th) / 2 + 10;
 }
 
-function hitsDotPx(lab, dots) {
-  const x0 = lab.lx - lab.tw / 2 - 16;
-  const x1 = lab.lx + lab.tw / 2 + 16;
-  const y0 = lab.ly - lab.th / 2 - 16;
-  const y1 = lab.ly + lab.th / 2 + 16;
-  return dots.some(([x, y]) => x > x0 && x < x1 && y > y0 && y < y1);
+function rectOverlap(a, b, pad) {
+  const p = pad || 0;
+  return a.l - p < b.r + p && a.r + p > b.l - p &&
+    a.t - p < b.b + p && a.b + p > b.t - p;
+}
+
+function labBox(lab) {
+  return {
+    l: lab.lx - lab.tw / 2, r: lab.lx + lab.tw / 2,
+    t: lab.ly - lab.th / 2, b: lab.ly + lab.th / 2,
+  };
+}
+
+function camObstacleBoxes(svg) {
+  const sr = svg.getBoundingClientRect();
+  return [...svg.querySelectorAll("[data-cam] circle")].map((c) => {
+    const b = c.getBoundingClientRect();
+    return {
+      l: b.left - sr.left, r: b.right - sr.left,
+      t: b.top - sr.top, b: b.bottom - sr.top,
+    };
+  });
+}
+
+function hitsDotPx(lab, dots, skip) {
+  const x0 = lab.lx - lab.tw / 2 - 10;
+  const x1 = lab.lx + lab.tw / 2 + 10;
+  const y0 = lab.ly - lab.th / 2 - 10;
+  const y1 = lab.ly + lab.th / 2 + 10;
+  return dots.some(([x, y], i) => i !== skip && x > x0 && x < x1 && y > y0 && y < y1);
+}
+
+function pitchLineSegsSvg() {
+  const segs = [
+    [0, 0, SVG_W, 0], [SVG_W, 0, SVG_W, SVG_H],
+    [SVG_W, SVG_H, 0, SVG_H], [0, SVG_H, 0, 0],
+    [0, SVG_H / 2, SVG_W, SVG_H / 2],
+  ];
+  const boxes = [
+    [-52.5, 20.16, -36, -20.16],
+    [36, 20.16, 52.5, -20.16],
+  ];
+  boxes.forEach(([x0, y0, x1, y1]) => {
+    const [a, b] = m2svg(x0, y0), [c, d] = m2svg(x1, y1);
+    const xL = Math.min(a, c), xR = Math.max(a, c);
+    const yT = Math.min(b, d), yB = Math.max(b, d);
+    segs.push([xL, yT, xR, yT], [xR, yT, xR, yB], [xR, yB, xL, yB], [xL, yB, xL, yT]);
+  });
+  const [cx, cy] = m2svg(0, 0);
+  const r = 9.15 / PL * SVG_H;
+  for (let i = 0; i < 24; i++) {
+    const a0 = (i / 24) * Math.PI * 2, a1 = ((i + 1) / 24) * Math.PI * 2;
+    segs.push([cx + r * Math.cos(a0), cy + r * Math.sin(a0),
+               cx + r * Math.cos(a1), cy + r * Math.sin(a1)]);
+  }
+  return segs;
+}
+
+function distPointSeg(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len2 = dx * dx + dy * dy || 1;
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+function segHitsRect(x1, y1, x2, y2, x0, y0, x3, y3, pad) {
+  const l = x0 - pad, r = x3 + pad, t = y0 - pad, b = y3 + pad;
+  const inside = (px, py) => px >= l && px <= r && py >= t && py <= b;
+  if (inside(x1, y1) || inside(x2, y2)) return true;
+  const edges = [[l, t, r, t], [r, t, r, b], [r, b, l, b], [l, b, l, t]];
+  for (const [ex1, ey1, ex2, ey2] of edges) {
+    const d1 = (x2 - x1), d2 = (y2 - y1), d3 = (ex2 - ex1), d4 = (ey2 - ey1);
+    const den = d1 * d4 - d2 * d3;
+    if (Math.abs(den) < 1e-9) continue;
+    const t = ((ex1 - x1) * d4 - (ey1 - y1) * d3) / den;
+    const u = ((ex1 - x1) * d2 - (ey1 - y1) * d1) / den;
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) return true;
+  }
+  return cornersNearSeg(x1, y1, x2, y2, x0, y0, x3, y3, pad);
+}
+
+function cornersNearSeg(x1, y1, x2, y2, x0, y0, x3, y3, pad) {
+  return [[x0, y0], [x3, y0], [x0, y3], [x3, y3]].some(
+    ([px, py]) => distPointSeg(px, py, x1, y1, x2, y2) < pad
+  );
+}
+
+function hitsPitchLinesPx(svg, lab, pad) {
+  const segs = pitchLineSegsSvg().map(([x1, y1, x2, y2]) => {
+    const [a, b] = svgToPx(svg, x1, y1);
+    const [c, d] = svgToPx(svg, x2, y2);
+    return [a, b, c, d];
+  });
+  const x0 = lab.lx - lab.tw / 2, x1 = lab.lx + lab.tw / 2;
+  const y0 = lab.ly - lab.th / 2, y1 = lab.ly + lab.th / 2;
+  return segs.some(([sx1, sy1, sx2, sy2]) =>
+    segHitsRect(sx1, sy1, sx2, sy2, x0, y0, x1, y1, pad)
+  );
 }
 
 function svgToPx(svg, x, y) {
@@ -283,23 +486,29 @@ function pxToSvg(svg, x, y) {
 }
 
 const LABEL_DIR = {
-  halfway_near_touch: [0.9, -1.35],
-  halfway_far_touch: [-0.9, -1.35],
-  left_near_corner: [-0.95, 1.15],
-  right_near_corner: [-0.95, -1.15],
-  left_far_corner: [0.95, 1.15],
-  right_far_corner: [0.95, -1.15],
-  center: [1.85, -0.15],
-  circle_near: [0.15, 1.85],
-  circle_far: [-0.15, 1.85],
-  left_box_goal_near: [-1.2, -0.95],
-  left_box_goal_far: [1.2, -0.95],
-  left_box_18_near: [1.55, 0.2],
-  left_penalty_spot: [1.75, -1.05],
-  right_box_goal_near: [-1.2, 0.95],
-  right_box_goal_far: [1.2, 0.95],
-  right_box_18_near: [1.55, -0.2],
-  right_penalty_spot: [1.6, 0.7],
+  halfway_near_touch: [-1.35, 0.2],
+  halfway_far_touch: [1.35, 0.2],
+  left_near_corner: [-1.15, 1.15],
+  right_near_corner: [-1.15, -1.15],
+  left_far_corner: [1.15, 1.15],
+  right_far_corner: [1.15, -1.15],
+  center: [1.7, 1.1],
+  circle_near: [-0.2, 1.7],
+  circle_far: [0.2, 1.7],
+  left_box_goal_near: [-1.35, 1.15],
+  left_box_goal_far: [1.35, 1.15],
+  left_box_18_near: [-1.6, -0.35],
+  left_box_18_far: [1.6, -0.35],
+  left_post_near: [-0.55, 1.55],
+  left_post_far: [0.55, 1.55],
+  left_penalty_spot: [0.15, -1.45],
+  right_box_goal_near: [-1.35, -1.15],
+  right_box_goal_far: [1.35, -1.15],
+  right_box_18_near: [-1.6, 0.35],
+  right_box_18_far: [1.6, 0.35],
+  right_post_near: [-0.55, -1.55],
+  right_post_far: [0.55, -1.55],
+  right_penalty_spot: [0.15, 1.45],
 };
 
 const DIR_TRIES = [
@@ -308,59 +517,131 @@ const DIR_TRIES = [
   [0.4, 1.6], [0.4, -1.6], [-0.4, 1.6], [-0.4, -1.6],
 ];
 
-function clusterBounds(pts) {
-  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-  pts.forEach(({ p }) => {
-    x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]);
-    x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]);
-  });
-  return { x0, y0, x1, y1 };
+function fitPitchView(svg) {
+  svg.setAttribute("viewBox", "-320 -230 1200 1340");
 }
 
-function fitNamesView(svg, pts) {
-  const c = clusterBounds(pts);
-  let w = c.x1 - c.x0, h = c.y1 - c.y0;
-  const minW = 400, minH = 340;
-  if (w < minW) {
-    const m = (minW - w) / 2;
-    c.x0 -= m; c.x1 += m; w = minW;
-  }
-  if (h < minH) {
-    const m = (minH - h) / 2;
-    c.y0 -= m; c.y1 += m; h = minH;
-  }
-  const pad = 70;
-  svg.setAttribute("viewBox", `${c.x0 - pad} ${c.y0 - pad} ${w + pad * 2} ${h + pad * 2}`);
+function onPitchSpecs() {
+  const names = data.on_pitch || Object.keys(data.landmarks);
+  return names.map(landmarkSpec);
+}
+
+function markCatalog(svg) {
+  const ns = "http://www.w3.org/2000/svg";
+  const used = new Set(liveOrder.map(lm => lm.name));
+  onPitchSpecs().forEach((lm) => {
+    if (used.has(lm.name)) return;
+    const [x, y] = m2svg(lm.xy[0], lm.xy[1]);
+    const c = document.createElementNS(ns, "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y);
+    c.setAttribute("r", "10");
+    c.setAttribute("fill", "#c5d4c5");
+    c.setAttribute("stroke", "#e8c547");
+    c.setAttribute("stroke-width", "1.6");
+    c.setAttribute("data-extra", lm.name);
+    c.setAttribute("vector-effect", "non-scaling-stroke");
+    c.style.cursor = "pointer";
+    const tip = document.createElementNS(ns, "title");
+    tip.textContent = prettyName(lm);
+    c.appendChild(tip);
+    c.addEventListener("click", () => swapActive(lm.name));
+    svg.appendChild(c);
+  });
+}
+
+function outsidePitchPx(svg, lab, gap) {
+  const [tlx, tly] = svgToPx(svg, 0, 0);
+  const [brx, bry] = svgToPx(svg, SVG_W, SVG_H);
+  const x0 = lab.lx - lab.tw / 2, x1 = lab.lx + lab.tw / 2;
+  const y0 = lab.ly - lab.th / 2, y1 = lab.ly + lab.th / 2;
+  return x1 < tlx - gap || x0 > brx + gap || y1 < tly - gap || y0 > bry + gap;
 }
 
 function placeNameLabelsPx(svg, pts) {
   const box = svg.getBoundingClientRect();
+  const pad_x = 72, pad_y = 12;
   const dots = pts.map(({ p }) => svgToPx(svg, p[0], p[1]));
-  const xmin = 36, xmax = box.width - 36, ymin = 28, ymax = box.height - 28;
+  const cams = camObstacleBoxes(svg);
   const placed = [];
+  const dirs_extra = [
+    [0, -1.8], [0, 1.8], [1.8, 0], [-1.8, 0],
+    [1.4, 1.4], [1.4, -1.4], [-1.4, 1.4], [-1.4, -1.4],
+    [0.7, 2], [0.7, -2], [-0.7, 2], [-0.7, -2],
+    [2, 0.7], [2, -0.7], [-2, 0.7], [-2, -0.7],
+  ];
+
+  function blocked(cand, skip_i) {
+    if (placed.some((p0, j) => j !== skip_i && overlaps(p0, cand))) return true;
+    if (hitsDotPx(cand, dots, skip_i == null ? -1 : skip_i)) return true;
+    if (hitsPitchLinesPx(svg, cand, 8)) return true;
+    const bb = labBox(cand);
+    if (cams.some(c => rectOverlap(bb, c, 8))) return true;
+    return false;
+  }
+
   pts.forEach(({ lm, i }, idx) => {
     const [x, y] = dots[idx];
     const label = `${i + 1}  ${prettyName(lm)}`;
     const [tw, th] = measureTag(label);
-    const dirs = [LABEL_DIR[lm.name] || [1, 0], ...DIR_TRIES];
+    const xmin = tw / 2 + 4 - pad_x, xmax = box.width - tw / 2 - 4 + pad_x;
+    const ymin = th / 2 + 4 - pad_y, ymax = box.height - th / 2 - 4 + pad_y;
+    const dirs = [LABEL_DIR[lm.name] || [1, 0], ...DIR_TRIES, ...dirs_extra];
     let chosen = null;
-    dirs.some((dir) => {
-      const len = Math.hypot(dir[0], dir[1]) || 1;
-      for (let dist = 56; dist <= 170; dist += 18) {
-        let lx = x + (dir[0] / len) * dist;
-        let ly = y + (dir[1] / len) * dist;
-        lx = Math.min(xmax - tw / 2, Math.max(xmin + tw / 2, lx));
-        ly = Math.min(ymax - th / 2, Math.max(ymin + th / 2, ly));
-        const cand = { lx, ly, tw, th, label };
-        if (!placed.some(p0 => overlaps(p0, cand)) && !hitsDotPx(cand, dots)) {
+    const start = Math.max(90, Math.round(Math.max(tw, th) / 2 + 40));
+    function try_place(require_out) {
+      return dirs.some((dir) => {
+        const len = Math.hypot(dir[0], dir[1]) || 1;
+        for (let dist = start; dist <= start + 340; dist += 8) {
+          let lx = x + (dir[0] / len) * dist;
+          let ly = y + (dir[1] / len) * dist;
+          lx = Math.min(xmax, Math.max(xmin, lx));
+          ly = Math.min(ymax, Math.max(ymin, ly));
+          const cand = { lx, ly, tw, th, label, slot: i, name: lm.name };
+          if (blocked(cand, idx)) continue;
+          if (require_out && !outsidePitchPx(svg, cand, 8)) continue;
           chosen = cand;
           return true;
         }
-      }
-      return false;
-    });
-    placed.push(chosen || { lx: x + 70, ly: y + 48, tw, th, label });
+        return false;
+      });
+    }
+    try_place(true);
+    if (!chosen) try_place(false);
+    placed.push(chosen || { lx: x + 100, ly: y - 60, tw, th, label, slot: i, name: lm.name });
   });
+
+  // Separation loop: nudge any remaining overlaps off each other / cams.
+  for (let round = 0; round < 24; round++) {
+    let moved = false;
+    for (let i = 0; i < placed.length; i++) {
+      const lab = placed[i];
+      const hit_cam = cams.some(c => rectOverlap(labBox(lab), c, 8));
+      const hit_lab = placed.some((p0, j) => j !== i && overlaps(lab, p0));
+      if (!hit_cam && !hit_lab) continue;
+      const [dx, dy] = dots[i];
+      const dirs = [[0, -1], [0, 1], [1, 0], [-1, 0], [1, -1], [-1, -1], [1, 1], [-1, 1]];
+      let fixed = false;
+      for (const [ux, uy] of dirs) {
+        for (let step = 12; step <= 160; step += 12) {
+          const cand = {
+            ...lab,
+            lx: Math.min(box.width - lab.tw / 2 + pad_x,
+              Math.max(lab.tw / 2 - pad_x, lab.lx + ux * step)),
+            ly: Math.min(box.height - lab.th / 2 + pad_y,
+              Math.max(lab.th / 2 - pad_y, lab.ly + uy * step)),
+          };
+          if (blocked(cand, i)) continue;
+          if (hitsPitchLinesPx(svg, cand, 8)) continue;
+          placed[i] = cand;
+          fixed = true;
+          moved = true;
+          break;
+        }
+        if (fixed) break;
+      }
+    }
+    if (!moved) break;
+  }
   return placed;
 }
 
@@ -377,12 +658,15 @@ function markLandmarks(svg, pts, labels) {
     line.setAttribute("vector-effect", "non-scaling-stroke");
     svg.appendChild(line);
   });
-  pts.forEach(({ i, p }) => {
+  pts.forEach(({ i, p, lm }) => {
     const [x, y] = p;
-    const r = i === active ? 13 : 11;
+    const r = i === active ? 18 : 15;
     const c = document.createElementNS(ns, "circle");
     c.setAttribute("cx", x); c.setAttribute("cy", y);
     c.setAttribute("r", r);
+    c.setAttribute("data-slot", String(i));
+    c.setAttribute("data-name", lm.name);
+    c.classList.add("lm-dot");
     c.setAttribute("fill", clicks[i] ? "#6dbf7a" : "#e8c547");
     c.setAttribute("stroke", i === active ? "#fff" : "#111");
     c.setAttribute("stroke-width", i === active ? 3 : 2);
@@ -403,36 +687,20 @@ function markLandmarks(svg, pts, labels) {
   });
 }
 
-function visibleCompass(svg) {
-  const vb = svg.viewBox.baseVal;
-  const x0 = vb.x, x1 = vb.x + vb.width, y0 = vb.y, y1 = vb.y + vb.height;
-  const tags = [];
-  if (y0 <= 24) tags.push(["compass-n", "NORTH · P6"]);
-  if (y1 >= SVG_H - 24) tags.push(["compass-s", "SOUTH · P1"]);
-  if (x0 <= 24) tags.push(["compass-w", "LEFT"]);
-  if (x1 >= SVG_W - 24) tags.push(["compass-e", "RIGHT"]);
-  return tags;
-}
-
-function drawCompass(svg) {
-  const box = document.getElementById("nameLabels");
-  visibleCompass(svg).forEach(([cls, text]) => {
-    const el = document.createElement("div");
-    el.className = cls;
-    el.textContent = text;
-    box.appendChild(el);
-  });
-}
-
 function drawHtmlTags(labels) {
   const box = document.getElementById("nameLabels");
+  const pad_x = 72, pad_y = 12;
   box.innerHTML = "";
   labels.forEach((lab) => {
     const el = document.createElement("span");
-    el.className = "name-tag";
+    el.className = lab.quiet ? "name-tag quiet" : "name-tag";
     el.textContent = lab.label;
-    el.style.left = lab.lx + "px";
-    el.style.top = lab.ly + "px";
+    if (lab.name) el.dataset.name = lab.name;
+    if (lab.slot != null) {
+      el.dataset.slot = String(lab.slot);
+    }
+    el.style.left = (lab.lx + pad_x) + "px";
+    el.style.top = (lab.ly + pad_y) + "px";
     box.appendChild(el);
   });
 }
@@ -442,13 +710,14 @@ function renderNames() {
   svg.innerHTML = "";
   document.getElementById("nameLabels").innerHTML = "";
   drawPitchLines(svg);
-  const pts = currentOrder().map((lm, i) => ({ lm, i, p: m2svg(lm.xy[0], lm.xy[1]) }));
-  fitNamesView(svg, pts);
+  fitPitchView(svg);
   svg.getBoundingClientRect();
+  markCameras(svg);
+  markCatalog(svg);
+  const pts = currentOrder().map((lm, i) => ({ lm, i, p: m2svg(lm.xy[0], lm.xy[1]) }));
   const labels = placeNameLabelsPx(svg, pts);
   markLandmarks(svg, pts, labels);
   drawHtmlTags(labels);
-  drawCompass(svg);
 }
 
 function renderDots() {
@@ -492,6 +761,34 @@ function renderSteps() {
 
 function nReady() { return clicks.filter(Boolean).length; }
 
+function swapActive(name) {
+  liveOrder[active] = landmarkSpec(name);
+  clicks[active] = null;
+  refresh();
+}
+
+function renderSwaps() {
+  const box = document.getElementById("swaps");
+  box.innerHTML = "";
+  if (nReady() === 4) return;
+  const used = new Set(liveOrder.map(lm => lm.name));
+  const key = document.getElementById("order").value;
+  const fam = (data.families && data.families[key]) || [];
+  const opts = fam.filter(n => !used.has(n));
+  if (!opts.length) return;
+  const lab = document.createElement("div");
+  lab.className = "lab";
+  lab.textContent = "Not in the photo? Swap this point";
+  box.appendChild(lab);
+  opts.forEach(n => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = prettyName({ name: n });
+    b.addEventListener("click", () => swapActive(n));
+    box.appendChild(b);
+  });
+}
+
 function refresh() {
   const spec = data.cams.find(c => c.id === cam);
   const order = currentOrder();
@@ -512,12 +809,14 @@ function refresh() {
   renderNames();
   renderSteps();
   renderDots();
+  renderSwaps();
 }
 
 function selectCam(id) {
   cam = id;
   const spec = data.cams.find(c => c.id === cam);
   document.getElementById("order").value = spec.order;
+  setLiveFromOrder();
   clicks = [null, null, null, null];
   active = 0;
   document.getElementById("still").src = spec.still + "?t=" + Date.now();
@@ -530,7 +829,14 @@ function selectCam(id) {
     .then(r => r.ok ? r.json() : null)
     .then(j => {
       if (!j || j.camera !== id) return;
+      const allowed = new Set(data.on_pitch || []);
+      const names = j.landmark_names || [];
+      if (names.length && names.some(n => !allowed.has(n))) return;
       document.getElementById("order").value = j.order;
+      setLiveFromOrder();
+      if (names.length) {
+        liveOrder = names.map(landmarkSpec);
+      }
       clicks = j.image_points.map(p => [p[0], p[1]]);
       active = 0;
       refresh();
@@ -556,6 +862,7 @@ async function save() {
   const body = {
     camera: cam,
     order: document.getElementById("order").value,
+    landmarks: liveOrder.map(lm => lm.name),
     image_points: clicks,
   };
   const r = await fetch("/save_match3_landmark", {
@@ -589,7 +896,7 @@ function renderNav() {
   });
 }
 
-fetch("cams.json?v=names-html21b").then(r => r.json()).then(j => {
+fetch("cams.json?v=outward-names").then(r => r.json()).then(j => {
   data = j;
   const sel = document.getElementById("order");
   Object.keys(data.orders).forEach(k => {
@@ -597,7 +904,12 @@ fetch("cams.json?v=names-html21b").then(r => r.json()).then(j => {
     o.value = k; o.textContent = orderTitle(k);
     sel.appendChild(o);
   });
-  sel.addEventListener("change", () => { clicks = [null, null, null, null]; active = 0; refresh(); });
+  sel.addEventListener("change", () => {
+    setLiveFromOrder();
+    clicks = [null, null, null, null];
+    active = 0;
+    refresh();
+  });
   document.getElementById("still").addEventListener("click", onStillClick);
   document.getElementById("still").addEventListener("load", () => { renderDots(); refresh(); });
   window.addEventListener("resize", renderDots);

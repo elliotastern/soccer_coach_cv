@@ -553,6 +553,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     str(data['camera']),
                     str(data['order']),
                     data['image_points'],
+                    landmark_names=data.get('landmarks'),
                 )
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
