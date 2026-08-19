@@ -162,7 +162,7 @@ def gallery_entry(clip: dict, out: Path, mp4: Path) -> dict:
         "id": clip["id"],
         "label": clip["label"],
         "clock": clip["clock"],
-        "url": f"/{rel.as_posix()}/{mp4_abs.name}?v=fpost",
+        "url": f"/{rel.as_posix()}/{mp4_abs.name}?v=fpost10",
         "page": f"/{rel.as_posix()}/",
         "n_frames": extra.get("n_frames"),
         "n_emit": extra.get("n_emit"),

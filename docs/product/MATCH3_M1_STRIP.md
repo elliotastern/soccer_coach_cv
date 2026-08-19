@@ -30,7 +30,8 @@ Winner: **F1+F2+F0+F3**. Product clear-R uses F0/carry when caches are stride-2.
 
 **Ratings (eng-loop):** product_goals **10/10**, product_post **10/10** (human gallery review previously 8.5; loop evidence now ≥9).
 
-**Galleries:** random + quad video|pitch re-rendered with F0–F3 (`?v=fpost`).
+**Galleries:** random + quad video|pitch re-rendered with F0–F3 (`?v=fpost10` / `?v=fpost`).
+Random five: http://127.0.0.1:8080/reports/eval_match3/pitchmap_gallery/ (emit 63/55/27/6/55).
 
 Gold pitch `(x, y)` = P10 bbox foot mapped through `P10_manual.json` (Pitch 1 meters).
 
