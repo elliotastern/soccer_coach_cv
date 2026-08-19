@@ -75,6 +75,51 @@ def apply_H(H: np.ndarray, x: float, y: float) -> tuple[float, float] | None:
     return float(v[0] / v[2]), float(v[1] / v[2])
 
 
+def calib_undistort_params(calib: dict) -> dict | None:
+    """Brown undistort locked with landmarks (P7–P10). None = raw H path."""
+    u = calib.get("undistort")
+    if not u:
+        return None
+    return {
+        "k1": float(u.get("k1", 0.0)),
+        "k2": float(u.get("k2", 0.0)),
+        "p1": float(u.get("p1", 0.0)),
+        "p2": float(u.get("p2", 0.0)),
+        "alpha": float(u.get("alpha", 0.5)),
+    }
+
+
+def undistort_px(x: float, y: float, w: float, h: float, params: dict) -> tuple[float, float]:
+    """Same Brown recipe as match3_landmarks stills (getOptimalNewCameraMatrix + undistort)."""
+    w_i, h_i = int(round(w)), int(round(h))
+    if w_i < 2 or h_i < 2:
+        return float(x), float(y)
+    k_mat = np.array(
+        [[w_i, 0.0, w_i / 2.0], [0.0, w_i, h_i / 2.0], [0.0, 0.0, 1.0]],
+        dtype=np.float64,
+    )
+    dist = np.array(
+        [
+            float(params["k1"]),
+            float(params["k2"]),
+            float(params["p1"]),
+            float(params["p2"]),
+            0.0,
+        ],
+        dtype=np.float64,
+    )
+    new_k, _ = cv2.getOptimalNewCameraMatrix(
+        k_mat, dist, (w_i, h_i), float(params["alpha"]), (w_i, h_i)
+    )
+    pts = cv2.undistortPoints(
+        np.array([[[float(x), float(y)]]], dtype=np.float64),
+        k_mat,
+        dist,
+        P=new_k,
+    )
+    return float(pts[0, 0, 0]), float(pts[0, 0, 1])
+
+
 def hull_support(px: float, py: float, image_points: list) -> float:
     pts = np.asarray(image_points, dtype=np.float32)
     if len(pts) < 3:
@@ -102,10 +147,27 @@ def hull_points(calib: dict) -> list:
     return list(calib.get("image_points") or [])
 
 
-def map_ball_box(calib: dict, box, conf: float, frame_wh=None) -> dict | None:
+def map_ball_box(
+    calib: dict,
+    box,
+    conf: float,
+    frame_wh=None,
+    *,
+    apply_undistort: bool | None = None,
+) -> dict | None:
+    """Map detection box foot to Pitch 1 meters.
+
+    If calib has ``undistort`` (defished landmark H), raw detection pixels are
+    undistorted with the same Brown params before H / hull support.
+    """
     wh = frame_wh or calib.get("image_wh") or [1920, 1080]
     fx, fy = bbox_foot(box)
     px, py = scale_px(fx, fy, wh, calib.get("image_wh") or wh)
+    params = calib_undistort_params(calib)
+    use_u = bool(params) if apply_undistort is None else bool(apply_undistort and params)
+    if use_u:
+        cw, ch = calib.get("image_wh") or wh
+        px, py = undistort_px(px, py, cw, ch, params)
     xy = apply_H(calib["H"], px, py)
     if xy is None:
         return None

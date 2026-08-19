@@ -40,4 +40,6 @@ python3 serve_viewer.py
 
 Open http://127.0.0.1:8080/match3-fisheye — saves `reports/eval_match3/fisheye_dashboard/tags.json` (does not change H until a later undistort pass).
 
-Product candidates (`tag=fisheye`, `use_undistort=true`): **P7** (`k1=-0.30`, `k2=-0.08`, `α=0.80`), **P8** (`k1=-0.30`, `α=0.80`), **P9** (`k1=-0.40`, `α=0.80`), **P10** (`k1=-0.32`, `α=0.80`). Brown `cv2.undistort` only. Next: re-click landmarks / re-fit H on **undistorted** stills for those cams (current H is on raw frames).
+Product candidates (`tag=fisheye`, `use_undistort=true`): **P7** (`k1=-0.30`, `k2=-0.08`, `α=0.80`), **P8** (`k1=-0.30`, `α=0.80`), **P9** (`k1=-0.40`, `α=0.80`), **P10** (`k1=-0.32`, `α=0.80`). Brown `cv2.undistort` only.
+
+Landmarks / H for those cams are on **defished** stills. Product map (`src/mapping/match3_xy.map_ball_box`) undistorts raw detection feet with the same params before H. A/B: `python3 scripts/gold_set/ab_match3_undistort_map.py`.

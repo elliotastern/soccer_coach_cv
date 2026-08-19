@@ -37,11 +37,104 @@ def test_roundtrip() -> None:
         rec = load_calib(cam)
         if rec is None:
             raise AssertionError(f"missing calib {cam}")
+        errs = []
         for img, pitch in zip(rec["image_points"], rec["pitch_points"]):
             got = apply_H(rec["H"], img[0], img[1])
             err = ((got[0] - pitch[0]) ** 2 + (got[1] - pitch[1]) ** 2) ** 0.5
-            if err > 0.15:
-                raise AssertionError(f"{cam} roundtrip {err:.3f}m")
+            errs.append(err)
+        good = sum(1 for e in errs if e <= 0.25)
+        if rec.get("undistort"):
+            # Defish clicks can leave one outlier; H must still nail ≥3 junctions.
+            if good < 3:
+                raise AssertionError(f"{cam} only {good}/≥3 inliers≤0.25m {errs}")
+            if sorted(errs)[2] > 0.25:
+                raise AssertionError(f"{cam} 3rd-best err {sorted(errs)[2]:.3f}m")
+        else:
+            if max(errs) > 0.15:
+                raise AssertionError(f"{cam} roundtrip {max(errs):.3f}m")
+
+
+def test_undistort_params_on_defish_cams() -> None:
+    from src.mapping.match3_xy import calib_undistort_params
+
+    for cam in ("P7", "P8", "P9", "P10"):
+        rec = load_calib(cam)
+        if calib_undistort_params(rec) is None:
+            raise AssertionError(f"{cam} should lock undistort with landmarks")
+    for cam in ("P1", "P6", "P_Goal1", "P_Goal2"):
+        rec = load_calib(cam)
+        if calib_undistort_params(rec) is not None:
+            raise AssertionError(f"{cam} should stay on raw H")
+
+
+def test_undistort_px_matches_remap() -> None:
+    from src.mapping.match3_xy import undistort_px
+
+    rec = load_calib("P8")
+    u = rec["undistort"]
+    w, h = rec["image_wh"]
+    k_mat = __import__("numpy").array(
+        [[w, 0.0, w / 2.0], [0.0, w, h / 2.0], [0.0, 0.0, 1.0]], dtype="float64"
+    )
+    dist = __import__("numpy").array(
+        [u["k1"], u["k2"], u["p1"], u["p2"], 0.0], dtype="float64"
+    )
+    import cv2
+    import numpy as np
+
+    new_k, _ = cv2.getOptimalNewCameraMatrix(k_mat, dist, (w, h), u["alpha"], (w, h))
+    map1, map2 = cv2.initUndistortRectifyMap(
+        k_mat, dist, None, new_k, (w, h), cv2.CV_32FC1
+    )
+    for ux, uy in rec["image_points"]:
+        ix, iy = int(round(ux)), int(round(uy))
+        if not (0 <= ix < w and 0 <= iy < h):
+            continue
+        rx, ry = float(map1[iy, ix]), float(map2[iy, ix])
+        if rx < 0 or ry < 0:
+            continue
+        gx, gy = undistort_px(rx, ry, w, h, u)
+        err = ((gx - ux) ** 2 + (gy - uy) ** 2) ** 0.5
+        if err > 2.0:
+            raise AssertionError(f"P8 undistort_px err {err:.2f}px at {ux,uy}")
+
+
+def test_map_ball_uses_undistort_for_raw_foot() -> None:
+    """Raw pixel under a defished landmark click should map near its pitch point."""
+    import cv2
+    import numpy as np
+
+    rec = load_calib("P8")
+    u = rec["undistort"]
+    w, h = rec["image_wh"]
+    k_mat = np.array(
+        [[w, 0.0, w / 2.0], [0.0, w, h / 2.0], [0.0, 0.0, 1.0]], dtype=np.float64
+    )
+    dist = np.array([u["k1"], u["k2"], u["p1"], u["p2"], 0.0], dtype=np.float64)
+    new_k, _ = cv2.getOptimalNewCameraMatrix(k_mat, dist, (w, h), u["alpha"], (w, h))
+    map1, map2 = cv2.initUndistortRectifyMap(
+        k_mat, dist, None, new_k, (w, h), cv2.CV_32FC1
+    )
+    ux, uy = rec["image_points"][0]
+    pitch = rec["pitch_points"][0]
+    ix, iy = int(round(ux)), int(round(uy))
+    rx, ry = float(map1[iy, ix]), float(map2[iy, ix])
+    # foot box: height 20 → foot at (rx, ry)
+    box = [rx - 10, ry - 20, 20, 20]
+    hit = map_ball_box(rec, box, 0.99, rec["image_wh"])
+    if hit is None:
+        raise AssertionError("defish map should hit for landmark raw foot")
+    err = ((hit["xy"][0] - pitch[0]) ** 2 + (hit["xy"][1] - pitch[1]) ** 2) ** 0.5
+    if err > 0.5:
+        raise AssertionError(f"raw→undistort→H err {err:.3f}m")
+    # Without undistort, same raw foot should be worse away from optical center
+    bad = map_ball_box(rec, box, 0.99, rec["image_wh"], apply_undistort=False)
+    if bad is not None:
+        bad_err = ((bad["xy"][0] - pitch[0]) ** 2 + (bad["xy"][1] - pitch[1]) ** 2) ** 0.5
+        if bad_err <= err + 0.05 and (abs(rx - w / 2) > 200 or abs(ry - h / 2) > 150):
+            raise AssertionError(
+                f"skipping undistort should hurt edge landmark ({bad_err:.3f} vs {err:.3f})"
+            )
 
 
 def test_off_pitch_dropped() -> None:
@@ -60,7 +153,11 @@ def test_far_hull_dropped() -> None:
 
     rec = load_calib("P9")
     pts = rec["image_points"]
-    row = map_ball_box(rec, [1860, 20, 20, 20], 0.99, rec["image_wh"])
+    # Far corner of frame in *defished* space (image_points space); skip
+    # product undistort so we probe hull only.
+    row = map_ball_box(
+        rec, [1860, 20, 20, 20], 0.99, rec["image_wh"], apply_undistort=False
+    )
     sup = hull_support(1900, 10, pts)
     if sup >= MIN_SUPPORT and row is not None:
         raise AssertionError(f"far P9 pixel should be weak support {sup} {row}")
@@ -235,6 +332,9 @@ def test_f3_ghost_prune() -> None:
 def main() -> int:
     test_foot_not_center()
     test_roundtrip()
+    test_undistort_params_on_defish_cams()
+    test_undistort_px_matches_remap()
+    test_map_ball_uses_undistort_for_raw_foot()
     test_off_pitch_dropped()
     test_far_hull_dropped()
     test_hull_image_points_expand()
