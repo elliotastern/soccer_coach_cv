@@ -3,9 +3,9 @@
     "P_emit": 0.8,
     "clear_ball_R": 0.8,
     "emit_conf": 0.8,
-    "min_support": 0.25
+    "min_support": 0.25,
+    "hit_m": 4.0
   },
-  "note": "Proxy only \u2014 true P_emit needs labeled Match 3 gold. clear_ball_proxy_R = emit | clear-size det.",
   "packs": {
     "random": {
       "totals": {
@@ -134,5 +134,23 @@
         }
       ]
     }
-  }
+  },
+  "strip": {
+    "pack": "match3_quad_p10_31",
+    "provisional": true,
+    "hit_m": 4.0,
+    "n_frames": 299,
+    "n_clear": 39,
+    "n_emit_scored": 38,
+    "tp": 38,
+    "fp": 0,
+    "P_emit": 1.0,
+    "clear_ball_R": 0.974,
+    "err_median_m": 0.918,
+    "err_mean_m": 0.792,
+    "poc_pass_P_emit": true,
+    "poc_pass_clear_R": true,
+    "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
+  },
+  "note": "strip P_emit/clear_ball_R are provisional until human-corrected labels; proxy packs remain coverage-only."
 }

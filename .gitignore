@@ -161,6 +161,13 @@ data/**
 !data/processed/gold_sets/match2_4quad_top_left_cam4plus/prelabels/annotations.xml
 !data/processed/gold_sets/match2_4quad_top_left_cam4plus/cvat/
 !data/processed/gold_sets/match2_4quad_top_left_cam4plus/cvat/annotations.xml
+# Match 3 M1 strip (quad P10 @ 0:31) — labels/manifest only; review/frames local
+!data/processed/gold_sets/match3_quad_p10_31/
+!data/processed/gold_sets/match3_quad_p10_31/README.md
+!data/processed/gold_sets/match3_quad_p10_31/manifest.json
+!data/processed/gold_sets/match3_quad_p10_31/labels.json
+!data/processed/gold_sets/match3_quad_p10_31/review/
+!data/processed/gold_sets/match3_quad_p10_31/review/index.html
 # Legacy alias (symlink to processed); ignore contents
 data/output
 

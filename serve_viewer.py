@@ -335,6 +335,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/match3-m1',
+            '/match3-m1/',
+            '/match3_m1',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match3_quad_p10_31/review/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/landmark_marker',
             '/landmark_marker/',
             '/match3-landmarks',

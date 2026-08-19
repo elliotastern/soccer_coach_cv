@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Match3 M1 strip</title>
+<style>
+body{margin:0;font:14px/1.4 system-ui;background:#111;color:#eee}
+main{display:grid;grid-template-columns:1fr 280px;gap:12px;padding:12px}
+img{max-width:100%;background:#000}
+.box{position:absolute;border:2px solid #0f0}
+.stage{position:relative;display:inline-block}
+button,select{font:inherit;margin:4px 0}
+.muted{color:#aaa}
+code{color:#8cf}
+</style></head><body>
+<main>
+  <div>
+    <div class="stage"><img id="im" alt="frame"/><div id="box" class="box"></div></div>
+  </div>
+  <div>
+    <h1>Match3 M1 · P10 strip</h1>
+    <p class="muted">Provisional seed from clear P10 dets. Correct before final P_emit.</p>
+    <label>Frame <input id="idx" type="number" min="0" max="298" value="0"/></label>
+    <div id="meta"></div>
+    <p><button id="prev">Prev</button> <button id="next">Next</button></p>
+    <p><a href="labels.json">labels.json</a></p>
+  </div>
+</main>
+<script>
+const n=299;
+let labels=null;
+async function load(){
+  labels=await (await fetch('labels.json')).json();
+  show(0);
+}
+function show(i){
+  i=Math.max(0,Math.min(n-1,i|0));
+  document.getElementById('idx').value=i;
+  const fr=labels.frames[i];
+  const im=document.getElementById('im');
+  im.onload=()=>{
+    const b=document.getElementById('box');
+    const g=(fr.cams.P10.gt_balls||[])[0];
+    if(!g){b.style.display='none';return}
+    const sx=im.clientWidth/1920, sy=im.clientHeight/1080;
+    b.style.display='block';
+    b.style.left=(g.x*sx)+'px'; b.style.top=(g.y*sy)+'px';
+    b.style.width=(g.w*sx)+'px'; b.style.height=(g.h*sy)+'px';
+  };
+  im.src='review/frames/'+fr.file;
+  const xy=fr.cams.P10.gold_xy;
+  document.getElementById('meta').innerHTML=
+    `<div>clear=<b>${fr.cams.P10.clear}</b></div>`+
+    `<div>gold_xy=<code>${xy?xy.map(v=>v.toFixed(2)).join(', '):'null'}</code></div>`+
+    `<div class="muted">${fr.file}</div>`;
+}
+document.getElementById('idx').onchange=e=>show(+e.target.value);
+document.getElementById('prev').onclick=()=>show(+document.getElementById('idx').value-1);
+document.getElementById('next').onclick=()=>show(+document.getElementById('idx').value+1);
+load();
+</script></body></html>

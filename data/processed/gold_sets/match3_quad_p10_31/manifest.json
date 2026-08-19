@@ -1,0 +1,12 @@
+{
+  "pack": "match3_quad_p10_31",
+  "focus_cam": "P10",
+  "clock": "0:31-0:36",
+  "n_frames": 299,
+  "n_clear": 39,
+  "n_gold_xy": 39,
+  "labels": "labels.json",
+  "review": "review/index.html",
+  "source": "reports/eval_match3/quad_pitchmap_gallery/source/quad_P10_t00031.0s_P10.mp4",
+  "provisional": true
+}
