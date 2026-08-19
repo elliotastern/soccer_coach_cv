@@ -152,6 +152,40 @@ def score_h1_support() -> tuple[float, list[str]]:
     return clamp(score), notes
 
 
+def score_f_post() -> tuple[float, list[str]]:
+    notes = []
+    score = 10.0
+    path = OUT / "f_post_ab.json"
+    if not path.is_file():
+        return 0.0, ["missing f_post_ab.json — run ab_match3_fuse_post.py"]
+    data = json.loads(path.read_text(encoding="utf-8"))
+    winner = data.get("winner")
+    if not winner:
+        score -= 5.0
+        notes.append("no winner passing P_emit>=0.80")
+    elif winner not in ("F1", "F2", "F1+F2", "F1+F2+F0"):
+        score -= 4.0
+        notes.append(f"winner {winner} not in F0/F1/F2 set")
+    variants = data.get("variants") or {}
+    locked = variants.get("F1+F2+F0") or variants.get("F1+F2") or {}
+    if not locked.get("poc_pass_P_emit"):
+        score -= 4.0
+        notes.append("F1+F2(+F0) failed P_emit gate")
+    if float(locked.get("clear_ball_R") or 0) < 0.80:
+        score -= 3.0
+        notes.append("F post clear_ball_R < 0.80")
+    text = (ROOT / "src/mapping/match3_xy.py").read_text(encoding="utf-8")
+    if "soft_dual_fallback" not in text or "solo_max_conf" not in text:
+        score -= 3.0
+        notes.append("fuse_balls missing F1/F2 flags")
+    if "fuse_balls_with_hold" not in text or "HOLD_MAX_GAP" not in text:
+        score -= 2.0
+        notes.append("F0 hold helper missing")
+    if not notes:
+        notes.append(f"F post winner={winner}")
+    return clamp(score), notes
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     scores, notes = {}, {}
@@ -160,6 +194,7 @@ def main() -> int:
     scores["l1_calib"], notes["l1_calib"] = score_l1_calibs()
     scores["l2_overlap"], notes["l2_overlap"] = score_l2_overlap()
     scores["h1_support"], notes["h1_support"] = score_h1_support()
+    scores["f_post"], notes["f_post"] = score_f_post()
     fails = [f"{k}={scores[k]} {notes[k]}" for k in scores if scores[k] < PASS]
     summary = {"scores": scores, "notes": notes, "pass": PASS, "fails": fails}
     (OUT / "scores.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

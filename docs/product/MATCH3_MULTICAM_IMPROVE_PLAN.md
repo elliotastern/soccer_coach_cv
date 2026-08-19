@@ -32,6 +32,11 @@ On 750 processed frames (5×150): emit rate ~13%, almost all **P1 solo**; only *
 | **C1** | Quad-focused eval clips (ball in P8/P9/P10 FOV) | ≥1 clip per quad with thr-pass dets | Measure mapping, not only P1 plays |
 | **E1** | Re-render Match 3 pitchmap gallery; report solo / agree / emit rate | Manifest updated; agree ≫ 3 on same seeds if L2 done | Coverage toward clear-ball R |
 | **M1** | Score `P_emit` + clear-ball R on agreed strip | Strip pack `match3_quad_p10_31` + editable `/match3-m1` review; provisional auto-QA 39/39; **P_emit ≥ 0.80**, clear-ball **R ≥ 0.80** after human confirm | Acceptance |
+| **F1** | Soft-dual fallback: agree cluster with combined conf &lt; 0.80 falls through to solo (do not silent-drop) | Unit + eng-loop: weak dual + strong out-of-cluster cam → solo emit | Recover strong solos blocked by soft pairs |
+| **F2** | Solo = **max conf** among mapped cams, not weight-seed only | Unit + eng-loop: weak high-support + strong low-support disagree → emit strong | Stop ghosts blocking ≥0.80 cams |
+| **F0** | Detect-tick **hold** (`fuse_balls_with_hold`, `HOLD_MAX_GAP=2`) — not Phase 2 RNN fusion | Demo Match 3 path + A/B `F1+F2+F0` wins with P_emit ≥ 0.80 | Clear-R lift across silent ticks |
+
+Emit gate and agree radius stay fixed. Soft clear FNs with **no** cam ≥ 0.80 are a **model** problem after F0–F2.
 
 ## Hard no
 
@@ -45,15 +50,17 @@ On 750 processed frames (5×150): emit rate ~13%, almost all **P1 solo**; only *
 
 - Thr: `scripts/gold_set/demo_locked_oos_pitchmap.py` + Match 3 gallery (not Match 2 `TOP_LEFT_THR_BY_CAM` globally)
 - Calib: `scripts/gold_set/match3_landmarks.py`, marker UI
-- Map/fuse: `src/mapping/match3_xy.py`
+- Map/fuse: `src/mapping/match3_xy.py` (`fuse_balls`, `fuse_balls_with_hold`)
+- Fuse A/B: `scripts/gold_set/ab_match3_fuse_post.py` → `reports/eval_match3/improve_eng_loop/f_post_ab.json`
 - Pitch meters: `docs/product/PITCH1_DIMENSIONS.json`
-- Eng-loop: `scripts/gold_set/eng_loop_match3_improve.py` (plan ≥ 9/10)
+- Eng-loop: `scripts/gold_set/eng_loop_match3_improve.py` (plan ≥ 9/10; includes `f_post`)
 - M1 strip: [MATCH3_M1_STRIP.md](MATCH3_M1_STRIP.md) (`match3_quad_p10_31`)
 
 ## Checks
 
 - Eng-loop plan score **≥ 9/10**
 - Landmark round-trip ≤ 0.15 m after L1/L2
-- Fuse: 2-cam ≤4 m → median; disagree → no midpoint; solo conf 0.4 → no emit
+- Fuse: 2-cam ≤4 m → median; disagree → no midpoint; solo conf 0.4 → no emit; F1/F2 unit cases pass
+- F post A/B winner ⊆ {F1, F2, F1+F2, F1+F2+F0} with P_emit ≥ 0.80
 - Camera id = video title (P9-004 → P9)
 - Final: **P_emit ≥ 0.80**, clear-ball **R ≥ 0.80**

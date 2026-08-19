@@ -17,6 +17,17 @@
 
 Latest score (`score_match3_ball_m1.py`): **P_emit = 1.0**, **clear_ball_R ≈ 0.89** (detect ticks); raw ≈ 0.44; carry ≈ 0.95. Both PoC gates pass on primary.
 
+### Fuse post A/B (F0–F2)
+
+Run: `python3 scripts/gold_set/ab_match3_fuse_post.py` → `reports/eval_match3/improve_eng_loop/f_post_ab.json`
+
+| Variant | P_emit | clear_ball_R | Notes |
+|---------|--------|--------------|-------|
+| baseline / F1 / F2 / F1+F2 | 1.0 | 0.889 | detect ticks; same on this strip |
+| **F1+F2+F0** (winner) | 1.0 | **0.910** | sequential hold across silent frames |
+
+F1/F2 are correctness (soft-dual fallthrough + max-conf solo); F0 hold is the measured R lift. Emit stays 0.80; agree stays 4 m.
+
 Gold pitch `(x, y)` = P10 bbox foot mapped through `P10_manual.json` (Pitch 1 meters).
 
 ## Status

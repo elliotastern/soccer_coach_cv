@@ -126,6 +126,40 @@ def score_fuse() -> tuple[float, list[str]]:
     ) is not None:
         score -= 3
         notes.append("0.4 singleton emitted")
+    # F1: soft dual (combined < 0.80) must fall through to strong out-of-cluster solo
+    soft = fuse_balls(
+        [
+            {"cam": "P1", "xy": (1.0, 2.0), "conf": 0.50, "support": 1.0, "weight": 0.50},
+            {"cam": "P10", "xy": (2.0, 2.5), "conf": 0.40, "support": 0.9, "weight": 0.36},
+            {"cam": "P6", "xy": (-15.0, 5.0), "conf": 0.91, "support": 0.4, "weight": 0.364},
+        ]
+    )
+    if soft is None or soft.get("agree") or soft.get("cam") != "P6":
+        score -= 3
+        notes.append("F1 soft-dual solo fallback missing")
+    if fuse_balls(
+        [
+            {"cam": "P1", "xy": (1.0, 2.0), "conf": 0.50, "support": 1.0, "weight": 0.50},
+            {"cam": "P10", "xy": (2.0, 2.5), "conf": 0.40, "support": 0.9, "weight": 0.36},
+            {"cam": "P6", "xy": (-15.0, 5.0), "conf": 0.91, "support": 0.4, "weight": 0.364},
+        ],
+        soft_dual_fallback=False,
+        solo_max_conf=False,
+    ) is not None:
+        score -= 2
+        notes.append("baseline soft dual should stay silent")
+    # F2: weak high-support must not block strong low-support on disagree
+    f2 = fuse_balls(
+        [
+            {"cam": "P1", "xy": (10.0, 0.0), "conf": 0.50, "support": 1.0, "weight": 0.50},
+            {"cam": "P6", "xy": (-10.0, 5.0), "conf": 0.91, "support": 0.4, "weight": 0.364},
+        ]
+    )
+    if f2 is None or f2.get("agree") or f2.get("cam") != "P6":
+        score -= 3
+        notes.append("F2 max-conf solo missing")
+    if not notes:
+        notes.append("fuse agree/disagree/F1/F2 ok")
     return clamp(score), notes
 
 

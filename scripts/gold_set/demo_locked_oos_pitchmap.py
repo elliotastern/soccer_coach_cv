@@ -32,7 +32,12 @@ from multicam_select_policy import (  # noqa: E402
     pick_product,
 )
 from pitch1 import load_pitch1, pitch1_landmarks  # noqa: E402
-from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box  # noqa: E402
+from src.mapping.match3_xy import (  # noqa: E402
+    HOLD_MAX_GAP,
+    fuse_balls_with_hold,
+    load_calib,
+    map_ball_box,
+)
 
 DETECT_W = 1920
 _PITCH1 = load_pitch1()
@@ -191,7 +196,10 @@ def fov_H(cam: str, frame_wh):
     return A @ H_img_svg
 
 
-def fuse_frame(active: dict, calibs: dict, frame_wh):
+def fuse_frame(active: dict, calibs: dict, frame_wh, prev_emit=None, frames_since_emit=0):
+    """Map+fuse current tick; F0 hold if silent and prev still valid."""
+    from src.mapping.match3_xy import fuse_balls
+
     rows = []
     pred_of = {}
     for cam, preds in (active or {}).items():
@@ -203,10 +211,19 @@ def fuse_frame(active: dict, calibs: dict, frame_wh):
         mapped = map_ball_box(rec, pred[0], pred[1], frame_wh)
         if mapped:
             rows.append(mapped)
-    fused = fuse_balls(rows)
-    if fused is None:
+    fresh = fuse_balls(rows)
+    if fresh is not None:
+        return fresh["cam"], pred_of.get(fresh["cam"]), fresh
+    gap = frames_since_emit + 1
+    held = fuse_balls_with_hold(
+        prev_emit,
+        [],
+        gap,
+        hold_max_gap=HOLD_MAX_GAP,
+    )
+    if held is None:
         return None, None, None
-    return fused["cam"], pred_of.get(fused["cam"]), fused
+    return held["cam"], pred_of.get(held["cam"]), held
 
 
 def pixel_to_pitch(H, cx, cy):
@@ -416,6 +433,8 @@ def main() -> int:
     trail = []
     written = 0
     sticky = StickyCamPicker()
+    prev_emit = None
+    frames_since_emit = HOLD_MAX_GAP + 1
 
     for i in range(n):
         frames = {}
@@ -436,12 +455,25 @@ def main() -> int:
         if use_fuse:
             fr0 = next(iter(frames.values()))
             frame_wh = (fr0.shape[1], fr0.shape[0])
-            raw_cam, raw_pred, fused = fuse_frame(active, calibs, frame_wh)
+            raw_cam, raw_pred, fused = fuse_frame(
+                active,
+                calibs,
+                frame_wh,
+                prev_emit=prev_emit,
+                frames_since_emit=frames_since_emit,
+            )
+            if fused is not None and not fused.get("hold"):
+                prev_emit = fused
+                frames_since_emit = 0
+            else:
+                frames_since_emit += 1
             cam, pred = raw_cam, raw_pred
             emit_cam, emit_pred = raw_cam, raw_pred
             ball_xy = None if fused is None else fused["xy"]
             if fused is None:
                 mode = "none"
+            elif fused.get("hold"):
+                mode = f"H hold n={fused['n']}"
             else:
                 kind = "agree" if fused["agree"] else "solo"
                 mode = f"H n={fused['n']} {kind}"

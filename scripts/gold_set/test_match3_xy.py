@@ -11,11 +11,13 @@ sys.path.insert(0, str(ROOT))
 from src.mapping.match3_xy import (  # noqa: E402
     AGREE_M,
     EMIT_CONF,
+    HOLD_MAX_GAP,
     MATCH3_CAMS,
     apply_H,
     bbox_foot,
     combined_conf,
     fuse_balls,
+    fuse_balls_with_hold,
     hull_support,
     load_calib,
     map_ball_box,
@@ -113,6 +115,84 @@ def test_agree_radius() -> None:
         raise AssertionError("agree radius is 4 m")
 
 
+def test_f1_soft_dual_fallback() -> None:
+    """Weak agree cluster (combined < 0.80) must fall through to strong out-of-cluster solo."""
+    a = {
+        "cam": "P1",
+        "xy": (1.0, 2.0),
+        "conf": 0.50,
+        "support": 1.0,
+        "weight": 0.50,
+    }
+    b = {
+        "cam": "P10",
+        "xy": (2.0, 2.5),
+        "conf": 0.40,
+        "support": 0.9,
+        "weight": 0.36,
+    }
+    strong = {
+        "cam": "P6",
+        "xy": (-15.0, 5.0),
+        "conf": 0.91,
+        "support": 0.4,
+        "weight": 0.364,
+    }
+    out = fuse_balls([a, b, strong])
+    if out is None or out.get("agree") or out["cam"] != "P6":
+        raise AssertionError(f"F1 soft dual should solo P6 {out}")
+    silent = fuse_balls(
+        [a, b, strong], soft_dual_fallback=False, solo_max_conf=False
+    )
+    if silent is not None:
+        raise AssertionError(f"baseline soft dual must stay silent {silent}")
+
+
+def test_f2_solo_max_conf() -> None:
+    """Disagree: weak high-support seed must not block strong low-support (F2)."""
+    weak_seed = {
+        "cam": "P1",
+        "xy": (10.0, 0.0),
+        "conf": 0.50,
+        "support": 1.0,
+        "weight": 0.50,
+    }
+    strong = {
+        "cam": "P6",
+        "xy": (-10.0, 5.0),
+        "conf": 0.91,
+        "support": 0.4,
+        "weight": 0.364,
+    }
+    out = fuse_balls([weak_seed, strong])
+    if out is None or out.get("agree") or out["cam"] != "P6":
+        raise AssertionError(f"F2 should emit strong P6 {out}")
+    old = fuse_balls([weak_seed, strong], solo_max_conf=False, soft_dual_fallback=False)
+    if old is not None:
+        raise AssertionError(f"seed-only solo must stay silent at 0.50 {old}")
+
+
+def test_f0_hold() -> None:
+    prev = {
+        "xy": (3.0, 4.0),
+        "conf": 0.90,
+        "cam": "P6",
+        "n": 1,
+        "agree": False,
+    }
+    held = fuse_balls_with_hold(prev, [], frames_since_emit=1)
+    if held is None or not held.get("hold") or held["cam"] != "P6":
+        raise AssertionError(f"F0 hold failed {held}")
+    if HOLD_MAX_GAP < 1:
+        raise AssertionError("HOLD_MAX_GAP")
+    expired = fuse_balls_with_hold(prev, [], frames_since_emit=HOLD_MAX_GAP + 1)
+    if expired is not None:
+        raise AssertionError(f"hold must expire {expired}")
+    weak_prev = {**prev, "conf": 0.50}
+    if fuse_balls_with_hold(weak_prev, [], frames_since_emit=1) is not None:
+        raise AssertionError("hold must require prev conf >= EMIT_CONF")
+
+
 def main() -> int:
     test_foot_not_center()
     test_roundtrip()
@@ -123,6 +203,9 @@ def main() -> int:
     test_fuse_no_midpoint()
     test_low_conf_silent()
     test_agree_radius()
+    test_f1_soft_dual_fallback()
+    test_f2_solo_max_conf()
+    test_f0_hold()
     print("match3_xy ok")
     return 0
 

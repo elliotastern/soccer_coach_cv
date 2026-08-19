@@ -137,7 +137,34 @@ def _near(a: dict, b: dict) -> bool:
     return (dx * dx + dy * dy) ** 0.5 <= AGREE_M
 
 
-def fuse_balls(rows: list[dict]) -> dict | None:
+def _solo_emit(rows: list[dict]) -> dict | None:
+    """Emit highest-conf row if it clears EMIT_CONF (never average)."""
+    if not rows:
+        return None
+    best = max(rows, key=lambda r: float(r["conf"]))
+    if float(best["conf"]) < EMIT_CONF:
+        return None
+    return {
+        "xy": best["xy"],
+        "conf": float(best["conf"]),
+        "cam": best["cam"],
+        "n": 1,
+        "agree": False,
+    }
+
+
+def fuse_balls(
+    rows: list[dict],
+    *,
+    soft_dual_fallback: bool = True,
+    solo_max_conf: bool = True,
+) -> dict | None:
+    """Pitch-space fuse. EMIT_CONF / AGREE_M hard gates.
+
+    F1 soft_dual_fallback: agree cluster with combined conf < emit falls
+    through to solo instead of silent drop.
+    F2 solo_max_conf: solo uses max conf among candidates, not weight seed only.
+    """
     valid = [r for r in rows if r]
     if not valid:
         return None
@@ -146,22 +173,53 @@ def fuse_balls(rows: list[dict]) -> dict | None:
     cluster = [r for r in valid if _near(seed, r)]
     if len(cluster) >= 2:
         conf = combined_conf([r["conf"] for r in cluster])
-        if conf < EMIT_CONF:
+        if conf >= EMIT_CONF:
+            win = max(cluster, key=lambda r: r["support"])
+            return {
+                "xy": _median_xy(cluster),
+                "conf": conf,
+                "cam": win["cam"],
+                "n": len(cluster),
+                "agree": True,
+            }
+        if not soft_dual_fallback:
             return None
-        win = max(cluster, key=lambda r: r["support"])
-        return {
-            "xy": _median_xy(cluster),
-            "conf": conf,
-            "cam": win["cam"],
-            "n": len(cluster),
-            "agree": True,
-        }
-    if seed["conf"] < EMIT_CONF:
+    pool = valid if solo_max_conf else [seed]
+    return _solo_emit(pool)
+
+
+# Detect-tick hold (F0): re-emit last good fuse across silent ticks. Not Phase-2 fusion.
+HOLD_MAX_GAP = 2
+
+
+def fuse_balls_with_hold(
+    prev_emit: dict | None,
+    cur_mapped: list[dict],
+    frames_since_emit: int,
+    *,
+    soft_dual_fallback: bool = True,
+    solo_max_conf: bool = True,
+    hold_max_gap: int = HOLD_MAX_GAP,
+) -> dict | None:
+    """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap."""
+    cur = fuse_balls(
+        cur_mapped,
+        soft_dual_fallback=soft_dual_fallback,
+        solo_max_conf=solo_max_conf,
+    )
+    if cur is not None:
+        return cur
+    if prev_emit is None:
+        return None
+    if float(prev_emit.get("conf") or 0.0) < EMIT_CONF:
+        return None
+    if frames_since_emit > hold_max_gap:
         return None
     return {
-        "xy": seed["xy"],
-        "conf": seed["conf"],
-        "cam": seed["cam"],
-        "n": 1,
+        "xy": prev_emit["xy"],
+        "conf": float(prev_emit["conf"]),
+        "cam": prev_emit["cam"],
+        "n": int(prev_emit.get("n") or 1),
         "agree": False,
+        "hold": True,
     }

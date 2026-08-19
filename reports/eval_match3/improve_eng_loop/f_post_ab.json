@@ -1,0 +1,101 @@
+{
+  "strip": "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+  "det_cache_stride": 2,
+  "hit_m": 4.0,
+  "variants": {
+    "baseline": {
+      "n_clear": 72,
+      "n_emit_scored": 71,
+      "tp": 71,
+      "fp": 0,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.889,
+      "err_median_m": 1.043,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "n_frames_scored": 150,
+      "flags": {
+        "soft_dual_fallback": false,
+        "solo_max_conf": false,
+        "hold": false
+      }
+    },
+    "F1": {
+      "n_clear": 72,
+      "n_emit_scored": 71,
+      "tp": 71,
+      "fp": 0,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.889,
+      "err_median_m": 1.043,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "n_frames_scored": 150,
+      "flags": {
+        "soft_dual_fallback": true,
+        "solo_max_conf": false,
+        "hold": false
+      }
+    },
+    "F2": {
+      "n_clear": 72,
+      "n_emit_scored": 71,
+      "tp": 71,
+      "fp": 0,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.889,
+      "err_median_m": 1.043,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "n_frames_scored": 150,
+      "flags": {
+        "soft_dual_fallback": false,
+        "solo_max_conf": true,
+        "hold": false
+      }
+    },
+    "F1+F2": {
+      "n_clear": 72,
+      "n_emit_scored": 71,
+      "tp": 71,
+      "fp": 0,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.889,
+      "err_median_m": 1.043,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "n_frames_scored": 150,
+      "flags": {
+        "soft_dual_fallback": true,
+        "solo_max_conf": true,
+        "hold": false
+      }
+    },
+    "F1+F2+F0": {
+      "n_clear": 145,
+      "n_emit_scored": 145,
+      "tp": 145,
+      "fp": 0,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.91,
+      "err_median_m": 1.057,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "n_frames_scored": 299,
+      "flags": {
+        "soft_dual_fallback": true,
+        "solo_max_conf": true,
+        "hold": true
+      }
+    }
+  },
+  "survivors": [
+    "baseline",
+    "F1",
+    "F2",
+    "F1+F2",
+    "F1+F2+F0"
+  ],
+  "winner": "F1+F2+F0",
+  "gate": "P_emit >= 0.80; rank clear_ball_R then err_median_m"
+}
