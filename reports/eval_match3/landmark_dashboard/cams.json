@@ -749,7 +749,14 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": {
+        "k1": -0.32,
+        "k2": 0.0,
+        "p1": 0.0,
+        "p2": 0.0,
+        "alpha": 0.8
+      }
     },
     {
       "id": "P7",
@@ -762,7 +769,14 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": {
+        "k1": -0.3,
+        "k2": -0.08,
+        "p1": 0.0,
+        "p2": 0.0,
+        "alpha": 0.8
+      }
     },
     {
       "id": "P8",
@@ -775,7 +789,14 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": {
+        "k1": -0.3,
+        "k2": 0.0,
+        "p1": 0.0,
+        "p2": 0.0,
+        "alpha": 0.8
+      }
     },
     {
       "id": "P9",
@@ -788,7 +809,14 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": {
+        "k1": -0.4,
+        "k2": 0.0,
+        "p1": 0.0,
+        "p2": 0.0,
+        "alpha": 0.8
+      }
     },
     {
       "id": "P1",
@@ -801,7 +829,8 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": null
     },
     {
       "id": "P6",
@@ -814,7 +843,8 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": null
     },
     {
       "id": "P_Goal1",
@@ -827,7 +857,8 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": null
     },
     {
       "id": "P_Goal2",
@@ -840,7 +871,8 @@
         1920,
         1080
       ],
-      "saved": true
+      "saved": true,
+      "undistort": null
     }
   ]
 }

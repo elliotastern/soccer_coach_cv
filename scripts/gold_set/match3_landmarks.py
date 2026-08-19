@@ -17,7 +17,9 @@ from pitch1 import load_pitch1, pitch1_landmarks  # noqa: E402
 
 DASH = ROOT / "reports/eval_match3/landmark_dashboard"
 STILL_DIR = DASH / "stills"
+STILL_RAW_DIR = DASH / "stills_raw"
 CALIB_DIR = ROOT / "reports/eval_match3/match3_pitch_calib"
+FISH_TAGS = ROOT / "reports/eval_match3/fisheye_dashboard/tags.json"
 MATCH3_RAW = ROOT / "data/raw/Match 3"
 # Camera id = filename P-code. Never remap by FOV (P1-006.mp4 is P1, not P9).
 RAW_FILE = load_match_raw(MATCH3_RAW)
@@ -165,9 +167,48 @@ def resize_w(frame, width=DETECT_W):
     return cv2.resize(frame, (width, int(round(h * width / w))), interpolation=cv2.INTER_AREA)
 
 
+def load_fisheye_tag(cam: str) -> dict | None:
+    if not FISH_TAGS.is_file():
+        return None
+    data = json.loads(FISH_TAGS.read_text(encoding="utf-8"))
+    rec = (data.get("cameras") or {}).get(cam) or {}
+    if not rec.get("use_undistort"):
+        return None
+    return {
+        "k1": float(rec.get("k1", -0.2)),
+        "k2": float(rec.get("k2", 0.0)),
+        "p1": float(rec.get("p1", 0.0)),
+        "p2": float(rec.get("p2", 0.0)),
+        "alpha": float(rec.get("alpha", 0.5)),
+    }
+
+
+def undistort_bgr(frame, k1, k2, p1, p2, alpha=0.5):
+    h, w = frame.shape[:2]
+    k_mat = np.array(
+        [[w, 0, w / 2.0], [0, w, h / 2.0], [0, 0, 1.0]], dtype=np.float64
+    )
+    dist = np.array(
+        [float(k1), float(k2), float(p1), float(p2), 0.0], dtype=np.float64
+    )
+    new_k, _ = cv2.getOptimalNewCameraMatrix(
+        k_mat, dist, (w, h), float(alpha), (w, h)
+    )
+    return cv2.undistort(frame, k_mat, dist, None, new_k)
+
+
+def undistort_fingerprint(tag: dict) -> str:
+    return (
+        f"k1={tag['k1']:.3f},k2={tag['k2']:.3f},"
+        f"p1={tag['p1']:.3f},p2={tag['p2']:.3f},a={tag['alpha']:.3f}"
+    )
+
+
 def extract_still(cam: str) -> Path:
     STILL_DIR.mkdir(parents=True, exist_ok=True)
+    STILL_RAW_DIR.mkdir(parents=True, exist_ok=True)
     dest = STILL_DIR / f"{cam}.jpg"
+    raw_dest = STILL_RAW_DIR / f"{cam}.jpg"
     src = RAW_FILE[cam]
     if cam_id_from_raw_name(src.name) != cam:
         raise ValueError(f"{src.name} is camera {cam_id_from_raw_name(src.name)}, not {cam}")
@@ -183,6 +224,13 @@ def extract_still(cam: str) -> Path:
     if not ok:
         raise RuntimeError(f"read failed {src}")
     fr = resize_w(fr)
+    cv2.imwrite(str(raw_dest), fr, [int(cv2.IMWRITE_JPEG_QUALITY), 92])
+    tag = load_fisheye_tag(cam)
+    if tag is not None:
+        fr = undistort_bgr(
+            fr, tag["k1"], tag["k2"], tag["p1"], tag["p2"], tag["alpha"]
+        )
+        print(f"  undistort {cam} {undistort_fingerprint(tag)}", flush=True)
     cv2.imwrite(str(dest), fr, [int(cv2.IMWRITE_JPEG_QUALITY), 92])
     return dest
 
@@ -196,11 +244,16 @@ def write_manifest() -> Path:
         img = cv2.imread(str(still))
         h, w = (img.shape[0], img.shape[1]) if img is not None else (1080, 1920)
         calib = CALIB_DIR / f"{spec['id']}_manual.json"
+        fish = load_fisheye_tag(spec["id"])
         saved = False
         if calib.is_file():
             rec = json.loads(calib.read_text(encoding="utf-8"))
             names = rec.get("landmark_names") or []
             saved = len(names) >= 4 and all(n in allowed for n in names)
+            if fish is not None:
+                want = undistort_fingerprint(fish)
+                if rec.get("undistort_fingerprint") != want:
+                    saved = False
         vid = RAW_FILE[spec["id"]]
         if cam_id_from_raw_name(vid.name) != spec["id"]:
             raise ValueError(f"{vid.name} cannot be camera {spec['id']}")
@@ -211,6 +264,7 @@ def write_manifest() -> Path:
             "videoName": vid.name,
             "image_wh": [w, h],
             "saved": saved,
+            "undistort": fish,
         })
     catalog = all_landmarks()
     payload = {
@@ -372,6 +426,7 @@ def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=No
     overlay = draw_overlay(img, H, image_points, names)
     ov_path = CALIB_DIR / f"{cam}_manual_overlay.jpg"
     cv2.imwrite(str(ov_path), overlay)
+    fish = load_fisheye_tag(cam)
     payload = {
         "camera": cam,
         "version": version,
@@ -388,6 +443,9 @@ def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=No
         "pitch_width_m": PW,
         "image_wh": [int(w0), int(h0)],
     }
+    if fish is not None:
+        payload["undistort"] = fish
+        payload["undistort_fingerprint"] = undistort_fingerprint(fish)
     out = CALIB_DIR / f"{cam}_manual.json"
     out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     write_manifest()

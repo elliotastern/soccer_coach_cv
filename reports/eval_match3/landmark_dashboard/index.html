@@ -440,6 +440,7 @@ function setLiveFromOrder() {
 }
 
 function prettyName(lm) {
+  if (!lm) return "";
   const rec = data && data.landmarks && data.landmarks[lm.name];
   return (rec && rec.label) || DISPLAY[lm.name] || lm.label || (lm.name || "").replaceAll("_", " ");
 }
@@ -973,11 +974,13 @@ function refresh() {
     : `${spec.id} · click ${active + 1} of ${n}`;
   document.getElementById("taskWhat").textContent = done
     ? "Save map"
-    : prettyName(next);
+    : (next ? prettyName(next) : "—");
   document.getElementById("taskFind").textContent = done
     ? "Points are on the photo. Save, add another, or click a number to fix one."
-    : `${(data.landmarks[next.name] && data.landmarks[next.name].spec)
-      || FIND[next.name] || "Click that point on the photo."} ${metersOf(next.name)}.`;
+    : (next
+      ? `${(data.landmarks[next.name] && data.landmarks[next.name].spec)
+        || FIND[next.name] || "Click that point on the photo."} ${metersOf(next.name)}.`
+      : "");
   document.getElementById("save").disabled = !done;
   renderNames();
   renderSteps();
@@ -985,35 +988,89 @@ function refresh() {
   renderSwaps();
 }
 
+let camLoadGen = 0;
+
+function fingerprintOf(u) {
+  if (!u) return "";
+  return (
+    `k1=${Number(u.k1).toFixed(3)},k2=${Number(u.k2).toFixed(3)},` +
+    `p1=${Number(u.p1).toFixed(3)},p2=${Number(u.p2).toFixed(3)},` +
+    `a=${Number(u.alpha).toFixed(3)}`
+  );
+}
+
 function selectCam(id) {
+  const gen = ++camLoadGen;
   cam = id;
   const spec = data.cams.find(c => c.id === cam);
   document.getElementById("order").value = spec.order;
   setLiveFromOrder();
   clicks = currentOrder().map(() => null);
   active = 0;
-  document.getElementById("still").src = spec.still + "?t=" + Date.now();
   [...document.querySelectorAll(".cams button")].forEach(b => {
     b.classList.toggle("active", b.dataset.id === id);
   });
-  document.getElementById("status").textContent = spec.saved ? "Saved map on disk — click to revise." : "";
-  document.getElementById("status").className = spec.saved ? "status ok" : "status";
-  fetch(`/reports/eval_match3/match3_pitch_calib/${id}_manual.json`)
+  const status = document.getElementById("status");
+  status.textContent = spec.undistort
+    ? `Defished still — loading saved clicks…`
+    : (spec.saved ? "Loading saved map…" : "");
+  status.className = "status";
+
+  const img = document.getElementById("still");
+  const applyStillRefresh = () => {
+    if (gen !== camLoadGen) return;
+    refresh();
+  };
+  img.addEventListener("load", applyStillRefresh, { once: true });
+  img.src = spec.still + "?t=" + Date.now();
+
+  fetch(`/reports/eval_match3/match3_pitch_calib/${id}_manual.json?t=${Date.now()}`)
     .then(r => r.ok ? r.json() : null)
     .then(j => {
-      if (!j || j.camera !== id) return;
+      if (gen !== camLoadGen || cam !== id) return;
+      if (!j || j.camera !== id) {
+        status.textContent = spec.undistort
+          ? `Defished (k1=${spec.undistort.k1}, α=${spec.undistort.alpha}) — no saved clicks yet.`
+          : "";
+        refresh();
+        return;
+      }
+      if (spec.undistort) {
+        const want = fingerprintOf(spec.undistort);
+        const got = j.undistort_fingerprint || fingerprintOf(j.undistort);
+        if (!got || got !== want) {
+          status.textContent =
+            `Defished still — old raw-map clicks ignored; re-click and save.`;
+          refresh();
+          return;
+        }
+      }
       const allowed = new Set(data.on_pitch || []);
       const names = j.landmark_names || [];
-      if (names.length && names.some(n => !allowed.has(n))) return;
+      if (names.length && names.some(n => !allowed.has(n))) {
+        refresh();
+        return;
+      }
       document.getElementById("order").value = j.order;
       setLiveFromOrder();
       if (names.length) {
         liveOrder = names.map(landmarkSpec).filter(Boolean);
       }
-      clicks = j.image_points.map(p => [p[0], p[1]]);
+      clicks = (j.image_points || []).map(p => [p[0], p[1]]);
+      while (clicks.length < liveOrder.length) clicks.push(null);
       active = 0;
+      spec.saved = clicks.filter(Boolean).length >= 4;
+      status.textContent = `Loaded ${clicks.filter(Boolean).length} saved landmarks.`;
+      status.className = "status ok";
+      renderNav();
       refresh();
-    }).catch(() => {});
+      if (img.complete) refresh();
+    }).catch(() => {
+      if (gen !== camLoadGen) return;
+      status.textContent = "Could not load saved landmarks.";
+      status.className = "status err";
+      refresh();
+    });
   refresh();
 }
 
@@ -1053,6 +1110,7 @@ async function save() {
   status.className = "status ok";
   data.cams.find(c => c.id === cam).saved = true;
   renderNav();
+  refresh();
 }
 
 function renderNav() {
@@ -1063,13 +1121,13 @@ function renderNav() {
     b.dataset.id = c.id;
     b.classList.toggle("active", c.id === cam);
     b.classList.toggle("saved", !!c.saved);
-    b.innerHTML = `${c.id}<span class="meta">${c.videoName || ""}</span>`;
+    b.innerHTML = `${c.id}<span class="meta">${c.videoName || ""}${c.undistort ? " · defish" : ""}</span>`;
     b.addEventListener("click", () => selectCam(c.id));
     nav.appendChild(b);
   });
 }
 
-fetch("cams.json?v=pitch1field").then(r => r.json()).then(j => {
+fetch("cams.json?v=" + Date.now()).then(r => r.json()).then(j => {
   data = j;
   PL = j.pitch_length_m || PL;
   PW = j.pitch_width_m || PW;
