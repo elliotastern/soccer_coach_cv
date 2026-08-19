@@ -103,7 +103,7 @@ def parse_args():
         "--thr-policy",
         choices=["auto", "match3", "match2"],
         default="auto",
-        help="Detect thr map: match3=all 0.30; match2=P7@0.60; auto=match3 when fuse Hs present",
+        help="Detect thr map: match3=all 0.20; match2=P7@0.60; auto=match3 when fuse Hs present",
     )
     return p.parse_args()
 

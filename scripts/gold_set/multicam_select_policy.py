@@ -30,13 +30,13 @@ PRODUCT_THR_BY_CAM = TOP_LEFT_THR_BY_CAM
 PRODUCT_PICK_MODE = TOP_LEFT_PICK_MODE
 
 # Match 3 pitch fuse (Pitch 1): do not inherit Match 2 P7≥0.60.
-# Detect floor 0.30 all cams; emit gate stays ≥0.80 after map/fuse.
+# Detect floor 0.20 all cams (M1 strip A/B: unlocks weak dual-maps; emit stays ≥0.80).
 MATCH3_THR_BY_CAM = {
-    "_default": 0.30,
+    "_default": 0.20,
 }
-MATCH3_POLICY_ID = "match3_all_cam_thr030"
+MATCH3_POLICY_ID = "match3_all_cam_thr020"
 MATCH3_POLICY_NOTE = (
-    "Match 3 multicam pitch fuse: all cams ≥0.30 (no P7@0.60). "
+    "Match 3 multicam pitch fuse: all cams ≥0.20 (no P7@0.60). "
     "Emit still requires fuse conf ≥0.80. Match 2 product lock unchanged."
 )
 

@@ -1,0 +1,16 @@
+{
+  "note": "Match3 detect thr A/B on labeled M1 strip + galleries. Emit gate stays 0.80.",
+  "strip_m1": {
+    "0.30": {"clear_R": 0.421, "P_emit": 1.0, "emit": 61},
+    "0.25": {"clear_R": 0.428, "P_emit": 1.0, "emit": 62},
+    "0.20": {"clear_R": 0.441, "P_emit": 1.0, "emit": 64},
+    "0.15": {"clear_R": 0.441, "P_emit": 1.0, "emit": 64}
+  },
+  "gallery_emit_rate": {
+    "0.30": {"random": 0.086, "quad": 0.165},
+    "0.25": {"random": 0.086, "quad": 0.166},
+    "0.20": {"random": 0.086, "quad": 0.168}
+  },
+  "chosen": 0.2,
+  "reason": "Unlocks weak but on-gold second cams (e.g. P6@0.24, P10@0.26) into dual-agree without raising solo emit rate or lowering emit 0.80."
+}

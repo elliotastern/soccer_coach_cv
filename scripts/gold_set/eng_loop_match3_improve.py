@@ -59,9 +59,9 @@ def score_t1_wire() -> tuple[float, list[str]]:
     score = 10.0
     from multicam_select_policy import MATCH3_THR_BY_CAM, TOP_LEFT_THR_BY_CAM, thr_for_cam
 
-    if thr_for_cam(MATCH3_THR_BY_CAM, "P7") != 0.30:
+    if thr_for_cam(MATCH3_THR_BY_CAM, "P7") != 0.20:
         score -= 4.0
-        notes.append("MATCH3 P7 thr != 0.30")
+        notes.append("MATCH3 P7 thr != 0.20")
     if thr_for_cam(TOP_LEFT_THR_BY_CAM, "P7") != 0.60:
         score -= 2.0
         notes.append("Match2 P7 thr should stay 0.60")
@@ -69,7 +69,7 @@ def score_t1_wire() -> tuple[float, list[str]]:
     if "MATCH3_THR_BY_CAM" not in demo:
         score -= 3.0
         notes.append("demo missing MATCH3_THR_BY_CAM")
-    if "match3_all_cam_thr030" not in POLICY.read_text(encoding="utf-8"):
+    if "match3_all_cam_thr020" not in POLICY.read_text(encoding="utf-8"):
         score -= 2.0
         notes.append("policy missing MATCH3_POLICY_ID")
     if not notes:

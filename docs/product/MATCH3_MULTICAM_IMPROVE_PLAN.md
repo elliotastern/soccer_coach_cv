@@ -25,7 +25,7 @@ On 750 processed frames (5×150): emit rate ~13%, almost all **P1 solo**; only *
 
 | Step | Do | Done when | Goal link |
 |------|----|-----------|-----------|
-| **T1** | Match-3 detect thr: all cams **0.30** (drop Match-2 P7@0.60 on this path only) | Gallery / fuse uses `MATCH3_THR_BY_CAM`; unit/eng-loop green | More dual-maps without lowering emit 0.80 |
+| **T1** | Match-3 detect thr: all cams **0.20** (was 0.30; no Match-2 P7@0.60) | M1 strip: P_emit stays 1.0; weak dual-maps unlock; galleries emit flat | More dual-maps without lowering emit 0.80 |
 | **L1** | Restore **≥4** clicks on P8, P9, P_Goal1 (post or box corner; no FIFA penalty invent) | `manual_clicks` DLT, round-trip ≤ 0.15 m | Honest H + larger hull |
 | **L2** | Add **overlapping** landmarks P1↔P6 (e.g. other circle / opposite box if visible) | Each of P1/P6 has ≥5 marks spanning both sides of play | Agree where ball actually is |
 | **H1** | Optional: `MIN_SUPPORT` **0.20–0.25** A/B (not 0) | Same labeled strip: `P_emit` does not fall below 0.80 | Clear-ball R↑ without ghost xy |
