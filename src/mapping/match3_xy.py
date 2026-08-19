@@ -92,6 +92,14 @@ def combined_conf(confs: list[float]) -> float:
     return 1.0 - miss
 
 
+def hull_points(calib: dict) -> list:
+    """Image points for support hull. Optional hull_image_points expand FOV without refitting H."""
+    extra = calib.get("hull_image_points")
+    if extra:
+        return list(extra)
+    return list(calib.get("image_points") or [])
+
+
 def map_ball_box(calib: dict, box, conf: float, frame_wh=None) -> dict | None:
     wh = frame_wh or calib.get("image_wh") or [1920, 1080]
     fx, fy = bbox_foot(box)
@@ -101,7 +109,7 @@ def map_ball_box(calib: dict, box, conf: float, frame_wh=None) -> dict | None:
         return None
     if not in_pitch_bounds(xy[0], xy[1], margin_m=MARGIN_M):
         return None
-    support = hull_support(px, py, calib.get("image_points") or [])
+    support = hull_support(px, py, hull_points(calib))
     if support < MIN_SUPPORT:
         return None
     c = float(conf)

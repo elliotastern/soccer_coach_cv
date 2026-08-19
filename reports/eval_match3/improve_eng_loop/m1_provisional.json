@@ -79,25 +79,25 @@
     "quad": {
       "totals": {
         "n": 1196,
-        "emit": 171,
-        "agree": 63,
-        "mapped_ge2": 168,
+        "emit": 197,
+        "agree": 79,
+        "mapped_ge2": 183,
         "clear_frames": 378,
-        "clear_emit": 146
+        "clear_emit": 171
       },
-      "clear_ball_proxy_R": 0.386,
-      "agree_among_emit": 0.368,
+      "clear_ball_proxy_R": 0.452,
+      "agree_among_emit": 0.401,
       "per_cache": [
         {
           "cache": "det_cache_quad_P10_t00031.0s_thr010.json",
           "n": 299,
-          "emit": 75,
-          "agree": 63,
-          "mapped_ge2": 73,
+          "emit": 101,
+          "agree": 79,
+          "mapped_ge2": 88,
           "clear_frames": 87,
-          "clear_emit": 59,
-          "clear_ball_proxy_R": 0.678,
-          "agree_among_emit": 0.84
+          "clear_emit": 84,
+          "clear_ball_proxy_R": 0.966,
+          "agree_among_emit": 0.782
         },
         {
           "cache": "det_cache_quad_P8_t00087.0s_thr010.json",
@@ -140,16 +140,16 @@
     "provisional": true,
     "hit_m": 4.0,
     "n_frames": 299,
-    "n_clear": 39,
-    "n_emit_scored": 38,
-    "tp": 38,
+    "n_clear": 145,
+    "n_emit_scored": 67,
+    "tp": 67,
     "fp": 0,
     "P_emit": 1.0,
-    "clear_ball_R": 0.974,
-    "err_median_m": 0.918,
-    "err_mean_m": 0.792,
+    "clear_ball_R": 0.421,
+    "err_median_m": 0.999,
+    "err_mean_m": 1.075,
     "poc_pass_P_emit": true,
-    "poc_pass_clear_R": true,
+    "poc_pass_clear_R": false,
     "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
   },
   "note": "strip P_emit/clear_ball_R are provisional until human-corrected labels; proxy packs remain coverage-only."

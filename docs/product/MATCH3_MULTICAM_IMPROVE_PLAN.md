@@ -13,6 +13,8 @@ Engineering loop for **Pitch 1 / Field 1** ball `(x, y)` across the eight Match 
 
 Emit gate stays **conf ≥ 0.80**. Below that → do nothing. Do **not** average cams that disagree by more than **4 m**. Do **not** start Phase 2 temporal fusion.
 
+Optional per-cam `hull_image_points` may expand support FOV without refitting landmark H (used on P_Goal1 for midfield balls outside the goal-box clicks).
+
 Clear-ball R and `P_emit` are measured on labeled strips (Gold / agreed Match 3 clips), not on train-pack AP50.
 
 ## Why current gallery fails the goals

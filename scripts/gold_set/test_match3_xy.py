@@ -64,6 +64,20 @@ def test_far_hull_dropped() -> None:
         raise AssertionError("map_ball_box should drop below MIN_SUPPORT")
 
 
+def test_hull_image_points_expand() -> None:
+    rec = load_calib("P_Goal1")
+    if not rec.get("hull_image_points"):
+        raise AssertionError("P_Goal1 should set hull_image_points for FOV expand")
+    if len(rec["hull_image_points"]) <= len(rec["image_points"]):
+        raise AssertionError("hull expand should add points beyond landmark clicks")
+    # Landmark H unchanged: roundtrip still tight
+    for img, pitch in zip(rec["image_points"], rec["pitch_points"]):
+        got = apply_H(rec["H"], img[0], img[1])
+        err = ((got[0] - pitch[0]) ** 2 + (got[1] - pitch[1]) ** 2) ** 0.5
+        if err > 0.15:
+            raise AssertionError(f"P_Goal1 H drifted {err:.3f}m")
+
+
 def test_fuse_agree() -> None:
     a = {"cam": "P9", "xy": (36.0, -20.0), "conf": 0.62, "support": 0.9, "weight": 0.56}
     b = {"cam": "P6", "xy": (38.0, -21.0), "conf": 0.55, "support": 0.5, "weight": 0.28}
@@ -104,6 +118,7 @@ def main() -> int:
     test_roundtrip()
     test_off_pitch_dropped()
     test_far_hull_dropped()
+    test_hull_image_points_expand()
     test_fuse_agree()
     test_fuse_no_midpoint()
     test_low_conf_silent()

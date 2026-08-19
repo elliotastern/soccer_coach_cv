@@ -88,5 +88,37 @@
     1080
   ],
   "roundtrip_max_m": 1.328754807623413e-06,
-  "roundtrip_mean_m": 6.388707161161439e-07
+  "roundtrip_mean_m": 6.388707161161439e-07,
+  "hull_image_points": [
+    [
+      1819.084367504432,
+      586.8792584009269
+    ],
+    [
+      989.3336114297632,
+      612.508922363847
+    ],
+    [
+      1447.4585462509124,
+      199.2305909617613
+    ],
+    [
+      864.0,
+      185.0
+    ],
+    [
+      266.97607421875,
+      967.857421875
+    ],
+    [
+      19.536630630493164,
+      989.621337890625
+    ],
+    [
+      450.4248809814453,
+      989.621337890625
+    ]
+  ],
+  "g1_refit": "hull_image_points_near_touch_expand",
+  "hull_note": "Landmark H unchanged; hull expanded toward clear P10-strip balls outside goal-box clicks"
 }
