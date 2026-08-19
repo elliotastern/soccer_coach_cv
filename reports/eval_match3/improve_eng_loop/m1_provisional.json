@@ -10,21 +10,21 @@
     "random": {
       "totals": {
         "n": 1495,
-        "emit": 122,
-        "agree": 26,
-        "mapped_ge2": 59,
+        "emit": 129,
+        "agree": 33,
+        "mapped_ge2": 98,
         "clear_frames": 71,
-        "clear_emit": 30
+        "clear_emit": 34
       },
-      "clear_ball_proxy_R": 0.423,
-      "agree_among_emit": 0.213,
+      "clear_ball_proxy_R": 0.479,
+      "agree_among_emit": 0.256,
       "per_cache": [
         {
           "cache": "det_cache_rand_t00627.9s_thr010.json",
           "n": 299,
           "emit": 42,
           "agree": 0,
-          "mapped_ge2": 9,
+          "mapped_ge2": 15,
           "clear_frames": 12,
           "clear_emit": 7,
           "clear_ball_proxy_R": 0.583,
@@ -33,12 +33,12 @@
         {
           "cache": "det_cache_rand_t00931.2s_thr010.json",
           "n": 299,
-          "emit": 26,
-          "agree": 26,
-          "mapped_ge2": 42,
+          "emit": 33,
+          "agree": 33,
+          "mapped_ge2": 68,
           "clear_frames": 40,
-          "clear_emit": 17,
-          "clear_ball_proxy_R": 0.425,
+          "clear_emit": 21,
+          "clear_ball_proxy_R": 0.525,
           "agree_among_emit": 1.0
         },
         {
@@ -68,7 +68,7 @@
           "n": 299,
           "emit": 36,
           "agree": 0,
-          "mapped_ge2": 1,
+          "mapped_ge2": 8,
           "clear_frames": 5,
           "clear_emit": 2,
           "clear_ball_proxy_R": 0.4,
@@ -79,25 +79,25 @@
     "quad": {
       "totals": {
         "n": 1196,
-        "emit": 166,
-        "agree": 48,
-        "mapped_ge2": 146,
+        "emit": 171,
+        "agree": 63,
+        "mapped_ge2": 168,
         "clear_frames": 378,
-        "clear_emit": 141
+        "clear_emit": 146
       },
-      "clear_ball_proxy_R": 0.373,
-      "agree_among_emit": 0.289,
+      "clear_ball_proxy_R": 0.386,
+      "agree_among_emit": 0.368,
       "per_cache": [
         {
           "cache": "det_cache_quad_P10_t00031.0s_thr010.json",
           "n": 299,
-          "emit": 70,
-          "agree": 48,
-          "mapped_ge2": 57,
+          "emit": 75,
+          "agree": 63,
+          "mapped_ge2": 73,
           "clear_frames": 87,
-          "clear_emit": 54,
-          "clear_ball_proxy_R": 0.621,
-          "agree_among_emit": 0.686
+          "clear_emit": 59,
+          "clear_ball_proxy_R": 0.678,
+          "agree_among_emit": 0.84
         },
         {
           "cache": "det_cache_quad_P8_t00087.0s_thr010.json",
@@ -115,7 +115,7 @@
           "n": 299,
           "emit": 4,
           "agree": 0,
-          "mapped_ge2": 1,
+          "mapped_ge2": 5,
           "clear_frames": 146,
           "clear_emit": 4,
           "clear_ball_proxy_R": 0.027,
@@ -126,7 +126,7 @@
           "n": 299,
           "emit": 18,
           "agree": 0,
-          "mapped_ge2": 7,
+          "mapped_ge2": 9,
           "clear_frames": 56,
           "clear_emit": 18,
           "clear_ball_proxy_R": 0.321,

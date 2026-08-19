@@ -1,0 +1,54 @@
+{
+  "P7": {
+    "before": {
+      "mapped": 77,
+      "low_sup": 183,
+      "thr": 263
+    },
+    "after": {
+      "mapped": 182,
+      "fail": 81,
+      "thr": 263
+    },
+    "names": [
+      "left_box_18_far",
+      "left_far_corner",
+      "center",
+      "circle_near"
+    ],
+    "note": "replaced circle_far with circle_near; keep shared center"
+  },
+  "P10": {
+    "before": {
+      "mapped": 58,
+      "low_sup": 20,
+      "thr": 78
+    },
+    "after": {
+      "mapped": 78,
+      "low_sup": 0,
+      "thr": 78
+    },
+    "names": [
+      "left_box_18_near",
+      "left_near_corner",
+      "center",
+      "halfway_near_touch"
+    ],
+    "note": "replaced circle_near with halfway_near_touch for near-touch hull"
+  },
+  "m1_delta": {
+    "random": {
+      "emit": "122->129",
+      "agree": "26->33",
+      "clear_proxy_R": "0.423->0.479",
+      "mapped_ge2": "59->98"
+    },
+    "quad": {
+      "emit": "166->171",
+      "agree": "48->63",
+      "clear_proxy_R": "0.373->0.386",
+      "mapped_ge2": "146->168"
+    }
+  }
+}
