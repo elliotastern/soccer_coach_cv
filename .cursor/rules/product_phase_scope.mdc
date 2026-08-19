@@ -13,7 +13,8 @@ Entrypoints: `apps/batch_pipeline.py`, `apps/review_dashboard.py`
 Details: `docs/product/PHASE1_SCOPE.md`  
 Roadmap: `docs/product/PHASES.md`  
 Vision: `docs/product/VISION.md`  
-Layout: `docs/architecture/LAYOUT.md`
+Layout: `docs/architecture/LAYOUT.md`  
+Pitch 1 (Field 1) meters: `docs/product/PITCH1_DIMENSIONS.md` — **not** FIFA 105×68.
 
 Detection stack standards live in the soccer CV guardrails rule (RF-DETR, not YOLO; ByteTrack).
 

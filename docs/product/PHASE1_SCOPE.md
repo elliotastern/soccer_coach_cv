@@ -1,6 +1,6 @@
 # Product Phase 1 scope
 
-Current delivery focus for this repository. Broader roadmap: [PHASES.md](PHASES.md). Vision: [VISION.md](VISION.md).
+Current delivery focus for this repository. Broader roadmap: [PHASES.md](PHASES.md). Vision: [VISION.md](VISION.md). Official pitch: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md) (Pitch 1 / Field 1, not FIFA 105×68).
 
 ## Constraints
 
@@ -18,7 +18,7 @@ Phase 1 delivery is **batch-first** (process match video files via `apps/batch_p
 - Prioritize **high precision over high recall** (correctness over completeness).
 - **Object tracking:** RF-DETR detection for players and ball; ByteTrack for multi-object tracking (not YOLO).
 - **Team assignment:** classify Team A / B using color clustering.
-- **Coordinate mapping:** pixel locations → pitch-relative `(x, y)`. Single center/master camera is expected to capture ~85% of action; multi-camera occlusion fixes are Phase 2.
+- **Coordinate mapping:** pixel locations → Pitch 1 / Field 1 meters ([PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md): **53.90 × ~34.8 m**, not FIFA 105×68). Single center/master camera is expected to capture ~85% of action; multi-camera occlusion fixes are Phase 2.
 - **Batch processing:** sequential processing of multiple match videos with operational reliability (checkpoints, incremental saves).
 
 ### PoC accuracy definition (~80%)
@@ -78,7 +78,7 @@ Messy or occluded frames may be skipped to preserve data quality. Perfecting tho
 
 **Match2 Top Left 300-frame gold labels** — dense Match 2 P10 clip (0:26–0:31, 300 @ 60 fps) for the 4-quad Top Left window; does not replace Gold100. Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
 
-**Match 3 capture** — camera id is the P-code in the filename (`P1-006.mp4` = P1). Spec: [MATCH3_CAPTURE.md](MATCH3_CAPTURE.md). Pitch 1 (FIFA) landmark meters: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md).
+**Match 3 capture** — camera id is the P-code in the filename (`P1-006.mp4` = P1). Spec: [MATCH3_CAPTURE.md](MATCH3_CAPTURE.md). Official Pitch 1 / Field 1 meters: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md) (not FIFA 105×68).
 
 ### 6.1 Six P-cam ball system goal (Match 2)
 
@@ -86,6 +86,8 @@ Client-ok path: combine **P1, P6, P7, P8, P10, P12** for system ball **R ≥ 0.8
 
 - Baseline + consensus eval: `python3 scripts/gold_set/eval_match2_top_left_multicam_baseline.py`
 - Reports: `reports/eval_match2_v10/top_left_multicam_baseline/`, `reports/eval_match2_v10/top_left_multicam_consensus/`
+
+**Match 3 pitch (x, y):** per-cam 4-click H (`match3_pitch_calib`) on Pitch 1 meters, bbox foot, drop off-pitch / far-from-landmarks, fuse in meters (4 m agree, emit ≥ 0.80). Plan: [MATCH3_XY_BALL_PLAN.md](MATCH3_XY_BALL_PLAN.md).
 
 ## Explicitly deferred to Product Phase 2+
 

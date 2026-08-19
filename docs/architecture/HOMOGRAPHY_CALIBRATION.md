@@ -1,5 +1,7 @@
 # Homography Calibration Guide
 
+Product mapping uses **Pitch 1 / Field 1** meters ([PITCH1_DIMENSIONS.md](../product/PITCH1_DIMENSIONS.md)), not FIFA 105×68. Match 3 clicks: `scripts/gold_set/match3_landmarks.py`. The scripts below are legacy fisheye/click tools.
+
 ## Overview
 
 After validating the fisheye fix (k value), the next step is to create a 2D top-down map of the pitch using homography transformation.

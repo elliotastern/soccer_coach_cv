@@ -22,6 +22,7 @@ globs: "**/*"
 - Prefer modular product packages: perception → mapping/events → review/export (coach/guidance/hardware later).
 - Do not implement Product Phase 2/3 features (multi-view fusion, predictive coaching, wearable haptic protocols) unless the user explicitly asks. See `docs/product/PHASES.md`.
 - Prefer new package paths (`src.mapping`, `src.events`, `src.state`, `src.review`, `apps/…`). Legacy `src.analysis` / `src.visualization` shims exist for compatibility only.
+- Pitch 1 / Field 1 is the **measured** pitch (`docs/product/PITCH1_DIMENSIONS.json`: 53.90 × ~34.8 m). Never use FIFA 105×68 for this field.
 
 ## Code quality
 

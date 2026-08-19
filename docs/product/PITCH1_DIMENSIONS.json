@@ -1,25 +1,32 @@
 {
   "id": "pitch1",
-  "name": "Pitch 1 (FIFA / IFAB standard)",
-  "source": "IFAB Laws of the Game; configs/default.yaml mapping.pitch_length/width",
-  "length_m": 105.0,
-  "width_m": 68.0,
+    "name": "Pitch 1 / Field 1 (measured)",
+  "source": "docs/pitch 1 dimensions.webp",
+  "length_m": 53.9,
+  "width_m": 34.84,
+  "width_north_m": 34.81,
   "origin": "center",
   "axes": {
     "x": "+x north (P6), -x south (P1)",
     "y": "+y left, -y right (from P1 looking north)"
   },
+  "note": "Goals are not centred on the end lines. South (Goal 1 / P1) width 34.84 m; north (Goal 2 / P6) width 34.81 m.",
   "marks": {
-    "goal_width_m": 7.32,
-    "goal_post_half_m": 3.66,
-    "penalty_area_depth_m": 16.5,
-    "penalty_area_width_m": 40.32,
-    "penalty_area_half_width_m": 20.16,
-    "goal_area_depth_m": 5.5,
-    "goal_area_width_m": 18.32,
-    "goal_area_half_width_m": 9.16,
-    "penalty_spot_m": 11.0,
-    "center_circle_radius_m": 9.15,
-    "corner_arc_radius_m": 1.0
+    "goal_width_m": 4.65,
+    "goal_height_m": 2.24,
+    "penalty_area_depth_m": 5.95,
+    "penalty_area_width_m": 8.95,
+    "center_circle_radius_m": 3.5,
+    "center_circle_diameter_m": 7.0,
+    "south": {
+      "width_m": 34.84,
+      "left_corner_to_post_m": 15.97,
+      "right_corner_to_post_m": 14.22
+    },
+    "north": {
+      "width_m": 34.81,
+      "left_corner_to_post_m": 16.02,
+      "right_corner_to_post_m": 14.14
+    }
   }
 }

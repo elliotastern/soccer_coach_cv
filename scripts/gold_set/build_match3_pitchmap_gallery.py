@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Build pitchmap gallery: existing OOS clips + 5 random Match 2 windows.
+"""Match 3: 5 random 5-second clips, locked ball pick + pitch (x, y).
 
-Cuts synced multicam sources, detects (stride frames only), renders
-video|pitch dual-pane, writes dropdown index under
-reports/eval_match2_v10/locked_oos_pitchmap_gallery/.
+Cuts synced multicam sources from data/raw/Match 3, detects ball,
+renders video|pitch dual-pane under reports/eval_match3/pitchmap_gallery/.
 """
 from __future__ import annotations
 
@@ -22,52 +21,22 @@ sys.path.insert(0, str(ROOT / "scripts" / "gold_set"))
 
 from demo_locked_oos_pitchmap import main as render_pitchmap_main  # noqa: E402
 from eval_match2_4quad_multicam_survey import cache_dump_n  # noqa: E402
-from multicam_select_policy import SURVEY_CAMS  # noqa: E402
+from raw_cam_id import load_match_raw  # noqa: E402
 from src.perception.rfdetr_local import load_ball_model  # noqa: E402
 
-MATCH2_CAMS = [
-    ("P1", ROOT / "data/raw/Match 2/Cam 3-P1.mp4"),
-    ("P6", ROOT / "data/raw/Match 2/Cam 6-P6-002.mp4"),
-    ("P7", ROOT / "data/raw/Match 2/Cam 11-P7-003.mp4"),
-    ("P8", ROOT / "data/raw/Match 2/Cam 14-P8-001.mp4"),
-    ("P10", ROOT / "data/raw/Match 2/Cam 8-P10-003.mp4"),
-    ("P12", ROOT / "data/raw/Match 2/Cam 10-P12-001.mp4"),
-    ("Cam4plus", ROOT / "data/raw/Match 2/Cam 4+-002.mp4"),
-    ("Cam5plus", ROOT / "data/raw/Match 2/Cam 5+-004.mp4"),
-]
+MATCH3_RAW = ROOT / "data/raw/Match 3"
+_RAW = load_match_raw(MATCH3_RAW)
+_CAM_ORDER = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
+MATCH3_CAMS = [(cid, _RAW[cid]) for cid in _CAM_ORDER]
+CAM_IDS = [c for c, _ in MATCH3_CAMS]
 
-EXISTING = [
-    {
-        "id": "bottom_right",
-        "label": "Bottom Right (6:52)",
-        "clock": "6:52–6:58",
-        "stem": "quad_bottom_right_t00412.0s",
-        "start_sec": 412.0,
-        "source_dir": ROOT / "reports/eval_match2_v10/4quad_test/source",
-        "cache": ROOT
-        / "reports/eval_match2_v10/4quad_multicam_survey/det_cache_bottom_right_thr010.json",
-        "out": ROOT / "reports/eval_match2_v10/locked_oos_demo_bottom_right_pitchmap",
-    },
-    {
-        "id": "top_right",
-        "label": "Top Right (2:05)",
-        "clock": "2:05–2:10",
-        "stem": "quad_top_right_t00125.0s",
-        "start_sec": 125.0,
-        "source_dir": ROOT / "reports/eval_match2_v10/4quad_test/source",
-        "cache": ROOT
-        / "reports/eval_match2_v10/4quad_multicam_survey/det_cache_top_right_thr010.json",
-        "out": ROOT / "reports/eval_match2_v10/locked_oos_demo_top_right_pitchmap",
-    },
-]
-
-AVOID_STARTS = [8.0, 26.0, 125.0, 412.0]
-GALLERY = ROOT / "reports/eval_match2_v10/locked_oos_pitchmap_gallery"
+GALLERY = ROOT / "reports/eval_match3/pitchmap_gallery"
 SRC_DIR = GALLERY / "source"
 CACHE_DIR = GALLERY / "det_cache"
-CLIP_SEC = 6.0
+CLIP_SEC = 5.0
+N_CLIPS = 5
 DETECT_STRIDE = 2
-SEED = 20260816
+SEED = 20260817
 CKPT = ROOT / "models/v10_snaps/post_train/checkpoint.pth"
 
 
@@ -83,7 +52,7 @@ def video_duration_sec(path: Path) -> float:
     fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
     n = float(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0.0)
     cap.release()
-    return n / fps
+    return n / max(fps, 1e-6)
 
 
 def pick_random_starts(n: int, dur: float, clip_sec: float, seed: int) -> list[float]:
@@ -94,8 +63,6 @@ def pick_random_starts(n: int, dur: float, clip_sec: float, seed: int) -> list[f
     while len(picks) < n and tries < 5000:
         tries += 1
         t = rng.uniform(lo, hi)
-        if any(abs(t - a) < 20.0 for a in AVOID_STARTS):
-            continue
         if any(abs(t - p) < 25.0 for p in picks):
             continue
         picks.append(round(t, 1))
@@ -106,7 +73,7 @@ def pick_random_starts(n: int, dur: float, clip_sec: float, seed: int) -> list[f
 
 def extract_synced(stem: str, start_sec: float, clip_sec: float) -> None:
     SRC_DIR.mkdir(parents=True, exist_ok=True)
-    for cam, path in MATCH2_CAMS:
+    for cam, path in MATCH3_CAMS:
         dest = SRC_DIR / f"{stem}_{cam}.mp4"
         if dest.is_file() and dest.stat().st_size > 1000:
             continue
@@ -137,29 +104,30 @@ def detect_clip(model, stem: str, stride: int) -> Path:
     if cache_path.is_file():
         print(f"reuse cache {cache_path.name}", flush=True)
         return cache_path
-    cap0 = cv2.VideoCapture(str(SRC_DIR / f"{stem}_{SURVEY_CAMS[0]}.mp4"))
+    first = source_path(SRC_DIR, stem, CAM_IDS[0])
+    cap0 = cv2.VideoCapture(str(first))
     n = int(cap0.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     cap0.release()
-    print(f"detect {stem} n={n} stride={stride} (infer every {stride} frames)", flush=True)
+    print(f"detect {stem} n={n} stride={stride}", flush=True)
     pre = BallPrelabeler(
         model,
         BallPrelabelConfig(threshold=0.10, use_sahi=False, topk=5, **SIZE),
         class_id=1,
     )
     caps = {}
-    for cam in SURVEY_CAMS:
+    for cam in CAM_IDS:
         path = source_path(SRC_DIR, stem, cam)
         cap = cv2.VideoCapture(str(path))
         if not cap.isOpened():
             raise RuntimeError(f"open failed {path}")
         caps[cam] = cap
-    out = {cam: [] for cam in SURVEY_CAMS}
+    out = {cam: [] for cam in CAM_IDS}
     try:
         for i in range(n):
-            for cam in SURVEY_CAMS:
+            for cam in CAM_IDS:
                 frame = read_resized(caps[cam])
                 if frame is None:
-                    for c in SURVEY_CAMS:
+                    for c in CAM_IDS:
                         out[c] = out[c][:i]
                     n = i
                     break
@@ -177,9 +145,27 @@ def detect_clip(model, stem: str, stride: int) -> Path:
     finally:
         for cap in caps.values():
             cap.release()
-    cache_dump_n(cache_path, out, len(out[SURVEY_CAMS[0]]))
+    cache_dump_n(cache_path, out, len(out[CAM_IDS[0]]))
     print(f"wrote {cache_path}", flush=True)
     return cache_path
+
+
+def gallery_entry(clip: dict, out: Path, mp4: Path) -> dict:
+    stats_path = out / "stats.json"
+    extra = {}
+    if stats_path.is_file():
+        extra = json.loads(stats_path.read_text(encoding="utf-8"))
+    return {
+        "id": clip["id"],
+        "label": clip["label"],
+        "clock": clip["clock"],
+        "url": f"/{out.relative_to(ROOT).as_posix()}/{mp4.name}?v=fuse",
+        "page": f"/{out.relative_to(ROOT).as_posix()}/",
+        "n_frames": extra.get("n_frames"),
+        "n_emit": extra.get("n_emit"),
+        "n_agree": extra.get("n_agree"),
+        "policy": extra.get("policy"),
+    }
 
 
 def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) -> dict:
@@ -193,16 +179,9 @@ def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) ->
         and (out / "index.html").is_file()
     ):
         print(f"reuse render {clip['id']}", flush=True)
-        return {
-            "id": clip["id"],
-            "label": clip["label"],
-            "clock": clip["clock"],
-            "url": f"/{out.relative_to(ROOT).as_posix()}/{mp4.name}",
-            "page": f"/{out.relative_to(ROOT).as_posix()}/",
-        }
+        return gallery_entry(clip, out, mp4)
     if force and mp4.is_file():
         mp4.unlink()
-    # call pitchmap via argv
     argv = [
         "demo_locked_oos_pitchmap.py",
         "--stem", clip["stem"],
@@ -213,9 +192,8 @@ def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) ->
         "--out", str(out),
         "--max-frames", str(max_frames),
         "--stride", str(stride),
+        "--cams", *CAM_IDS,
     ]
-    if clip.get("cams"):
-        argv.extend(["--cams", *clip["cams"]])
     old = sys.argv
     try:
         sys.argv = argv
@@ -224,13 +202,7 @@ def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) ->
         sys.argv = old
     if rc != 0:
         raise RuntimeError(f"pitchmap failed for {clip['id']} rc={rc}")
-    return {
-        "id": clip["id"],
-        "label": clip["label"],
-        "clock": clip["clock"],
-        "url": f"/{out.relative_to(ROOT).as_posix()}/{mp4.name}",
-        "page": f"/{out.relative_to(ROOT).as_posix()}/",
-    }
+    return gallery_entry(clip, out, mp4)
 
 
 def write_gallery(entries: list[dict]) -> Path:
@@ -244,7 +216,7 @@ def write_gallery(entries: list[dict]) -> Path:
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Match 2 — video + pitch (x,y)</title>
+<title>Match 3 — video + pitch (x,y)</title>
 <style>
 :root {{ --bg:#121612; --panel:#1c241c; --text:#eef2ee; --muted:#9aab9a; --accent:#e8c547; }}
 * {{ box-sizing: border-box; }}
@@ -264,10 +236,11 @@ video {{ width:100%; background:#000; border-radius:8px; display:block; }}
 code {{ color:var(--accent); }}
 </style>
 </head><body><main>
-<h1>Match 2 — locked pick + pitch (x,y)</h1>
+<h1>Match 3 — fused pitch (x,y)</h1>
 <p class="sub">
-  Dropdown: Bottom Right + Top Right OOS, plus 5 random Match 2 windows.
-  Left panel = selected cam / ball; right = 2D pitch meters (sticky cam K=5 + emit N=3; FOV-approx until manual H).
+  Five random 5-second windows from <code>data/raw/Match 3</code>
+  (P1, P6, P7, P8, P9, P10, P_Goal1, P_Goal2).
+  Left = selected cam / ball; right = Pitch 1 meters from 4-click H (bbox foot, 4 m fuse, emit ≥ 0.80).
 </p>
 <div class="bar">
   <label for="clip">Clip</label>
@@ -286,7 +259,8 @@ function show(id) {{
   if (!e) return;
   player.src = e.url;
   player.play().catch(() => {{}});
-  meta.innerHTML = `<b>${{e.label}}</b> · ${{e.clock}} · <code>${{e.id}}</code>`;
+  const emit = (e.n_emit == null) ? "" : ` · emit ${{e.n_emit}}/${{e.n_frames}} · agree ${{e.n_agree}}`;
+  meta.innerHTML = `<b>${{e.label}}</b> · ${{e.clock}} · <code>${{e.id}}</code>${{emit}}`;
   history.replaceState(null, '', '#' + id);
 }}
 sel.addEventListener('change', () => show(sel.value));
@@ -304,32 +278,29 @@ show(sel.value);
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--n-random", type=int, default=5)
+    p.add_argument("--n-random", type=int, default=N_CLIPS)
     p.add_argument("--seed", type=int, default=SEED)
     p.add_argument("--clip-sec", type=float, default=CLIP_SEC)
     p.add_argument("--stride", type=int, default=DETECT_STRIDE)
-    p.add_argument("--max-frames", type=int, default=90)
+    p.add_argument("--max-frames", type=int, default=150)
     p.add_argument("--skip-detect", action="store_true")
-    p.add_argument("--force", action="store_true", help="re-render pitchmap mp4s even if present")
+    p.add_argument("--force", action="store_true")
     return p.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    # 1) existing renders
-    clips = []
-    for row in EXISTING:
-        clips.append(dict(row))
-
-    # 2) random windows
-    dur = video_duration_sec(MATCH2_CAMS[0][1])
+    for cam, path in MATCH3_CAMS:
+        if not path.is_file():
+            raise FileNotFoundError(f"Match 3 missing {cam}: {path}")
+    dur = min(video_duration_sec(p) for _, p in MATCH3_CAMS)
     starts = pick_random_starts(args.n_random, dur, args.clip_sec, args.seed)
-    print(f"match_dur={dur:.1f}s random_starts={starts}", flush=True)
-    random_clips = []
+    print(f"match3_dur={dur:.1f}s random_starts={starts}", flush=True)
+    clips = []
     for t in starts:
         stem = f"rand_t{t:07.1f}s"
         cid = f"rand_{int(t)}"
-        random_clips.append(
+        clips.append(
             {
                 "id": cid,
                 "label": f"Random {fmt_clock(t)}",
@@ -339,26 +310,24 @@ def main() -> int:
                 "source_dir": SRC_DIR,
                 "cache": CACHE_DIR / f"det_cache_{stem}_thr010.json",
                 "out": GALLERY / "clips" / cid,
+                "cams": CAM_IDS,
             }
         )
-
-    for clip in random_clips:
+    for clip in clips:
         extract_synced(clip["stem"], clip["start_sec"], args.clip_sec)
-
-    if not args.skip_detect:
+    if args.skip_detect:
+        missing = [str(c["cache"]) for c in clips if not Path(c["cache"]).is_file()]
+        if missing:
+            raise FileNotFoundError(f"--skip-detect but no cache: {missing}")
+    else:
         model = load_ball_model(str(CKPT))
-        for clip in random_clips:
+        for clip in clips:
             clip["cache"] = detect_clip(model, clip["stem"], args.stride)
-
-    clips.extend(random_clips)
-
-    # monkey: ensure pitchmap supports custom args — render all
     entries = []
     for clip in clips:
         entries.append(render_one(clip, args.max_frames, args.stride, force=args.force))
-
     write_gallery(entries)
-    print(json.dumps({"gallery": str(GALLERY.relative_to(ROOT)), "n": len(entries)}, indent=2))
+    print(json.dumps({"gallery": str(GALLERY.relative_to(ROOT)), "n": len(entries), "starts": starts}, indent=2))
     return 0
 
 

@@ -24,6 +24,7 @@ from src.mapping.homography import HomographyEstimator, transform_point  # noqa:
 from src.mapping.pitch_keypoint_detector import (  # noqa: E402
     detect_pitch_keypoints_auto_averaged,
 )
+from src.mapping.fov_aware_homography import estimate_H_center_averaged  # noqa: E402
 
 OUT = ROOT / "reports/eval_match2_v10/match2_pitch_calib"
 SRC = ROOT / "reports/eval_match2_v10/4quad_test/source"
@@ -36,12 +37,14 @@ STEMS = [
 DETECT_W = 1280
 PL, PW = 105.0, 68.0
 
-# Retry bundle (max 3). Prefer dist_off first — Cam4 passed only with refine off;
-# dist_on often collapses to axis-aligned / thin-strip and is much slower.
+# Retry bundle (max 3). FOV-aware center-circle first (matches what side cams see).
 ATTEMPTS = [
-    {"stem": STEMS[0], "n_frames": 12, "step": 10, "correct_distortion": False, "tag": "tl_dist_off"},
-    {"stem": STEMS[1], "n_frames": 12, "step": 10, "correct_distortion": False, "tag": "br_dist_off"},
-    {"stem": STEMS[0], "n_frames": 16, "step": 8, "correct_distortion": False, "tag": "tl_more_frames"},
+    {"stem": STEMS[0], "n_frames": 10, "step": 12, "correct_distortion": False,
+     "tag": "tl_fov_center", "method": "fov_center"},
+    {"stem": STEMS[1], "n_frames": 10, "step": 12, "correct_distortion": False,
+     "tag": "br_fov_center", "method": "fov_center"},
+    {"stem": STEMS[0], "n_frames": 12, "step": 10, "correct_distortion": False,
+     "tag": "tl_dist_off", "method": "averaged"},
 ]
 
 
@@ -230,48 +233,74 @@ def scale_H_to_native(H_detect: np.ndarray, scale: float) -> np.ndarray:
 def run_attempt(cam: str, attempt: dict) -> dict:
     stem = attempt["stem"]
     frames, scale, native_wh = load_frames(stem, cam, attempt["n_frames"], attempt["step"])
+    method = attempt.get("method", "averaged")
     result = {
         "cam": cam,
         "tag": attempt["tag"],
         "stem": stem,
+        "method": method,
         "n_frames_loaded": len(frames),
         "correct_distortion": attempt["correct_distortion"],
         "detect_w": DETECT_W,
         "scale_to_native": scale,
         "pass": False,
     }
-    if len(frames) < 5:
+    if len(frames) < 3:
         result["error"] = "too_few_frames"
         return result
-    print(f"  frames={len(frames)} detect_w={DETECT_W} scale={scale:.3f} estimating…", flush=True)
-    est = HomographyEstimator()
-    ok = est.estimate_averaged(
-        frames,
-        correct_distortion=attempt["correct_distortion"],
-        min_frames=5,
+    print(
+        f"  frames={len(frames)} detect_w={DETECT_W} scale={scale:.3f} method={method} …",
+        flush=True,
     )
-    H = est.homography
-    result["estimate_ok"] = bool(ok and H is not None)
-    result["center_circle_detected"] = bool(est.center_circle_detected)
-    result["y_axis_scale"] = float(est.y_axis_scale)
-    if H is None:
-        result["error"] = "homography_none"
-        result["landmark_debug"] = {"ok": False, "error": "homography_none"}
-        return result
-    H_det = np.asarray(H, dtype=float)
+
+    if method == "fov_center":
+        out = estimate_H_center_averaged(frames, cam)
+        result["estimate_ok"] = bool(out and out.get("H") is not None)
+        result["center_circle_detected"] = bool(out and (out.get("types") or {}).get("center_circle"))
+        result["y_axis_scale"] = 1.0
+        if not out or out.get("H") is None:
+            result["error"] = "fov_center_none"
+            result["landmark_debug"] = {"ok": False, "error": "fov_center_none"}
+            return result
+        H_det = out["H"]
+        result["landmark_debug"] = {
+            "ok": True,
+            "note": "fov_filtered_landmarks",
+            "cam_fov": cam,
+            "frames_ok": out.get("frames_ok"),
+            "types": out.get("types"),
+            "inliers": out.get("inliers"),
+        }
+    else:
+        est = HomographyEstimator()
+        ok = est.estimate_averaged(
+            frames,
+            correct_distortion=attempt["correct_distortion"],
+            min_frames=min(5, len(frames)),
+        )
+        H_det = est.homography
+        result["estimate_ok"] = bool(ok and H_det is not None)
+        result["center_circle_detected"] = bool(est.center_circle_detected)
+        result["y_axis_scale"] = float(est.y_axis_scale)
+        if H_det is None:
+            result["error"] = "homography_none"
+            result["landmark_debug"] = {"ok": False, "error": "homography_none"}
+            return result
+        H_det = np.asarray(H_det, dtype=float)
+        result["landmark_debug"] = {
+            "ok": True,
+            "note": "averaged_detect",
+            "center_circle_detected": bool(est.center_circle_detected),
+            "y_axis_scale": float(est.y_axis_scale),
+        }
+
+    H_det = np.asarray(H_det, dtype=float)
     H = scale_H_to_native(H_det, scale)
-    result["landmark_debug"] = {
-        "ok": True,
-        "note": "skipped_second_detect_pass",
-        "center_circle_detected": bool(est.center_circle_detected),
-        "y_axis_scale": float(est.y_axis_scale),
-    }
-    # Gate + overlay in detect space (faster / matches drawn frame)
     h, w = frames[0].shape[:2]
     gate = overlay_gate(H_det, (w, h))
     result["gate"] = gate
     result["pass"] = bool(gate["pass"])
-    result["H"] = H.tolist()  # native-resolution H for product use
+    result["H"] = H.tolist()
     result["native_wh"] = list(native_wh) if native_wh else None
     return result, frames[0], H_det, gate
 
@@ -309,12 +338,13 @@ def calibrate_cam(cam: str, out: Path) -> dict:
     if best and best.get("pass"):
         payload = {
             "camera": cam,
-            "version": "auto_v2",
+            "version": "auto_v2_fov" if best.get("method") == "fov_center" else "auto_v2",
             "pass": True,
             "tag": best["tag"],
+            "method": best.get("method"),
             "stem": best["stem"],
             "H": best["H"],
-            "source": "HomographyEstimator.estimate_averaged+overlay_gate",
+            "source": f"{best.get('method', 'averaged')}+overlay_gate",
             "n_frames": best["n_frames_loaded"],
             "pitch_length_m": PL,
             "pitch_width_m": PW,

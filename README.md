@@ -22,6 +22,7 @@ Long-term product vision (real-time AI coaching + haptics) and phased delivery:
 - [docs/product/VISION.md](docs/product/VISION.md) — Goal, system components, value props
 - [docs/product/PHASES.md](docs/product/PHASES.md) — Product Phase 1 / 2 / 3 roadmap
 - [docs/product/PHASE1_SCOPE.md](docs/product/PHASE1_SCOPE.md) — Current Phase 1 requirements and acceptance
+- [docs/product/PITCH1_DIMENSIONS.md](docs/product/PITCH1_DIMENSIONS.md) — Official Pitch 1 / Field 1 meters (not FIFA 105×68)
 - [docs/architecture/CONSTRAINTS.md](docs/architecture/CONSTRAINTS.md) — Latency, RTSP, data policy
 - [docs/architecture/LAYOUT.md](docs/architecture/LAYOUT.md) — Repository layout
 

@@ -15,7 +15,7 @@ soccer_coach_cv/
 │   ├── processed/             # Tracks, events, pitch coords
 │   └── external/              # Third-party commercial-safe datasets
 ├── docs/
-│   ├── product/               # Vision, phases, Phase 1 scope, Match 2/3 capture
+│   ├── product/               # Vision, phases, Phase 1 scope, Pitch 1 meters, Match 2/3 capture
 │   ├── architecture/          # Constraints, deployment, mapping plans
 │   ├── runbooks/              # Operator / training guides
 │   └── ball_detection/        # Ball training notes (not product phases)
@@ -46,3 +46,5 @@ soccer_coach_cv/
 ```
 
 Legacy imports (`src.analysis.*`, `src.types`, `src.visualization.*`) still work via shims. Prefer the new package paths in new code.
+
+Official pitch meters: [product/PITCH1_DIMENSIONS.md](../product/PITCH1_DIMENSIONS.md) (Pitch 1 / Field 1, not FIFA 105×68).

@@ -19,7 +19,7 @@ Folder: `data/raw/Match 3/`
 
 `P1-006.mp4` means **P1**. `P9-004.mp4` means **P9**. Never assign `P1-006.mp4` to P9 (or the reverse).
 
-Parser: `scripts/gold_set/raw_cam_id.py` (`cam_id_from_raw_name`, `load_match_raw`). Landmark stills must come from that map (`scripts/gold_set/match3_landmarks.py`). Pitch 1 meters: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md).
+Parser: `scripts/gold_set/raw_cam_id.py` (`cam_id_from_raw_name`, `load_match_raw`). Landmark stills must come from that map (`scripts/gold_set/match3_landmarks.py`). Official pitch is **Pitch 1 / Field 1** ([PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md)): **53.90 × 34.84 m** (south), not FIFA 105×68.
 
 ## If a FOV looks misplaced
 

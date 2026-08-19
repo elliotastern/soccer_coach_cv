@@ -1,0 +1,27 @@
+---
+description: Official Pitch 1 (Field 1) is the measured field — never FIFA 105×68
+alwaysApply: true
+---
+
+# Pitch 1 = measured Field 1
+
+Official pitch for this product (Match 3 mapping, `in_pitch_bounds`, `configs/default.yaml`) is **Pitch 1 / Field 1**, measured from `docs/pitch 1 dimensions.webp`. **Do not use FIFA/IFAB 105×68, circle r=9.15, 18-yard=16.5, goal=7.32, or a penalty spot.**
+
+Canonical meters: `docs/product/PITCH1_DIMENSIONS.json`  
+Human spec: `docs/product/PITCH1_DIMENSIONS.md`  
+Code: `scripts/gold_set/pitch1.py`
+
+| Mark | m |
+|------|---|
+| Length (south P1 → north P6) | **53.90** |
+| Width south / Goal 1 | **34.84** |
+| Width north / Goal 2 | **34.81** |
+| Goal | **4.65 × 2.24** (not centred on the end lines) |
+| Goal box | **5.95 × 8.95** (centred on each goal) |
+| Centre circle | diameter **7.00**, r **3.50** |
+
+Origin = centre. **+x north (P6), −x south (P1). +y left, −y right** from P1 looking north.
+
+No 6-yard box and no penalty spot on this plan. Keep landmark ids `*_box_18_*` for the 5.95 m box.
+
+Legacy `src/analysis/pitch_landmarks.py` and Match 2 auto-H scripts still mention 105×68 — that is **not** Pitch 1. Do not copy those numbers into Match 3 / Phase 1 mapping.

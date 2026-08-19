@@ -15,14 +15,14 @@ from raw_cam_id import cam_id_from_raw_name  # noqa: E402
 P9_VISIBLE = [
     "right_box_18_far",
     "right_box_goal_far",
-    "right_penalty_spot",
+    "right_post_far",
     "right_far_corner",
 ]
 
 OUT = ROOT / "reports/eval_match3/landmark_dashboard/eng_loop"
 URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=save-p9-18far"
 CAMS = ["P10", "P7", "P9", "P8", "P1", "P6", "P_Goal1", "P_Goal2"]
-SVG_W = 560.0
+SVG_W = 569.0
 PASS = 9.0
 STILL_DIR = ROOT / "reports/eval_match3/landmark_dashboard/stills"
 # Diagram pitch y: +y left, -y right (from P1 looking north).
@@ -369,12 +369,12 @@ def score_unknown(info: dict) -> tuple[float, list[str]]:
     catalog = info.get("catalog") or {}
     extras = info.get("extras") or []
     live = info.get("liveNames") or []
-    if len(live) != 4:
+    if len(live) < 4:
         return 3.0, ["need 4 live names"]
-    if len(set(live)) != 4:
+    if len(set(live)) != len(live):
         score -= 3
         notes.append("live names not unique")
-    want = len(catalog) - 4
+    want = len(catalog) - len(live)
     if want < 8:
         score -= 2
         notes.append(f"catalog too small {len(catalog)}")
@@ -384,7 +384,7 @@ def score_unknown(info: dict) -> tuple[float, list[str]]:
     extra_names = {e["name"] for e in extras}
     if extra_names & set(live):
         score -= 3
-        notes.append("extra overlaps live 4")
+        notes.append("extra overlaps live")
     if not info.get("swapUi"):
         score -= 3
         notes.append("swap UI missing")
@@ -607,7 +607,7 @@ def score_cameras(cam: str, info: dict) -> tuple[float, list[str]]:
 def score_labels(info: dict) -> tuple[float, list[str]]:
     notes = []
     score = 10.0
-    if len(info["tags"]) != 4:
+    if len(info["tags"]) < 4:
         score -= 3
         notes.append(f"{len(info['tags'])} tags")
     for t in info["tags"]:
@@ -629,7 +629,7 @@ def score_labels(info: dict) -> tuple[float, list[str]]:
 def score_targets(cam: str, info: dict) -> tuple[float, list[str]]:
     notes = []
     score = 10.0
-    if len(info["dots"]) != 4 or len(info["expected"]) != 4:
+    if len(info["dots"]) < 4 or len(info["expected"]) < 4:
         return 3.0, ["need 4 dots/targets"]
     want0 = info["expected"][0]["title"]
     if want0 not in info["taskWhat"]:
@@ -830,7 +830,7 @@ def score_save(page, cam: str, info: dict) -> tuple[float, list[str]]:
     if "right_box_18_far" not in catalog:
         return 2.0, ["catalog missing right_box_18_far"]
     names = list(P9_VISIBLE) if cam == "P9" else list(info.get("liveNames") or [])
-    if len(names) != 4:
+    if len(names) < 4:
         names = list(catalog.keys())[:4]
     body = {
         "camera": cam,

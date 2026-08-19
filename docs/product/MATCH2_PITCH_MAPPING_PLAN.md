@@ -4,6 +4,8 @@
 
 **Complements:** Existing turf color gate (`src/perception/pitch_mask.py`). Mapping is the geometric second check.
 
+Product pitch bounds (`in_pitch_bounds`) default to **Pitch 1 / Field 1** ([PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md): 53.90 × 34.84 m). Match 2 auto-H scripts still hardcode FIFA 105×68 — that is **not** the official field; do not copy those numbers into Pitch 1 / Match 3.
+
 ## Why now
 
 - Locked multicam pick is live; sideline FPs still hurt largest-ball.
@@ -55,5 +57,5 @@
   - **Cam5plus: FAIL** all 3 attempts (`thin_axis_aligned_band` / thin mid strip) → `Cam5plus_auto_v2_FAILED.json`.
   - **A4–A5 blocked:** both cams must pass. Helper `src/mapping/pitch_bounds.py` exists but is **not** wired into `pick_product`.
   - **Manual fallback handoff:** please run `scripts/calibrate_homography.py` for **Cam5plus** (and optionally re-validate Cam4plus). Still frames under `reports/eval_match2_v10/match2_pitch_calib/stills/`.
-- Loop: every **15m** (`AGENT_LOOP_TICK_auto_h`) — idle until `Cam5plus_manual.json` (or both `*_auto_v2.json` with pass) lands; then resume D–F.
-- **2026-08-16:** Soft gates (hysteresis / N-frame emit) live in `MATCH2_NOISE_PRECISION_PLAN.md`.
+- **2026-08-17 FOV-aware auto:** Added `src/mapping/fov_aware_homography.py` (FOV wedge prior + visible line junctions). Cam5 center circle is **clipped** by the frame edge, so auto still fails overlay sanity; Cam4 keeps prior `auto_v2` pass. Manual click order for Cam5 is now `visible_side` (touchline×halfway, touchline×goal, circle×halfway, center) — not full center-circle cardinals.
+- Loop: every **15m** (`AGENT_LOOP_TICK_auto_h`) — idle until `Cam5plus_manual.json` lands; then resume D–F.

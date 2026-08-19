@@ -40,8 +40,8 @@ team_assignment:
 
 # Coordinate Mapping
 mapping:
-  pitch_length: 105.0  # meters
-  pitch_width: 68.0    # meters
+  pitch_length: 53.9   # Pitch 1 measured (docs/product/PITCH1_DIMENSIONS.json)
+  pitch_width: 34.84
   homography_method: "manual"  # or "auto"
 
 # Event Detection

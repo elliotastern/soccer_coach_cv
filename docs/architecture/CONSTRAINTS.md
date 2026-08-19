@@ -24,3 +24,7 @@ Target environment and hard limits for the coaching product. See also [product/P
 
 - High precision over high recall
 - Tracking confidence below ~80% → drop / do nothing
+
+## Pitch
+
+Official field is **Pitch 1 / Field 1**: [product/PITCH1_DIMENSIONS.md](../product/PITCH1_DIMENSIONS.md) (**53.90 × ~34.8 m**). Do not use FIFA 105×68.

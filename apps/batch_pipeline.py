@@ -15,6 +15,8 @@ from src.perception.tracker import Tracker
 from src.perception.track_ball import create_ball_tracker_wrapper
 from src.perception.team import assign_teams
 from src.mapping.mapping import PitchMapper
+from src.mapping.match3_xy import load_calib_for_video
+from src.mapping.pitch_bounds import in_pitch_bounds
 from src.events.events import EventDetector
 from src.events.event_manager import EventManager
 from src.export.schema import frame_data_to_csv_row, get_csv_schema
@@ -85,8 +87,10 @@ def process_frame(frame: np.ndarray, frame_id: int, timestamp: float,
                 timestamp=timestamp
             ))
         elif obj.detection.class_id == config['detection']['ball_class_id']:
-            # Ball
-            location = pitch_mapper.bbox_center_to_pitch(obj.detection.bbox)
+            location = pitch_mapper.bbox_foot_to_pitch(obj.detection.bbox)
+            if pitch_mapper.homography is not None:
+                if not in_pitch_bounds(location.x, location.y, margin_m=1.0):
+                    continue
             ball = Ball(
                 x_pitch=location.x,
                 y_pitch=location.y,
@@ -146,6 +150,9 @@ def process_video(video_path: str, config: dict, output_dir: str = "data/process
         pitch_length=config['mapping']['pitch_length'],
         pitch_width=config['mapping']['pitch_width']
     )
+    calib = load_calib_for_video(video_path)
+    if calib is not None:
+        pitch_mapper.set_homography(calib["H"])
     
     event_detector = EventDetector(
         pitch_mapper=pitch_mapper,

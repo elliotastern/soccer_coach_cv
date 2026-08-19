@@ -1,5 +1,7 @@
 # 2D Mapping Files (Pixel → Pitch)
 
+Official pitch is **Pitch 1 / Field 1** ([PITCH1_DIMENSIONS.md](../product/PITCH1_DIMENSIONS.md): **53.90 × ~34.8 m**). FIFA 105×68 is legacy only.
+
 Files that implement pixel-to-pitch 2D mapping and how to get the **best** mapping.
 
 ---
@@ -11,9 +13,11 @@ Files that implement pixel-to-pitch 2D mapping and how to get the **best** mappi
 | **`src/mapping/mapping.py`** | **PitchMapper** – applies homography + y_axis_scale to convert pixel → pitch (meters). Used by the pipeline for every frame. |
 | **`src/analysis/homography.py`** | **HomographyEstimator**, `estimate_homography_manual`, `estimate_homography_auto_averaged`, `estimate_homography_auto_with_undistorted`. Builds the 3×3 homography from image ↔ pitch correspondences. |
 | **`src/analysis/pitch_keypoint_detector.py`** | Detects pitch landmarks (goals, touchlines, center circle) for automatic homography. Used by homography.py. |
-| **`src/analysis/pitch_landmarks.py`** | FIFA-standard pitch coordinates (105×68 m). Reference for pitch space. |
-| **`docs/product/PITCH1_DIMENSIONS.json`** | **Pitch 1** marks + exact meters for each click landmark. |
-| **`src/analysis/y_axis_calibration.py`** | **refine_homography_with_center_circle**, **calibrate_y_axis_from_center_circle**. Uses center circle (9.15 m) and field width to fix y-axis scale. |
+| **`src/analysis/pitch_landmarks.py`** | Legacy FIFA 105×68 landmark table. **Not** Pitch 1. |
+| **`docs/product/PITCH1_DIMENSIONS.json`** | **Official Pitch 1 / Field 1** measured marks (53.90 × ~34.8 m) + exact meters for each click landmark. |
+| **`src/mapping/pitch_bounds.py`** | `in_pitch_bounds` — defaults to Pitch 1 length/width. |
+| **`src/mapping/match3_xy.py`** | Match 3 load H, bbox-foot map, hull support, pitch-space ball fuse. |
+| **`src/analysis/y_axis_calibration.py`** | Legacy center-circle refine using FIFA r=9.15 m. Do not use for Pitch 1 (r=3.50 m). |
 | **`src/analysis/undistortion.py`** | Fisheye/lens distortion correction before homography. Used when `correct_distortion=True`. |
 | **`scripts/calibrate_homography.py`** | Interactive tool: click 4+ landmarks on a frame, map to pitch coords, save homography JSON. For manual calibration. |
 

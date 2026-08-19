@@ -31,5 +31,6 @@ Use **RF-DETR** for detection and **ByteTrack** for tracking. Early product brie
 
 - [PHASES.md](PHASES.md) — Product Phase 1 / 2 / 3 roadmap
 - [PHASE1_SCOPE.md](PHASE1_SCOPE.md) — Current delivery requirements and acceptance
+- [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md) — Official Pitch 1 / Field 1 meters
 - [../architecture/LAYOUT.md](../architecture/LAYOUT.md) — Repository layout
 - [../architecture/CONSTRAINTS.md](../architecture/CONSTRAINTS.md) — Runtime and data constraints

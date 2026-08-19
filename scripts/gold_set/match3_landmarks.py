@@ -33,9 +33,6 @@ PW = float(PITCH1["width_m"])
 LANDMARKS = pitch1_landmarks(PITCH1)
 DISPLAY = {n: v["label"] for n, v in LANDMARKS.items()}
 R = float(PITCH1["marks"]["center_circle_radius_m"])
-PEN_D = float(PITCH1["marks"]["penalty_area_depth_m"])
-PEN_HW = float(PITCH1["marks"]["penalty_area_half_width_m"])
-PSPOT = float(PITCH1["marks"]["penalty_spot_m"])
 ORDER_TITLES = {
     "both_sides_south": "South · both sidelines",
     "both_sides_north": "North · both sidelines",
@@ -111,23 +108,19 @@ SWAP_GROUPS = [
         "halfway_near_touch", "halfway_far_touch",
         "center", "circle_near", "circle_far",
     ]),
-    ("South 18-yard", [
+    ("South box", [
         "left_box_goal_near", "left_box_goal_far",
         "left_box_18_near", "left_box_18_far",
     ]),
-    ("South 6-yard / goal", [
-        "left_6_goal_near", "left_6_goal_far",
-        "left_6_box_near", "left_6_box_far",
-        "left_post_near", "left_post_far", "left_penalty_spot",
+    ("South goal", [
+        "left_post_near", "left_post_far",
     ]),
-    ("North 18-yard", [
+    ("North box", [
         "right_box_goal_near", "right_box_goal_far",
         "right_box_18_near", "right_box_18_far",
     ]),
-    ("North 6-yard / goal", [
-        "right_6_goal_near", "right_6_goal_far",
-        "right_6_box_near", "right_6_box_far",
-        "right_post_near", "right_post_far", "right_penalty_spot",
+    ("North goal", [
+        "right_post_near", "right_post_far",
     ]),
 ]
 
@@ -207,7 +200,7 @@ def write_manifest() -> Path:
         if calib.is_file():
             rec = json.loads(calib.read_text(encoding="utf-8"))
             names = rec.get("landmark_names") or []
-            saved = len(names) == 4 and all(n in allowed for n in names)
+            saved = len(names) >= 4 and all(n in allowed for n in names)
         vid = RAW_FILE[spec["id"]]
         if cam_id_from_raw_name(vid.name) != spec["id"]:
             raise ValueError(f"{vid.name} cannot be camera {spec['id']}")
@@ -266,14 +259,32 @@ def draw_overlay(img, H, clicks, names):
         cv2.circle(vis, p, 8, (0, 255, 0), -1)
         cv2.putText(vis, f"{i + 1}:{name}", (p[0] + 8, p[1] - 8),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2)
-    corners = [(-PL / 2, -PW / 2), (PL / 2, -PW / 2), (PL / 2, PW / 2), (-PL / 2, PW / 2)]
-    pts = []
-    for xy in corners:
-        p = pitch_to_img(H, *xy)
-        if p:
+
+    def poly(names, color, closed=True):
+        pts = []
+        for n in names:
+            p = pitch_to_img(H, *LANDMARKS[n]["xy"])
+            if not p:
+                return
             pts.append([int(p[0]), int(p[1])])
-    if len(pts) == 4:
-        cv2.polylines(vis, [np.array(pts, np.int32)], True, (0, 255, 255), 2)
+        if len(pts) >= 2:
+            cv2.polylines(vis, [np.array(pts, np.int32)], closed, color, 2)
+
+    poly(
+        ["left_far_corner", "left_near_corner", "right_near_corner", "right_far_corner"],
+        (0, 255, 255),
+    )
+    poly(["halfway_far_touch", "halfway_near_touch"], (0, 255, 0), closed=False)
+    poly(
+        ["left_box_goal_near", "left_box_18_near", "left_box_18_far", "left_box_goal_far"],
+        (0, 200, 255),
+    )
+    poly(
+        ["right_box_goal_near", "right_box_18_near", "right_box_18_far", "right_box_goal_far"],
+        (0, 200, 255),
+    )
+    poly(["left_post_near", "left_post_far"], (180, 255, 180), closed=False)
+    poly(["right_post_near", "right_post_far"], (180, 255, 180), closed=False)
     circ = []
     for a in np.linspace(0, 2 * np.pi, 48, endpoint=False):
         p = pitch_to_img(H, R * np.cos(a), R * np.sin(a))
@@ -281,22 +292,34 @@ def draw_overlay(img, H, clicks, names):
             circ.append([int(p[0]), int(p[1])])
     if len(circ) >= 3:
         cv2.polylines(vis, [np.array(circ, np.int32)], True, (255, 0, 0), 2)
-    p0 = pitch_to_img(H, 0.0, -PW / 2)
-    p1 = pitch_to_img(H, 0.0, PW / 2)
-    if p0 and p1:
-        cv2.line(vis, (int(p0[0]), int(p0[1])), (int(p1[0]), int(p1[1])), (0, 255, 0), 2)
     return vis
 
 
-def resolve_landmark_names(order_name: str, landmark_names=None):
+def _fit_H(src, dst):
+    src = np.float32(src)
+    dst = np.float32(dst)
+    if len(src) >= 4:
+        H, _ = cv2.findHomography(src, dst, method=0)
+        if H is None:
+            raise RuntimeError("findHomography failed")
+        return H, "manual_clicks"
+    if len(src) == 3:
+        aff = cv2.getAffineTransform(src, dst)
+        H = np.eye(3, dtype=float)
+        H[:2] = aff
+        return H, "manual_affine_3"
+    raise ValueError("need at least 3 image points")
+
+
+def resolve_landmark_names(order_name: str, landmark_names=None, min_n: int = 4):
     catalog = all_landmarks()
     allowed = set(on_pitch_names())
     if landmark_names:
         names = [str(n) for n in landmark_names]
-        if len(names) != 4:
-            raise ValueError("need 4 landmarks")
-        if len(set(names)) != 4:
-            raise ValueError("need 4 different landmarks")
+        if len(names) < min_n:
+            raise ValueError(f"need at least {min_n} landmarks")
+        if len(set(names)) != len(names):
+            raise ValueError("need different landmarks")
         missing = [n for n in names if n not in catalog]
         if missing:
             raise ValueError(f"unknown landmarks {missing}")
@@ -311,20 +334,20 @@ def resolve_landmark_names(order_name: str, landmark_names=None):
     return names, [xy for _, xy in order]
 
 
-# P9 still: north-right corner / 18-yard / penalty (all in FOV).
+# P9 still: north-right corner / box / post (all in FOV).
 P9_VISIBLE = [
     "right_box_18_far",
     "right_box_goal_far",
-    "right_penalty_spot",
+    "right_post_far",
     "right_far_corner",
 ]
 
 
 def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=None,
-                dry_run: bool = False) -> dict:
+                dry_run: bool = False, min_n: int = 4) -> dict:
     if cam not in {c["id"] for c in CAMS}:
         raise ValueError(f"unknown cam {cam}")
-    names, pitch_pts = resolve_landmark_names(order_name, landmark_names)
+    names, pitch_pts = resolve_landmark_names(order_name, landmark_names, min_n=min_n)
     if dry_run:
         return {
             "ok": True,
@@ -332,25 +355,23 @@ def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=No
             "camera": cam,
             "landmarks": names,
         }
-    if len(image_points) != 4:
-        raise ValueError("need 4 image points")
+    if len(image_points) != len(names):
+        raise ValueError("image points must match landmarks")
+    if len(image_points) < min_n:
+        raise ValueError(f"need at least {min_n} image points")
     still = STILL_DIR / f"{cam}.jpg"
     img = cv2.imread(str(still))
     if img is None:
         raise FileNotFoundError(still)
     h0, w0 = img.shape[:2]
-    src = np.float32(image_points)
-    dst = np.float32(pitch_pts)
-    H, _ = cv2.findHomography(src, dst, method=0)
-    if H is None:
-        raise RuntimeError("findHomography failed")
+    H, version = _fit_H(image_points, pitch_pts)
     CALIB_DIR.mkdir(parents=True, exist_ok=True)
     overlay = draw_overlay(img, H, image_points, names)
     ov_path = CALIB_DIR / f"{cam}_manual_overlay.jpg"
     cv2.imwrite(str(ov_path), overlay)
     payload = {
         "camera": cam,
-        "version": "manual_4click",
+        "version": version,
         "pass": True,
         "H": H.tolist(),
         "homography": H.tolist(),
@@ -373,6 +394,26 @@ def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=No
         "overlay": str(ov_path.relative_to(ROOT)),
         "camera": cam,
     }
+
+
+def refit_saved_calibs() -> None:
+    catalog = all_landmarks()
+    for spec in CAMS:
+        path = CALIB_DIR / f"{spec['id']}_manual.json"
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        names = rec.get("landmark_names") or []
+        imgs = rec.get("image_points") or []
+        keep_n = [n for n in names if n in catalog]
+        keep_p = [p for n, p in zip(names, imgs) if n in catalog]
+        dropped = [n for n in names if n not in catalog]
+        if len(keep_n) < 3:
+            raise ValueError(f"{spec['id']} only {len(keep_n)} measured clicks")
+        save_clicks(
+            spec["id"], rec.get("order") or spec["order"], keep_p,
+            landmark_names=keep_n, min_n=3,
+        )
+        print(f"refit {spec['id']} n={len(keep_n)} dropped={dropped}", flush=True)
+    write_manifest()
 
 
 def extract_all() -> None:

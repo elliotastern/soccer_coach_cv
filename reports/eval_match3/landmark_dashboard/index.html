@@ -157,7 +157,7 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
 </head>
 <body>
 <header>
-  <h1>Click 4 pitch points on the photo</h1>
+  <h1>Click pitch points on the photo</h1>
 </header>
 <div class="layout">
   <section class="picker">
@@ -181,11 +181,12 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
       <div class="bar">
         <button class="act" id="undo" type="button">Undo</button>
         <button class="act" id="clear" type="button">Clear</button>
+        <button class="act" id="addPt" type="button">Add point</button>
         <button class="act primary" id="save" type="button" disabled>Save map</button>
       </div>
       <details class="adv">
         <summary>Change landmark set</summary>
-        <label for="order">This camera’s 4 points</label>
+        <label for="order">Starting landmark set</label>
         <select id="order"></select>
       </details>
       <p class="status" id="status"></p>
@@ -216,15 +217,11 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
   </div>
 </div>
 <script>
-const SVG_W = 560, SVG_H = 880;
-let PL = 105, PW = 68;
+const SVG_W = 569, SVG_H = 880;
+let PL = 53.9, PW = 34.84;
 const MARK = {
-  penalty_depth: 16.5,
-  penalty_half_w: 20.16,
-  goal_area_depth: 5.5,
-  goal_area_half_w: 9.16,
-  penalty_spot: 11,
-  circle_r: 9.15,
+  penalty_depth: 5.95,
+  circle_r: 3.5,
 };
 // Pitch meters: +x = north (P6), -x = south (P1); +y = left, -y = right from P1 looking north.
 const CAM_XY = {
@@ -248,28 +245,18 @@ const DISPLAY = {
   center: "Center Spot",
   circle_near: "Center Circle Left",
   circle_far: "Center Circle Right",
-  left_box_goal_near: "South Left Goal-Line Corner",
-  left_box_goal_far: "South Right Goal-Line Corner",
-  left_box_18_near: "South Left 18-Yard Corner",
-  left_box_18_far: "South Right 18-Yard Corner",
-  left_6_goal_near: "South Left 6-Yard Goal-Line Corner",
-  left_6_goal_far: "South Right 6-Yard Goal-Line Corner",
-  left_6_box_near: "South Left 6-Yard Corner",
-  left_6_box_far: "South Right 6-Yard Corner",
+  left_box_goal_near: "South Left Box Goal-Line Corner",
+  left_box_goal_far: "South Right Box Goal-Line Corner",
+  left_box_18_near: "South Left Box Corner",
+  left_box_18_far: "South Right Box Corner",
   left_post_near: "South Left Goal Post",
   left_post_far: "South Right Goal Post",
-  left_penalty_spot: "South Penalty Spot",
-  right_box_goal_near: "North Left Goal-Line Corner",
-  right_box_goal_far: "North Right Goal-Line Corner",
-  right_box_18_near: "North Left 18-Yard Corner",
-  right_box_18_far: "North Right 18-Yard Corner",
-  right_6_goal_near: "North Left 6-Yard Goal-Line Corner",
-  right_6_goal_far: "North Right 6-Yard Goal-Line Corner",
-  right_6_box_near: "North Left 6-Yard Corner",
-  right_6_box_far: "North Right 6-Yard Corner",
+  right_box_goal_near: "North Left Box Goal-Line Corner",
+  right_box_goal_far: "North Right Box Goal-Line Corner",
+  right_box_18_near: "North Left Box Corner",
+  right_box_18_far: "North Right Box Corner",
   right_post_near: "North Left Goal Post",
   right_post_far: "North Right Goal Post",
-  right_penalty_spot: "North Penalty Spot",
 };
 const ORDER_TITLES = {
   both_sides_south: "South · both sidelines",
@@ -291,30 +278,20 @@ const FIND = {
   center: "Kickoff spot — dead middle of the center circle.",
   circle_near: "Halfway line × center circle on P1’s left.",
   circle_far: "Halfway line × center circle on P1’s right.",
-  left_box_goal_near: "P1 goal line, left corner of the 18-yard box (P1’s left).",
-  left_box_goal_far: "P1 goal line, right corner of the 18-yard box (P1’s right).",
-  left_box_18_near: "P1 box, left corner of the 18-yard line (P1’s left).",
-  left_box_18_far: "P1 box, right corner of the 18-yard line (P1’s right).",
-  left_6_goal_near: "P1 6-yard × goal line, left (P1’s left).",
-  left_6_goal_far: "P1 6-yard × goal line, right (P1’s right).",
-  left_6_box_near: "P1 outer 6-yard corner, left (P1’s left).",
-  left_6_box_far: "P1 outer 6-yard corner, right (P1’s right).",
+  left_box_goal_near: "P1 goal line, left corner of the goal box (P1’s left).",
+  left_box_goal_far: "P1 goal line, right corner of the goal box (P1’s right).",
+  left_box_18_near: "P1 box, left outer corner (P1’s left).",
+  left_box_18_far: "P1 box, right outer corner (P1’s right).",
   left_post_near: "Left goal post at P1’s end (P1’s left).",
   left_post_far: "Right goal post at P1’s end (P1’s right).",
-  left_penalty_spot: "Penalty mark in front of the P1 goal.",
-  right_box_goal_near: "P6 goal line, left 18-yard corner (P1’s left).",
-  right_box_goal_far: "P6 goal line, right 18-yard corner (P1’s right / P9’s near side).",
-  right_box_18_near: "P6 box, left 18-yard corner (P1’s left).",
-  right_box_18_far: "P6 box, right 18-yard corner (P1’s right / P9’s near side).",
-  right_6_goal_near: "P6 6-yard × goal line, left (P1’s left / P8 near).",
-  right_6_goal_far: "P6 6-yard × goal line, right (P1’s right / P9 near).",
-  right_6_box_near: "P6 outer 6-yard corner, left (P1’s left / P8 near).",
-  right_6_box_far: "P6 outer 6-yard corner, right (P1’s right / P9 near).",
+  right_box_goal_near: "P6 goal line, left box corner (P1’s left).",
+  right_box_goal_far: "P6 goal line, right box corner (P1’s right / P9’s near side).",
+  right_box_18_near: "P6 box, left outer corner (P1’s left).",
+  right_box_18_far: "P6 box, right outer corner (P1’s right / P9’s near side).",
   right_post_near: "Left goal post at P6’s end (P1’s left).",
   right_post_far: "Right goal post at P6’s end (P1’s right).",
-  right_penalty_spot: "Penalty mark in front of the P6 goal.",
 };
-let data = null, cam = null, liveOrder = [], clicks = [null, null, null, null], active = 0;
+let data = null, cam = null, liveOrder = [], clicks = [], active = 0;
 
 function m2svg(x, y) {
   const sx = (PW / 2 - y) / PW * SVG_W;
@@ -342,6 +319,10 @@ function drawPitchLines(svg) {
   circ.setAttribute("cx", cx); circ.setAttribute("cy", cy);
   circ.setAttribute("r", MARK.circle_r / PL * SVG_H);
   g.appendChild(circ);
+  function lmxy(name) {
+    const row = data && data.landmarks && data.landmarks[name];
+    return row && row.xy ? row.xy : null;
+  }
   function box(x0, y0, x1, y1, end) {
     const [a, b] = m2svg(x0, y0), [c, d] = m2svg(x1, y1);
     const r = document.createElementNS(ns, "rect");
@@ -350,31 +331,12 @@ function drawPitchLines(svg) {
     r.setAttribute("data-box", end);
     g.appendChild(r);
   }
-  function penaltyArc(spotX, deg0, deg1, keep) {
-    const arc = [];
-    const pr = MARK.circle_r;
-    for (let deg = deg0; deg <= deg1; deg += 3) {
-      const a = deg * Math.PI / 180;
-      const x = spotX + pr * Math.cos(a);
-      const y = pr * Math.sin(a);
-      if (keep(x)) arc.push(m2svg(x, y));
-    }
-    const poly = document.createElementNS(ns, "polyline");
-    poly.setAttribute("points", arc.map(p => p.join(",")).join(" "));
-    g.appendChild(poly);
-  }
-  const hx = PL / 2;
-  box(-hx, MARK.penalty_half_w, -hx + MARK.penalty_depth, -MARK.penalty_half_w, "south");
-  box(hx - MARK.penalty_depth, MARK.penalty_half_w, hx, -MARK.penalty_half_w, "north");
-  box(-hx, MARK.goal_area_half_w, -hx + MARK.goal_area_depth, -MARK.goal_area_half_w, "south6");
-  box(hx - MARK.goal_area_depth, MARK.goal_area_half_w, hx, -MARK.goal_area_half_w, "north6");
-  const frontS = -hx + MARK.penalty_depth;
-  const frontN = hx - MARK.penalty_depth;
-  const spotS = -hx + MARK.penalty_spot;
-  const spotN = hx - MARK.penalty_spot;
-  penaltyArc(spotS, -80, 80, x => x >= frontS - 0.05);
-  penaltyArc(spotN, 100, 260, x => x <= frontN + 0.05);
-  const [ax0, ay0] = m2svg(-38, 0), [ax1, ay1] = m2svg(38, 0);
+  const s0 = lmxy("left_box_goal_near"), s1 = lmxy("left_box_18_far");
+  const n0 = lmxy("right_box_18_near"), n1 = lmxy("right_box_goal_far");
+  if (s0 && s1) box(s0[0], s0[1], s1[0], s1[1], "south");
+  if (n0 && n1) box(n0[0], n0[1], n1[0], n1[1], "north");
+  const lookX = PL * 0.35;
+  const [ax0, ay0] = m2svg(-lookX, 0), [ax1, ay1] = m2svg(lookX, 0);
   const arrow = document.createElementNS(ns, "line");
   arrow.setAttribute("x1", ax0); arrow.setAttribute("y1", ay0);
   arrow.setAttribute("x2", ax1); arrow.setAttribute("y2", ay1);
@@ -543,10 +505,13 @@ function pitchLineSegsSvg() {
     [SVG_W, SVG_H, 0, SVG_H], [0, SVG_H, 0, 0],
     [0, SVG_H / 2, SVG_W, SVG_H / 2],
   ];
-  const boxes = [
-    [-52.5, 20.16, -36, -20.16],
-    [36, 20.16, 52.5, -20.16],
-  ];
+  const boxes = [];
+  const s0 = data && data.landmarks && data.landmarks.left_box_goal_near;
+  const s1 = data && data.landmarks && data.landmarks.left_box_18_far;
+  const n0 = data && data.landmarks && data.landmarks.right_box_18_near;
+  const n1 = data && data.landmarks && data.landmarks.right_box_goal_far;
+  if (s0 && s1) boxes.push([...s0.xy, ...s1.xy]);
+  if (n0 && n1) boxes.push([...n0.xy, ...n1.xy]);
   boxes.forEach(([x0, y0, x1, y1]) => {
     const [a, b] = m2svg(x0, y0), [c, d] = m2svg(x1, y1);
     const xL = Math.min(a, c), xR = Math.max(a, c);
@@ -554,7 +519,7 @@ function pitchLineSegsSvg() {
     segs.push([xL, yT, xR, yT], [xR, yT, xR, yB], [xR, yB, xL, yB], [xL, yB, xL, yT]);
   });
   const [cx, cy] = m2svg(0, 0);
-  const r = 9.15 / PL * SVG_H;
+  const r = MARK.circle_r / PL * SVG_H;
   for (let i = 0; i < 24; i++) {
     const a0 = (i / 24) * Math.PI * 2, a1 = ((i + 1) / 24) * Math.PI * 2;
     segs.push([cx + r * Math.cos(a0), cy + r * Math.sin(a0),
@@ -636,24 +601,14 @@ const LABEL_DIR = {
   left_box_goal_far: [1.35, 1.15],
   left_box_18_near: [-1.6, -0.35],
   left_box_18_far: [1.6, -0.35],
-  left_6_goal_near: [-1.2, 1.0],
-  left_6_goal_far: [1.2, 1.0],
-  left_6_box_near: [-1.5, -0.2],
-  left_6_box_far: [1.5, -0.2],
   left_post_near: [-0.55, 1.55],
   left_post_far: [0.55, 1.55],
-  left_penalty_spot: [0.15, -1.45],
   right_box_goal_near: [-1.55, -1.35],
   right_box_goal_far: [1.9, -1.55],
   right_box_18_near: [-1.75, 0.55],
   right_box_18_far: [2.1, 0.85],
-  right_6_goal_near: [-1.4, -1.0],
-  right_6_goal_far: [1.6, -1.2],
-  right_6_box_near: [-1.7, 0.4],
-  right_6_box_far: [1.9, 0.7],
   right_post_near: [-0.55, -1.55],
   right_post_far: [0.55, -1.55],
-  right_penalty_spot: [0.15, 1.45],
 };
 
 const DIR_TRIES = [
@@ -934,6 +889,18 @@ function renderSteps() {
 }
 
 function nReady() { return clicks.filter(Boolean).length; }
+function nNeed() { return currentOrder().length; }
+
+function addPoint(name) {
+  const spec = landmarkSpec(name);
+  if (!spec) return;
+  if (liveOrder.some(lm => lm.name === name)) return;
+  liveOrder.push(spec);
+  clicks.push(null);
+  active = liveOrder.length - 1;
+  hideExtraTip();
+  refresh();
+}
 
 function swapActive(name) {
   const spec = landmarkSpec(name);
@@ -948,7 +915,7 @@ function swapActive(name) {
 function renderSwaps() {
   const box = document.getElementById("swaps");
   box.innerHTML = "";
-  if (nReady() === 4) return;
+  if (nNeed() >= 4 && nReady() >= nNeed()) return;
   const next = currentOrder()[active];
   if (!next) return;
   const used = new Set(liveOrder.map(lm => lm.name));
@@ -997,17 +964,18 @@ function refresh() {
   const spec = data.cams.find(c => c.id === cam);
   const order = currentOrder();
   const next = order[active];
-  const done = nReady() === 4;
+  const n = nNeed();
+  const done = n >= 4 && nReady() === n;
   const task = document.getElementById("task");
   task.classList.toggle("done", done);
   document.getElementById("taskN").textContent = done
-    ? `${spec.id} · 4 of 4 marked`
-    : `${spec.id} · click ${active + 1} of 4`;
+    ? `${spec.id} · ${n} of ${n} marked`
+    : `${spec.id} · click ${active + 1} of ${n}`;
   document.getElementById("taskWhat").textContent = done
     ? "Save map"
     : prettyName(next);
   document.getElementById("taskFind").textContent = done
-    ? "All four points are on the photo. Save, or click a number to fix one."
+    ? "Points are on the photo. Save, add another, or click a number to fix one."
     : `${(data.landmarks[next.name] && data.landmarks[next.name].spec)
       || FIND[next.name] || "Click that point on the photo."} ${metersOf(next.name)}.`;
   document.getElementById("save").disabled = !done;
@@ -1022,7 +990,7 @@ function selectCam(id) {
   const spec = data.cams.find(c => c.id === cam);
   document.getElementById("order").value = spec.order;
   setLiveFromOrder();
-  clicks = [null, null, null, null];
+  clicks = currentOrder().map(() => null);
   active = 0;
   document.getElementById("still").src = spec.still + "?t=" + Date.now();
   [...document.querySelectorAll(".cams button")].forEach(b => {
@@ -1101,16 +1069,21 @@ function renderNav() {
   });
 }
 
-fetch("cams.json?v=unknown-lm").then(r => r.json()).then(j => {
+fetch("cams.json?v=pitch1field").then(r => r.json()).then(j => {
   data = j;
   PL = j.pitch_length_m || PL;
   PW = j.pitch_width_m || PW;
+  const hx = PL / 2, hy = PW / 2;
+  CAM_XY.P1 = [-hx - 8, 0];
+  CAM_XY.P6 = [hx + 8, 0];
+  CAM_XY.P10 = [-hx * 0.45, hy + 8];
+  CAM_XY.P7 = [-hx * 0.45, -hy - 8];
+  CAM_XY.P8 = [hx * 0.4, hy + 8];
+  CAM_XY.P9 = [hx * 0.45, -hy - 10];
+  CAM_XY.P_Goal1 = [-hx - 12, hy * 0.55];
+  CAM_XY.P_Goal2 = [hx + 12, -hy * 0.55];
   const m = j.pitch_marks || {};
   if (m.penalty_area_depth_m) MARK.penalty_depth = m.penalty_area_depth_m;
-  if (m.penalty_area_half_width_m) MARK.penalty_half_w = m.penalty_area_half_width_m;
-  if (m.goal_area_depth_m) MARK.goal_area_depth = m.goal_area_depth_m;
-  if (m.goal_area_half_width_m) MARK.goal_area_half_w = m.goal_area_half_width_m;
-  if (m.penalty_spot_m) MARK.penalty_spot = m.penalty_spot_m;
   if (m.center_circle_radius_m) MARK.circle_r = m.center_circle_radius_m;
   const sel = document.getElementById("order");
   Object.keys(data.orders).forEach(k => {
@@ -1120,7 +1093,7 @@ fetch("cams.json?v=unknown-lm").then(r => r.json()).then(j => {
   });
   sel.addEventListener("change", () => {
     setLiveFromOrder();
-    clicks = [null, null, null, null];
+    clicks = currentOrder().map(() => null);
     active = 0;
     refresh();
   });
@@ -1135,12 +1108,18 @@ fetch("cams.json?v=unknown-lm").then(r => r.json()).then(j => {
   document.addEventListener("keydown", (ev) => {
     if (ev.target.closest("input, select, textarea")) return;
     if (ev.key === "z") document.getElementById("undo").click();
-    if (ev.key >= "1" && ev.key <= "4") { active = Number(ev.key) - 1; refresh(); }
+    if (ev.key >= "1" && ev.key <= "9") { active = Math.min(Number(ev.key) - 1, nNeed() - 1); refresh(); }
   });
   document.getElementById("clear").addEventListener("click", () => {
-    clicks = [null, null, null, null]; active = 0; refresh();
+    clicks = currentOrder().map(() => null); active = 0; refresh();
   });
   document.getElementById("save").addEventListener("click", save);
+  document.getElementById("addPt").addEventListener("click", () => {
+    const cur = currentOrder()[active] || currentOrder()[currentOrder().length - 1];
+    const names = cur ? nearbyUnused(cur.name) : Object.keys(data.landmarks);
+    if (!names.length) return;
+    addPoint(names[0]);
+  });
   renderNav();
   selectCam(data.cams[0].id);
 });

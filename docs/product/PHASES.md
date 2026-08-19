@@ -46,5 +46,6 @@ Do not treat these as current acceptance criteria:
 
 - [VISION.md](VISION.md) — Product goal and system concept
 - [PHASE1_SCOPE.md](PHASE1_SCOPE.md) — Phase 1 requirements and acceptance
+- [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md) — Official Pitch 1 / Field 1 meters (not FIFA 105×68)
 - [../architecture/LAYOUT.md](../architecture/LAYOUT.md) — Repository layout
 - [../architecture/CONSTRAINTS.md](../architecture/CONSTRAINTS.md) — Latency / RTSP / data policy

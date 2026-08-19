@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for in_pitch_bounds."""
+"""Unit tests for in_pitch_bounds (Pitch 1 measured size)."""
 from __future__ import annotations
 
 import sys
@@ -16,22 +16,21 @@ def test_center_in():
 
 
 def test_corner_in():
-    assert in_pitch_bounds(52.5, 34.0) is True
-    assert in_pitch_bounds(-52.5, -34.0) is True
+    assert in_pitch_bounds(26.95, 17.42) is True
+    assert in_pitch_bounds(-26.95, -17.42) is True
 
 
 def test_just_outside():
-    assert in_pitch_bounds(52.6, 0.0) is False
-    assert in_pitch_bounds(0.0, 34.1) is False
+    assert in_pitch_bounds(27.0, 0.0) is False
+    assert in_pitch_bounds(0.0, 17.5) is False
 
 
 def test_margin_allows_sideline():
-    assert in_pitch_bounds(0.0, 34.5, margin_m=1.0) is True
-    assert in_pitch_bounds(0.0, 35.5, margin_m=1.0) is False
+    assert in_pitch_bounds(0.0, 18.0, margin_m=1.0) is True
+    assert in_pitch_bounds(0.0, 19.0, margin_m=1.0) is False
 
 
 def test_track_ball_rejected():
-    # Spare ball on brown track beyond touchline
     assert in_pitch_bounds(10.0, 40.0, margin_m=0.5) is False
 
 

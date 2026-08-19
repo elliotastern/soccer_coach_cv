@@ -102,6 +102,10 @@ class PitchMapper:
         center_y = y + h / 2
         return self.pixel_to_pitch(center_x, center_y)
 
+    def bbox_foot_to_pitch(self, bbox: Tuple[float, float, float, float]) -> Location:
+        x, y, w, h = bbox
+        return self.pixel_to_pitch(x + w / 2.0, y + h)
+
     def distance_to_center(self, x_pitch: float, y_pitch: float) -> float:
         """
         Calculate distance to center circle accounting for y-axis compression.

@@ -20,13 +20,11 @@ from raw_cam_id import cam_id_from_raw_name
 
 SOUTH_BOX = {
     "left_box_goal_near", "left_box_goal_far", "left_box_18_near",
-    "left_box_18_far", "left_penalty_spot", "left_post_near", "left_post_far",
-    "left_6_goal_near", "left_6_goal_far", "left_6_box_near", "left_6_box_far",
+    "left_box_18_far", "left_post_near", "left_post_far",
 }
 NORTH_BOX = {
     "right_box_goal_near", "right_box_goal_far", "right_box_18_near",
-    "right_box_18_far", "right_penalty_spot", "right_post_near", "right_post_far",
-    "right_6_goal_near", "right_6_goal_far", "right_6_box_near", "right_6_box_far",
+    "right_box_18_far", "right_post_near", "right_post_far",
 }
 
 
@@ -68,10 +66,10 @@ def main() -> int:
             return 1
     for name, (x, y) in catalog.items():
         label = DISPLAY[name]
-        if "Left" in label and y <= 2:
+        if "Left" in label and y <= 0:
             print(f"{label} must have +y (P1 left), got {y}")
             return 1
-        if "Right" in label and y >= -2:
+        if "Right" in label and y >= 0:
             print(f"{label} must have -y (P1 right), got {y}")
             return 1
         if "North" in label and x <= 2:
@@ -94,8 +92,8 @@ def main() -> int:
         "right_box_18_near", "right_box_18_far",
     }
     near = nearby_unused("right_box_goal_near", used, 5)
-    if "right_6_goal_near" not in near:
-        print("P8 unknown swap should offer north left 6-yard", near)
+    if "right_post_near" not in near:
+        print("P8 unknown swap should offer north left post", near)
         return 1
     if set(near) & used:
         print("nearby_unused leaked live marks", near)
