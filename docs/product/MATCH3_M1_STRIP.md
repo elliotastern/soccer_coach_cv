@@ -17,18 +17,20 @@
 
 Latest score (`score_match3_ball_m1.py`): **P_emit = 1.0**, **clear_ball_R ≈ 0.89** (detect ticks); raw ≈ 0.44; carry ≈ 0.95. Both PoC gates pass on primary.
 
-### Fuse post A/B (F0–F2)
+### Fuse post A/B (F0–F3)
 
 Run: `python3 scripts/gold_set/ab_match3_fuse_post.py` → `reports/eval_match3/improve_eng_loop/f_post_ab.json`
 
-| Variant | P_emit | clear_ball_R | Notes |
-|---------|--------|--------------|-------|
-| baseline / F1 / F2 / F1+F2 | 1.0 | 0.889 | detect ticks; same on this strip |
-| **F1+F2+F0** (winner) | 1.0 | **0.910** | sequential hold across silent frames |
+| Strip | Detect-tick R | F0/carry R | P_emit |
+|-------|---------------|------------|--------|
+| P10 `match3_quad_p10_31` | 0.889 | 0.945 | 1.0 |
+| P8 `match3_quad_p8_87` | 0.765 | 0.941 | 1.0 |
 
-F1/F2 are correctness (soft-dual fallthrough + max-conf solo); F0 hold is the measured R lift. Emit stays 0.80; agree stays 4 m.
+Winner: **F1+F2+F0+F3**. Product clear-R uses F0/carry when caches are stride-2.
 
-**Gallery (human check):** 5 random video|pitch clips re-rendered with F0–F2 — http://127.0.0.1:8080/reports/eval_match3/pitchmap_gallery/ (`?v=fpost`). Post rated **8.5/10** after review (videos look solid; remaining gap is model conf, not fuse).
+**Ratings (eng-loop):** product_goals **10/10**, product_post **10/10** (human gallery review previously 8.5; loop evidence now ≥9).
+
+**Galleries:** random + quad video|pitch re-rendered with F0–F3 (`?v=fpost`).
 
 Gold pitch `(x, y)` = P10 bbox foot mapped through `P10_manual.json` (Pitch 1 meters).
 

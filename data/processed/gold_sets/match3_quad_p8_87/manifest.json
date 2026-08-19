@@ -1,0 +1,12 @@
+{
+  "pack": "match3_quad_p8_87",
+  "focus_cam": "P8",
+  "clock": "1:27-1:32",
+  "n_frames": 299,
+  "n_clear": 85,
+  "n_gold_xy": 85,
+  "labels": "labels.json",
+  "review": "review/index.html",
+  "source": "reports/eval_match3/quad_pitchmap_gallery/source/quad_P8_t00087.0s_P8.mp4",
+  "provisional": true
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A/B Match 3 fuse post (F0/F1/F2) on M1 strip. Gate: P_emit >= 0.80."""
+"""A/B Match 3 fuse post (F0–F3) on labeled strips. Gate: P_emit >= 0.80."""
 from __future__ import annotations
 
 import json
@@ -13,8 +13,9 @@ sys.path.insert(0, str(ROOT / "scripts" / "gold_set"))
 
 from eval_match2_top_left_multicam_baseline import cache_load  # noqa: E402
 from multicam_select_policy import MATCH3_THR_BY_CAM, filter_active  # noqa: E402
-from score_match3_ball_m1 import HIT_M, STRIP, infer_cache_stride  # noqa: E402
+from score_match3_ball_m1 import HIT_M, infer_cache_stride  # noqa: E402
 from src.mapping.match3_xy import (  # noqa: E402
+    GHOST_CONF,
     HOLD_MAX_GAP,
     fuse_balls,
     fuse_balls_with_hold,
@@ -23,14 +24,22 @@ from src.mapping.match3_xy import (  # noqa: E402
 )
 
 OUT = ROOT / "reports/eval_match3/improve_eng_loop/f_post_ab.json"
+STRIPS = [
+    ROOT / "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+    ROOT / "data/processed/gold_sets/match3_quad_p8_87/labels.json",
+]
 CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 WH = (1920, 1080)
+# name, f1, f2, hold, ghost_prune
 VARIANTS = (
-    ("baseline", False, False, False),
-    ("F1", True, False, False),
-    ("F2", False, True, False),
-    ("F1+F2", True, True, False),
-    ("F1+F2+F0", True, True, True),
+    ("baseline", False, False, False, False),
+    ("F1", True, False, False, False),
+    ("F2", False, True, False, False),
+    ("F3", False, False, False, True),
+    ("F1+F2", True, True, False, False),
+    ("F1+F2+F3", True, True, False, True),
+    ("F1+F2+F0", True, True, True, False),
+    ("F1+F2+F0+F3", True, True, True, True),
 )
 
 
@@ -48,14 +57,13 @@ def mapped_at(dets, i, calibs, cams):
     return rows
 
 
-def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold):
+def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold, ghost):
     cams = [c for c in CAMS if c in dets]
     tp = fp = emit = clear = clear_emit = 0
     errs = []
     prev = None
     gap = HOLD_MAX_GAP + 1
     frames = labels["frames"]
-    n = len(frames)
     for fr in frames:
         i = int(fr["i"])
         if stride > 1 and i % stride != 0 and not use_hold:
@@ -66,27 +74,23 @@ def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold):
         if is_clear:
             clear += 1
         rows = mapped_at(dets, i, calibs, cams)
+        kwargs = dict(
+            soft_dual_fallback=f1,
+            solo_max_conf=f2,
+            ghost_prune=ghost,
+            ghost_conf=GHOST_CONF,
+        )
         if use_hold:
-            fresh = fuse_balls(
-                rows, soft_dual_fallback=f1, solo_max_conf=f2
-            )
+            fresh = fuse_balls(rows, **kwargs)
             if fresh is not None:
                 fused = fresh
                 prev = fresh
                 gap = 0
             else:
                 gap += 1
-                fused = fuse_balls_with_hold(
-                    prev,
-                    [],
-                    gap,
-                    soft_dual_fallback=f1,
-                    solo_max_conf=f2,
-                )
+                fused = fuse_balls_with_hold(prev, [], gap, **kwargs)
         else:
-            if stride > 1 and i % stride != 0:
-                continue
-            fused = fuse_balls(rows, soft_dual_fallback=f1, solo_max_conf=f2)
+            fused = fuse_balls(rows, **kwargs)
         if fused is None or gold is None:
             continue
         emit += 1
@@ -101,10 +105,6 @@ def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold):
             fp += 1
         if is_clear:
             clear_emit += 1
-    # For non-hold, clear counted only on ticks; for hold, all label frames.
-    # Align primary to detect ticks when not hold:
-    if not use_hold:
-        pass
     p_emit = None if (tp + fp) == 0 else tp / (tp + fp)
     clear_r = None if clear == 0 else clear_emit / clear
     return {
@@ -119,55 +119,78 @@ def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold):
         else round(sorted(errs)[len(errs) // 2], 3),
         "poc_pass_P_emit": bool(p_emit is not None and p_emit >= 0.80),
         "poc_pass_clear_R": bool(clear_r is not None and clear_r >= 0.80),
-        "n_frames_scored": n if use_hold else (n + stride - 1) // stride,
     }
 
 
-def main() -> int:
-    if not STRIP.is_file():
-        print(f"missing strip {STRIP}")
-        return 1
-    labels = json.loads(STRIP.read_text(encoding="utf-8"))
+def score_strip_all_variants(path: Path) -> dict:
+    labels = json.loads(path.read_text(encoding="utf-8"))
     dets = cache_load(ROOT / labels["det_cache"])
     cams = [c for c in CAMS if c in dets]
     calibs = {c: v for c, v in ((c, load_calib(c)) for c in cams) if v}
     focus = labels.get("focus_cam") or "P10"
     stride = infer_cache_stride(dets)
     rows = {}
-    for name, f1, f2, hold in VARIANTS:
+    for name, f1, f2, hold, ghost in VARIANTS:
         rows[name] = score_variant(
-            labels, dets, calibs, focus, stride, f1, f2, hold
+            labels, dets, calibs, focus, stride, f1, f2, hold, ghost
         )
         rows[name]["flags"] = {
             "soft_dual_fallback": f1,
             "solo_max_conf": f2,
             "hold": hold,
+            "ghost_prune": ghost,
         }
-    survivors = {
-        k: v
-        for k, v in rows.items()
-        if v.get("poc_pass_P_emit")
-    }
-    ranked = sorted(
-        survivors.items(),
-        key=lambda kv: (
-            -(kv[1].get("clear_ball_R") or 0.0),
-            kv[1].get("err_median_m") or 99.0,
-        ),
-    )
-    winner = ranked[0][0] if ranked else None
-    out = {
-        "strip": str(STRIP.relative_to(ROOT)),
+    return {
+        "pack": labels.get("pack"),
+        "path": str(path.relative_to(ROOT)),
         "det_cache_stride": stride,
-        "hit_m": HIT_M,
         "variants": rows,
-        "survivors": list(survivors),
+    }
+
+
+def pick_winner(by_strip: dict) -> str | None:
+    """Survivors must pass P_emit on every available strip; rank by mean clear_R."""
+    names = [v[0] for v in VARIANTS]
+    survivors = []
+    for name in names:
+        ok = True
+        rs = []
+        for pack, block in by_strip.items():
+            row = (block.get("variants") or {}).get(name) or {}
+            if not row.get("poc_pass_P_emit"):
+                ok = False
+                break
+            rs.append(float(row.get("clear_ball_R") or 0.0))
+        if ok and rs:
+            survivors.append((name, sum(rs) / len(rs), min(rs)))
+    if not survivors:
+        return None
+    survivors.sort(key=lambda t: (-t[1], -t[2], -len(t[0]), t[0]))
+    return survivors[0][0]
+
+
+def main() -> int:
+    by_strip = {}
+    for path in STRIPS:
+        if not path.is_file():
+            print(f"skip missing strip {path}")
+            continue
+        block = score_strip_all_variants(path)
+        by_strip[block["pack"] or path.parent.name] = block
+        print(block["pack"], {k: block["variants"][k]["clear_ball_R"] for k in block["variants"]})
+    if not by_strip:
+        print("no strips")
+        return 1
+    winner = pick_winner(by_strip)
+    out = {
+        "hit_m": HIT_M,
+        "ghost_conf": GHOST_CONF,
+        "strips": by_strip,
         "winner": winner,
-        "gate": "P_emit >= 0.80; rank clear_ball_R then err_median_m",
+        "gate": "P_emit >= 0.80 on all strips; rank mean clear_ball_R",
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2), encoding="utf-8")
-    print(json.dumps({k: rows[k] for k in rows}, indent=2))
     print(f"winner={winner}")
     print(f"wrote {OUT}")
     return 0 if winner else 1

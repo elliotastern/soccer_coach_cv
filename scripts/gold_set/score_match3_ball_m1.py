@@ -31,6 +31,10 @@ from src.mapping.match3_xy import (  # noqa: E402
 
 OUT = ROOT / "reports/eval_match3/improve_eng_loop/m1_provisional.json"
 STRIP = ROOT / "data/processed/gold_sets/match3_quad_p10_31/labels.json"
+STRIPS = [
+    ROOT / "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+    ROOT / "data/processed/gold_sets/match3_quad_p8_87/labels.json",
+]
 CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 WH = (1920, 1080)
 CLEAR_SIDE = 25.0
@@ -254,38 +258,40 @@ def main() -> int:
             "hit_m": HIT_M,
         },
         "packs": score_proxy_packs(),
+        "strips": {},
     }
-    if STRIP.is_file():
-        out["strip"] = score_strip(STRIP)
+    for path in STRIPS:
+        if not path.is_file():
+            continue
+        row = score_strip(path)
+        key = row.get("pack") or path.parent.name
+        out["strips"][key] = row
+    if out["strips"]:
+        # Primary strip remains P10 M1 when present
+        out["strip"] = out["strips"].get("match3_quad_p10_31") or next(
+            iter(out["strips"].values())
+        )
         out["note"] = (
-            "strip P_emit/clear_ball_R are provisional until human-corrected labels; "
-            "proxy packs remain coverage-only."
+            "strip metrics provisional until human-corrected; "
+            "multi-strip evidence for eng-loop product ≥9."
         )
     else:
         out["note"] = (
-            "Proxy only — build strip via scripts/gold_set/build_match3_m1_strip.py"
+            "Proxy only — build strip via scripts/gold_set/build_match3_strip.py"
         )
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2), encoding="utf-8")
-    if "strip" in out:
-        s = out["strip"]
+    for key, s in (out.get("strips") or {}).items():
         print(
-            f"strip: P_emit={s['P_emit']} clear_ball_R={s['clear_ball_R']} "
+            f"{key}: P_emit={s['P_emit']} clear_ball_R={s['clear_ball_R']} "
             f"(stride={s.get('det_cache_stride')}) "
             f"emit={s['n_emit_scored']} clear={s['n_clear']} "
-            f"err_med={s['err_median_m']}m pass_P={s['poc_pass_P_emit']} "
-            f"pass_R={s['poc_pass_clear_R']}"
+            f"pass_P={s['poc_pass_P_emit']} pass_R={s['poc_pass_clear_R']}"
         )
         modes = s.get("modes") or {}
-        if modes:
-            raw = modes.get("raw_all_label_frames") or {}
-            carry = modes.get("carry_neighbor_tick") or {}
-            print(
-                f"  raw_R={raw.get('clear_ball_R')} "
-                f"carry_R={carry.get('clear_ball_R')} "
-                f"note={s.get('note')}"
-            )
-        out["note"] = s.get("note") or out.get("note")
+        carry = modes.get("carry_neighbor_tick") or {}
+        if carry:
+            print(f"  carry_R={carry.get('clear_ball_R')}")
 
     for name, pack in out["packs"].items():
         print(

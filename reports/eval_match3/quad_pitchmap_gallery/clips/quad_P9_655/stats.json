@@ -1,0 +1,15 @@
+{
+  "stem": "quad_P9_t00655.3s",
+  "label": "P9 focus 10:55",
+  "clock": "10:55\u201311:00",
+  "policy": "match3_pitch_fuse",
+  "thr_policy": "match3_all_cam_thr020",
+  "thr_by_cam": {
+    "_default": 0.2
+  },
+  "n_frames": 150,
+  "n_emit": 23,
+  "n_agree": 0,
+  "map_note": "Pitch (x,y) from Match 3 4-click H, bbox foot, hull support, 4 m fuse, emit \u2265 0.80. No FOV wedge.",
+  "overlay": "reports/eval_match3/quad_pitchmap_gallery/clips/quad_P9_655/quad_P9_t00655.3s_video_pitch.mp4"
+}

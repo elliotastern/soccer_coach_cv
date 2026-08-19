@@ -158,8 +158,18 @@ def score_fuse() -> tuple[float, list[str]]:
     if f2 is None or f2.get("agree") or f2.get("cam") != "P6":
         score -= 3
         notes.append("F2 max-conf solo missing")
+    # F3: weak far ghost dropped; strong solo remains
+    f3 = fuse_balls(
+        [
+            {"cam": "P6", "xy": (-13.0, 7.0), "conf": 0.91, "support": 1.0, "weight": 0.91},
+            {"cam": "P1", "xy": (12.0, 0.0), "conf": 0.25, "support": 1.0, "weight": 0.25},
+        ]
+    )
+    if f3 is None or f3.get("agree") or f3.get("cam") != "P6":
+        score -= 3
+        notes.append("F3 ghost prune missing")
     if not notes:
-        notes.append("fuse agree/disagree/F1/F2 ok")
+        notes.append("fuse agree/disagree/F1/F2/F3 ok")
     return clamp(score), notes
 
 

@@ -1,101 +1,294 @@
 {
-  "strip": "data/processed/gold_sets/match3_quad_p10_31/labels.json",
-  "det_cache_stride": 2,
   "hit_m": 4.0,
-  "variants": {
-    "baseline": {
-      "n_clear": 72,
-      "n_emit_scored": 71,
-      "tp": 71,
-      "fp": 0,
-      "P_emit": 1.0,
-      "clear_ball_R": 0.889,
-      "err_median_m": 1.043,
-      "poc_pass_P_emit": true,
-      "poc_pass_clear_R": true,
-      "n_frames_scored": 150,
-      "flags": {
-        "soft_dual_fallback": false,
-        "solo_max_conf": false,
-        "hold": false
+  "ghost_conf": 0.45,
+  "strips": {
+    "match3_quad_p10_31": {
+      "pack": "match3_quad_p10_31",
+      "path": "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+      "det_cache_stride": 2,
+      "variants": {
+        "baseline": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": false,
+            "solo_max_conf": false,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F1": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": false,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F2": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": false,
+            "solo_max_conf": true,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F3": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": false,
+            "solo_max_conf": false,
+            "hold": false,
+            "ghost_prune": true
+          }
+        },
+        "F1+F2": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F1+F2+F3": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": false,
+            "ghost_prune": true
+          }
+        },
+        "F1+F2+F0": {
+          "n_clear": 145,
+          "n_emit_scored": 145,
+          "tp": 145,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.91,
+          "err_median_m": 1.057,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": true,
+            "ghost_prune": false
+          }
+        },
+        "F1+F2+F0+F3": {
+          "n_clear": 145,
+          "n_emit_scored": 145,
+          "tp": 145,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.91,
+          "err_median_m": 1.057,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": true,
+            "ghost_prune": true
+          }
+        }
       }
     },
-    "F1": {
-      "n_clear": 72,
-      "n_emit_scored": 71,
-      "tp": 71,
-      "fp": 0,
-      "P_emit": 1.0,
-      "clear_ball_R": 0.889,
-      "err_median_m": 1.043,
-      "poc_pass_P_emit": true,
-      "poc_pass_clear_R": true,
-      "n_frames_scored": 150,
-      "flags": {
-        "soft_dual_fallback": true,
-        "solo_max_conf": false,
-        "hold": false
-      }
-    },
-    "F2": {
-      "n_clear": 72,
-      "n_emit_scored": 71,
-      "tp": 71,
-      "fp": 0,
-      "P_emit": 1.0,
-      "clear_ball_R": 0.889,
-      "err_median_m": 1.043,
-      "poc_pass_P_emit": true,
-      "poc_pass_clear_R": true,
-      "n_frames_scored": 150,
-      "flags": {
-        "soft_dual_fallback": false,
-        "solo_max_conf": true,
-        "hold": false
-      }
-    },
-    "F1+F2": {
-      "n_clear": 72,
-      "n_emit_scored": 71,
-      "tp": 71,
-      "fp": 0,
-      "P_emit": 1.0,
-      "clear_ball_R": 0.889,
-      "err_median_m": 1.043,
-      "poc_pass_P_emit": true,
-      "poc_pass_clear_R": true,
-      "n_frames_scored": 150,
-      "flags": {
-        "soft_dual_fallback": true,
-        "solo_max_conf": true,
-        "hold": false
-      }
-    },
-    "F1+F2+F0": {
-      "n_clear": 145,
-      "n_emit_scored": 145,
-      "tp": 145,
-      "fp": 0,
-      "P_emit": 1.0,
-      "clear_ball_R": 0.91,
-      "err_median_m": 1.057,
-      "poc_pass_P_emit": true,
-      "poc_pass_clear_R": true,
-      "n_frames_scored": 299,
-      "flags": {
-        "soft_dual_fallback": true,
-        "solo_max_conf": true,
-        "hold": true
+    "match3_quad_p8_87": {
+      "pack": "match3_quad_p8_87",
+      "path": "data/processed/gold_sets/match3_quad_p8_87/labels.json",
+      "det_cache_stride": 2,
+      "variants": {
+        "baseline": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false,
+          "flags": {
+            "soft_dual_fallback": false,
+            "solo_max_conf": false,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F1": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": false,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F2": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false,
+          "flags": {
+            "soft_dual_fallback": false,
+            "solo_max_conf": true,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F3": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false,
+          "flags": {
+            "soft_dual_fallback": false,
+            "solo_max_conf": false,
+            "hold": false,
+            "ghost_prune": true
+          }
+        },
+        "F1+F2": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": false,
+            "ghost_prune": false
+          }
+        },
+        "F1+F2+F3": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": false,
+            "ghost_prune": true
+          }
+        },
+        "F1+F2+F0": {
+          "n_clear": 85,
+          "n_emit_scored": 75,
+          "tp": 74,
+          "fp": 1,
+          "P_emit": 0.987,
+          "clear_ball_R": 0.882,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": true,
+            "ghost_prune": false
+          }
+        },
+        "F1+F2+F0+F3": {
+          "n_clear": 85,
+          "n_emit_scored": 75,
+          "tp": 74,
+          "fp": 1,
+          "P_emit": 0.987,
+          "clear_ball_R": 0.882,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "flags": {
+            "soft_dual_fallback": true,
+            "solo_max_conf": true,
+            "hold": true,
+            "ghost_prune": true
+          }
+        }
       }
     }
   },
-  "survivors": [
-    "baseline",
-    "F1",
-    "F2",
-    "F1+F2",
-    "F1+F2+F0"
-  ],
-  "winner": "F1+F2+F0",
-  "gate": "P_emit >= 0.80; rank clear_ball_R then err_median_m"
+  "winner": "F1+F2+F0+F3",
+  "gate": "P_emit >= 0.80 on all strips; rank mean clear_ball_R"
 }

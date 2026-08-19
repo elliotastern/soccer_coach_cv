@@ -1,0 +1,20 @@
+{
+  "scores": {
+    "plan": 10.0,
+    "roundtrip": 10.0,
+    "map": 10.0,
+    "fuse": 10.0,
+    "cam_ids": 10.0
+  },
+  "notes": {
+    "plan": [],
+    "roundtrip": [],
+    "map": [],
+    "fuse": [
+      "fuse agree/disagree/F1/F2/F3 ok"
+    ],
+    "cam_ids": []
+  },
+  "pass": 9.0,
+  "fails": []
+}

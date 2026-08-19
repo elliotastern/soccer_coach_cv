@@ -18,6 +18,8 @@ MARGIN_M = 1.0
 SUPPORT_PX = 180.0
 # Soft hull (H1): 0.25 keeps midfield maps; emit gate still EMIT_CONF ≥ 0.80.
 MIN_SUPPORT = 0.25
+# F3: drop weak maps that disagree with the max-conf anchor (ghost prune).
+GHOST_CONF = 0.45
 MATCH3_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 
 
@@ -137,6 +139,25 @@ def _near(a: dict, b: dict) -> bool:
     return (dx * dx + dy * dy) ** 0.5 <= AGREE_M
 
 
+def prune_ghost_maps(
+    rows: list[dict],
+    *,
+    enabled: bool = True,
+    ghost_conf: float = GHOST_CONF,
+) -> list[dict]:
+    """F3: keep maps near max-conf anchor, or far maps with conf ≥ ghost_conf.
+
+    Default ghost_conf=0.45 drops weak far P1/P7 ghosts. A/B may use 0.80
+    (far cams only if already emit-eligible).
+    """
+    if not enabled or len(rows) < 2:
+        return rows
+    floor = float(ghost_conf)
+    anchor = max(rows, key=lambda r: float(r["conf"]))
+    kept = [r for r in rows if _near(anchor, r) or float(r["conf"]) >= floor]
+    return kept if kept else [anchor]
+
+
 def _solo_emit(rows: list[dict]) -> dict | None:
     """Emit highest-conf row if it clears EMIT_CONF (never average)."""
     if not rows:
@@ -158,16 +179,20 @@ def fuse_balls(
     *,
     soft_dual_fallback: bool = True,
     solo_max_conf: bool = True,
+    ghost_prune: bool = True,
+    ghost_conf: float = GHOST_CONF,
 ) -> dict | None:
     """Pitch-space fuse. EMIT_CONF / AGREE_M hard gates.
 
     F1 soft_dual_fallback: agree cluster with combined conf < emit falls
     through to solo instead of silent drop.
     F2 solo_max_conf: solo uses max conf among candidates, not weight seed only.
+    F3 ghost_prune: drop weak maps that disagree with the max-conf anchor.
     """
     valid = [r for r in rows if r]
     if not valid:
         return None
+    valid = prune_ghost_maps(valid, enabled=ghost_prune, ghost_conf=ghost_conf)
     valid.sort(key=lambda r: r["weight"], reverse=True)
     seed = valid[0]
     cluster = [r for r in valid if _near(seed, r)]
@@ -199,6 +224,8 @@ def fuse_balls_with_hold(
     *,
     soft_dual_fallback: bool = True,
     solo_max_conf: bool = True,
+    ghost_prune: bool = True,
+    ghost_conf: float = GHOST_CONF,
     hold_max_gap: int = HOLD_MAX_GAP,
 ) -> dict | None:
     """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap."""
@@ -206,6 +233,8 @@ def fuse_balls_with_hold(
         cur_mapped,
         soft_dual_fallback=soft_dual_fallback,
         solo_max_conf=solo_max_conf,
+        ghost_prune=ghost_prune,
+        ghost_conf=ghost_conf,
     )
     if cur is not None:
         return cur

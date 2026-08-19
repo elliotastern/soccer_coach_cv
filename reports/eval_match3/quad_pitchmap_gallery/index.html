@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Match 3 — quad FOV pitch clips</title>
+<style>
+:root { --bg:#121612; --panel:#1c241c; --text:#eef2ee; --muted:#9aab9a; --accent:#e8c547; }
+body { margin:0; font-family:"IBM Plex Sans",Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
+main { max-width: 1280px; margin: 0 auto; padding: 1.2rem 1.4rem 2rem; }
+h1 { font-family:"IBM Plex Serif",Georgia,serif; font-size:1.35rem; margin:0 0 .35rem; }
+.sub { color:var(--muted); font-size:.9rem; line-height:1.45; margin-bottom:1rem; max-width:52rem; }
+select { background:var(--panel); color:var(--text); border:1px solid #3a4a3a; padding:.55rem .7rem; border-radius:6px; min-width:min(100%, 420px); }
+video { width:100%; background:#000; border-radius:8px; display:block; }
+.meta { margin-top:.65rem; color:var(--muted); font-size:.82rem; }
+code { color:var(--accent); }
+</style></head><body><main>
+<h1>Match 3 — quad FOV (P8 / P9 / P10)</h1>
+<p class="sub">C1 clips scouted for thr-pass ball on quad cams (≥0.30). Fuse still emit ≥0.80 · hull 0.25 · Pitch 1 meters.</p>
+<div><label for="clip">Clip </label><select id="clip"><option value="quad_P8_87" data-src="/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P8_87/quad_P8_t00087.0s_video_pitch.mp4?v=fpost">P8 focus 1:27 · 1:27–1:32</option>
+<option value="quad_P9_655" data-src="/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P9_655/quad_P9_t00655.3s_video_pitch.mp4?v=fpost">P9 focus 10:55 · 10:55–11:00</option>
+<option value="quad_P10_31" data-src="/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P10_31/quad_P10_t00031.0s_video_pitch.mp4?v=fpost">P10 focus 0:31 · 0:31–0:36</option></select></div>
+<video id="player" controls autoplay muted loop></video>
+<p class="meta" id="meta"></p>
+<script>
+const entries = [{"id": "quad_P8_87", "label": "P8 focus 1:27", "clock": "1:27\u20131:32", "url": "/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P8_87/quad_P8_t00087.0s_video_pitch.mp4?v=fpost", "page": "/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P8_87/", "n_frames": 150, "n_emit": 106, "n_agree": 0, "policy": "match3_pitch_fuse", "focus_cam": "P8", "hit_conf": 0.869}, {"id": "quad_P9_655", "label": "P9 focus 10:55", "clock": "10:55\u201311:00", "url": "/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P9_655/quad_P9_t00655.3s_video_pitch.mp4?v=fpost", "page": "/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P9_655/", "n_frames": 150, "n_emit": 23, "n_agree": 0, "policy": "match3_pitch_fuse", "focus_cam": "P9", "hit_conf": 0.87}, {"id": "quad_P10_31", "label": "P10 focus 0:31", "clock": "0:31\u20130:36", "url": "/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P10_31/quad_P10_t00031.0s_video_pitch.mp4?v=fpost", "page": "/reports/eval_match3/quad_pitchmap_gallery/clips/quad_P10_31/", "n_frames": 150, "n_emit": 124, "n_agree": 82, "policy": "match3_pitch_fuse", "focus_cam": "P10", "hit_conf": 0.88}];
+const byId = Object.fromEntries(entries.map(e => [e.id, e]));
+const sel = document.getElementById('clip');
+const player = document.getElementById('player');
+const meta = document.getElementById('meta');
+function show(id) {
+  const e = byId[id]; if (!e) return;
+  player.src = e.url; player.play().catch(() => {});
+  const emit = (e.n_emit == null) ? "" : ` · emit ${e.n_emit}/${e.n_frames} · agree ${e.n_agree}`;
+  meta.innerHTML = `<b>${e.label}</b> · ${e.clock} · focus <code>${e.focus_cam}</code>${emit}`;
+  history.replaceState(null, '', '#' + id);
+}
+sel.addEventListener('change', () => show(sel.value));
+const initial = (location.hash || '').slice(1) || entries[0].id;
+if (byId[initial]) sel.value = initial;
+show(sel.value);
+</script>
+</main></body></html>

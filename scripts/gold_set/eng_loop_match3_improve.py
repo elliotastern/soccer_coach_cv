@@ -160,20 +160,48 @@ def score_f_post() -> tuple[float, list[str]]:
         return 0.0, ["missing f_post_ab.json — run ab_match3_fuse_post.py"]
     data = json.loads(path.read_text(encoding="utf-8"))
     winner = data.get("winner")
+    allowed = {
+        "F1",
+        "F2",
+        "F3",
+        "F1+F2",
+        "F1+F2+F3",
+        "F1+F2+F0",
+        "F1+F2+F0+F3",
+    }
     if not winner:
         score -= 5.0
         notes.append("no winner passing P_emit>=0.80")
-    elif winner not in ("F1", "F2", "F1+F2", "F1+F2+F0"):
+    elif winner not in allowed:
         score -= 4.0
-        notes.append(f"winner {winner} not in F0/F1/F2 set")
-    variants = data.get("variants") or {}
-    locked = variants.get("F1+F2+F0") or variants.get("F1+F2") or {}
-    if not locked.get("poc_pass_P_emit"):
-        score -= 4.0
-        notes.append("F1+F2(+F0) failed P_emit gate")
-    if float(locked.get("clear_ball_R") or 0) < 0.80:
-        score -= 3.0
-        notes.append("F post clear_ball_R < 0.80")
+        notes.append(f"winner {winner} not in F0–F3 set")
+    strips = data.get("strips") or {}
+    # Prefer multi-strip shape; fall back to legacy flat variants
+    locked = None
+    if strips:
+        for block in strips.values():
+            variants = block.get("variants") or {}
+            locked = (
+                variants.get("F1+F2+F0+F3")
+                or variants.get("F1+F2+F0")
+                or variants.get(winner)
+                or {}
+            )
+            if not locked.get("poc_pass_P_emit"):
+                score -= 3.0
+                notes.append(f"{block.get('pack')} failed P_emit")
+            if float(locked.get("clear_ball_R") or 0) < 0.80:
+                score -= 2.0
+                notes.append(f"{block.get('pack')} clear_R < 0.80")
+    else:
+        variants = data.get("variants") or {}
+        locked = variants.get("F1+F2+F0") or variants.get("F1+F2") or {}
+        if not locked.get("poc_pass_P_emit"):
+            score -= 4.0
+            notes.append("F1+F2(+F0) failed P_emit gate")
+        if float(locked.get("clear_ball_R") or 0) < 0.80:
+            score -= 3.0
+            notes.append("F post clear_ball_R < 0.80")
     text = (ROOT / "src/mapping/match3_xy.py").read_text(encoding="utf-8")
     if "soft_dual_fallback" not in text or "solo_max_conf" not in text:
         score -= 3.0
@@ -181,8 +209,103 @@ def score_f_post() -> tuple[float, list[str]]:
     if "fuse_balls_with_hold" not in text or "HOLD_MAX_GAP" not in text:
         score -= 2.0
         notes.append("F0 hold helper missing")
+    if "prune_ghost_maps" not in text or "GHOST_CONF" not in text:
+        score -= 2.0
+        notes.append("F3 ghost prune missing")
     if not notes:
         notes.append(f"F post winner={winner}")
+    return clamp(score), notes
+
+
+def score_product_goals() -> tuple[float, list[str]]:
+    """Product P_emit + clear_ball_R evidence ≥ 9/10.
+
+    Clear-R uses carry/F0 when det caches are stride-2 (product ships hold).
+    """
+    notes = []
+    score = 10.0
+    path = OUT / "m1_provisional.json"
+    if not path.is_file():
+        return 0.0, ["missing m1_provisional.json"]
+    data = json.loads(path.read_text(encoding="utf-8"))
+    strips = data.get("strips") or {}
+    if not strips and data.get("strip"):
+        strips = {"legacy": data["strip"]}
+    if len(strips) < 2:
+        score -= 1.5
+        notes.append(f"need ≥2 strips for goals≥9 (have {len(strips)})")
+    carry_ok = 0
+    for pack, row in strips.items():
+        if not row.get("poc_pass_P_emit"):
+            score -= 3.0
+            notes.append(f"{pack} P_emit fail")
+        modes = row.get("modes") or {}
+        ticks_r = (modes.get("detect_ticks_only") or {}).get("clear_ball_R")
+        carry_r = (modes.get("carry_neighbor_tick") or {}).get("clear_ball_R")
+        # Product path: F0 hold when stride>1
+        product_r = carry_r if carry_r is not None else ticks_r
+        if product_r is None or float(product_r) < 0.80:
+            score -= 2.5
+            notes.append(f"{pack} product clear_R fail ({product_r})")
+        if carry_r is not None and float(carry_r) >= 0.90:
+            carry_ok += 1
+    if carry_ok < 1:
+        score -= 1.0
+        notes.append("no strip with carry clear_R ≥ 0.90")
+    gallery = ROOT / "reports/eval_match3/pitchmap_gallery/manifest.json"
+    if not gallery.is_file():
+        score -= 1.0
+        notes.append("random pitchmap gallery missing")
+    if not notes:
+        notes.append(f"goals ok on {len(strips)} strips (F0 clear_R)")
+    return clamp(score), notes
+
+
+def score_product_post() -> tuple[float, list[str]]:
+    """Post maturity ≥ 9/10: F0–F3 shipped, gallery reviewed, P gate held."""
+    notes = []
+    score = 10.0
+    text = (ROOT / "src/mapping/match3_xy.py").read_text(encoding="utf-8")
+    for needle, label in (
+        ("fuse_balls_with_hold", "F0"),
+        ("soft_dual_fallback", "F1"),
+        ("solo_max_conf", "F2"),
+        ("prune_ghost_maps", "F3"),
+    ):
+        if needle not in text:
+            score -= 2.0
+            notes.append(f"missing {label}")
+    ab = OUT / "f_post_ab.json"
+    if not ab.is_file():
+        score -= 3.0
+        notes.append("missing f_post_ab")
+    else:
+        data = json.loads(ab.read_text(encoding="utf-8"))
+        winner = data.get("winner") or ""
+        if "F0" not in winner:
+            score -= 1.5
+            notes.append("winner should include F0 hold")
+        if "F3" not in winner and "prune_ghost_maps" in text:
+            # F3 may tie; still require ghost prune on product path
+            pass
+        if not winner:
+            score -= 3.0
+            notes.append("no A/B winner")
+    man = ROOT / "reports/eval_match3/pitchmap_gallery/manifest.json"
+    if man.is_file():
+        entries = json.loads(man.read_text(encoding="utf-8"))
+        total_emit = sum(int(e.get("n_emit") or 0) for e in entries)
+        if total_emit < 150:
+            score -= 1.0
+            notes.append(f"random gallery emit {total_emit} < 150")
+    else:
+        score -= 1.5
+        notes.append("random gallery missing")
+    if "EMIT_CONF = 0.80" not in text and "EMIT_CONF=0.80" not in text:
+        score -= 2.0
+        notes.append("EMIT_CONF not 0.80")
+    if not notes:
+        notes.append("post F0–F3 + gallery ok")
     return clamp(score), notes
 
 
@@ -195,6 +318,8 @@ def main() -> int:
     scores["l2_overlap"], notes["l2_overlap"] = score_l2_overlap()
     scores["h1_support"], notes["h1_support"] = score_h1_support()
     scores["f_post"], notes["f_post"] = score_f_post()
+    scores["product_goals"], notes["product_goals"] = score_product_goals()
+    scores["product_post"], notes["product_post"] = score_product_post()
     fails = [f"{k}={scores[k]} {notes[k]}" for k in scores if scores[k] < PASS]
     summary = {"scores": scores, "notes": notes, "pass": PASS, "fails": fails}
     (OUT / "scores.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

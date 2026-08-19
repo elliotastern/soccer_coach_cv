@@ -11,7 +11,7 @@ Engineering loop for **Pitch 1 / Field 1** ball `(x, y)` across the eight Match 
 | **System (Match 3 fuse)** | When ≥2 cams map and agree ≤ 4 m: combined conf | **≥ 0.80** to emit |
 | **Not the bar** | All-frame recall @ conf 0.80 on tiny/far balls | Stretch / Phase 2 |
 
-Emit gate stays **conf ≥ 0.80**. Below that → do nothing. Do **not** average cams that disagree by more than **4 m**. Do **not** start Phase 2 temporal fusion.
+Emit gate stays **conf ≥ 0.80**. Below that → do nothing. Do not average cams that disagree by more than **4 m** (no midpoint). Do **not** start Phase 2 temporal fusion.
 
 Optional per-cam `hull_image_points` may expand support FOV without refitting landmark H (used on P_Goal1 for midfield balls outside the goal-box clicks).
 
@@ -34,9 +34,18 @@ On 750 processed frames (5×150): emit rate ~13%, almost all **P1 solo**; only *
 | **M1** | Score `P_emit` + clear-ball R on agreed strip | Strip pack `match3_quad_p10_31` + editable `/match3-m1` review; provisional auto-QA 39/39; **P_emit ≥ 0.80**, clear-ball **R ≥ 0.80** after human confirm | Acceptance |
 | **F1** | Soft-dual fallback: agree cluster with combined conf &lt; 0.80 falls through to solo (do not silent-drop) | Unit + eng-loop: weak dual + strong out-of-cluster cam → solo emit | Recover strong solos blocked by soft pairs |
 | **F2** | Solo = **max conf** among mapped cams, not weight-seed only | Unit + eng-loop: weak high-support + strong low-support disagree → emit strong | Stop ghosts blocking ≥0.80 cams |
-| **F0** | Detect-tick **hold** (`fuse_balls_with_hold`, `HOLD_MAX_GAP=2`) — not Phase 2 RNN fusion | Demo Match 3 path + A/B `F1+F2+F0` wins with P_emit ≥ 0.80 | Clear-R lift across silent ticks |
+| **F0** | Detect-tick **hold** (`fuse_balls_with_hold`, `HOLD_MAX_GAP=2`) — not Phase 2 RNN fusion | Demo Match 3 path + A/B `F1+F2+F0+F3` wins with P_emit ≥ 0.80 | Clear-R lift across silent ticks |
+| **F3** | Ghost prune: drop weak maps far from max-conf anchor (`GHOST_CONF=0.45`) | Unit + eng-loop; multi-strip A/B keeps P_emit ≥ 0.80 | Stop P1/P7 ghosts vetoing strong cams |
+| **M2** | Second strip `match3_quad_p8_87` (P8 @ 1:27) | Both strips P_emit ≥ 0.80; product clear_R (F0) ≥ 0.80 | Goals evidence beyond one clip |
 
-Emit gate and agree radius stay fixed. Soft clear FNs with **no** cam ≥ 0.80 are a **model** problem after F0–F2.
+Emit gate and agree radius stay fixed. Soft clear FNs with **no** cam ≥ 0.80 on a detect tick are a **model** problem after F0–F3.
+
+## Product ratings (eng-loop)
+
+| Rating | ≥9 when |
+|--------|---------|
+| **product_goals** | ≥2 strips; each P_emit ≥ 0.80; F0/carry clear_R ≥ 0.80; ≥1 strip carry_R ≥ 0.90; random gallery present |
+| **product_post** | F0–F3 in `match3_xy.py`; A/B winner includes F0; random gallery emit ≥ 150; EMIT_CONF = 0.80 |
 
 ## Hard no
 

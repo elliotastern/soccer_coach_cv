@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 from src.mapping.match3_xy import (  # noqa: E402
     AGREE_M,
     EMIT_CONF,
+    GHOST_CONF,
     HOLD_MAX_GAP,
     MATCH3_CAMS,
     apply_H,
@@ -21,6 +22,7 @@ from src.mapping.match3_xy import (  # noqa: E402
     hull_support,
     load_calib,
     map_ball_box,
+    prune_ghost_maps,
 )
 
 
@@ -193,6 +195,43 @@ def test_f0_hold() -> None:
         raise AssertionError("hold must require prev conf >= EMIT_CONF")
 
 
+def test_f3_ghost_prune() -> None:
+    """Weak far ghost must not join / derail; strong far cam kept."""
+    if GHOST_CONF > 0.50:
+        raise AssertionError(f"GHOST_CONF {GHOST_CONF}")
+    anchor = {
+        "cam": "P6",
+        "xy": (-13.0, 7.0),
+        "conf": 0.91,
+        "support": 1.0,
+        "weight": 0.91,
+    }
+    ghost = {
+        "cam": "P1",
+        "xy": (12.0, 0.0),
+        "conf": 0.25,
+        "support": 1.0,
+        "weight": 0.25,
+    }
+    pruned = prune_ghost_maps([anchor, ghost])
+    if len(pruned) != 1 or pruned[0]["cam"] != "P6":
+        raise AssertionError(f"F3 should drop P1 ghost {pruned}")
+    out = fuse_balls([anchor, ghost])
+    if out is None or out.get("agree") or out["cam"] != "P6":
+        raise AssertionError(f"F3 fuse should solo P6 {out}")
+    # Near weak ally still allowed for dual combine path
+    near = {
+        "cam": "P10",
+        "xy": (-12.5, 7.2),
+        "conf": 0.40,
+        "support": 0.8,
+        "weight": 0.32,
+    }
+    both = prune_ghost_maps([anchor, near])
+    if len(both) != 2:
+        raise AssertionError(f"near weak should keep {both}")
+
+
 def main() -> int:
     test_foot_not_center()
     test_roundtrip()
@@ -206,6 +245,7 @@ def main() -> int:
     test_f1_soft_dual_fallback()
     test_f2_solo_max_conf()
     test_f0_hold()
+    test_f3_ghost_prune()
     print("match3_xy ok")
     return 0
 

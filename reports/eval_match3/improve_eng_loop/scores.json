@@ -1,16 +1,16 @@
 {
   "scores": {
-    "plan": 9.2,
+    "plan": 10.0,
     "t1_wire": 10.0,
     "l1_calib": 10.0,
     "l2_overlap": 10.0,
     "h1_support": 10.0,
-    "f_post": 10.0
+    "f_post": 10.0,
+    "product_goals": 10.0,
+    "product_post": 10.0
   },
   "notes": {
-    "plan": [
-      "plan missing no midpoint / hard no"
-    ],
+    "plan": [],
     "t1_wire": [
       "T1 wired"
     ],
@@ -24,7 +24,13 @@
       "H1 MIN_SUPPORT=0.25"
     ],
     "f_post": [
-      "F post winner=F1+F2+F0"
+      "F post winner=F1+F2+F0+F3"
+    ],
+    "product_goals": [
+      "goals ok on 2 strips (F0 clear_R)"
+    ],
+    "product_post": [
+      "post F0\u2013F3 + gallery ok"
     ]
   },
   "pass": 9.0,

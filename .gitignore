@@ -169,6 +169,11 @@ data/**
 !data/processed/gold_sets/match3_quad_p10_31/labels.json
 !data/processed/gold_sets/match3_quad_p10_31/review/
 !data/processed/gold_sets/match3_quad_p10_31/review/index.html
+# Match 3 M2 strip (quad P8 @ 1:27) — labels/manifest only
+!data/processed/gold_sets/match3_quad_p8_87/
+!data/processed/gold_sets/match3_quad_p8_87/README.md
+!data/processed/gold_sets/match3_quad_p8_87/manifest.json
+!data/processed/gold_sets/match3_quad_p8_87/labels.json
 # Legacy alias (symlink to processed); ignore contents
 data/output
 
@@ -224,3 +229,4 @@ rf-detr-base.pth
 
 # Match 3 pitchmap gallery: keep dual-pane renders; skip raw multicam source cuts
 reports/eval_match3/pitchmap_gallery/source/
+reports/eval_match3/quad_pitchmap_gallery/source/

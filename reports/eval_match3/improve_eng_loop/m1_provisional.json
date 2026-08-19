@@ -135,6 +135,114 @@
       ]
     }
   },
+  "strips": {
+    "match3_quad_p10_31": {
+      "pack": "match3_quad_p10_31",
+      "provisional": true,
+      "hit_m": 4.0,
+      "n_frames": 299,
+      "det_cache_stride": 2,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.889,
+      "n_clear": 72,
+      "n_emit_scored": 71,
+      "tp": 71,
+      "fp": 0,
+      "err_median_m": 1.043,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "modes": {
+        "raw_all_label_frames": {
+          "n_clear": 145,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.441,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "detect_ticks_only": {
+          "n_clear": 72,
+          "n_emit_scored": 71,
+          "tp": 71,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.889,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "carry_neighbor_tick": {
+          "n_clear": 145,
+          "n_emit_scored": 151,
+          "tp": 151,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.945,
+          "err_median_m": 1.043,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        }
+      },
+      "note": "det cache stride=2: raw clear_R under-counts when odd frames were never detected. Primary metrics use detect ticks; carry_neighbor approximates 60fps hold from 30Hz detect.",
+      "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
+    },
+    "match3_quad_p8_87": {
+      "pack": "match3_quad_p8_87",
+      "provisional": true,
+      "hit_m": 4.0,
+      "n_frames": 299,
+      "det_cache_stride": 2,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.765,
+      "n_clear": 85,
+      "n_emit_scored": 65,
+      "tp": 65,
+      "fp": 0,
+      "err_median_m": 0.0,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": false,
+      "modes": {
+        "raw_all_label_frames": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "detect_ticks_only": {
+          "n_clear": 85,
+          "n_emit_scored": 65,
+          "tp": 65,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.765,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "carry_neighbor_tick": {
+          "n_clear": 85,
+          "n_emit_scored": 80,
+          "tp": 79,
+          "fp": 1,
+          "P_emit": 0.988,
+          "clear_ball_R": 0.941,
+          "err_median_m": 0.0,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        }
+      },
+      "note": "det cache stride=2: raw clear_R under-counts when odd frames were never detected. Primary metrics use detect ticks; carry_neighbor approximates 60fps hold from 30Hz detect.",
+      "seed_note": "PROVISIONAL \u2014 P8 clear dets mapped via P8 H; human-correct before final"
+    }
+  },
   "strip": {
     "pack": "match3_quad_p10_31",
     "provisional": true,
@@ -188,5 +296,5 @@
     "note": "det cache stride=2: raw clear_R under-counts when odd frames were never detected. Primary metrics use detect ticks; carry_neighbor approximates 60fps hold from 30Hz detect.",
     "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
   },
-  "note": "strip P_emit/clear_ball_R are provisional until human-corrected labels; proxy packs remain coverage-only."
+  "note": "strip metrics provisional until human-corrected; multi-strip evidence for eng-loop product \u22659."
 }
