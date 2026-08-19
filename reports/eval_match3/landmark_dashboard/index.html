@@ -41,6 +41,7 @@ h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
 .task .n { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .task .what { font-size: 1.45rem; font-weight: 750; line-height: 1.15; margin: .12rem 0 .15rem; }
 .task .find { font-size: .92rem; line-height: 1.35; }
+.task .lr-rule { font-size: .8rem; font-weight: 700; margin: .28rem 0 0; }
 .swaps { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; }
 .swaps .lab {
   width: 100%; font-size: .7rem; font-weight: 800; letter-spacing: .06em;
@@ -50,6 +51,19 @@ h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
   background: #fff8d6; border: 1px solid #1a1a12; color: #1a1a12;
   border-radius: 6px; padding: .28rem .45rem; cursor: pointer; font-size: .8rem;
 }
+#swapPick {
+  width: 100%; margin-top: .28rem;
+  background: #fff8d6; color: #1a1a12; border: 1px solid #1a1a12;
+  border-radius: 6px; padding: .32rem .45rem; font-size: .8rem;
+}
+#extraTip {
+  position: absolute; z-index: 6; display: none;
+  max-width: 16rem; padding: .28rem .45rem;
+  background: #0e140e; color: #f7f4e8;
+  border: 2px solid var(--accent); border-radius: 4px;
+  font-size: .78rem; line-height: 1.3; pointer-events: none;
+}
+#extraTip.on { display: block; }
 #stillWrap { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
 #still { width: 100%; display: block; cursor: crosshair; }
 #dots { position: absolute; inset: 0; pointer-events: none; }
@@ -156,6 +170,7 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
         <div class="n" id="taskN">Click 1 of 4</div>
         <div class="what" id="taskWhat">—</div>
         <div class="find" id="taskFind"></div>
+        <p class="lr-rule" id="lrRule" data-lr="p1">Left / right = from P1 looking north — not left/right in this photo.</p>
         <div class="swaps" id="swaps"></div>
       </div>
       <div id="stillWrap">
@@ -180,10 +195,10 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
       <p class="map-orient" id="mapOrient" data-orient="p1-north">Looking north from P1 · left / right from that view</p>
       <div class="map-key" id="mapKey" data-legend="1">
         <span data-key="yellow"><i class="swatch yellow"></i>Next click</span>
-        <span data-key="grey"><i class="swatch grey"></i>Other points</span>
+        <span data-key="grey"><i class="swatch grey"></i>Unused Pitch 1 — click to swap</span>
         <span data-key="cam"><i class="swatch cam"></i>Cameras (P)</span>
       </div>
-      <p class="hint">Click the yellow numbered spot on the photo. Labels stay off the lines. Goal boxes at both ends.</p>
+      <p class="hint">Left/right names are from P1 looking north, not this photo. Click the yellow numbered spot. Labels stay off the lines.</p>
       <div class="map-frame">
         <div class="compass-n" data-compass="north">NORTH · P6<small>far goal</small></div>
         <div class="map-row">
@@ -191,6 +206,7 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
           <div class="map-plot">
             <svg class="pitch" id="names" viewBox="-320 -230 1200 1340"></svg>
             <div id="nameLabels"></div>
+            <div id="extraTip" data-extra-tip="1"></div>
           </div>
           <div class="compass-e" data-compass="right">RIGHT<small>P7 · P9</small></div>
         </div>
@@ -200,7 +216,16 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
   </div>
 </div>
 <script>
-const PL = 105, PW = 68, SVG_W = 560, SVG_H = 880;
+const SVG_W = 560, SVG_H = 880;
+let PL = 105, PW = 68;
+const MARK = {
+  penalty_depth: 16.5,
+  penalty_half_w: 20.16,
+  goal_area_depth: 5.5,
+  goal_area_half_w: 9.16,
+  penalty_spot: 11,
+  circle_r: 9.15,
+};
 // Pitch meters: +x = north (P6), -x = south (P1); +y = left, -y = right from P1 looking north.
 const CAM_XY = {
   P1: [-72, 0],
@@ -227,6 +252,10 @@ const DISPLAY = {
   left_box_goal_far: "South Right Goal-Line Corner",
   left_box_18_near: "South Left 18-Yard Corner",
   left_box_18_far: "South Right 18-Yard Corner",
+  left_6_goal_near: "South Left 6-Yard Goal-Line Corner",
+  left_6_goal_far: "South Right 6-Yard Goal-Line Corner",
+  left_6_box_near: "South Left 6-Yard Corner",
+  left_6_box_far: "South Right 6-Yard Corner",
   left_post_near: "South Left Goal Post",
   left_post_far: "South Right Goal Post",
   left_penalty_spot: "South Penalty Spot",
@@ -234,6 +263,10 @@ const DISPLAY = {
   right_box_goal_far: "North Right Goal-Line Corner",
   right_box_18_near: "North Left 18-Yard Corner",
   right_box_18_far: "North Right 18-Yard Corner",
+  right_6_goal_near: "North Left 6-Yard Goal-Line Corner",
+  right_6_goal_far: "North Right 6-Yard Goal-Line Corner",
+  right_6_box_near: "North Left 6-Yard Corner",
+  right_6_box_far: "North Right 6-Yard Corner",
   right_post_near: "North Left Goal Post",
   right_post_far: "North Right Goal Post",
   right_penalty_spot: "North Penalty Spot",
@@ -249,26 +282,34 @@ const ORDER_TITLES = {
   goal_right: "North Goal Box",
 };
 const FIND = {
-  halfway_near_touch: "The halfway line where it meets the left touchline (P1’s left).",
-  halfway_far_touch: "The halfway line where it meets the right touchline (P1’s right).",
-  left_near_corner: "Corner flag at P1’s end, on the left.",
-  right_near_corner: "Corner flag at P6’s end, on the left.",
-  left_far_corner: "Corner flag at P1’s end, on the right.",
-  right_far_corner: "Corner flag at P6’s end, on the right.",
+  halfway_near_touch: "Halfway line × left touchline (P1’s left, diagram LEFT).",
+  halfway_far_touch: "Halfway line × right touchline (P1’s right, diagram RIGHT).",
+  left_near_corner: "South-left corner flag — P1’s left, not the left of this photo.",
+  right_near_corner: "North-left corner flag — P1’s left (P8 side), not the left of this photo.",
+  left_far_corner: "South-right corner flag — P1’s right, not the right of this photo.",
+  right_far_corner: "North-right corner flag — P1’s right (P9 side). Goal on the left of P9’s photo is still this right-side flag.",
   center: "Kickoff spot — dead middle of the center circle.",
-  circle_near: "Where the halfway line crosses the center circle on the left.",
-  circle_far: "Where the halfway line crosses the center circle on the right.",
-  left_box_goal_near: "P1 goal line, left corner of the 18-yard box.",
-  left_box_goal_far: "P1 goal line, right corner of the 18-yard box.",
-  left_box_18_near: "P1 box, left corner of the 18-yard line (not the goal line).",
-  left_box_18_far: "P1 box, right corner of the 18-yard line (not the goal line).",
+  circle_near: "Halfway line × center circle on P1’s left.",
+  circle_far: "Halfway line × center circle on P1’s right.",
+  left_box_goal_near: "P1 goal line, left corner of the 18-yard box (P1’s left).",
+  left_box_goal_far: "P1 goal line, right corner of the 18-yard box (P1’s right).",
+  left_box_18_near: "P1 box, left corner of the 18-yard line (P1’s left).",
+  left_box_18_far: "P1 box, right corner of the 18-yard line (P1’s right).",
+  left_6_goal_near: "P1 6-yard × goal line, left (P1’s left).",
+  left_6_goal_far: "P1 6-yard × goal line, right (P1’s right).",
+  left_6_box_near: "P1 outer 6-yard corner, left (P1’s left).",
+  left_6_box_far: "P1 outer 6-yard corner, right (P1’s right).",
   left_post_near: "Left goal post at P1’s end (P1’s left).",
   left_post_far: "Right goal post at P1’s end (P1’s right).",
   left_penalty_spot: "Penalty mark in front of the P1 goal.",
-  right_box_goal_near: "P6 goal line, left corner of the 18-yard box.",
-  right_box_goal_far: "P6 goal line, right corner of the 18-yard box.",
-  right_box_18_near: "P6 box, left corner of the 18-yard line (not the goal line).",
-  right_box_18_far: "P6 box, right corner of the 18-yard line (not the goal line).",
+  right_box_goal_near: "P6 goal line, left 18-yard corner (P1’s left).",
+  right_box_goal_far: "P6 goal line, right 18-yard corner (P1’s right / P9’s near side).",
+  right_box_18_near: "P6 box, left 18-yard corner (P1’s left).",
+  right_box_18_far: "P6 box, right 18-yard corner (P1’s right / P9’s near side).",
+  right_6_goal_near: "P6 6-yard × goal line, left (P1’s left / P8 near).",
+  right_6_goal_far: "P6 6-yard × goal line, right (P1’s right / P9 near).",
+  right_6_box_near: "P6 outer 6-yard corner, left (P1’s left / P8 near).",
+  right_6_box_far: "P6 outer 6-yard corner, right (P1’s right / P9 near).",
   right_post_near: "Left goal post at P6’s end (P1’s left).",
   right_post_far: "Right goal post at P6’s end (P1’s right).",
   right_penalty_spot: "Penalty mark in front of the P6 goal.",
@@ -299,7 +340,7 @@ function drawPitchLines(svg) {
   const circ = document.createElementNS(ns, "circle");
   const [cx, cy] = m2svg(0, 0);
   circ.setAttribute("cx", cx); circ.setAttribute("cy", cy);
-  circ.setAttribute("r", 9.15 / PL * SVG_H);
+  circ.setAttribute("r", MARK.circle_r / PL * SVG_H);
   g.appendChild(circ);
   function box(x0, y0, x1, y1, end) {
     const [a, b] = m2svg(x0, y0), [c, d] = m2svg(x1, y1);
@@ -311,7 +352,7 @@ function drawPitchLines(svg) {
   }
   function penaltyArc(spotX, deg0, deg1, keep) {
     const arc = [];
-    const pr = 9.15;
+    const pr = MARK.circle_r;
     for (let deg = deg0; deg <= deg1; deg += 3) {
       const a = deg * Math.PI / 180;
       const x = spotX + pr * Math.cos(a);
@@ -322,10 +363,17 @@ function drawPitchLines(svg) {
     poly.setAttribute("points", arc.map(p => p.join(",")).join(" "));
     g.appendChild(poly);
   }
-  box(-52.5, 20.16, -36, -20.16, "south");
-  box(36, 20.16, 52.5, -20.16, "north");
-  penaltyArc(-41.5, -80, 80, x => x >= -36.05);
-  penaltyArc(41.5, 100, 260, x => x <= 36.05);
+  const hx = PL / 2;
+  box(-hx, MARK.penalty_half_w, -hx + MARK.penalty_depth, -MARK.penalty_half_w, "south");
+  box(hx - MARK.penalty_depth, MARK.penalty_half_w, hx, -MARK.penalty_half_w, "north");
+  box(-hx, MARK.goal_area_half_w, -hx + MARK.goal_area_depth, -MARK.goal_area_half_w, "south6");
+  box(hx - MARK.goal_area_depth, MARK.goal_area_half_w, hx, -MARK.goal_area_half_w, "north6");
+  const frontS = -hx + MARK.penalty_depth;
+  const frontN = hx - MARK.penalty_depth;
+  const spotS = -hx + MARK.penalty_spot;
+  const spotN = hx - MARK.penalty_spot;
+  penaltyArc(spotS, -80, 80, x => x >= frontS - 0.05);
+  penaltyArc(spotN, 100, 260, x => x <= frontN + 0.05);
   const [ax0, ay0] = m2svg(-38, 0), [ax1, ay1] = m2svg(38, 0);
   const arrow = document.createElementNS(ns, "line");
   arrow.setAttribute("x1", ax0); arrow.setAttribute("y1", ay0);
@@ -397,7 +445,29 @@ function currentOrder() {
 
 function landmarkSpec(name) {
   const rec = data.landmarks[name];
-  return { name, label: rec.label, xy: rec.xy };
+  if (!rec) return null;
+  return { name, label: rec.label, xy: rec.xy.slice(), spec: rec.spec || "" };
+}
+
+function metersOf(name) {
+  const rec = data.landmarks[name];
+  const x = rec.xy[0], y = rec.xy[1];
+  const sx = (x >= 0 ? "+" : "") + x.toFixed(2);
+  const sy = (y >= 0 ? "+" : "") + y.toFixed(2);
+  return `x=${sx} y=${sy}`;
+}
+
+function nearbyUnused(name) {
+  const used = new Set(liveOrder.map(lm => lm.name));
+  const rec = data.landmarks[name];
+  const ranked = Object.keys(data.landmarks)
+    .filter(n => !used.has(n))
+    .map(n => {
+      const xy = data.landmarks[n].xy;
+      return { name: n, d: Math.hypot(xy[0] - rec.xy[0], xy[1] - rec.xy[1]) };
+    });
+  ranked.sort((a, b) => a.d - b.d);
+  return ranked.slice(0, 5).map(r => r.name);
 }
 
 function setLiveFromOrder() {
@@ -408,7 +478,8 @@ function setLiveFromOrder() {
 }
 
 function prettyName(lm) {
-  return DISPLAY[lm.name] || lm.label || (lm.name || "").replaceAll("_", " ");
+  const rec = data && data.landmarks && data.landmarks[lm.name];
+  return (rec && rec.label) || DISPLAY[lm.name] || lm.label || (lm.name || "").replaceAll("_", " ");
 }
 
 function orderTitle(key) {
@@ -565,6 +636,10 @@ const LABEL_DIR = {
   left_box_goal_far: [1.35, 1.15],
   left_box_18_near: [-1.6, -0.35],
   left_box_18_far: [1.6, -0.35],
+  left_6_goal_near: [-1.2, 1.0],
+  left_6_goal_far: [1.2, 1.0],
+  left_6_box_near: [-1.5, -0.2],
+  left_6_box_far: [1.5, -0.2],
   left_post_near: [-0.55, 1.55],
   left_post_far: [0.55, 1.55],
   left_penalty_spot: [0.15, -1.45],
@@ -572,6 +647,10 @@ const LABEL_DIR = {
   right_box_goal_far: [1.9, -1.55],
   right_box_18_near: [-1.75, 0.55],
   right_box_18_far: [2.1, 0.85],
+  right_6_goal_near: [-1.4, -1.0],
+  right_6_goal_far: [1.6, -1.2],
+  right_6_box_near: [-1.7, 0.4],
+  right_6_box_far: [1.9, 0.7],
   right_post_near: [-0.55, -1.55],
   right_post_far: [0.55, -1.55],
   right_penalty_spot: [0.15, 1.45],
@@ -592,6 +671,22 @@ function onPitchSpecs() {
   return names.map(landmarkSpec);
 }
 
+function hideExtraTip() {
+  const tip = document.getElementById("extraTip");
+  tip.classList.remove("on");
+  tip.textContent = "";
+}
+
+function showExtraTip(evt, lm) {
+  const tip = document.getElementById("extraTip");
+  const plot = document.querySelector(".map-plot").getBoundingClientRect();
+  const spec = lm.spec || FIND[lm.name] || metersOf(lm.name);
+  tip.textContent = `${prettyName(lm)} · ${metersOf(lm.name)}. ${spec}`;
+  tip.style.left = (evt.clientX - plot.left + 14) + "px";
+  tip.style.top = (evt.clientY - plot.top + 14) + "px";
+  tip.classList.add("on");
+}
+
 function markCatalog(svg) {
   const ns = "http://www.w3.org/2000/svg";
   const used = new Set(liveOrder.map(lm => lm.name));
@@ -600,16 +695,26 @@ function markCatalog(svg) {
     const [x, y] = m2svg(lm.xy[0], lm.xy[1]);
     const c = document.createElementNS(ns, "circle");
     c.setAttribute("cx", x); c.setAttribute("cy", y);
-    c.setAttribute("r", "10");
+    c.setAttribute("r", "11");
     c.setAttribute("fill", "#c5d4c5");
     c.setAttribute("stroke", "#e8c547");
     c.setAttribute("stroke-width", "1.6");
     c.setAttribute("data-extra", lm.name);
+    c.setAttribute("data-xy", metersOf(lm.name));
     c.setAttribute("vector-effect", "non-scaling-stroke");
     c.style.cursor = "pointer";
     const tip = document.createElementNS(ns, "title");
-    tip.textContent = prettyName(lm);
+    tip.textContent = `${prettyName(lm)} · ${metersOf(lm.name)}`;
     c.appendChild(tip);
+    c.addEventListener("mouseenter", (ev) => {
+      c.setAttribute("r", "15");
+      showExtraTip(ev, lm);
+    });
+    c.addEventListener("mousemove", (ev) => showExtraTip(ev, lm));
+    c.addEventListener("mouseleave", () => {
+      c.setAttribute("r", "11");
+      hideExtraTip();
+    });
     c.addEventListener("click", () => swapActive(lm.name));
     svg.appendChild(c);
   });
@@ -831,8 +936,12 @@ function renderSteps() {
 function nReady() { return clicks.filter(Boolean).length; }
 
 function swapActive(name) {
-  liveOrder[active] = landmarkSpec(name);
+  const spec = landmarkSpec(name);
+  if (!spec) return;
+  if (liveOrder.some((lm, i) => i !== active && lm.name === name)) return;
+  liveOrder[active] = spec;
   clicks[active] = null;
+  hideExtraTip();
   refresh();
 }
 
@@ -840,22 +949,48 @@ function renderSwaps() {
   const box = document.getElementById("swaps");
   box.innerHTML = "";
   if (nReady() === 4) return;
+  const next = currentOrder()[active];
+  if (!next) return;
   const used = new Set(liveOrder.map(lm => lm.name));
-  const key = document.getElementById("order").value;
-  const fam = (data.families && data.families[key]) || [];
-  const opts = fam.filter(n => !used.has(n));
-  if (!opts.length) return;
   const lab = document.createElement("div");
   lab.className = "lab";
-  lab.textContent = "Not in the photo? Swap this point";
+  lab.dataset.swapUi = "1";
+  lab.textContent = "Not in the photo? Swap this point — nearby, the list, or a grey Pitch 1 mark.";
   box.appendChild(lab);
-  opts.forEach(n => {
+  nearbyUnused(next.name).forEach(n => {
     const b = document.createElement("button");
     b.type = "button";
+    b.dataset.swapChip = n;
+    b.title = metersOf(n);
     b.textContent = prettyName({ name: n });
     b.addEventListener("click", () => swapActive(n));
     box.appendChild(b);
   });
+  const sel = document.createElement("select");
+  sel.id = "swapPick";
+  sel.dataset.swapSelect = "1";
+  const blank = document.createElement("option");
+  blank.value = "";
+  blank.textContent = "All Pitch 1 marks (exact meters)…";
+  sel.appendChild(blank);
+  const groups = data.swap_groups || [];
+  groups.forEach(g => {
+    const og = document.createElement("optgroup");
+    og.label = g.title;
+    (g.names || []).forEach(n => {
+      if (used.has(n)) return;
+      const o = document.createElement("option");
+      o.value = n;
+      o.textContent = `${prettyName({ name: n })}  (${metersOf(n)})`;
+      og.appendChild(o);
+    });
+    if (og.childElementCount) sel.appendChild(og);
+  });
+  sel.addEventListener("change", () => {
+    if (!sel.value) return;
+    swapActive(sel.value);
+  });
+  box.appendChild(sel);
 }
 
 function refresh() {
@@ -873,7 +1008,8 @@ function refresh() {
     : prettyName(next);
   document.getElementById("taskFind").textContent = done
     ? "All four points are on the photo. Save, or click a number to fix one."
-    : (FIND[next.name] || "Click that point on the photo.");
+    : `${(data.landmarks[next.name] && data.landmarks[next.name].spec)
+      || FIND[next.name] || "Click that point on the photo."} ${metersOf(next.name)}.`;
   document.getElementById("save").disabled = !done;
   renderNames();
   renderSteps();
@@ -904,7 +1040,7 @@ function selectCam(id) {
       document.getElementById("order").value = j.order;
       setLiveFromOrder();
       if (names.length) {
-        liveOrder = names.map(landmarkSpec);
+        liveOrder = names.map(landmarkSpec).filter(Boolean);
       }
       clicks = j.image_points.map(p => [p[0], p[1]]);
       active = 0;
@@ -959,14 +1095,23 @@ function renderNav() {
     b.dataset.id = c.id;
     b.classList.toggle("active", c.id === cam);
     b.classList.toggle("saved", !!c.saved);
-    b.innerHTML = `${c.id}<span class="meta">${c.saved ? "map saved" : orderTitle(c.order)}</span>`;
+    b.innerHTML = `${c.id}<span class="meta">${c.videoName || ""}</span>`;
     b.addEventListener("click", () => selectCam(c.id));
     nav.appendChild(b);
   });
 }
 
-fetch("cams.json?v=outward-names").then(r => r.json()).then(j => {
+fetch("cams.json?v=unknown-lm").then(r => r.json()).then(j => {
   data = j;
+  PL = j.pitch_length_m || PL;
+  PW = j.pitch_width_m || PW;
+  const m = j.pitch_marks || {};
+  if (m.penalty_area_depth_m) MARK.penalty_depth = m.penalty_area_depth_m;
+  if (m.penalty_area_half_width_m) MARK.penalty_half_w = m.penalty_area_half_width_m;
+  if (m.goal_area_depth_m) MARK.goal_area_depth = m.goal_area_depth_m;
+  if (m.goal_area_half_width_m) MARK.goal_area_half_w = m.goal_area_half_width_m;
+  if (m.penalty_spot_m) MARK.penalty_spot = m.penalty_spot_m;
+  if (m.center_circle_radius_m) MARK.circle_r = m.center_circle_radius_m;
   const sel = document.getElementById("order");
   Object.keys(data.orders).forEach(k => {
     const o = document.createElement("option");

@@ -1,0 +1,25 @@
+{
+  "id": "pitch1",
+  "name": "Pitch 1 (FIFA / IFAB standard)",
+  "source": "IFAB Laws of the Game; configs/default.yaml mapping.pitch_length/width",
+  "length_m": 105.0,
+  "width_m": 68.0,
+  "origin": "center",
+  "axes": {
+    "x": "+x north (P6), -x south (P1)",
+    "y": "+y left, -y right (from P1 looking north)"
+  },
+  "marks": {
+    "goal_width_m": 7.32,
+    "goal_post_half_m": 3.66,
+    "penalty_area_depth_m": 16.5,
+    "penalty_area_width_m": 40.32,
+    "penalty_area_half_width_m": 20.16,
+    "goal_area_depth_m": 5.5,
+    "goal_area_width_m": 18.32,
+    "goal_area_half_width_m": 9.16,
+    "penalty_spot_m": 11.0,
+    "center_circle_radius_m": 9.15,
+    "corner_arc_radius_m": 1.0
+  }
+}

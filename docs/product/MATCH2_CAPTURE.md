@@ -10,6 +10,8 @@ Positions on the diagram: P1, P6, P7, P8, P10, P12. Extra mounts without P-codes
 
 ## File map
 
+The P-code in the filename **is** the camera (`Cam 3-P1.mp4` → P1). Do not remap by FOV.
+
 | Position | File | Role |
 |----------|------|------|
 | P1 | `data/raw/Match 2/Cam 3-P1.mp4` | Left end-line / corner |

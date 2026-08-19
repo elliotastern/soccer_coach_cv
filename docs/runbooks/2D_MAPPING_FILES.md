@@ -12,6 +12,7 @@ Files that implement pixel-to-pitch 2D mapping and how to get the **best** mappi
 | **`src/analysis/homography.py`** | **HomographyEstimator**, `estimate_homography_manual`, `estimate_homography_auto_averaged`, `estimate_homography_auto_with_undistorted`. Builds the 3×3 homography from image ↔ pitch correspondences. |
 | **`src/analysis/pitch_keypoint_detector.py`** | Detects pitch landmarks (goals, touchlines, center circle) for automatic homography. Used by homography.py. |
 | **`src/analysis/pitch_landmarks.py`** | FIFA-standard pitch coordinates (105×68 m). Reference for pitch space. |
+| **`docs/product/PITCH1_DIMENSIONS.json`** | **Pitch 1** marks + exact meters for each click landmark. |
 | **`src/analysis/y_axis_calibration.py`** | **refine_homography_with_center_circle**, **calibrate_y_axis_from_center_circle**. Uses center circle (9.15 m) and field width to fix y-axis scale. |
 | **`src/analysis/undistortion.py`** | Fisheye/lens distortion correction before homography. Used when `correct_distortion=True`. |
 | **`scripts/calibrate_homography.py`** | Interactive tool: click 4+ landmarks on a frame, map to pitch coords, save homography JSON. For manual calibration. |

@@ -78,6 +78,8 @@ Messy or occluded frames may be skipped to preserve data quality. Perfecting tho
 
 **Match2 Top Left 300-frame gold labels** — dense Match 2 P10 clip (0:26–0:31, 300 @ 60 fps) for the 4-quad Top Left window; does not replace Gold100. Spec: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
 
+**Match 3 capture** — camera id is the P-code in the filename (`P1-006.mp4` = P1). Spec: [MATCH3_CAPTURE.md](MATCH3_CAPTURE.md). Pitch 1 (FIFA) landmark meters: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md).
+
 ### 6.1 Six P-cam ball system goal (Match 2)
 
 Client-ok path: combine **P1, P6, P7, P8, P10, P12** for system ball **R ≥ 0.80** and **P ≥ 0.90**, with a live ball-path budget of **≤ 125 ms** on RTX 5090 (stricter than the 200 ms e2e doc budget). Start with max_conf / soft 2-cam co-occurrence (no dense SAHI); **epipolar consensus is gated on Match 2 calib** (not on disk yet).

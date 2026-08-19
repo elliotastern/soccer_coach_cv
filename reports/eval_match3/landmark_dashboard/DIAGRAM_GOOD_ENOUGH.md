@@ -1,8 +1,12 @@
 # Landmark diagram — good enough
 
-Playwright eng-loop clarity mins: target **9+/10** on orientation, cameras, labels, targets, spatial, video_match.
+Playwright eng-loop: **9+/10** on orientation, cameras, labels, targets, spatial, video_match, naming, unknown, save.
 
-P9: user corner/goal still (`P9-004.mp4`, goal on image-left) → diagram **RIGHT** / north-right corner (with P7). P8 on **LEFT** (with P10).
+Save reloads Pitch 1 each POST so swapped marks like `right_box_18_far` (North Right 18-Yard Corner) are accepted. Unknown names still reject.
+
+Camera id = video title (`P1-006.mp4` → P1, `P9-004.mp4` → P9). See `docs/product/MATCH3_CAPTURE.md`.
+
+Left/right = from P1 looking north, not the photo.
 
 Source: `scripts/gold_set/eng_loop_landmark_marker.py`  
 Scores: `eng_loop/clarity_scores.json`

@@ -548,12 +548,15 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
                 if gold not in sys.path:
                     sys.path.insert(0, gold)
-                from match3_landmarks import save_clicks
-                result = save_clicks(
+                import importlib
+                import match3_landmarks
+                match3_landmarks = importlib.reload(match3_landmarks)
+                result = match3_landmarks.save_clicks(
                     str(data['camera']),
                     str(data['order']),
-                    data['image_points'],
+                    data.get('image_points') or [],
                     landmark_names=data.get('landmarks'),
+                    dry_run=bool(data.get('dry_run')),
                 )
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')

@@ -3,18 +3,28 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from raw_cam_id import cam_id_from_raw_name  # noqa: E402
+
+P9_VISIBLE = [
+    "right_box_18_far",
+    "right_box_goal_far",
+    "right_penalty_spot",
+    "right_far_corner",
+]
+
 OUT = ROOT / "reports/eval_match3/landmark_dashboard/eng_loop"
-URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=p9-user-ref3"
+URL = "http://127.0.0.1:8080/reports/eval_match3/landmark_dashboard/index.html?v=save-p9-18far"
 CAMS = ["P10", "P7", "P9", "P8", "P1", "P6", "P_Goal1", "P_Goal2"]
 SVG_W = 560.0
 PASS = 9.0
 STILL_DIR = ROOT / "reports/eval_match3/landmark_dashboard/stills"
-P9_REF = ROOT / "reports/eval_match3/landmark_dashboard/refs/P9_user_reference.png"
 # Diagram pitch y: +y left, -y right (from P1 looking north).
 DIAGRAM_SIDE = {
     "P10": "left", "P8": "left",
@@ -71,6 +81,10 @@ SNAPSHOT = r"""
     let diagramSide = 'end';
     if (xy[1] > 20) diagramSide = 'left';
     else if (xy[1] < -20) diagramSide = 'right';
+    let diagramEnd = 'mid';
+    if (xy[0] > 20) diagramEnd = 'north';
+    else if (xy[0] < -20) diagramEnd = 'south';
+    const [sx, sy] = m2svg(xy[0], xy[1]);
     return {
       id: g.dataset.cam,
       r: +c.getAttribute('r'),
@@ -81,7 +95,10 @@ SNAPSHOT = r"""
                    b.bottom < pb.top - 2 || b.top > pb.bottom + 4,
       box: {l:b.left, r:b.right, t:b.top, b:b.bottom},
       diagramSide,
+      diagramEnd,
+      pitchX: xy[0],
       pitchY: xy[1],
+      sx, sy,
     };
   });
   const expected = liveOrder.map((lm, i) => {
@@ -124,6 +141,30 @@ SNAPSHOT = r"""
     taskWhat: (document.getElementById('taskWhat') || {}).textContent || '',
     taskFind: (document.getElementById('taskFind') || {}).textContent || '',
     taskN: (document.getElementById('taskN') || {}).textContent || '',
+    lrRule: (document.getElementById('lrRule') || {}).textContent || '',
+    orderKey: (document.getElementById('order') || {}).value || '',
+    stepTexts: [...document.querySelectorAll('#steps button')].map(b => b.textContent.replace(/\s+/g, ' ').trim()),
+    catalog: Object.fromEntries(Object.entries(data.landmarks || {}).map(([n, r]) => [n, {label: r.label, xy: r.xy, spec: r.spec || ''}])),
+    camXy: CAM_XY,
+    videos: (data.cams || []).map(c => ({id: c.id, videoName: c.videoName || ''})),
+    navCams: [...document.querySelectorAll('#camNav button')].map(b => ({
+      id: b.dataset.id, text: (b.textContent || '').replace(/\s+/g, ' ').trim(),
+    })),
+    liveNames: (liveOrder || []).map(lm => lm.name),
+    extras: [...svg.querySelectorAll('circle[data-extra]')].map(c => ({
+      name: c.dataset.extra,
+      r: +c.getAttribute('r'),
+      cx: +c.getAttribute('cx'),
+      cy: +c.getAttribute('cy'),
+      xy: c.dataset.xy || '',
+    })),
+    swapUi: !!document.querySelector('#swaps [data-swap-ui]'),
+    swapLab: (document.querySelector('#swaps .lab') || {}).textContent || '',
+    swapChips: [...document.querySelectorAll('#swaps [data-swap-chip]')].map(b => b.dataset.swapChip),
+    swapOpts: [...document.querySelectorAll('#swapPick option[value]')].map(o => o.value).filter(Boolean),
+    extraTip: (document.getElementById('extraTip') || {}).textContent || '',
+    extraTipOn: !!(document.getElementById('extraTip') && document.getElementById('extraTip').classList.contains('on')),
+    activeSlot: typeof active === 'number' ? active : 0,
   };
 }
 """
@@ -218,57 +259,303 @@ print(json.dumps({"side": side, "delta": delta}))
         return "unknown"
 
 
-def p9_matches_user_ref() -> tuple[bool, float]:
-    """Corner/goal FOV: green-band heuristic is misleading; match user reference still."""
-    import subprocess
+def score_filename_ids(info: dict) -> tuple[float, list[str]]:
+    """P1-006.mp4 is P1. Never treat it as P9."""
+    notes = []
+    score = 10.0
+    videos = info.get("videos") or []
+    if not videos:
+        return 4.0, ["cams.json missing videoName"]
+    for rec in videos:
+        cid = rec.get("id") or ""
+        name = rec.get("videoName") or ""
+        if not name:
+            score -= 2
+            notes.append(f"{cid} missing video filename")
+            continue
+        try:
+            parsed = cam_id_from_raw_name(name)
+        except ValueError:
+            score -= 2
+            notes.append(f"unparsed {name}")
+            continue
+        if parsed != cid:
+            score -= 4
+            notes.append(f"{name} is {parsed}, not {cid}")
+    nav = {n["id"]: n.get("text") or "" for n in info.get("navCams") or []}
+    for rec in videos:
+        cid = rec.get("id") or ""
+        name = rec.get("videoName") or ""
+        shown = nav.get(cid, "")
+        if name and name not in shown:
+            score -= 1.5
+            notes.append(f"nav {cid} missing {name}")
+    return clamp(score), notes
 
-    py = Path("/Users/elliotstern/.venvs/soccer-rfdetr312/bin/python3")
-    still = STILL_DIR / "P9.jpg"
-    if not still.is_file() or not P9_REF.is_file():
-        return False, 0.0
-    code = r"""
-import cv2, json, sys
-import numpy as np
-def feat(img):
-    w = 320
-    h = int(round(img.shape[0] * w / img.shape[1]))
-    small = cv2.resize(img, (w, h), interpolation=cv2.INTER_AREA)
-    hist = cv2.calcHist([small],[0,1,2], None, [8,8,8], [0,256,0,256,0,256]).flatten()
-    hist = hist / (hist.sum() + 1e-9)
-    return hist
-a = cv2.imread(sys.argv[1]); b = cv2.imread(sys.argv[2])
-corr = float(np.corrcoef(feat(a), feat(b))[0,1])
-print(json.dumps({"corr": corr}))
-"""
-    try:
-        out = subprocess.check_output(
-            [str(py), "-c", code, str(still), str(P9_REF)],
-            text=True,
-            timeout=30,
-        )
-        corr = float(json.loads(out.strip())["corr"])
-        return corr >= 0.85, corr
-    except Exception:
-        return False, 0.0
+
+NEAR_CORNER = {
+    "P10": "South Left Corner",
+    "P7": "South Right Corner",
+    "P8": "North Left Corner",
+    "P9": "North Right Corner",
+}
+FAR_CORNER = {
+    "P10": "South Right Corner",
+    "P7": "South Left Corner",
+    "P8": "North Right Corner",
+    "P9": "North Left Corner",
+}
+
+
+def _hyp(a: tuple[float, float], b: tuple[float, float]) -> float:
+    return math.hypot(a[0] - b[0], a[1] - b[1])
+
+
+def score_catalog_names(info: dict) -> tuple[float, list[str]]:
+    """Left=+y, Right=-y, North=+x, South=-x (P1 looking north)."""
+    notes = []
+    score = 10.0
+    catalog = info.get("catalog") or {}
+    if not catalog:
+        return 4.0, ["catalog missing"]
+    for name, rec in catalog.items():
+        label = rec.get("label") or ""
+        xy = rec.get("xy") or [0, 0]
+        x, y = float(xy[0]), float(xy[1])
+        if "Left" in label and y <= 2:
+            score -= 1.5
+            notes.append(f"{label} y={y:.1f} not left (+y)")
+        if "Right" in label and y >= -2:
+            score -= 1.5
+            notes.append(f"{label} y={y:.1f} not right (-y)")
+        if "North" in label and x <= 2:
+            score -= 1.5
+            notes.append(f"{label} x={x:.1f} not north (+x)")
+        if "South" in label and x >= -2:
+            score -= 1.5
+            notes.append(f"{label} x={x:.1f} not south (-x)")
+    return clamp(score), notes
+
+
+def score_near_corners(info: dict) -> tuple[float, list[str]]:
+    """Sideline cam chip must sit nearer its own corner flag than the opposite one."""
+    notes = []
+    score = 10.0
+    have = {c["id"]: c for c in info.get("cams", [])}
+    by_title = {e["title"]: e for e in info.get("expected", [])}
+    for cam_id, near_title in NEAR_CORNER.items():
+        far_title = FAR_CORNER[cam_id]
+        chip = have.get(cam_id)
+        near = by_title.get(near_title)
+        far = by_title.get(far_title)
+        if not chip or not near or not far:
+            continue
+        d_near = _hyp((chip["sx"], chip["sy"]), (near["sx"], near["sy"]))
+        d_far = _hyp((chip["sx"], chip["sy"]), (far["sx"], far["sy"]))
+        if d_near >= d_far - 4:
+            score -= 2.5
+            notes.append(f"{cam_id} nearer {far_title} than {near_title}")
+    return clamp(score), notes
+
+
+def meter_tokens(xy: list) -> list[str]:
+    return [f"{float(xy[0]):.2f}", f"{float(xy[1]):.2f}"]
+
+
+def score_unknown(info: dict) -> tuple[float, list[str]]:
+    """Unused Pitch 1 marks are swappable (grey dots + nearby + list)."""
+    notes = []
+    score = 10.0
+    catalog = info.get("catalog") or {}
+    extras = info.get("extras") or []
+    live = info.get("liveNames") or []
+    if len(live) != 4:
+        return 3.0, ["need 4 live names"]
+    if len(set(live)) != 4:
+        score -= 3
+        notes.append("live names not unique")
+    want = len(catalog) - 4
+    if want < 8:
+        score -= 2
+        notes.append(f"catalog too small {len(catalog)}")
+    if len(extras) != want:
+        score -= 3
+        notes.append(f"extras {len(extras)} want {want}")
+    extra_names = {e["name"] for e in extras}
+    if extra_names & set(live):
+        score -= 3
+        notes.append("extra overlaps live 4")
+    if not info.get("swapUi"):
+        score -= 3
+        notes.append("swap UI missing")
+    lab = (info.get("swapLab") or "").lower()
+    if "not in the photo" not in lab or "swap" not in lab:
+        score -= 2
+        notes.append("swap lab missing")
+    if len(info.get("swapOpts") or []) < 8:
+        score -= 2
+        notes.append("swap list too short")
+    if len(info.get("swapChips") or []) < 3:
+        score -= 1.5
+        notes.append("few nearby swaps")
+    for e in extras:
+        if e.get("r", 0) < 10:
+            score -= 0.2
+            notes.append(f"tiny extra {e.get('name')}")
+            break
+        if "x=" not in (e.get("xy") or ""):
+            score -= 1
+            notes.append("extra missing meters")
+            break
+    return clamp(score), notes
+
+
+def score_unknown_swap(info: dict, picked: str, old: str) -> tuple[float, list[str]]:
+    notes = []
+    score = 10.0
+    live = info.get("liveNames") or []
+    extras = {e["name"] for e in info.get("extras") or []}
+    if picked not in live:
+        score -= 4
+        notes.append(f"live missing {picked}")
+    if live.count(picked) != 1:
+        score -= 2
+        notes.append("picked not unique")
+    if picked in extras:
+        score -= 2
+        notes.append("picked still extra")
+    if old and old not in extras:
+        score -= 2
+        notes.append(f"old {old} not extra")
+    rec = (info.get("catalog") or {}).get(picked) or {}
+    label = rec.get("label") or ""
+    if label and label not in (info.get("taskWhat") or ""):
+        score -= 3
+        notes.append(f"task '{info.get('taskWhat')}' missing {label}")
+    find = info.get("taskFind") or ""
+    for tok in meter_tokens(rec.get("xy") or [0, 0]):
+        if tok not in find:
+            score -= 2
+            notes.append(f"FIND missing {tok}")
+            break
+    if "x=" not in find.lower() and "y=" not in find.lower():
+        if not any(t in find for t in meter_tokens(rec.get("xy") or [0, 0])):
+            score -= 1
+            notes.append("FIND missing meters")
+    return clamp(score), notes
+
+
+def pick_unknown_swap(info: dict) -> str | None:
+    chips = info.get("swapChips") or []
+    if chips:
+        return chips[0]
+    for e in info.get("extras") or []:
+        if "6_" in e["name"]:
+            return e["name"]
+    extras = info.get("extras") or []
+    return extras[0]["name"] if extras else None
+
+
+def score_naming(cam: str, info: dict) -> tuple[float, list[str]]:
+    notes = []
+    score = 10.0
+    cat_s, cat_n = score_catalog_names(info)
+    if cat_s < 10:
+        score -= (10 - cat_s)
+        notes.extend(cat_n)
+    lr = (info.get("lrRule") or "").lower()
+    if "p1" not in lr or "not left/right in this photo" not in lr:
+        score -= 2
+        notes.append("lr-rule missing P1 vs photo")
+    hint = (info.get("orient") or "").lower()
+    if "looking north" not in hint or "p1" not in hint:
+        score -= 1
+        notes.append("orient missing P1-north")
+    have = {c["id"]: c for c in info.get("cams", [])}
+    want_side = {
+        "P10": "left", "P8": "left", "P7": "right", "P9": "right",
+        "P1": "end", "P6": "end",
+    }
+    want_end = {
+        "P1": "south", "P6": "north", "P10": "south", "P7": "south",
+        "P8": "north", "P9": "north",
+    }
+    for cid, side in want_side.items():
+        chip = have.get(cid)
+        if not chip:
+            score -= 1
+            notes.append(f"chip {cid} missing")
+            continue
+        if chip.get("diagramSide") != side:
+            score -= 2
+            notes.append(f"{cid} side={chip.get('diagramSide')} want {side}")
+        end = want_end.get(cid)
+        if end and chip.get("diagramEnd") != end:
+            score -= 1.5
+            notes.append(f"{cid} end={chip.get('diagramEnd')} want {end}")
+    for exp in info.get("expected", []):
+        side = side_of(exp["title"])
+        if side == "left" and exp["sx"] >= SVG_W / 2 - 8:
+            score -= 1.5
+            notes.append(f"{exp['title']} not diagram-left")
+        if side == "right" and exp["sx"] <= SVG_W / 2 + 8:
+            score -= 1.5
+            notes.append(f"{exp['title']} not diagram-right")
+        if "North" in exp["title"] and exp["sy"] >= 880 / 2 + 20:
+            score -= 1
+            notes.append(f"{exp['title']} not diagram-north")
+        if "South" in exp["title"] and exp["sy"] <= 880 / 2 - 20:
+            score -= 1
+            notes.append(f"{exp['title']} not diagram-south")
+    near_s, near_n = score_near_corners(info)
+    if near_s < 10:
+        score -= min(4, 10 - near_s)
+        notes.extend(near_n)
+    if cam == "P9":
+        chip = have.get("P9") or {}
+        if chip.get("diagramSide") != "right":
+            score -= 3
+            notes.append("P9 must be pitch RIGHT")
+        titles = " ".join(e["title"] for e in info.get("expected", []))
+        if info.get("orderKey") == "both_sides_north":
+            if "North Right Corner" not in titles:
+                score -= 2
+                notes.append("P9 north set missing North Right Corner")
+            if "North Left Corner" not in titles:
+                score -= 1
+                notes.append("P9 north set missing North Left Corner")
+        find = (info.get("taskFind") or "").lower()
+        if "left of this photo" in find and "still this right" not in find:
+            if "north right" in (info.get("taskWhat") or "").lower():
+                score -= 2
+                notes.append("P9 find treats photo-left as pitch-left")
+        steps = " ".join(info.get("stepTexts") or [])
+        if info.get("orderKey") == "both_sides_north" and "North Right Corner" not in steps:
+            score -= 2
+            notes.append("P9 steps missing North Right Corner")
+    if cam == "P8" and info.get("orderKey") == "both_sides_north":
+        steps = " ".join(info.get("stepTexts") or [])
+        if "North Left Corner" not in steps:
+            score -= 2
+            notes.append("P8 steps missing North Left Corner")
+    return clamp(score), notes
 
 
 def score_video_match(cam: str, info: dict) -> tuple[float, list[str]]:
     notes = []
     score = 10.0
     have = {c["id"]: c for c in info["cams"]}
-    # Hard gate: P9 on diagram RIGHT and still matches user corner/goal reference.
+    id_s, id_n = score_filename_ids(info)
+    if id_s < 10:
+        score -= (10 - id_s)
+        notes.extend(id_n)
     p9 = have.get("P9")
     if not p9:
         score -= 4
         notes.append("P9 chip missing")
-    else:
-        if p9.get("diagramSide") != "right":
-            score -= 4
-            notes.append(f"P9 diagramSide={p9.get('diagramSide')} want right")
-        ok_ref, corr = p9_matches_user_ref()
-        if not ok_ref:
-            score -= 4
-            notes.append(f"P9 still≠user ref corr={corr:.3f}")
+    elif p9.get("diagramSide") != "right":
+        score -= 2
+        notes.append(f"P9 diagramSide={p9.get('diagramSide')} want right")
     # Active cam: still FOV side must match diagram chip side for sideline cams.
     # P9 is a corner/goal FOV (goal on image-left) — skip green-band left/right gate.
     want = DIAGRAM_SIDE.get(cam, "end")
@@ -422,6 +709,155 @@ def score_spatial(info: dict) -> tuple[float, list[str]]:
     return clamp(score), notes
 
 
+def _hover_extra(page, info: dict) -> tuple[float, list[str]]:
+    extras = info.get("extras") or []
+    name = next((e["name"] for e in extras if e["name"] == "center"), None)
+    if not name and extras:
+        name = extras[0]["name"]
+    if not name:
+        return 4.0, ["no extra to hover"]
+    page.locator(f'circle[data-extra="{name}"]').hover(force=True)
+    page.wait_for_timeout(100)
+    tip = page.evaluate(SNAPSHOT)
+    text = tip.get("extraTip") or ""
+    notes, score = [], 10.0
+    if not tip.get("extraTipOn"):
+        score -= 3
+        notes.append("hover tip closed")
+    rec = (info.get("catalog") or {}).get(name) or {}
+    for tok in meter_tokens(rec.get("xy") or [0, 0]):
+        if tok not in text:
+            score -= 2
+            notes.append(f"hover missing {tok}")
+            break
+    page.mouse.move(0, 0)
+    return clamp(score), notes
+
+
+def _click_chip_swap(page, info: dict, cam: str) -> tuple[float, list[str]]:
+    picked = pick_unknown_swap(info)
+    old = (info.get("liveNames") or [None])[0]
+    if not picked:
+        return 3.0, ["no swap target"]
+    page.locator(f'[data-swap-chip="{picked}"]').click()
+    page.wait_for_timeout(150)
+    after = page.evaluate(SNAPSHOT)
+    score, notes = score_unknown_swap(after, picked, old)
+    lab_s, lab_n = score_labels(after)
+    tgt_s, tgt_n = score_targets(cam, after)
+    if lab_s < PASS:
+        score = clamp(min(score, lab_s))
+        notes = notes + lab_n
+    if tgt_s < PASS:
+        score = clamp(min(score, tgt_s))
+        notes = notes + tgt_n
+    page.locator(".work").screenshot(path=str(OUT / f"unknown_{cam}.png"))
+    return score, notes
+
+
+def _hide_after_four(page) -> tuple[float, list[str]]:
+    page.evaluate("() => { clicks = [[40,40],[80,80],[120,120],[160,160]]; refresh(); }")
+    page.wait_for_timeout(80)
+    filled = page.evaluate(SNAPSHOT)
+    page.evaluate("() => { clicks = [null,null,null,null]; active = 0; refresh(); }")
+    if filled.get("swapUi"):
+        return 8.0, ["swap UI still up after 4 clicks"]
+    return 10.0, []
+
+
+def _p10_list_swap(page) -> tuple[float, list[str]]:
+    page.select_option("#swapPick", "left_box_goal_near")
+    page.wait_for_timeout(120)
+    sel = page.evaluate(SNAPSHOT)
+    score, notes = score_unknown_swap(sel, "left_box_goal_near", "halfway_near_touch")
+    _set_order(page, "both_sides_south")
+    return score, notes
+
+
+def _p8_extra_click(page, info: dict) -> tuple[float, list[str]]:
+    old = (info.get("liveNames") or [None])[0]
+    page.locator('circle[data-extra="right_6_box_near"]').click(force=True)
+    page.wait_for_timeout(120)
+    clk = page.evaluate(SNAPSHOT)
+    score, notes = score_unknown_swap(clk, "right_6_box_near", old)
+    _set_order(page, info.get("orderKey") or "goal_right")
+    return score, notes
+
+
+def exercise_unknown(page, cam: str, info: dict, report: dict) -> None:
+    score, notes = score_unknown(info)
+    for part in (
+        _hover_extra(page, info),
+        _click_chip_swap(page, info, cam),
+    ):
+        if part[0] < score:
+            score, notes = part
+    _set_order(page, info.get("orderKey") or "both_sides_south")
+    hide_s, hide_n = _hide_after_four(page)
+    if hide_s < score:
+        score, notes = hide_s, hide_n
+    extra = None
+    if cam == "P10":
+        extra = _p10_list_swap(page)
+    elif cam == "P8":
+        extra = _p8_extra_click(page, info)
+    if extra and extra[0] < score:
+        score, notes = extra
+    report["scores"]["unknown"] = score
+    report["notes"]["unknown"] = notes
+
+
+def _post_save(page, body: dict) -> dict:
+    return page.evaluate(
+        """async (body) => {
+          const r = await fetch('/save_match3_landmark', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          let j = {};
+          try { j = await r.json(); } catch (e) { j = { ok: false, error: String(e) }; }
+          return { status: r.status, ...j };
+        }""",
+        body,
+    )
+
+
+def score_save(page, cam: str, info: dict) -> tuple[float, list[str]]:
+    notes = []
+    score = 10.0
+    catalog = info.get("catalog") or {}
+    if "right_box_18_far" not in catalog:
+        return 2.0, ["catalog missing right_box_18_far"]
+    names = list(P9_VISIBLE) if cam == "P9" else list(info.get("liveNames") or [])
+    if len(names) != 4:
+        names = list(catalog.keys())[:4]
+    body = {
+        "camera": cam,
+        "order": info.get("orderKey") or "both_sides_south",
+        "landmarks": names,
+        "image_points": [[10, 10], [200, 10], [200, 200], [10, 200]],
+        "dry_run": True,
+    }
+    got = _post_save(page, body)
+    if not got.get("ok"):
+        score -= 6
+        notes.append(got.get("error") or f"save HTTP {got.get('status')}")
+    elif cam == "P9" and "right_box_18_far" not in (got.get("landmarks") or []):
+        score -= 3
+        notes.append("P9 dry save dropped right_box_18_far")
+    bad = dict(body)
+    bad["landmarks"] = ["not_a_mark"] + names[:3]
+    deny = _post_save(page, bad)
+    if deny.get("ok"):
+        score -= 4
+        notes.append("unknown name was accepted")
+    elif "unknown" not in (deny.get("error") or "").lower():
+        score -= 2
+        notes.append(f"bad unknown error {deny.get('error')}")
+    return clamp(score), notes
+
+
 def score_cam(cam: str, info: dict) -> dict:
     scores = {}
     notes = {}
@@ -431,14 +867,32 @@ def score_cam(cam: str, info: dict) -> dict:
     scores["targets"], notes["targets"] = score_targets(cam, info)
     scores["spatial"], notes["spatial"] = score_spatial(info)
     scores["video_match"], notes["video_match"] = score_video_match(cam, info)
+    scores["naming"], notes["naming"] = score_naming(cam, info)
+    scores["unknown"], notes["unknown"] = score_unknown(info)
     return {"scores": scores, "notes": notes}
+
+
+def _set_order(page, key: str) -> None:
+    page.evaluate(
+        """(key) => {
+          document.getElementById('order').value = key;
+          setLiveFromOrder();
+          clicks = [null, null, null, null];
+          active = 0;
+          refresh();
+        }""",
+        key,
+    )
+    page.wait_for_timeout(150)
 
 
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
-    all_scores = {k: [] for k in [
-        "orientation", "cameras", "labels", "targets", "spatial", "video_match"
-    ]}
+    keys = [
+        "orientation", "cameras", "labels", "targets",
+        "spatial", "video_match", "naming", "unknown", "save",
+    ]
+    all_scores = {k: [] for k in keys}
     fails = []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, channel="chrome")
@@ -464,6 +918,39 @@ def main() -> int:
             page.wait_for_timeout(200)
             info = page.evaluate(SNAPSHOT)
             report = score_cam(cam, info)
+            # Extra orders: left/right names vs diagram, near-corner vs cam chip.
+            for extra_key in ("both_sides_north", "both_sides_south"):
+                if info.get("orderKey") == extra_key:
+                    continue
+                _set_order(page, extra_key)
+                extra = page.evaluate(SNAPSHOT)
+                n_score, n_notes = score_naming(cam, extra)
+                if n_score < report["scores"]["naming"]:
+                    report["scores"]["naming"] = n_score
+                    report["notes"]["naming"] = n_notes
+            if cam == "P9":
+                _set_order(page, "both_sides_north")
+                page.evaluate("() => { active = 3; refresh(); }")
+                page.wait_for_timeout(120)
+                p9 = page.evaluate(SNAPSHOT)
+                n_score, n_notes = score_naming("P9", p9)
+                if "North Right Corner" not in (p9.get("taskWhat") or ""):
+                    n_score = clamp(n_score - 3)
+                    n_notes = n_notes + ["P9 slot4 task is not North Right Corner"]
+                find = (p9.get("taskFind") or "").lower()
+                if "p1" not in find or "right" not in find:
+                    n_score = clamp(n_score - 2)
+                    n_notes = n_notes + ["P9 North Right FIND missing P1/right"]
+                if n_score < report["scores"]["naming"]:
+                    report["scores"]["naming"] = n_score
+                    report["notes"]["naming"] = n_notes
+                page.locator(".work").screenshot(path=str(OUT / "p9_north_right_task.png"))
+            _set_order(page, info.get("orderKey") or "both_sides_south")
+            info = page.evaluate(SNAPSHOT)
+            exercise_unknown(page, cam, info, report)
+            _set_order(page, info.get("orderKey") or "both_sides_south")
+            info = page.evaluate(SNAPSHOT)
+            report["scores"]["save"], report["notes"]["save"] = score_save(page, cam, info)
             page.locator(".map-panel").screenshot(path=str(OUT / f"names_{cam}.png"))
             page.locator(".work").screenshot(path=str(OUT / f"mark_{cam}.png"))
             print(cam, report["scores"])
@@ -484,7 +971,7 @@ def main() -> int:
         for f in fails:
             print(" ", f)
         return 1
-    print("all subgoals >= 9/10 on every camera (incl. video_match)")
+    print("all subgoals >= 9/10 on every camera (incl. video_match, naming, unknown, save)")
     print(f"wrote {OUT}")
     return 0
 

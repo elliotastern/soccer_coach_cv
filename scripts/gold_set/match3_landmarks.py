@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -10,52 +11,31 @@ import cv2
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from raw_cam_id import cam_id_from_raw_name, load_match_raw  # noqa: E402
+from pitch1 import load_pitch1, pitch1_landmarks  # noqa: E402
+
 DASH = ROOT / "reports/eval_match3/landmark_dashboard"
 STILL_DIR = DASH / "stills"
 CALIB_DIR = ROOT / "reports/eval_match3/match3_pitch_calib"
 MATCH3_RAW = ROOT / "data/raw/Match 3"
-# P9 = corner/goal FOV (goal on image-left); matches user ref + filename P9-004.
-RAW_FILE = {
-    "P1": MATCH3_RAW / "P1-006.mp4",
-    "P6": MATCH3_RAW / "P6-003.mp4",
-    "P7": MATCH3_RAW / "P7-001.mp4",
-    "P8": MATCH3_RAW / "p8-005.mp4",
-    "P9": MATCH3_RAW / "P9-004.mp4",
-    "P10": MATCH3_RAW / "P10-002.mp4",
-    "P_Goal1": MATCH3_RAW / "P_Goal1-007.mp4",
-    "P_Goal2": MATCH3_RAW / "P_Goal2-008.mp4",
-}
+# Camera id = filename P-code. Never remap by FOV (P1-006.mp4 is P1, not P9).
+RAW_FILE = load_match_raw(MATCH3_RAW)
+for _cam, _path in RAW_FILE.items():
+    if cam_id_from_raw_name(_path.name) != _cam:
+        raise ValueError(f"{_path.name} is not camera {_cam}")
 SRC = ROOT / "reports/eval_match3/pitchmap_gallery/source"
 STEM = "rand_t00627.9s"
 DETECT_W = 1920
-PL, PW, R = 105.0, 68.0, 9.15
-PEN_D, PEN_HW, PSPOT = 16.5, 20.16, 11.0
-
-DISPLAY = {
-    "halfway_near_touch": "Halfway Left Sideline",
-    "halfway_far_touch": "Halfway Right Sideline",
-    "left_near_corner": "South Left Corner",
-    "right_near_corner": "North Left Corner",
-    "left_far_corner": "South Right Corner",
-    "right_far_corner": "North Right Corner",
-    "center": "Center Spot",
-    "circle_near": "Center Circle Left",
-    "circle_far": "Center Circle Right",
-    "left_box_goal_near": "South Left Goal-Line Corner",
-    "left_box_goal_far": "South Right Goal-Line Corner",
-    "left_box_18_near": "South Left 18-Yard Corner",
-    "left_box_18_far": "South Right 18-Yard Corner",
-    "left_post_near": "South Left Goal Post",
-    "left_post_far": "South Right Goal Post",
-    "left_penalty_spot": "South Penalty Spot",
-    "right_box_goal_near": "North Left Goal-Line Corner",
-    "right_box_goal_far": "North Right Goal-Line Corner",
-    "right_box_18_near": "North Left 18-Yard Corner",
-    "right_box_18_far": "North Right 18-Yard Corner",
-    "right_post_near": "North Left Goal Post",
-    "right_post_far": "North Right Goal Post",
-    "right_penalty_spot": "North Penalty Spot",
-}
+PITCH1 = load_pitch1()
+PL = float(PITCH1["length_m"])
+PW = float(PITCH1["width_m"])
+LANDMARKS = pitch1_landmarks(PITCH1)
+DISPLAY = {n: v["label"] for n, v in LANDMARKS.items()}
+R = float(PITCH1["marks"]["center_circle_radius_m"])
+PEN_D = float(PITCH1["marks"]["penalty_area_depth_m"])
+PEN_HW = float(PITCH1["marks"]["penalty_area_half_width_m"])
+PSPOT = float(PITCH1["marks"]["penalty_spot_m"])
 ORDER_TITLES = {
     "both_sides_south": "South · both sidelines",
     "both_sides_north": "North · both sidelines",
@@ -66,75 +46,51 @@ ORDER_TITLES = {
     "goal_left": "South Goal Box",
     "goal_right": "North Goal Box",
 }
-ORDERS = {
-    "both_sides_south": [
-        ("halfway_near_touch", (0.0, PW / 2)),
-        ("halfway_far_touch", (0.0, -PW / 2)),
-        ("left_near_corner", (-PL / 2, PW / 2)),
-        ("left_far_corner", (-PL / 2, -PW / 2)),
-    ],
-    "both_sides_north": [
-        ("halfway_near_touch", (0.0, PW / 2)),
-        ("halfway_far_touch", (0.0, -PW / 2)),
-        ("right_near_corner", (PL / 2, PW / 2)),
-        ("right_far_corner", (PL / 2, -PW / 2)),
-    ],
-    "quad_near_left": [
-        ("halfway_near_touch", (0.0, PW / 2)),
-        ("left_near_corner", (-PL / 2, PW / 2)),
-        ("center", (0.0, 0.0)),
-        ("circle_near", (0.0, R)),
-    ],
-    "quad_near_right": [
-        ("halfway_near_touch", (0.0, PW / 2)),
-        ("right_near_corner", (PL / 2, PW / 2)),
-        ("center", (0.0, 0.0)),
-        ("circle_near", (0.0, R)),
-    ],
-    "quad_far_left": [
-        ("halfway_far_touch", (0.0, -PW / 2)),
-        ("left_far_corner", (-PL / 2, -PW / 2)),
-        ("center", (0.0, 0.0)),
-        ("circle_far", (0.0, -R)),
-    ],
-    "quad_far_right": [
-        ("halfway_far_touch", (0.0, -PW / 2)),
-        ("right_far_corner", (PL / 2, -PW / 2)),
-        ("center", (0.0, 0.0)),
-        ("circle_far", (0.0, -R)),
-    ],
-    "goal_left": [
-        ("left_box_goal_near", (-PL / 2, PEN_HW)),
-        ("left_box_goal_far", (-PL / 2, -PEN_HW)),
-        ("left_box_18_near", (-PL / 2 + PEN_D, PEN_HW)),
-        ("left_box_18_far", (-PL / 2 + PEN_D, -PEN_HW)),
-    ],
-    "goal_right": [
-        ("right_box_goal_near", (PL / 2, PEN_HW)),
-        ("right_box_goal_far", (PL / 2, -PEN_HW)),
-        ("right_box_18_near", (PL / 2 - PEN_D, PEN_HW)),
-        ("right_box_18_far", (PL / 2 - PEN_D, -PEN_HW)),
-    ],
-}
 
-EXTRA_XY = {
-    "left_box_18_far": (-PL / 2 + PEN_D, -PEN_HW),
-    "left_post_near": (-PL / 2, 3.66),
-    "left_post_far": (-PL / 2, -3.66),
-    "left_penalty_spot": (-PL / 2 + PSPOT, 0.0),
-    "right_box_18_far": (PL / 2 - PEN_D, -PEN_HW),
-    "right_post_near": (PL / 2, 3.66),
-    "right_post_far": (PL / 2, -3.66),
-    "right_penalty_spot": (PL / 2 - PSPOT, 0.0),
+
+def _xy(name: str) -> tuple[float, float]:
+    x, y = LANDMARKS[name]["xy"]
+    return (float(x), float(y))
+
+
+def _pts(*names: str):
+    return [(n, _xy(n)) for n in names]
+
+
+ORDERS = {
+    "both_sides_south": _pts(
+        "halfway_near_touch", "halfway_far_touch",
+        "left_near_corner", "left_far_corner",
+    ),
+    "both_sides_north": _pts(
+        "halfway_near_touch", "halfway_far_touch",
+        "right_near_corner", "right_far_corner",
+    ),
+    "quad_near_left": _pts(
+        "halfway_near_touch", "left_near_corner", "center", "circle_near",
+    ),
+    "quad_near_right": _pts(
+        "halfway_near_touch", "right_near_corner", "center", "circle_near",
+    ),
+    "quad_far_left": _pts(
+        "halfway_far_touch", "left_far_corner", "center", "circle_far",
+    ),
+    "quad_far_right": _pts(
+        "halfway_far_touch", "right_far_corner", "center", "circle_far",
+    ),
+    "goal_left": _pts(
+        "left_box_goal_near", "left_box_goal_far",
+        "left_box_18_near", "left_box_18_far",
+    ),
+    "goal_right": _pts(
+        "right_box_goal_near", "right_box_goal_far",
+        "right_box_18_near", "right_box_18_far",
+    ),
 }
 
 
 def all_landmarks():
-    out = {n: (float(x), float(y)) for n, (x, y) in EXTRA_XY.items()}
-    for pts in ORDERS.values():
-        for n, xy in pts:
-            out[n] = (float(xy[0]), float(xy[1]))
-    return out
+    return {n: _xy(n) for n in LANDMARKS}
 
 
 def on_pitch_names():
@@ -145,16 +101,68 @@ def families():
     names = on_pitch_names()
     return {k: names for k in ORDERS}
 
+
+SWAP_GROUPS = [
+    ("Corners", [
+        "left_near_corner", "left_far_corner",
+        "right_near_corner", "right_far_corner",
+    ]),
+    ("Halfway / center", [
+        "halfway_near_touch", "halfway_far_touch",
+        "center", "circle_near", "circle_far",
+    ]),
+    ("South 18-yard", [
+        "left_box_goal_near", "left_box_goal_far",
+        "left_box_18_near", "left_box_18_far",
+    ]),
+    ("South 6-yard / goal", [
+        "left_6_goal_near", "left_6_goal_far",
+        "left_6_box_near", "left_6_box_far",
+        "left_post_near", "left_post_far", "left_penalty_spot",
+    ]),
+    ("North 18-yard", [
+        "right_box_goal_near", "right_box_goal_far",
+        "right_box_18_near", "right_box_18_far",
+    ]),
+    ("North 6-yard / goal", [
+        "right_6_goal_near", "right_6_goal_far",
+        "right_6_box_near", "right_6_box_far",
+        "right_post_near", "right_post_far", "right_penalty_spot",
+    ]),
+]
+
+
+def swap_groups():
+    return [{"title": title, "names": list(names)} for title, names in SWAP_GROUPS]
+
+
+def nearby_unused(name: str, used: set[str], n: int = 5) -> list[str]:
+    catalog = all_landmarks()
+    if name not in catalog:
+        raise ValueError(f"unknown landmark {name}")
+    x0, y0 = catalog[name]
+    ranked = []
+    for other, (x, y) in catalog.items():
+        if other == name or other in used:
+            continue
+        ranked.append((math.hypot(x - x0, y - y0), other))
+    ranked.sort()
+    return [nm for _, nm in ranked[:n]]
+
 CAMS = [
     {"id": "P10", "label": "P10 — South left, both sidelines", "order": "both_sides_south"},
     {"id": "P7", "label": "P7 — South right, both sidelines", "order": "both_sides_south"},
-    {"id": "P8", "label": "P8 — North left, both sidelines", "order": "both_sides_north"},
-    {"id": "P9", "label": "P9 — North right corner / goal", "order": "goal_right"},
+    {"id": "P8", "label": "P8 — North left goal / corner", "order": "goal_right"},
+    {"id": "P9", "label": "P9 — North right corner / goal", "order": "both_sides_north"},
     {"id": "P1", "label": "P1 — South, lengthwise toward goal", "order": "both_sides_south"},
     {"id": "P6", "label": "P6 — North", "order": "goal_right"},
     {"id": "P_Goal1", "label": "P_Goal1 — Goal", "order": "goal_right"},
     {"id": "P_Goal2", "label": "P_Goal2 — Goal", "order": "goal_right"},
 ]
+
+for spec in CAMS:
+    if spec["id"] not in RAW_FILE:
+        raise FileNotFoundError(f"no video titled {spec['id']} in {MATCH3_RAW}")
 
 
 def resize_w(frame, width=DETECT_W):
@@ -168,6 +176,8 @@ def extract_still(cam: str) -> Path:
     STILL_DIR.mkdir(parents=True, exist_ok=True)
     dest = STILL_DIR / f"{cam}.jpg"
     src = RAW_FILE[cam]
+    if cam_id_from_raw_name(src.name) != cam:
+        raise ValueError(f"{src.name} is camera {cam_id_from_raw_name(src.name)}, not {cam}")
     if not src.is_file():
         raise FileNotFoundError(src)
     cap = cv2.VideoCapture(str(src))
@@ -198,7 +208,17 @@ def write_manifest() -> Path:
             rec = json.loads(calib.read_text(encoding="utf-8"))
             names = rec.get("landmark_names") or []
             saved = len(names) == 4 and all(n in allowed for n in names)
-        cams.append({**spec, "still": f"stills/{spec['id']}.jpg", "image_wh": [w, h], "saved": saved})
+        vid = RAW_FILE[spec["id"]]
+        if cam_id_from_raw_name(vid.name) != spec["id"]:
+            raise ValueError(f"{vid.name} cannot be camera {spec['id']}")
+        cams.append({
+            **spec,
+            "still": f"stills/{spec['id']}.jpg",
+            "video": str(vid.relative_to(ROOT)).replace("\\", "/"),
+            "videoName": vid.name,
+            "image_wh": [w, h],
+            "saved": saved,
+        })
     catalog = all_landmarks()
     payload = {
         "title": "landmark_marker",
@@ -206,10 +226,17 @@ def write_manifest() -> Path:
         "pitch_width_m": PW,
         "order_titles": ORDER_TITLES,
         "landmarks": {
-            n: {"label": DISPLAY[n], "xy": [xy[0], xy[1]]}
+            n: {
+                "label": LANDMARKS[n]["label"],
+                "xy": [xy[0], xy[1]],
+                "spec": LANDMARKS[n]["spec"],
+            }
             for n, xy in catalog.items()
         },
+        "pitch_marks": PITCH1["marks"],
+        "pitch1": "docs/product/PITCH1_DIMENSIONS.json",
         "families": families(),
+        "swap_groups": swap_groups(),
         "on_pitch": on_pitch_names(),
         "orders": {
             k: [
@@ -261,9 +288,7 @@ def draw_overlay(img, H, clicks, names):
     return vis
 
 
-def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=None) -> dict:
-    if cam not in {c["id"] for c in CAMS}:
-        raise ValueError(f"unknown cam {cam}")
+def resolve_landmark_names(order_name: str, landmark_names=None):
     catalog = all_landmarks()
     allowed = set(on_pitch_names())
     if landmark_names:
@@ -278,13 +303,35 @@ def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=No
         off = [n for n in names if n not in allowed]
         if off:
             raise ValueError(f"not on this pitch {off}")
-        pitch_pts = [catalog[n] for n in names]
-    else:
-        if order_name not in ORDERS:
-            raise ValueError(f"unknown order {order_name}")
-        order = ORDERS[order_name]
-        names = [n for n, _ in order]
-        pitch_pts = [xy for _, xy in order]
+        return names, [catalog[n] for n in names]
+    if order_name not in ORDERS:
+        raise ValueError(f"unknown order {order_name}")
+    order = ORDERS[order_name]
+    names = [n for n, _ in order]
+    return names, [xy for _, xy in order]
+
+
+# P9 still: north-right corner / 18-yard / penalty (all in FOV).
+P9_VISIBLE = [
+    "right_box_18_far",
+    "right_box_goal_far",
+    "right_penalty_spot",
+    "right_far_corner",
+]
+
+
+def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=None,
+                dry_run: bool = False) -> dict:
+    if cam not in {c["id"] for c in CAMS}:
+        raise ValueError(f"unknown cam {cam}")
+    names, pitch_pts = resolve_landmark_names(order_name, landmark_names)
+    if dry_run:
+        return {
+            "ok": True,
+            "dry_run": True,
+            "camera": cam,
+            "landmarks": names,
+        }
     if len(image_points) != 4:
         raise ValueError("need 4 image points")
     still = STILL_DIR / f"{cam}.jpg"

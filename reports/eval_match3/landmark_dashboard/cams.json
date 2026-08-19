@@ -13,178 +13,271 @@
     "goal_right": "North Goal Box"
   },
   "landmarks": {
-    "left_box_18_far": {
-      "label": "South Right 18-Yard Corner",
-      "xy": [
-        -36.0,
-        -20.16
-      ]
-    },
-    "left_post_near": {
-      "label": "South Left Goal Post",
-      "xy": [
-        -52.5,
-        3.66
-      ]
-    },
-    "left_post_far": {
-      "label": "South Right Goal Post",
-      "xy": [
-        -52.5,
-        -3.66
-      ]
-    },
-    "left_penalty_spot": {
-      "label": "South Penalty Spot",
-      "xy": [
-        -41.5,
-        0.0
-      ]
-    },
-    "right_box_18_far": {
-      "label": "North Right 18-Yard Corner",
-      "xy": [
-        36.0,
-        -20.16
-      ]
-    },
-    "right_post_near": {
-      "label": "North Left Goal Post",
-      "xy": [
-        52.5,
-        3.66
-      ]
-    },
-    "right_post_far": {
-      "label": "North Right Goal Post",
-      "xy": [
-        52.5,
-        -3.66
-      ]
-    },
-    "right_penalty_spot": {
-      "label": "North Penalty Spot",
-      "xy": [
-        41.5,
-        0.0
-      ]
-    },
     "halfway_near_touch": {
       "label": "Halfway Left Sideline",
       "xy": [
         0.0,
         34.0
-      ]
+      ],
+      "spec": "Halfway \u00d7 left touch. y=+34.00 m (P1 left)."
     },
     "halfway_far_touch": {
       "label": "Halfway Right Sideline",
       "xy": [
         0.0,
         -34.0
-      ]
+      ],
+      "spec": "Halfway \u00d7 right touch. y=-34.00 m (P1 right)."
     },
     "left_near_corner": {
       "label": "South Left Corner",
       "xy": [
         -52.5,
         34.0
-      ]
+      ],
+      "spec": "South-left flag. 105\u00d768 corner, x=-52.50 y=+34.00."
     },
     "left_far_corner": {
       "label": "South Right Corner",
       "xy": [
         -52.5,
         -34.0
-      ]
+      ],
+      "spec": "South-right flag. x=-52.50 y=-34.00."
     },
     "right_near_corner": {
       "label": "North Left Corner",
       "xy": [
         52.5,
         34.0
-      ]
+      ],
+      "spec": "North-left flag \u2014 P1\u2019s left (P8 near). x=+52.50 y=+34.00."
     },
     "right_far_corner": {
       "label": "North Right Corner",
       "xy": [
         52.5,
         -34.0
-      ]
+      ],
+      "spec": "North-right flag \u2014 P1\u2019s right (P9 near). x=+52.50 y=-34.00."
     },
     "center": {
       "label": "Center Spot",
       "xy": [
         0.0,
         0.0
-      ]
+      ],
+      "spec": "Kickoff mark. Origin x=+0.00 y=+0.00."
     },
     "circle_near": {
       "label": "Center Circle Left",
       "xy": [
         0.0,
         9.15
-      ]
+      ],
+      "spec": "Halfway \u00d7 center circle, left. r=9.15 m. x=+0.00 y=+9.15."
     },
     "circle_far": {
       "label": "Center Circle Right",
       "xy": [
         0.0,
         -9.15
-      ]
+      ],
+      "spec": "Halfway \u00d7 center circle, right. r=9.15 m. x=+0.00 y=-9.15."
     },
     "left_box_goal_near": {
       "label": "South Left Goal-Line Corner",
       "xy": [
         -52.5,
         20.16
-      ]
+      ],
+      "spec": "18-yard \u00d7 south goal line, left. 16.5 m box, 20.16 m left of center."
     },
     "left_box_goal_far": {
       "label": "South Right Goal-Line Corner",
       "xy": [
         -52.5,
         -20.16
-      ]
+      ],
+      "spec": "18-yard \u00d7 south goal line, right. 16.5 m box, 20.16 m right of center."
     },
     "left_box_18_near": {
       "label": "South Left 18-Yard Corner",
       "xy": [
         -36.0,
         20.16
-      ]
+      ],
+      "spec": "Outer 18-yard corner, south left. 16.5 m from goal line, 20.16 m left."
+    },
+    "left_box_18_far": {
+      "label": "South Right 18-Yard Corner",
+      "xy": [
+        -36.0,
+        -20.16
+      ],
+      "spec": "Outer 18-yard corner, south right. 16.5 m from goal line, 20.16 m right."
+    },
+    "left_6_goal_near": {
+      "label": "South Left 6-Yard Goal-Line Corner",
+      "xy": [
+        -52.5,
+        9.16
+      ],
+      "spec": "6-yard \u00d7 south goal line, left. 5.5 m box, 9.16 m left of center."
+    },
+    "left_6_goal_far": {
+      "label": "South Right 6-Yard Goal-Line Corner",
+      "xy": [
+        -52.5,
+        -9.16
+      ],
+      "spec": "6-yard \u00d7 south goal line, right. 5.5 m box, 9.16 m right of center."
+    },
+    "left_6_box_near": {
+      "label": "South Left 6-Yard Corner",
+      "xy": [
+        -47.0,
+        9.16
+      ],
+      "spec": "Outer 6-yard corner, south left. 5.5 m from goal line, 9.16 m left."
+    },
+    "left_6_box_far": {
+      "label": "South Right 6-Yard Corner",
+      "xy": [
+        -47.0,
+        -9.16
+      ],
+      "spec": "Outer 6-yard corner, south right. 5.5 m from goal line, 9.16 m right."
+    },
+    "left_post_near": {
+      "label": "South Left Goal Post",
+      "xy": [
+        -52.5,
+        3.66
+      ],
+      "spec": "South left post. Goal 7.32 m wide, post 3.66 m left of center."
+    },
+    "left_post_far": {
+      "label": "South Right Goal Post",
+      "xy": [
+        -52.5,
+        -3.66
+      ],
+      "spec": "South right post. 3.66 m right of center."
+    },
+    "left_penalty_spot": {
+      "label": "South Penalty Spot",
+      "xy": [
+        -41.5,
+        0.0
+      ],
+      "spec": "South penalty mark. 11.0 m from goal line, on center."
     },
     "right_box_goal_near": {
       "label": "North Left Goal-Line Corner",
       "xy": [
         52.5,
         20.16
-      ]
+      ],
+      "spec": "18-yard \u00d7 north goal line, left. 16.5 m box, 20.16 m left of center."
     },
     "right_box_goal_far": {
       "label": "North Right Goal-Line Corner",
       "xy": [
         52.5,
         -20.16
-      ]
+      ],
+      "spec": "18-yard \u00d7 north goal line, right. 16.5 m box, 20.16 m right of center."
     },
     "right_box_18_near": {
       "label": "North Left 18-Yard Corner",
       "xy": [
         36.0,
         20.16
-      ]
+      ],
+      "spec": "Outer 18-yard corner, north left. 16.5 m from goal line, 20.16 m left."
+    },
+    "right_box_18_far": {
+      "label": "North Right 18-Yard Corner",
+      "xy": [
+        36.0,
+        -20.16
+      ],
+      "spec": "Outer 18-yard corner, north right. 16.5 m from goal line, 20.16 m right."
+    },
+    "right_6_goal_near": {
+      "label": "North Left 6-Yard Goal-Line Corner",
+      "xy": [
+        52.5,
+        9.16
+      ],
+      "spec": "6-yard \u00d7 north goal line, left. 5.5 m box, 9.16 m left of center."
+    },
+    "right_6_goal_far": {
+      "label": "North Right 6-Yard Goal-Line Corner",
+      "xy": [
+        52.5,
+        -9.16
+      ],
+      "spec": "6-yard \u00d7 north goal line, right. 5.5 m box, 9.16 m right of center."
+    },
+    "right_6_box_near": {
+      "label": "North Left 6-Yard Corner",
+      "xy": [
+        47.0,
+        9.16
+      ],
+      "spec": "Outer 6-yard corner, north left. 5.5 m from goal line, 9.16 m left."
+    },
+    "right_6_box_far": {
+      "label": "North Right 6-Yard Corner",
+      "xy": [
+        47.0,
+        -9.16
+      ],
+      "spec": "Outer 6-yard corner, north right. 5.5 m from goal line, 9.16 m right."
+    },
+    "right_post_near": {
+      "label": "North Left Goal Post",
+      "xy": [
+        52.5,
+        3.66
+      ],
+      "spec": "North left post. Goal 7.32 m wide, post 3.66 m left of center."
+    },
+    "right_post_far": {
+      "label": "North Right Goal Post",
+      "xy": [
+        52.5,
+        -3.66
+      ],
+      "spec": "North right post. 3.66 m right of center."
+    },
+    "right_penalty_spot": {
+      "label": "North Penalty Spot",
+      "xy": [
+        41.5,
+        0.0
+      ],
+      "spec": "North penalty mark. 11.0 m from goal line, on center."
     }
   },
+  "pitch_marks": {
+    "goal_width_m": 7.32,
+    "goal_post_half_m": 3.66,
+    "penalty_area_depth_m": 16.5,
+    "penalty_area_width_m": 40.32,
+    "penalty_area_half_width_m": 20.16,
+    "goal_area_depth_m": 5.5,
+    "goal_area_width_m": 18.32,
+    "goal_area_half_width_m": 9.16,
+    "penalty_spot_m": 11.0,
+    "center_circle_radius_m": 9.15,
+    "corner_arc_radius_m": 1.0
+  },
+  "pitch1": "docs/product/PITCH1_DIMENSIONS.json",
   "families": {
     "both_sides_south": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -197,19 +290,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "both_sides_north": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -222,19 +323,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "quad_near_left": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -247,19 +356,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "quad_near_right": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -272,19 +389,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "quad_far_left": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -297,19 +422,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "quad_far_right": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -322,19 +455,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "goal_left": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -347,19 +488,27 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ],
     "goal_right": [
-      "left_box_18_far",
-      "left_post_near",
-      "left_post_far",
-      "left_penalty_spot",
-      "right_box_18_far",
-      "right_post_near",
-      "right_post_far",
-      "right_penalty_spot",
       "halfway_near_touch",
       "halfway_far_touch",
       "left_near_corner",
@@ -372,20 +521,91 @@
       "left_box_goal_near",
       "left_box_goal_far",
       "left_box_18_near",
+      "left_box_18_far",
+      "left_6_goal_near",
+      "left_6_goal_far",
+      "left_6_box_near",
+      "left_6_box_far",
+      "left_post_near",
+      "left_post_far",
+      "left_penalty_spot",
       "right_box_goal_near",
       "right_box_goal_far",
-      "right_box_18_near"
+      "right_box_18_near",
+      "right_box_18_far",
+      "right_6_goal_near",
+      "right_6_goal_far",
+      "right_6_box_near",
+      "right_6_box_far",
+      "right_post_near",
+      "right_post_far",
+      "right_penalty_spot"
     ]
   },
+  "swap_groups": [
+    {
+      "title": "Corners",
+      "names": [
+        "left_near_corner",
+        "left_far_corner",
+        "right_near_corner",
+        "right_far_corner"
+      ]
+    },
+    {
+      "title": "Halfway / center",
+      "names": [
+        "halfway_near_touch",
+        "halfway_far_touch",
+        "center",
+        "circle_near",
+        "circle_far"
+      ]
+    },
+    {
+      "title": "South 18-yard",
+      "names": [
+        "left_box_goal_near",
+        "left_box_goal_far",
+        "left_box_18_near",
+        "left_box_18_far"
+      ]
+    },
+    {
+      "title": "South 6-yard / goal",
+      "names": [
+        "left_6_goal_near",
+        "left_6_goal_far",
+        "left_6_box_near",
+        "left_6_box_far",
+        "left_post_near",
+        "left_post_far",
+        "left_penalty_spot"
+      ]
+    },
+    {
+      "title": "North 18-yard",
+      "names": [
+        "right_box_goal_near",
+        "right_box_goal_far",
+        "right_box_18_near",
+        "right_box_18_far"
+      ]
+    },
+    {
+      "title": "North 6-yard / goal",
+      "names": [
+        "right_6_goal_near",
+        "right_6_goal_far",
+        "right_6_box_near",
+        "right_6_box_far",
+        "right_post_near",
+        "right_post_far",
+        "right_penalty_spot"
+      ]
+    }
+  ],
   "on_pitch": [
-    "left_box_18_far",
-    "left_post_near",
-    "left_post_far",
-    "left_penalty_spot",
-    "right_box_18_far",
-    "right_post_near",
-    "right_post_far",
-    "right_penalty_spot",
     "halfway_near_touch",
     "halfway_far_touch",
     "left_near_corner",
@@ -398,9 +618,25 @@
     "left_box_goal_near",
     "left_box_goal_far",
     "left_box_18_near",
+    "left_box_18_far",
+    "left_6_goal_near",
+    "left_6_goal_far",
+    "left_6_box_near",
+    "left_6_box_far",
+    "left_post_near",
+    "left_post_far",
+    "left_penalty_spot",
     "right_box_goal_near",
     "right_box_goal_far",
-    "right_box_18_near"
+    "right_box_18_near",
+    "right_box_18_far",
+    "right_6_goal_near",
+    "right_6_goal_far",
+    "right_6_box_near",
+    "right_6_box_far",
+    "right_post_near",
+    "right_post_far",
+    "right_penalty_spot"
   ],
   "orders": {
     "both_sides_south": [
@@ -682,6 +918,8 @@
       "label": "P10 \u2014 South left, both sidelines",
       "order": "both_sides_south",
       "still": "stills/P10.jpg",
+      "video": "data/raw/Match 3/P10-002.mp4",
+      "videoName": "P10-002.mp4",
       "image_wh": [
         1920,
         1080
@@ -693,6 +931,8 @@
       "label": "P7 \u2014 South right, both sidelines",
       "order": "both_sides_south",
       "still": "stills/P7.jpg",
+      "video": "data/raw/Match 3/P7-001.mp4",
+      "videoName": "P7-001.mp4",
       "image_wh": [
         1920,
         1080
@@ -701,69 +941,81 @@
     },
     {
       "id": "P8",
-      "label": "P8 \u2014 North left, both sidelines",
-      "order": "both_sides_north",
+      "label": "P8 \u2014 North left goal / corner",
+      "order": "goal_right",
       "still": "stills/P8.jpg",
+      "video": "data/raw/Match 3/p8-005.mp4",
+      "videoName": "p8-005.mp4",
       "image_wh": [
         1920,
         1080
       ],
-      "saved": false
+      "saved": true
     },
     {
       "id": "P9",
       "label": "P9 \u2014 North right corner / goal",
-      "order": "goal_right",
+      "order": "both_sides_north",
       "still": "stills/P9.jpg",
+      "video": "data/raw/Match 3/P9-004.mp4",
+      "videoName": "P9-004.mp4",
       "image_wh": [
         1920,
         1080
       ],
-      "saved": false
+      "saved": true
     },
     {
       "id": "P1",
       "label": "P1 \u2014 South, lengthwise toward goal",
       "order": "both_sides_south",
       "still": "stills/P1.jpg",
+      "video": "data/raw/Match 3/P1-006.mp4",
+      "videoName": "P1-006.mp4",
       "image_wh": [
         1920,
         1080
       ],
-      "saved": false
+      "saved": true
     },
     {
       "id": "P6",
       "label": "P6 \u2014 North",
       "order": "goal_right",
       "still": "stills/P6.jpg",
+      "video": "data/raw/Match 3/P6-003.mp4",
+      "videoName": "P6-003.mp4",
       "image_wh": [
         1920,
         1080
       ],
-      "saved": false
+      "saved": true
     },
     {
       "id": "P_Goal1",
       "label": "P_Goal1 \u2014 Goal",
       "order": "goal_right",
       "still": "stills/P_Goal1.jpg",
+      "video": "data/raw/Match 3/P_Goal1-007.mp4",
+      "videoName": "P_Goal1-007.mp4",
       "image_wh": [
         1920,
         1080
       ],
-      "saved": false
+      "saved": true
     },
     {
       "id": "P_Goal2",
       "label": "P_Goal2 \u2014 Goal",
       "order": "goal_right",
       "still": "stills/P_Goal2.jpg",
+      "video": "data/raw/Match 3/P_Goal2-008.mp4",
+      "videoName": "P_Goal2-008.mp4",
       "image_wh": [
         1920,
         1080
       ],
-      "saved": false
+      "saved": true
     }
   ]
 }

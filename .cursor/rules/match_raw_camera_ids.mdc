@@ -1,0 +1,31 @@
+---
+description: Camera IDs come from video filenames — never remap by FOV
+alwaysApply: true
+---
+
+# Camera IDs = video titles
+
+The camera id is the P-code (or Goal id) **in the filename**. Do not assign a file to a different camera because the still “looks like” another view.
+
+## Match 3 (`data/raw/Match 3/`)
+
+| File | Camera |
+|------|--------|
+| `P1-006.mp4` | **P1** |
+| `P6-003.mp4` | **P6** |
+| `P7-001.mp4` | **P7** |
+| `p8-005.mp4` | **P8** |
+| `P9-004.mp4` | **P9** |
+| `P10-002.mp4` | **P10** |
+| `P_Goal1-007.mp4` | **P_Goal1** |
+| `P_Goal2-008.mp4` | **P_Goal2** |
+
+## Match 2
+
+`Cam 3-P1.mp4` → P1, `Cam 8-P10-003.mp4` → P10. Same rule: the P-code in the title is the id.
+
+## If a still seems wrong
+
+Move the **diagram chip** or fix landmarks. **Never** swap files across ids (e.g. do not map `P1-006.mp4` → P9).
+
+Parser: `scripts/gold_set/raw_cam_id.py`. Doc: `docs/product/MATCH3_CAPTURE.md`.
