@@ -162,7 +162,7 @@ def gallery_entry(clip: dict, out: Path, mp4: Path) -> dict:
         "id": clip["id"],
         "label": clip["label"],
         "clock": clip["clock"],
-        "url": f"/{rel.as_posix()}/{mp4_abs.name}?v=fuse",
+        "url": f"/{rel.as_posix()}/{mp4_abs.name}?v=fpost",
         "page": f"/{rel.as_posix()}/",
         "n_frames": extra.get("n_frames"),
         "n_emit": extra.get("n_emit"),
@@ -243,7 +243,8 @@ code {{ color:var(--accent); }}
 <p class="sub">
   Five random 5-second windows from <code>data/raw/Match 3</code>
   (P1, P6, P7, P8, P9, P10, P_Goal1, P_Goal2).
-  Left = selected cam / ball; right = Pitch 1 meters from 4-click H (bbox foot, 4 m fuse, emit ≥ 0.80).
+  Left = selected cam / ball; right = Pitch 1 meters from 4-click H
+  (bbox foot, 4 m fuse, emit ≥ 0.80, F0 detect-tick hold).
 </p>
 <div class="bar">
   <label for="clip">Clip</label>

@@ -28,6 +28,8 @@ Run: `python3 scripts/gold_set/ab_match3_fuse_post.py` → `reports/eval_match3/
 
 F1/F2 are correctness (soft-dual fallthrough + max-conf solo); F0 hold is the measured R lift. Emit stays 0.80; agree stays 4 m.
 
+**Gallery (human check):** 5 random video|pitch clips re-rendered with F0–F2 — http://127.0.0.1:8080/reports/eval_match3/pitchmap_gallery/ (`?v=fpost`). Post rated **8.5/10** after review (videos look solid; remaining gap is model conf, not fuse).
+
 Gold pitch `(x, y)` = P10 bbox foot mapped through `P10_manual.json` (Pitch 1 meters).
 
 ## Status

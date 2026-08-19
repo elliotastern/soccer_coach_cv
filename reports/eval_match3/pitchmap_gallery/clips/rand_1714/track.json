@@ -1,0 +1,1832 @@
+[
+  {
+    "i": 0,
+    "cam": "P1",
+    "conf": 0.8340327739715576,
+    "px": [
+      880.2468566894531,
+      425.6444396972656
+    ],
+    "pitch_m": [
+      3.54,
+      -8.79
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 2,
+    "cam": "P1",
+    "conf": 0.8400563597679138,
+    "px": [
+      879.1754760742188,
+      426.4775390625
+    ],
+    "pitch_m": [
+      3.49,
+      -8.78
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 4,
+    "cam": "P1",
+    "conf": 0.7924112677574158,
+    "px": [
+      877.3650207519531,
+      428.18115234375
+    ],
+    "pitch_m": [
+      3.49,
+      -8.78
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 6,
+    "cam": "P1",
+    "conf": 0.8094795942306519,
+    "px": [
+      874.1892700195312,
+      428.0113220214844
+    ],
+    "pitch_m": [
+      3.39,
+      -8.73
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 8,
+    "cam": "P1",
+    "conf": 0.7588508725166321,
+    "px": [
+      872.5804748535156,
+      427.55657958984375
+    ],
+    "pitch_m": [
+      3.39,
+      -8.73
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 10,
+    "cam": "P1",
+    "conf": 0.7445839047431946,
+    "px": [
+      869.4730529785156,
+      429.7898864746094
+    ],
+    "pitch_m": [
+      3.39,
+      -8.73
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 12,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 14,
+    "cam": "P1",
+    "conf": 0.8204329013824463,
+    "px": [
+      859.3311462402344,
+      427.2862854003906
+    ],
+    "pitch_m": [
+      3.4,
+      -8.55
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 16,
+    "cam": "P1",
+    "conf": 0.8313408493995667,
+    "px": [
+      857.27880859375,
+      427.2296142578125
+    ],
+    "pitch_m": [
+      3.4,
+      -8.52
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 18,
+    "cam": "P1",
+    "conf": 0.8360776901245117,
+    "px": [
+      855.726806640625,
+      428.4222412109375
+    ],
+    "pitch_m": [
+      3.33,
+      -8.51
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 20,
+    "cam": "P1",
+    "conf": 0.8434901237487793,
+    "px": [
+      853.4924011230469,
+      429.3960876464844
+    ],
+    "pitch_m": [
+      3.27,
+      -8.49
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 22,
+    "cam": "P1",
+    "conf": 0.8403913974761963,
+    "px": [
+      850.5993347167969,
+      429.91632080078125
+    ],
+    "pitch_m": [
+      3.24,
+      -8.46
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 24,
+    "cam": "P1",
+    "conf": 0.8316761255264282,
+    "px": [
+      849.3497619628906,
+      431.12603759765625
+    ],
+    "pitch_m": [
+      3.17,
+      -8.45
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 26,
+    "cam": "P1",
+    "conf": 0.8478298783302307,
+    "px": [
+      847.6192321777344,
+      432.7309875488281
+    ],
+    "pitch_m": [
+      3.08,
+      -8.43
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 28,
+    "cam": "P1",
+    "conf": 0.8510571122169495,
+    "px": [
+      845.4514465332031,
+      432.9059143066406
+    ],
+    "pitch_m": [
+      3.07,
+      -8.41
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 30,
+    "cam": "P1",
+    "conf": 0.8512923121452332,
+    "px": [
+      844.5610961914062,
+      433.3592224121094
+    ],
+    "pitch_m": [
+      3.04,
+      -8.4
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 32,
+    "cam": "P1",
+    "conf": 0.8408992290496826,
+    "px": [
+      842.2440795898438,
+      433.040771484375
+    ],
+    "pitch_m": [
+      3.05,
+      -8.37
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 34,
+    "cam": "P1",
+    "conf": 0.8426310420036316,
+    "px": [
+      840.4959411621094,
+      435.45465087890625
+    ],
+    "pitch_m": [
+      2.92,
+      -8.36
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 36,
+    "cam": "P1",
+    "conf": 0.8482367992401123,
+    "px": [
+      839.0333251953125,
+      435.93634033203125
+    ],
+    "pitch_m": [
+      2.89,
+      -8.35
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 38,
+    "cam": "P1",
+    "conf": 0.8451439142227173,
+    "px": [
+      837.1746215820312,
+      435.88604736328125
+    ],
+    "pitch_m": [
+      2.89,
+      -8.33
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 40,
+    "cam": "P1",
+    "conf": 0.8336570858955383,
+    "px": [
+      834.3401184082031,
+      436.9949951171875
+    ],
+    "pitch_m": [
+      2.83,
+      -8.3
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 42,
+    "cam": "P1",
+    "conf": 0.7993634343147278,
+    "px": [
+      832.1009521484375,
+      437.4530944824219
+    ],
+    "pitch_m": [
+      2.83,
+      -8.3
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 44,
+    "cam": "P1",
+    "conf": 0.7826836705207825,
+    "px": [
+      830.9386291503906,
+      437.4659118652344
+    ],
+    "pitch_m": [
+      2.83,
+      -8.3
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 46,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 48,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 50,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 52,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 54,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 56,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 58,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 60,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 62,
+    "cam": "P1",
+    "conf": 0.8042064309120178,
+    "px": [
+      807.6440734863281,
+      438.90374755859375
+    ],
+    "pitch_m": [
+      2.67,
+      -8.0
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 64,
+    "cam": "P1",
+    "conf": 0.786213755607605,
+    "px": [
+      807.98193359375,
+      440.1143798828125
+    ],
+    "pitch_m": [
+      2.67,
+      -8.0
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 66,
+    "cam": "P1",
+    "conf": 0.771999180316925,
+    "px": [
+      805.5263977050781,
+      441.08819580078125
+    ],
+    "pitch_m": [
+      2.67,
+      -8.0
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 68,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 70,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 72,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 74,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 76,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 78,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 80,
+    "cam": "P1",
+    "conf": 0.8263776898384094,
+    "px": [
+      832.1844787597656,
+      434.45135498046875
+    ],
+    "pitch_m": [
+      2.96,
+      -8.26
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 82,
+    "cam": "P1",
+    "conf": 0.8345530033111572,
+    "px": [
+      837.775634765625,
+      430.9859313964844
+    ],
+    "pitch_m": [
+      3.15,
+      -8.31
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 84,
+    "cam": "P1",
+    "conf": 0.8383890390396118,
+    "px": [
+      842.8532409667969,
+      427.9614562988281
+    ],
+    "pitch_m": [
+      3.33,
+      -8.35
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 86,
+    "cam": "P1",
+    "conf": 0.8305137157440186,
+    "px": [
+      846.891357421875,
+      425.88726806640625
+    ],
+    "pitch_m": [
+      3.45,
+      -8.39
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 88,
+    "cam": "P1",
+    "conf": 0.8395371437072754,
+    "px": [
+      852.9496765136719,
+      425.36456298828125
+    ],
+    "pitch_m": [
+      3.49,
+      -8.46
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 90,
+    "cam": "P1",
+    "conf": 0.8040022253990173,
+    "px": [
+      857.2481994628906,
+      423.8462829589844
+    ],
+    "pitch_m": [
+      3.58,
+      -8.51
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 92,
+    "cam": "P1",
+    "conf": 0.7640624642372131,
+    "px": [
+      860.4247741699219,
+      420.5022277832031
+    ],
+    "pitch_m": [
+      3.58,
+      -8.51
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 94,
+    "cam": "P1",
+    "conf": 0.7472630739212036,
+    "px": [
+      870.1390991210938,
+      419.77276611328125
+    ],
+    "pitch_m": [
+      3.58,
+      -8.51
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 96,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 98,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 100,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 102,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 104,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 106,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 108,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 110,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 112,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 114,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 116,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 118,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 120,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 122,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 124,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 126,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 128,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 130,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 132,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 134,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 136,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 138,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 140,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 142,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 144,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 146,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 148,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 150,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 152,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 154,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 156,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 158,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 160,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 162,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 164,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 166,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 168,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 170,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 172,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 174,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 176,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 178,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 180,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 182,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 184,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 186,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 188,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 190,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 192,
+    "cam": "P1",
+    "conf": 0.8242585062980652,
+    "px": [
+      896.0404052734375,
+      392.874755859375
+    ],
+    "pitch_m": [
+      5.44,
+      -8.84
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 194,
+    "cam": "P1",
+    "conf": 0.7987760901451111,
+    "px": [
+      902.7906494140625,
+      385.508544921875
+    ],
+    "pitch_m": [
+      5.44,
+      -8.84
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 196,
+    "cam": "P1",
+    "conf": 0.7104913592338562,
+    "px": [
+      916.9496765136719,
+      385.1976623535156
+    ],
+    "pitch_m": [
+      5.44,
+      -8.84
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 198,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 200,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 202,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 204,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 206,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 208,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 210,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 212,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 214,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 216,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 218,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 220,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 222,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 224,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 226,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 228,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 230,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 232,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 234,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 236,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 238,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 240,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 242,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 244,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 246,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 248,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 250,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 252,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 254,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 256,
+    "cam": "P1",
+    "conf": 0.8321302533149719,
+    "px": [
+      1088.3810424804688,
+      449.1216735839844
+    ],
+    "pitch_m": [
+      2.72,
+      -11.29
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 258,
+    "cam": "P1",
+    "conf": 0.814312219619751,
+    "px": [
+      1095.67333984375,
+      449.6029968261719
+    ],
+    "pitch_m": [
+      2.71,
+      -11.37
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 260,
+    "cam": "P1",
+    "conf": 0.7115182280540466,
+    "px": [
+      1107.766845703125,
+      453.995361328125
+    ],
+    "pitch_m": [
+      2.71,
+      -11.37
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 262,
+    "cam": "P1",
+    "conf": 0.7917219400405884,
+    "px": [
+      1113.3621826171875,
+      457.3341979980469
+    ],
+    "pitch_m": [
+      2.71,
+      -11.37
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 264,
+    "cam": "P1",
+    "conf": 0.8285209536552429,
+    "px": [
+      1118.774658203125,
+      459.7964172363281
+    ],
+    "pitch_m": [
+      2.23,
+      -11.65
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 266,
+    "cam": "P1",
+    "conf": 0.8149360418319702,
+    "px": [
+      1126.5281372070312,
+      461.2413024902344
+    ],
+    "pitch_m": [
+      2.18,
+      -11.74
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 268,
+    "cam": "P1",
+    "conf": 0.8359322547912598,
+    "px": [
+      1130.8440551757812,
+      462.94110107421875
+    ],
+    "pitch_m": [
+      2.1,
+      -11.79
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 270,
+    "cam": "P1",
+    "conf": 0.8337931632995605,
+    "px": [
+      1137.444580078125,
+      466.1343078613281
+    ],
+    "pitch_m": [
+      1.95,
+      -11.86
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 272,
+    "cam": "P1",
+    "conf": 0.834455132484436,
+    "px": [
+      1141.981201171875,
+      468.29425048828125
+    ],
+    "pitch_m": [
+      1.85,
+      -11.91
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 274,
+    "cam": "P1",
+    "conf": 0.6936071515083313,
+    "px": [
+      1150.318115234375,
+      471.2892761230469
+    ],
+    "pitch_m": [
+      1.85,
+      -11.91
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 276,
+    "cam": "P1",
+    "conf": 0.7462255358695984,
+    "px": [
+      1154.8680419921875,
+      472.1729736328125
+    ],
+    "pitch_m": [
+      1.85,
+      -11.91
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 278,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 280,
+    "cam": "P1",
+    "conf": 0.8004691004753113,
+    "px": [
+      1163.114501953125,
+      480.1899719238281
+    ],
+    "pitch_m": [
+      1.31,
+      -12.15
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 282,
+    "cam": "P1",
+    "conf": 0.838671863079071,
+    "px": [
+      1169.755859375,
+      481.3618469238281
+    ],
+    "pitch_m": [
+      1.27,
+      -12.23
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 284,
+    "cam": "P1",
+    "conf": 0.7990882396697998,
+    "px": [
+      1176.6661376953125,
+      483.0958557128906
+    ],
+    "pitch_m": [
+      1.27,
+      -12.23
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 286,
+    "cam": "P1",
+    "conf": 0.8133590817451477,
+    "px": [
+      1179.693359375,
+      484.6340637207031
+    ],
+    "pitch_m": [
+      1.13,
+      -12.34
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 288,
+    "cam": "P1",
+    "conf": 0.7762354016304016,
+    "px": [
+      1184.4631958007812,
+      487.7207336425781
+    ],
+    "pitch_m": [
+      1.13,
+      -12.34
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 290,
+    "cam": "P1",
+    "conf": 0.8221383690834045,
+    "px": [
+      1188.0441284179688,
+      490.3121032714844
+    ],
+    "pitch_m": [
+      0.87,
+      -12.43
+    ],
+    "map": "H n=1 solo",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 292,
+    "cam": "P1",
+    "conf": 0.30562546849250793,
+    "px": [
+      1192.3837890625,
+      497.2703857421875
+    ],
+    "pitch_m": [
+      0.87,
+      -12.43
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 294,
+    "cam": "P1",
+    "conf": 0.7359059453010559,
+    "px": [
+      1205.0547485351562,
+      493.6091613769531
+    ],
+    "pitch_m": [
+      0.87,
+      -12.43
+    ],
+    "map": "H hold n=1",
+    "n": 1,
+    "agree": false
+  },
+  {
+    "i": 296,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  },
+  {
+    "i": 298,
+    "cam": null,
+    "conf": null,
+    "px": null,
+    "pitch_m": null,
+    "map": "none",
+    "n": null,
+    "agree": null
+  }
+]

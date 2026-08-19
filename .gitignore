@@ -117,6 +117,7 @@ data/**
 !data/processed/gold_sets/match2_train_test/test/_annotations.coco.json
 !data/processed/gold_sets/ball_finetune_match2_v9_manifest.json
 !data/processed/gold_sets/ball_finetune_match2_v10_manifest.json
+!data/processed/gold_sets/ball_finetune_v11_manifest.json
 !data/processed/gold_sets/match2_train_label100/prelabels/
 !data/processed/gold_sets/match2_train_label100/prelabels/annotations.xml
 !data/processed/gold_sets/match2_train_label100/cvat/
@@ -220,3 +221,6 @@ rf-detr-base.pth
 # Large images (validation outputs, etc)
 *validation*.jpg
 *prediction*.jpg
+
+# Match 3 pitchmap gallery: keep dual-pane renders; skip raw multicam source cuts
+reports/eval_match3/pitchmap_gallery/source/
