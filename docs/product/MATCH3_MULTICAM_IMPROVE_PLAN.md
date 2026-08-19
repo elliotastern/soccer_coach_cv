@@ -29,7 +29,7 @@ On 750 processed frames (5×150): emit rate ~13%, almost all **P1 solo**; only *
 | **H1** | Optional: `MIN_SUPPORT` **0.20–0.25** A/B (not 0) | Same labeled strip: `P_emit` does not fall below 0.80 | Clear-ball R↑ without ghost xy |
 | **C1** | Quad-focused eval clips (ball in P8/P9/P10 FOV) | ≥1 clip per quad with thr-pass dets | Measure mapping, not only P1 plays |
 | **E1** | Re-render Match 3 pitchmap gallery; report solo / agree / emit rate | Manifest updated; agree ≫ 3 on same seeds if L2 done | Coverage toward clear-ball R |
-| **M1** | Score `P_emit` + clear-ball R on agreed strip | Strip pack `match3_quad_p10_31` + `score_match3_ball_m1.py`; **P_emit ≥ 0.80**, clear-ball **R ≥ 0.80** after human-corrected labels | Acceptance |
+| **M1** | Score `P_emit` + clear-ball R on agreed strip | Strip pack `match3_quad_p10_31` + editable `/match3-m1` review; provisional auto-QA 39/39; **P_emit ≥ 0.80**, clear-ball **R ≥ 0.80** after human confirm | Acceptance |
 
 ## Hard no
 

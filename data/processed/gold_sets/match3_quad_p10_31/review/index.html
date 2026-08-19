@@ -1,58 +1,153 @@
 <!doctype html>
 <html><head><meta charset="utf-8"/><title>Match3 M1 strip</title>
 <style>
-body{margin:0;font:14px/1.4 system-ui;background:#111;color:#eee}
-main{display:grid;grid-template-columns:1fr 280px;gap:12px;padding:12px}
-img{max-width:100%;background:#000}
-.box{position:absolute;border:2px solid #0f0}
-.stage{position:relative;display:inline-block}
-button,select{font:inherit;margin:4px 0}
-.muted{color:#aaa}
-code{color:#8cf}
+:root { --bg:#12141a; --panel:#1b1f2a; --line:#2c3344; --text:#e8ecf4; --muted:#9aa3b5; --ok:#3ddc97; --warn:#f5a524; }
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.4 "IBM Plex Sans",system-ui,sans-serif;background:var(--bg);color:var(--text)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;padding:14px;min-height:100vh}
+.stage{position:relative;display:inline-block;max-width:100%;background:#000;border:1px solid var(--line)}
+canvas{display:block;max-width:100%;height:auto;cursor:crosshair}
+aside{background:var(--panel);border:1px solid var(--line);padding:14px;align-self:start}
+h1{font:700 1.1rem/1.2 "IBM Plex Sans",sans-serif;margin:0 0 .4rem}
+.muted{color:var(--muted)}
+code{color:#8ec8ff}
+button,input{font:inherit}
+button{background:#243049;color:var(--text);border:1px solid var(--line);padding:.4rem .7rem;cursor:pointer}
+button.primary{background:#1f6feb;border-color:#1f6feb}
+button.danger{background:#5a2430}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0}
+#status{min-height:1.2em;margin-top:.6rem}
+.ok{color:var(--ok)} .warn{color:var(--warn)}
+label{display:block;margin:.4rem 0 .2rem;color:var(--muted);font-size:.85rem}
 </style></head><body>
 <main>
-  <div>
-    <div class="stage"><img id="im" alt="frame"/><div id="box" class="box"></div></div>
-  </div>
-  <div>
-    <h1>Match3 M1 · P10 strip</h1>
-    <p class="muted">Provisional seed from clear P10 dets. Correct before final P_emit.</p>
-    <label>Frame <input id="idx" type="number" min="0" max="298" value="0"/></label>
+  <div><div class="stage"><canvas id="cv" width="1920" height="1080"></canvas></div></div>
+  <aside>
+    <h1>Match3 M1 · P10</h1>
+    <p class="muted">Drag to draw/replace ball box. Clear = empty. Save rematches gold_xy.</p>
+    <label>Frame</label>
+    <input id="idx" type="number" min="0" max="298" value="0" style="width:100%"/>
+    <div class="row">
+      <button id="prev">Prev</button>
+      <button id="next">Next</button>
+      <button id="clearOnly">Next clear</button>
+    </div>
+    <div class="row">
+      <button id="clearBox" class="danger">Clear box</button>
+      <button id="save" class="primary">Save labels</button>
+    </div>
     <div id="meta"></div>
-    <p><button id="prev">Prev</button> <button id="next">Next</button></p>
-    <p><a href="labels.json">labels.json</a></p>
-  </div>
+    <div id="status" class="muted"></div>
+  </aside>
 </main>
 <script>
-const n=299;
-let labels=null;
+const W=1920,H=1080;
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+let labels=null, img=new Image(), i=0, drag=null, dirty=false;
+const status=document.getElementById('status');
+
+function seed(){return labels.frames[i].cams.P10;}
+function setStatus(t,cls){status.className=cls||'muted';status.textContent=t;}
+
 async function load(){
-  labels=await (await fetch('labels.json')).json();
+  labels=await (await fetch('../labels.json')).json();
+  document.getElementById('idx').max=labels.frames.length-1;
   show(0);
 }
-function show(i){
-  i=Math.max(0,Math.min(n-1,i|0));
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(img.complete) ctx.drawImage(img,0,0,W,H);
+  const g=(seed().gt_balls||[])[0];
+  if(g){
+    ctx.strokeStyle='#3ddc97'; ctx.lineWidth=3;
+    ctx.strokeRect(g.x,g.y,g.w,g.h);
+  }
+  if(drag){
+    ctx.strokeStyle='#f5a524'; ctx.lineWidth=2;
+    ctx.strokeRect(drag.x,drag.y,drag.w,drag.h);
+  }
+}
+
+function show(n){
+  i=Math.max(0,Math.min(labels.frames.length-1,n|0));
   document.getElementById('idx').value=i;
   const fr=labels.frames[i];
-  const im=document.getElementById('im');
-  im.onload=()=>{
-    const b=document.getElementById('box');
-    const g=(fr.cams.P10.gt_balls||[])[0];
-    if(!g){b.style.display='none';return}
-    const sx=im.clientWidth/1920, sy=im.clientHeight/1080;
-    b.style.display='block';
-    b.style.left=(g.x*sx)+'px'; b.style.top=(g.y*sy)+'px';
-    b.style.width=(g.w*sx)+'px'; b.style.height=(g.h*sy)+'px';
-  };
-  im.src='review/frames/'+fr.file;
-  const xy=fr.cams.P10.gold_xy;
-  document.getElementById('meta').innerHTML=
-    `<div>clear=<b>${fr.cams.P10.clear}</b></div>`+
-    `<div>gold_xy=<code>${xy?xy.map(v=>v.toFixed(2)).join(', '):'null'}</code></div>`+
-    `<div class="muted">${fr.file}</div>`;
+  img.onload=()=>{draw(); meta();};
+  img.src='frames/'+fr.file;
+  if(img.complete) {draw(); meta();}
 }
+
+function meta(){
+  const s=seed();
+  const xy=s.gold_xy;
+  document.getElementById('meta').innerHTML=
+    `<div>clear=<b>${!!s.clear}</b> empty=<b>${!!s.empty}</b></div>`+
+    `<div>gold_xy=<code>${xy?xy.map(v=>Number(v).toFixed(2)).join(', '):'null'}</code></div>`+
+    `<div class="muted">${labels.frames[i].file}${dirty?' · unsaved':''}</div>`;
+}
+
+function canvasPos(e){
+  const r=cv.getBoundingClientRect();
+  return {
+    x:(e.clientX-r.left)*(W/r.width),
+    y:(e.clientY-r.top)*(H/r.height)
+  };
+}
+
+cv.addEventListener('mousedown',e=>{
+  const p=canvasPos(e);
+  drag={x0:p.x,y0:p.y,x:p.x,y:p.y,w:0,h:0};
+});
+window.addEventListener('mousemove',e=>{
+  if(!drag) return;
+  const p=canvasPos(e);
+  drag.x=Math.min(drag.x0,p.x); drag.y=Math.min(drag.y0,p.y);
+  drag.w=Math.abs(p.x-drag.x0); drag.h=Math.abs(p.y-drag.y0);
+  draw();
+});
+window.addEventListener('mouseup',()=>{
+  if(!drag) return;
+  if(drag.w>=4 && drag.h>=4){
+    const s=seed();
+    s.gt_balls=[{x:drag.x,y:drag.y,w:drag.w,h:drag.h}];
+    s.empty=false; s.clear=Math.min(drag.w,drag.h)>=25;
+    s.human_conf=1.0; s.gold_xy=null;
+    dirty=true; setStatus('box set — save to rematch gold_xy','warn');
+  }
+  drag=null; draw(); meta();
+});
+
+document.getElementById('clearBox').onclick=()=>{
+  const s=seed();
+  s.gt_balls=[]; s.empty=true; s.clear=false; s.gold_xy=null;
+  dirty=true; draw(); meta(); setStatus('cleared','warn');
+};
+document.getElementById('prev').onclick=()=>show(i-1);
+document.getElementById('next').onclick=()=>show(i+1);
 document.getElementById('idx').onchange=e=>show(+e.target.value);
-document.getElementById('prev').onclick=()=>show(+document.getElementById('idx').value-1);
-document.getElementById('next').onclick=()=>show(+document.getElementById('idx').value+1);
+document.getElementById('clearOnly').onclick=()=>{
+  for(let k=i+1;k<labels.frames.length;k++){
+    if(labels.frames[k].cams.P10.clear){show(k);return;}
+  }
+  setStatus('no later clear frame','warn');
+};
+document.getElementById('save').onclick=async ()=>{
+  setStatus('saving…');
+  const res=await fetch('/save_match3_m1_labels',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(labels)
+  });
+  const body=await res.json();
+  if(!res.ok || !body.ok){ setStatus(body.error||'save failed','warn'); return; }
+  labels=body.labels; dirty=false; show(i);
+  setStatus(`saved clear=${body.n_clear} gold_xy=${body.n_gold_xy}`,'ok');
+};
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft') show(i-1);
+  if(e.key==='ArrowRight') show(i+1);
+  if(e.key==='s' && (e.metaKey||e.ctrlKey)){e.preventDefault();document.getElementById('save').click();}
+});
 load();
 </script></body></html>

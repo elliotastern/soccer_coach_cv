@@ -15,7 +15,8 @@
   "seed": {
     "accept_conf": 0.55,
     "clear_side": 25.0,
-    "note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
+    "note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1",
+    "status": "auto_qa_passed_provisional"
   },
   "frames": [
     {
@@ -15678,5 +15679,11 @@
         }
       }
     }
-  ]
+  ],
+  "auto_qa": {
+    "contact": "reports/eval_match3/improve_eng_loop/m1_seed_qa/clear_seed_contact.jpg",
+    "n_clear_checked": 39,
+    "n_bad_blob": 0,
+    "note": "All clear seeds have bright ball-like crops; human edit via /match3-m1 still recommended for final PoC."
+  }
 }

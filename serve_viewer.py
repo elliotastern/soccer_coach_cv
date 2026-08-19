@@ -580,6 +580,44 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
             return
+        if self.path == '/save_match3_m1_labels':
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                import importlib
+                import rematch_match3_m1_gold as rematch
+                rematch = importlib.reload(rematch)
+                payload = rematch.rematch_labels(data)
+                payload['human_reviewed'] = True
+                path = SCRIPT_DIR / 'data/processed/gold_sets/match3_quad_p10_31/labels.json'
+                path.write_text(json.dumps(payload, indent=2), encoding='utf-8')
+                man = SCRIPT_DIR / 'data/processed/gold_sets/match3_quad_p10_31/manifest.json'
+                if man.is_file():
+                    m = json.loads(man.read_text(encoding='utf-8'))
+                    m['n_clear'] = payload.get('n_clear')
+                    m['n_gold_xy'] = payload.get('n_gold_xy')
+                    m['human_reviewed'] = True
+                    m['provisional'] = False
+                    man.write_text(json.dumps(m, indent=2), encoding='utf-8')
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    'ok': True,
+                    'n_clear': payload.get('n_clear'),
+                    'n_gold_xy': payload.get('n_gold_xy'),
+                    'labels': payload,
+                }).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
         if self.path == '/save_marks':
             try:
                 content_length = int(self.headers.get('Content-Length', 0))

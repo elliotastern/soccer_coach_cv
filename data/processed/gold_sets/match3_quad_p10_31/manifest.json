@@ -8,5 +8,6 @@
   "labels": "labels.json",
   "review": "review/index.html",
   "source": "reports/eval_match3/quad_pitchmap_gallery/source/quad_P10_t00031.0s_P10.mp4",
-  "provisional": true
+  "provisional": true,
+  "auto_qa_passed": true
 }

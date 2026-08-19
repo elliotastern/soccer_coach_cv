@@ -17,4 +17,8 @@ Gold pitch `(x, y)` = P10 bbox foot mapped through `P10_manual.json` (Pitch 1 me
 
 ## Status
 
-Seeded from detector clear P10 boxes — **provisional**. Human-correct `labels.json` / boxes in the review UI before treating PoC as final. Frames stay local (`review/frames/`); git tracks labels + manifest + review HTML.
+Seeded from detector clear P10 boxes. **Auto-QA** (bright blob in box) passed 39/39; still mark as provisional until you confirm in the review UI.
+
+Review UI (`/match3-m1`): drag to draw/replace box, Clear box, Save (rematches `gold_xy` via `/save_match3_m1_labels`).
+
+Frames stay local (`review/frames/`); git tracks labels + manifest + review HTML.
