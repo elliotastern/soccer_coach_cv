@@ -29,6 +29,17 @@ PRODUCT_POLICY_ID = TOP_LEFT_POLICY_ID
 PRODUCT_THR_BY_CAM = TOP_LEFT_THR_BY_CAM
 PRODUCT_PICK_MODE = TOP_LEFT_PICK_MODE
 
+# Match 3 pitch fuse (Pitch 1): do not inherit Match 2 P7≥0.60.
+# Detect floor 0.30 all cams; emit gate stays ≥0.80 after map/fuse.
+MATCH3_THR_BY_CAM = {
+    "_default": 0.30,
+}
+MATCH3_POLICY_ID = "match3_all_cam_thr030"
+MATCH3_POLICY_NOTE = (
+    "Match 3 multicam pitch fuse: all cams ≥0.30 (no P7@0.60). "
+    "Emit still requires fuse conf ≥0.80. Match 2 product lock unchanged."
+)
+
 # Soft gates (MATCH2_NOISE_PRECISION_PLAN): cam hysteresis + emit stickiness
 HYSTERESIS_K = 5  # challenger must win K frames to steal cam
 EMIT_N = 3  # same cam must win N frames before emit/plot

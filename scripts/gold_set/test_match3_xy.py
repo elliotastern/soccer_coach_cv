@@ -52,12 +52,16 @@ def test_off_pitch_dropped() -> None:
 
 
 def test_far_hull_dropped() -> None:
+    from src.mapping.match3_xy import MIN_SUPPORT
+
     rec = load_calib("P9")
     pts = rec["image_points"]
     row = map_ball_box(rec, [1860, 20, 20, 20], 0.99, rec["image_wh"])
     sup = hull_support(1900, 10, pts)
-    if sup >= 0.35 and row is not None:
+    if sup >= MIN_SUPPORT and row is not None:
         raise AssertionError(f"far P9 pixel should be weak support {sup} {row}")
+    if row is not None and sup < MIN_SUPPORT:
+        raise AssertionError("map_ball_box should drop below MIN_SUPPORT")
 
 
 def test_fuse_agree() -> None:

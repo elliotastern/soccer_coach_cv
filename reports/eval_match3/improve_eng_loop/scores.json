@@ -1,12 +1,38 @@
 {
   "scores": {
-    "plan": 9.2
+    "plan": 9.2,
+    "t1_wire": 10.0,
+    "l1_calib": 10.0,
+    "l2_overlap": 10.0,
+    "h1_support": 10.0,
+    "c1_quad": 10.0,
+    "m1_proxy": 7.2
   },
   "notes": {
     "plan": [
       "plan missing no midpoint / hard no"
+    ],
+    "t1_wire": [
+      "T1 wired"
+    ],
+    "l1_calib": [
+      "L1 DLT on P8/P9/P_Goal1"
+    ],
+    "l2_overlap": [
+      "L2 P1/P6 center overlap \u22655"
+    ],
+    "h1_support": [
+      "H1 MIN_SUPPORT=0.25"
+    ],
+    "c1_quad": [
+      "\u22651 clip per P8/P9/P10 with thr-pass"
+    ],
+    "m1_proxy": [
+      "proxy clear R random=0.423 quad=0.148; true P_emit unlabeled"
     ]
   },
   "pass": 9.0,
-  "fails": []
+  "fails": [
+    "m1_proxy=7.2"
+  ]
 }

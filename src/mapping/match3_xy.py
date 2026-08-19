@@ -16,7 +16,8 @@ AGREE_M = 4.0
 EMIT_CONF = 0.80
 MARGIN_M = 1.0
 SUPPORT_PX = 180.0
-MIN_SUPPORT = 0.35
+# Soft hull (H1): 0.25 keeps midfield maps; emit gate still EMIT_CONF ≥ 0.80.
+MIN_SUPPORT = 0.25
 MATCH3_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 
 

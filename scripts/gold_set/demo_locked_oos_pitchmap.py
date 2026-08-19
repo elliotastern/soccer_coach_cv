@@ -22,6 +22,8 @@ sys.path.insert(0, str(ROOT / "scripts" / "gold_set"))
 
 from eval_match2_top_left_multicam_baseline import cache_load  # noqa: E402
 from multicam_select_policy import (  # noqa: E402
+    MATCH3_POLICY_ID,
+    MATCH3_THR_BY_CAM,
     PRODUCT_POLICY_ID,
     SURVEY_CAMS,
     TOP_LEFT_THR_BY_CAM,
@@ -96,6 +98,12 @@ def parse_args():
         nargs="*",
         default=None,
         help="Camera ids in source clips (default: SURVEY_CAMS / cache keys)",
+    )
+    p.add_argument(
+        "--thr-policy",
+        choices=["auto", "match3", "match2"],
+        default="auto",
+        help="Detect thr map: match3=all 0.30; match2=P7@0.60; auto=match3 when fuse Hs present",
     )
     return p.parse_args()
 
@@ -379,6 +387,18 @@ def main() -> int:
         H_by_cam[cam] = H
         mode_by_cam[cam] = mode
     use_fuse = bool(calibs)
+    if args.thr_policy == "match3":
+        thr_by_cam = MATCH3_THR_BY_CAM
+        thr_policy_id = MATCH3_POLICY_ID
+    elif args.thr_policy == "match2":
+        thr_by_cam = TOP_LEFT_THR_BY_CAM
+        thr_policy_id = PRODUCT_POLICY_ID
+    elif use_fuse:
+        thr_by_cam = MATCH3_THR_BY_CAM
+        thr_policy_id = MATCH3_POLICY_ID
+    else:
+        thr_by_cam = TOP_LEFT_THR_BY_CAM
+        thr_policy_id = PRODUCT_POLICY_ID
 
     ok, fr0 = caps[cams[0]].read()
     caps[cams[0]].set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -411,7 +431,7 @@ def main() -> int:
         if i % args.stride != 0:
             continue
 
-        active = filter_active(dets, i, cams, TOP_LEFT_THR_BY_CAM)
+        active = filter_active(dets, i, cams, thr_by_cam)
         fused = None
         if use_fuse:
             fr0 = next(iter(frames.values()))
@@ -489,7 +509,9 @@ def main() -> int:
         "stem": stem,
         "label": label,
         "clock": clock,
-        "policy": "match3_pitch_fuse" if use_fuse else PRODUCT_POLICY_ID,
+        "policy": "match3_pitch_fuse" if use_fuse else thr_policy_id,
+        "thr_policy": thr_policy_id,
+        "thr_by_cam": dict(thr_by_cam),
         "n_frames": written,
         "n_emit": sum(1 for t in track if t.get("pitch_m")),
         "n_agree": sum(1 for t in track if t.get("agree")),

@@ -1,0 +1,125 @@
+{
+  "step": "T1",
+  "thr_match2": {
+    "_default": 0.3,
+    "P7": 0.6
+  },
+  "thr_match3": {
+    "_default": 0.3
+  },
+  "totals": {
+    "match2": {
+      "n": 1495,
+      "active_ge2": 99,
+      "mapped_ge2": 6,
+      "agree": 3,
+      "emit": 96,
+      "p7_active": 35
+    },
+    "match3": {
+      "n": 1495,
+      "active_ge2": 191,
+      "mapped_ge2": 24,
+      "agree": 14,
+      "emit": 106,
+      "p7_active": 176
+    }
+  },
+  "per_cache": [
+    {
+      "cache": "det_cache_rand_t00627.9s_thr010.json",
+      "match2": {
+        "n": 299,
+        "active_ge2": 9,
+        "mapped_ge2": 2,
+        "agree": 0,
+        "emit": 41,
+        "p7_active": 1
+      },
+      "match3": {
+        "n": 299,
+        "active_ge2": 27,
+        "mapped_ge2": 5,
+        "agree": 0,
+        "emit": 41,
+        "p7_active": 30
+      }
+    },
+    {
+      "cache": "det_cache_rand_t00931.2s_thr010.json",
+      "match2": {
+        "n": 299,
+        "active_ge2": 62,
+        "mapped_ge2": 4,
+        "agree": 3,
+        "emit": 4,
+        "p7_active": 25
+      },
+      "match3": {
+        "n": 299,
+        "active_ge2": 105,
+        "mapped_ge2": 17,
+        "agree": 14,
+        "emit": 14,
+        "p7_active": 97
+      }
+    },
+    {
+      "cache": "det_cache_rand_t01162.3s_thr010.json",
+      "match2": {
+        "n": 299,
+        "active_ge2": 8,
+        "mapped_ge2": 0,
+        "agree": 0,
+        "emit": 12,
+        "p7_active": 0
+      },
+      "match3": {
+        "n": 299,
+        "active_ge2": 12,
+        "mapped_ge2": 1,
+        "agree": 0,
+        "emit": 12,
+        "p7_active": 7
+      }
+    },
+    {
+      "cache": "det_cache_rand_t01237.3s_thr010.json",
+      "match2": {
+        "n": 299,
+        "active_ge2": 10,
+        "mapped_ge2": 0,
+        "agree": 0,
+        "emit": 3,
+        "p7_active": 0
+      },
+      "match3": {
+        "n": 299,
+        "active_ge2": 10,
+        "mapped_ge2": 0,
+        "agree": 0,
+        "emit": 3,
+        "p7_active": 3
+      }
+    },
+    {
+      "cache": "det_cache_rand_t01714.0s_thr010.json",
+      "match2": {
+        "n": 299,
+        "active_ge2": 10,
+        "mapped_ge2": 0,
+        "agree": 0,
+        "emit": 36,
+        "p7_active": 9
+      },
+      "match3": {
+        "n": 299,
+        "active_ge2": 37,
+        "mapped_ge2": 1,
+        "agree": 0,
+        "emit": 36,
+        "p7_active": 39
+      }
+    }
+  ]
+}

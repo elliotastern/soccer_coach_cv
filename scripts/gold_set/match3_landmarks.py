@@ -246,6 +246,9 @@ def write_manifest() -> Path:
 
 
 def pitch_to_img(H, x, y):
+    H = np.asarray(H, dtype=float)
+    if abs(np.linalg.det(H)) < 1e-12:
+        return None
     v = np.linalg.inv(H) @ np.array([x, y, 1.0], dtype=float)
     if abs(v[2]) < 1e-9:
         return None

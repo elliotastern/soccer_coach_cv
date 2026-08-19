@@ -80,11 +80,18 @@ def score_map_rules() -> tuple[float, list[str]]:
         notes.append("off-pitch not gated")
     rec = load_calib("P9")
     if rec:
+        from src.mapping.match3_xy import MIN_SUPPORT
+
         sup = hull_support(1900, 10, rec["image_points"])
         row = map_ball_box(rec, [1860, 20, 20, 20], 0.99, rec["image_wh"])
-        if sup >= 0.35 and row is not None:
+        if sup >= MIN_SUPPORT and row is not None:
             score -= 3
             notes.append("far-from-hull still mapped")
+        if 0.20 <= MIN_SUPPORT <= 0.25:
+            pass
+        else:
+            score -= 1
+            notes.append(f"MIN_SUPPORT={MIN_SUPPORT} not in H1 band 0.20–0.25")
     return clamp(score), notes
 
 

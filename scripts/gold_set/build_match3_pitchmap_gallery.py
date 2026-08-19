@@ -155,12 +155,15 @@ def gallery_entry(clip: dict, out: Path, mp4: Path) -> dict:
     extra = {}
     if stats_path.is_file():
         extra = json.loads(stats_path.read_text(encoding="utf-8"))
+    out_abs = out if out.is_absolute() else (ROOT / out)
+    mp4_abs = mp4 if mp4.is_absolute() else (out_abs / mp4.name)
+    rel = out_abs.resolve().relative_to(ROOT.resolve())
     return {
         "id": clip["id"],
         "label": clip["label"],
         "clock": clip["clock"],
-        "url": f"/{out.relative_to(ROOT).as_posix()}/{mp4.name}?v=fuse",
-        "page": f"/{out.relative_to(ROOT).as_posix()}/",
+        "url": f"/{rel.as_posix()}/{mp4_abs.name}?v=fuse",
+        "page": f"/{rel.as_posix()}/",
         "n_frames": extra.get("n_frames"),
         "n_emit": extra.get("n_emit"),
         "n_agree": extra.get("n_agree"),

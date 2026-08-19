@@ -1,0 +1,75 @@
+{
+  "ab": {
+    "0.35": {
+      "n": 1495,
+      "active_ge2": 191,
+      "mapped_ge2": 43,
+      "agree": 18,
+      "emit": 113,
+      "solo_emit": 95,
+      "low_support_maps": 0,
+      "support_p50": 0.8662362010472724,
+      "support_ge025": 532,
+      "support_ge020": 548,
+      "support_ge035": 511,
+      "support_n": 691
+    },
+    "0.3": {
+      "n": 1495,
+      "active_ge2": 191,
+      "mapped_ge2": 48,
+      "agree": 19,
+      "emit": 115,
+      "solo_emit": 96,
+      "low_support_maps": 0,
+      "support_p50": 0.8662362010472724,
+      "support_ge025": 532,
+      "support_ge020": 548,
+      "support_ge035": 511,
+      "support_n": 691
+    },
+    "0.25": {
+      "n": 1495,
+      "active_ge2": 191,
+      "mapped_ge2": 55,
+      "agree": 26,
+      "emit": 122,
+      "solo_emit": 96,
+      "low_support_maps": 0,
+      "support_p50": 0.8662362010472724,
+      "support_ge025": 532,
+      "support_ge020": 548,
+      "support_ge035": 511,
+      "support_n": 691
+    },
+    "0.2": {
+      "n": 1495,
+      "active_ge2": 191,
+      "mapped_ge2": 61,
+      "agree": 29,
+      "emit": 125,
+      "solo_emit": 96,
+      "low_support_maps": 0,
+      "support_p50": 0.8662362010472724,
+      "support_ge025": 532,
+      "support_ge020": 548,
+      "support_ge035": 511,
+      "support_n": 691
+    },
+    "0.15": {
+      "n": 1495,
+      "active_ge2": 191,
+      "mapped_ge2": 61,
+      "agree": 30,
+      "emit": 126,
+      "solo_emit": 96,
+      "low_support_maps": 0,
+      "support_p50": 0.8662362010472724,
+      "support_ge025": 532,
+      "support_ge020": 548,
+      "support_ge035": 511,
+      "support_n": 691
+    }
+  },
+  "pick_rule": "prefer 0.25 if agree lifts; 0.20 if more agree without solo explosion"
+}
