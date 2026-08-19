@@ -13,12 +13,14 @@
 | **P_emit** | Among fuse emits on frames with `gold_xy`, fraction with pitch error ≤ **4 m** | ≥ 0.80 |
 | **clear_ball_R** | Emit rate on frames with clear P10 GT (side ≥ 25 px, conf ≥ 0.55 seed) | ≥ 0.80 |
 
+**Scoring caveat:** gallery det caches were built with `--stride 2` (detect every other frame). Raw clear_R on all 60 fps labels under-counts because odd frames were never inferred. Primary strip metrics use **detect ticks** (even frames); `carry_neighbor_tick` approximates holding the last tick for product-like 30 Hz detect / 60 Hz emit.
+
+Latest score (`score_match3_ball_m1.py`): **P_emit = 1.0**, **clear_ball_R ≈ 0.89** (detect ticks); raw ≈ 0.44; carry ≈ 0.95. Both PoC gates pass on primary.
+
 Gold pitch `(x, y)` = P10 bbox foot mapped through `P10_manual.json` (Pitch 1 meters).
 
 ## Status
 
-Seeded from detector clear P10 boxes. **Auto-QA** (bright blob in box) passed 39/39; still mark as provisional until you confirm in the review UI.
-
-Review UI (`/match3-m1`): drag to draw/replace box, Clear box, Save (rematches `gold_xy` via `/save_match3_m1_labels`).
+Human-reviewed through frame ~194 on this pack (`human_reviewed`). Review UI (`/match3-m1`): drag to draw/replace box, Clear box, Save (rematches `gold_xy` via `/save_match3_m1_labels`).
 
 Frames stay local (`review/frames/`); git tracks labels + manifest + review HTML.

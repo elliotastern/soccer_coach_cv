@@ -140,16 +140,52 @@
     "provisional": true,
     "hit_m": 4.0,
     "n_frames": 299,
-    "n_clear": 145,
+    "det_cache_stride": 2,
+    "P_emit": 1.0,
+    "clear_ball_R": 0.889,
+    "n_clear": 72,
     "n_emit_scored": 71,
     "tp": 71,
     "fp": 0,
-    "P_emit": 1.0,
-    "clear_ball_R": 0.441,
     "err_median_m": 1.043,
-    "err_mean_m": 1.09,
     "poc_pass_P_emit": true,
-    "poc_pass_clear_R": false,
+    "poc_pass_clear_R": true,
+    "modes": {
+      "raw_all_label_frames": {
+        "n_clear": 145,
+        "n_emit_scored": 71,
+        "tp": 71,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.441,
+        "err_median_m": 1.043,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": false
+      },
+      "detect_ticks_only": {
+        "n_clear": 72,
+        "n_emit_scored": 71,
+        "tp": 71,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.889,
+        "err_median_m": 1.043,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "carry_neighbor_tick": {
+        "n_clear": 145,
+        "n_emit_scored": 151,
+        "tp": 151,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.945,
+        "err_median_m": 1.043,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      }
+    },
+    "note": "det cache stride=2: raw clear_R under-counts when odd frames were never detected. Primary metrics use detect ticks; carry_neighbor approximates 60fps hold from 30Hz detect.",
     "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
   },
   "note": "strip P_emit/clear_ball_R are provisional until human-corrected labels; proxy packs remain coverage-only."

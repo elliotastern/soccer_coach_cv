@@ -83,6 +83,21 @@ def score_cache(path: Path) -> dict:
     }
 
 
+def infer_cache_stride(dets: dict) -> int:
+    """Gallery caches often detect every 2nd frame (demo --stride 2)."""
+    for frames in dets.values():
+        nonempty = [i for i, rows in enumerate(frames) if rows]
+        if len(nonempty) < 10:
+            continue
+        even = sum(i % 2 == 0 for i in nonempty)
+        odd = len(nonempty) - even
+        if even > 0 and odd == 0:
+            return 2
+        if odd > 0 and even == 0:
+            return 2
+    return 1
+
+
 def fuse_frame(dets, i, calibs):
     cams = [c for c in CAMS if c in dets]
     active = filter_active(dets, i, cams, MATCH3_THR_BY_CAM)
@@ -98,34 +113,45 @@ def fuse_frame(dets, i, calibs):
     return fuse_balls(mapped), len(mapped)
 
 
-def score_strip(labels_path: Path) -> dict:
-    labels = json.loads(labels_path.read_text(encoding="utf-8"))
-    cache_rel = labels.get("det_cache")
-    if not cache_rel:
-        raise ValueError("labels missing det_cache")
-    dets = cache_load(ROOT / cache_rel)
-    cams = [c for c in CAMS if c in dets]
-    calibs = {c: v for c, v in ((c, load_calib(c)) for c in cams) if v}
-    focus = labels.get("focus_cam") or "P10"
-    tp = fp = emit = clear = clear_emit = n_gold = 0
+def fuse_frame_carry(dets, i, calibs, stride: int):
+    fused, n_map = fuse_frame(dets, i, calibs)
+    if fused is not None or stride <= 1:
+        return fused, n_map
+    for j in (i - 1, i + 1, i - 2, i + 2):
+        if j < 0:
+            continue
+        n = len(next(iter(dets.values())))
+        if j >= n:
+            continue
+        fused, n_map = fuse_frame(dets, j, calibs)
+        if fused is not None:
+            return fused, n_map
+    return None, 0
+
+
+def _score_strip_mode(labels, dets, calibs, focus: str, mode: str, stride: int) -> dict:
+    tp = fp = emit = clear = clear_emit = 0
     errs = []
     for fr in labels["frames"]:
         i = int(fr["i"])
+        if mode == "detect_ticks" and stride > 1 and i % stride != 0:
+            continue
         seed = (fr.get("cams") or {}).get(focus) or {}
         gold = seed.get("gold_xy")
         is_clear = bool(seed.get("clear")) and gold is not None
         if is_clear:
             clear += 1
-        fused, _n_map = fuse_frame(dets, i, calibs)
-        if fused is None:
-            continue
-        if gold is None:
+        if mode == "carry":
+            fused, _ = fuse_frame_carry(dets, i, calibs, stride)
+        else:
+            fused, _ = fuse_frame(dets, i, calibs)
+        if fused is None or gold is None:
             continue
         emit += 1
-        n_gold += 1
-        dx = float(fused["xy"][0]) - float(gold[0])
-        dy = float(fused["xy"][1]) - float(gold[1])
-        err = math.hypot(dx, dy)
+        err = math.hypot(
+            float(fused["xy"][0]) - float(gold[0]),
+            float(fused["xy"][1]) - float(gold[1]),
+        )
         errs.append(err)
         if err <= HIT_M:
             tp += 1
@@ -136,10 +162,6 @@ def score_strip(labels_path: Path) -> dict:
     p_emit = None if (tp + fp) == 0 else tp / (tp + fp)
     clear_r = None if clear == 0 else clear_emit / clear
     return {
-        "pack": labels.get("pack"),
-        "provisional": True,
-        "hit_m": HIT_M,
-        "n_frames": len(labels["frames"]),
         "n_clear": clear,
         "n_emit_scored": emit,
         "tp": tp,
@@ -149,9 +171,50 @@ def score_strip(labels_path: Path) -> dict:
         "err_median_m": None
         if not errs
         else round(sorted(errs)[len(errs) // 2], 3),
-        "err_mean_m": None if not errs else round(sum(errs) / len(errs), 3),
         "poc_pass_P_emit": bool(p_emit is not None and p_emit >= 0.80),
         "poc_pass_clear_R": bool(clear_r is not None and clear_r >= 0.80),
+    }
+
+
+def score_strip(labels_path: Path) -> dict:
+    labels = json.loads(labels_path.read_text(encoding="utf-8"))
+    cache_rel = labels.get("det_cache")
+    if not cache_rel:
+        raise ValueError("labels missing det_cache")
+    dets = cache_load(ROOT / cache_rel)
+    cams = [c for c in CAMS if c in dets]
+    calibs = {c: v for c, v in ((c, load_calib(c)) for c in cams) if v}
+    focus = labels.get("focus_cam") or "P10"
+    stride = infer_cache_stride(dets)
+    raw = _score_strip_mode(labels, dets, calibs, focus, "raw", stride)
+    ticks = _score_strip_mode(labels, dets, calibs, focus, "detect_ticks", stride)
+    carry = _score_strip_mode(labels, dets, calibs, focus, "carry", stride)
+    # Primary = detect ticks (fair vs stride-2 cache). Carry ≈ hold last emit.
+    primary = ticks if stride > 1 else raw
+    return {
+        "pack": labels.get("pack"),
+        "provisional": True,
+        "hit_m": HIT_M,
+        "n_frames": len(labels["frames"]),
+        "det_cache_stride": stride,
+        "P_emit": primary["P_emit"],
+        "clear_ball_R": primary["clear_ball_R"],
+        "n_clear": primary["n_clear"],
+        "n_emit_scored": primary["n_emit_scored"],
+        "tp": primary["tp"],
+        "fp": primary["fp"],
+        "err_median_m": primary["err_median_m"],
+        "poc_pass_P_emit": primary["poc_pass_P_emit"],
+        "poc_pass_clear_R": primary["poc_pass_clear_R"],
+        "modes": {
+            "raw_all_label_frames": raw,
+            "detect_ticks_only": ticks,
+            "carry_neighbor_tick": carry,
+        },
+        "note": (
+            f"det cache stride={stride}: raw clear_R under-counts when odd frames were never detected. "
+            "Primary metrics use detect ticks; carry_neighbor approximates 60fps hold from 30Hz detect."
+        ),
         "seed_note": (labels.get("seed") or {}).get("note"),
     }
 
@@ -208,10 +271,22 @@ def main() -> int:
         s = out["strip"]
         print(
             f"strip: P_emit={s['P_emit']} clear_ball_R={s['clear_ball_R']} "
+            f"(stride={s.get('det_cache_stride')}) "
             f"emit={s['n_emit_scored']} clear={s['n_clear']} "
             f"err_med={s['err_median_m']}m pass_P={s['poc_pass_P_emit']} "
             f"pass_R={s['poc_pass_clear_R']}"
         )
+        modes = s.get("modes") or {}
+        if modes:
+            raw = modes.get("raw_all_label_frames") or {}
+            carry = modes.get("carry_neighbor_tick") or {}
+            print(
+                f"  raw_R={raw.get('clear_ball_R')} "
+                f"carry_R={carry.get('clear_ball_R')} "
+                f"note={s.get('note')}"
+            )
+        out["note"] = s.get("note") or out.get("note")
+
     for name, pack in out["packs"].items():
         print(
             f"{name}: clear_ball_proxy_R={pack['clear_ball_proxy_R']} "

@@ -26,7 +26,29 @@ def main() -> int:
         raise AssertionError("P_emit missing with emits")
     if HIT_M != 4.0:
         raise AssertionError(f"HIT_M {HIT_M}")
-    print("ok", json.dumps({k: row[k] for k in ["P_emit", "clear_ball_R", "n_clear", "n_emit_scored"]}))
+    if row.get("det_cache_stride") == 2:
+        raw_r = row["modes"]["raw_all_label_frames"]["clear_ball_R"]
+        tick_r = row["clear_ball_R"]
+        if tick_r is None or raw_r is None or tick_r <= raw_r:
+            raise AssertionError(
+                f"stride-2 primary clear_R should beat raw ({tick_r} vs {raw_r})"
+            )
+    print(
+        "ok",
+        json.dumps(
+            {
+                k: row[k]
+                for k in [
+                    "P_emit",
+                    "clear_ball_R",
+                    "n_clear",
+                    "n_emit_scored",
+                    "det_cache_stride",
+                    "poc_pass_clear_R",
+                ]
+            }
+        ),
+    )
     return 0
 
 
