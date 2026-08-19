@@ -1,0 +1,44 @@
+{
+  "cameras": [
+    {
+      "id": "P1",
+      "file": "P1-006.mp4",
+      "still": "stills/P1.jpg"
+    },
+    {
+      "id": "P6",
+      "file": "P6-003.mp4",
+      "still": "stills/P6.jpg"
+    },
+    {
+      "id": "P7",
+      "file": "P7-001.mp4",
+      "still": "stills/P7.jpg"
+    },
+    {
+      "id": "P8",
+      "file": "p8-005.mp4",
+      "still": "stills/P8.jpg"
+    },
+    {
+      "id": "P9",
+      "file": "P9-004.mp4",
+      "still": "stills/P9.jpg"
+    },
+    {
+      "id": "P10",
+      "file": "P10-002.mp4",
+      "still": "stills/P10.jpg"
+    },
+    {
+      "id": "P_Goal1",
+      "file": "P_Goal1-007.mp4",
+      "still": "stills/P_Goal1.jpg"
+    },
+    {
+      "id": "P_Goal2",
+      "file": "P_Goal2-008.mp4",
+      "still": "stills/P_Goal2.jpg"
+    }
+  ]
+}

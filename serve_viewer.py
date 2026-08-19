@@ -347,6 +347,50 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/match3-fisheye',
+            '/match3-fisheye/',
+            '/match3_fisheye',
+            '/fisheye_dashboard',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/fisheye_dashboard/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] == '/match3_fisheye_preview':
+            try:
+                from urllib.parse import parse_qs, urlparse
+
+                qs = parse_qs(urlparse(self.path).query)
+                cam = (qs.get('cam') or ['P1'])[0]
+                k1 = float((qs.get('k1') or ['-0.2'])[0])
+                k2 = float((qs.get('k2') or ['0'])[0])
+                p1 = float((qs.get('p1') or ['0'])[0])
+                p2 = float((qs.get('p2') or ['0'])[0])
+                alpha = float((qs.get('alpha') or ['0.5'])[0])
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                import importlib
+                import match3_fisheye_dashboard as fish
+
+                fish = importlib.reload(fish)
+                jpeg = fish.render_preview_jpeg(cam, k1, k2, p1, p2, alpha)
+                self.send_response(200)
+                self.send_header('Content-type', 'image/jpeg')
+                self.send_header('Cache-Control', 'no-store')
+                self.send_header('Content-Length', str(len(jpeg)))
+                self.end_headers()
+                self.wfile.write(jpeg)
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(str(e).encode())
+            return
+        if self.path.split('?', 1)[0] in (
             '/landmark_marker',
             '/landmark_marker/',
             '/match3-landmarks',
@@ -552,6 +596,29 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
     def do_POST(self):
+        if self.path == '/save_match3_fisheye_tags':
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                import importlib
+                import match3_fisheye_dashboard as fish
+
+                fish = importlib.reload(fish)
+                tags = fish.apply_tag_updates(data)
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': True, 'tags': tags}).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
         if self.path == '/save_match3_landmark':
             try:
                 content_length = int(self.headers.get('Content-Length', 0))
@@ -780,6 +847,8 @@ def main():
     print(f"Camera pitch coverage: http://127.0.0.1:{port}/camera-coverage")
     print(f"Match2 aim/zoom guide: http://127.0.0.1:{port}/match2-aim")
     print(f"Match3 pitchmap: http://127.0.0.1:{port}/match3-pitchmap")
+    print(f"Match3 M1 strip: http://127.0.0.1:{port}/match3-m1")
+    print(f"Match3 fisheye: http://127.0.0.1:{port}/match3-fisheye")
     print(f"landmark_marker: http://127.0.0.1:{port}/landmark_marker")
     print(f"Match2 pitchmap: http://127.0.0.1:{port}/match2-pitchmap")
     print(f"SAHI hurt test: http://127.0.0.1:{port}/ball_sahi_hurt_test")

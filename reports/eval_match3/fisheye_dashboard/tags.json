@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "updated": "2026-08-19T19:40:00+00:00",
+  "cameras": {
+    "P1": {
+      "tag": "unknown",
+      "use_undistort": false,
+      "k1": -0.2,
+      "k2": 0.0,
+      "p1": 0.0,
+      "p2": 0.0,
+      "alpha": 0.5,
+      "notes": "",
+      "updated": null
+    },
+    "P6": {
+      "tag": "unknown",
+      "use_undistort": false,
+      "k1": -0.2,
+      "k2": 0.0,
+      "p1": 0.0,
+      "p2": 0.0,
+      "alpha": 0.5,
+      "notes": "",
+      "updated": null
+    },
+    "P7": {
+      "tag": "fisheye",
+      "use_undistort": true,
+      "k1": -0.3,
+      "k2": -0.08,
+      "p1": 0,
+      "p2": 0,
+      "alpha": 0.8,
+      "notes": "8.5/10 visual pick: k1=-0.30 alpha=0.80",
+      "updated": "2026-08-19T19:36:22+00:00"
+    },
+    "P8": {
+      "tag": "fisheye",
+      "use_undistort": true,
+      "k1": -0.3,
+      "k2": 0,
+      "p1": 0,
+      "p2": 0,
+      "alpha": 0.8,
+      "notes": "visual tune ~k1=-0.30 alpha=0.80",
+      "updated": "2026-08-19T19:40:00+00:00"
+    },
+    "P9": {
+      "tag": "fisheye",
+      "use_undistort": true,
+      "k1": -0.4,
+      "k2": 0,
+      "p1": 0,
+      "p2": 0,
+      "alpha": 0.8,
+      "notes": "visual tune ~k1=-0.40 alpha=0.80",
+      "updated": "2026-08-19T19:40:00+00:00"
+    },
+    "P10": {
+      "tag": "fisheye",
+      "use_undistort": true,
+      "k1": -0.32,
+      "k2": 0,
+      "p1": 0,
+      "p2": 0,
+      "alpha": 0.8,
+      "notes": "visual tune ~k1=-0.32 alpha=0.80",
+      "updated": "2026-08-19T19:40:00+00:00"
+    },
+    "P_Goal1": {
+      "tag": "unknown",
+      "use_undistort": false,
+      "k1": -0.2,
+      "k2": 0.0,
+      "p1": 0.0,
+      "p2": 0.0,
+      "alpha": 0.5,
+      "notes": "",
+      "updated": null
+    },
+    "P_Goal2": {
+      "tag": "unknown",
+      "use_undistort": false,
+      "k1": -0.2,
+      "k2": 0.0,
+      "p1": 0.0,
+      "p2": 0.0,
+      "alpha": 0.5,
+      "notes": "",
+      "updated": null
+    }
+  }
+}

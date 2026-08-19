@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Match 3 fisheye dashboard</title>
+<style>
+:root {
+  --bg:#121612; --panel:#1c241c; --text:#eef2ee; --muted:#9aab9a;
+  --accent:#e8c547; --line:#3a4a3a; --good:#6dbf7a; --warn:#d4a017;
+}
+* { box-sizing: border-box; }
+body { margin:0; font-family:"IBM Plex Sans",Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
+header, main { max-width:1400px; margin:0 auto; padding:0.9rem 1.2rem; }
+h1 { font-size:1.25rem; font-weight:650; margin:0 0 .25rem; }
+.sub { color:var(--muted); font-size:.88rem; line-height:1.4; margin:0 0 .8rem; max-width:48rem; }
+.cams { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:.85rem; }
+.cams button {
+  border:1px solid var(--line); background:var(--panel); color:var(--text);
+  border-radius:6px; padding:.4rem .55rem; cursor:pointer; font-size:.82rem; text-align:left;
+}
+.cams button.active { border-color:var(--accent); color:var(--accent); }
+.cams button .meta { display:block; font-size:.68rem; color:var(--muted); margin-top:.1rem; }
+.cams button.tag-none .meta { color:var(--good); }
+.cams button.tag-mild_barrel .meta { color:var(--warn); }
+.cams button.tag-fisheye .meta { color:#f0a; }
+.work { display:grid; grid-template-columns:1.2fr .85fr; gap:1rem; }
+@media (max-width:980px){ .work { grid-template-columns:1fr; } }
+.panel { background:var(--panel); border-radius:10px; padding:.75rem; }
+.pair { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; }
+.pair figure { margin:0; }
+.pair img { width:100%; display:block; background:#000; border-radius:6px; min-height:120px; }
+.pair figcaption { font-size:.72rem; color:var(--muted); margin-top:.25rem; }
+.tags { display:flex; flex-wrap:wrap; gap:.35rem; margin:.55rem 0; }
+.tags button {
+  border:1px solid var(--line); background:#121612; color:var(--text);
+  border-radius:6px; padding:.35rem .5rem; cursor:pointer; font-size:.8rem;
+}
+.tags button.on { border-color:var(--accent); background:#2f4a32; color:var(--accent); }
+.row { display:flex; align-items:center; gap:.5rem; margin:.35rem 0; }
+.row label { width:3.2rem; font-size:.78rem; color:var(--muted); }
+.row input[type=range] { flex:1; }
+.row .val { width:3.6rem; font:0.75rem/1 monospace; text-align:right; }
+.notes { width:100%; min-height:3.2rem; background:#121612; color:var(--text);
+  border:1px solid var(--line); border-radius:6px; padding:.45rem; font:inherit; }
+.actions { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.65rem; }
+.actions button {
+  background:var(--accent); color:#1a1a12; border:0; border-radius:6px;
+  padding:.45rem .7rem; font-weight:650; cursor:pointer;
+}
+.actions button.secondary { background:#2a352a; color:var(--text); }
+#status { font-size:.8rem; color:var(--muted); margin-top:.45rem; min-height:1.2em; }
+.check { font-size:.82rem; display:block; margin:.35rem 0 .55rem; }
+code { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Match 3 — fisheye / lens tag</h1>
+  <p class="sub">
+    Tag each titled cam and tune undistort until pitch lines look straighter (red cross = center).
+    Save writes <code>tags.json</code> for a later Match 3 undistort A/B — does not change H yet.
+  </p>
+</header>
+<main>
+  <div class="cams" id="cams"></div>
+  <div class="work">
+    <section class="panel">
+      <div class="pair">
+        <figure>
+          <img id="orig" alt="original"/>
+          <figcaption>Original still (~t=30s)</figcaption>
+        </figure>
+        <figure>
+          <img id="prev" alt="undistorted preview"/>
+          <figcaption>Undistort preview</figcaption>
+        </figure>
+      </div>
+    </section>
+    <aside class="panel">
+      <div><b id="camTitle">—</b> <span id="camFile" class="sub"></span></div>
+      <div class="tags" id="tagBtns"></div>
+      <label class="check"><input type="checkbox" id="useUnd"/> Use undistort for this cam (product candidate)</label>
+      <div class="row"><label>k1</label><input type="range" id="k1" min="-80" max="40" value="-20"><span class="val" id="k1v">-0.20</span></div>
+      <div class="row"><label>k2</label><input type="range" id="k2" min="-40" max="40" value="0"><span class="val" id="k2v">0.00</span></div>
+      <div class="row"><label>p1</label><input type="range" id="p1" min="-20" max="20" value="0"><span class="val" id="p1v">0.00</span></div>
+      <div class="row"><label>p2</label><input type="range" id="p2" min="-20" max="20" value="0"><span class="val" id="p2v">0.00</span></div>
+      <div class="row"><label>α</label><input type="range" id="alpha" min="0" max="100" value="50"><span class="val" id="alphav">0.50</span></div>
+      <textarea class="notes" id="notes" placeholder="Notes (e.g. Goal cam, strong barrel at corners)"></textarea>
+      <div class="actions">
+        <button id="saveCam">Save this cam</button>
+        <button class="secondary" id="resetSliders">Reset sliders</button>
+        <button class="secondary" id="copyParams">Copy params</button>
+      </div>
+      <div id="status"></div>
+    </aside>
+  </div>
+</main>
+<script>
+const TAGS = ["none","mild_barrel","fisheye","unknown"];
+let cams = [];
+let tags = {cameras:{}};
+let cam = null;
+let timer = null;
+
+function num(id) { return Number(document.getElementById(id).value) / 100; }
+function setNum(id, v) {
+  document.getElementById(id).value = Math.round(v * 100);
+  document.getElementById(id + "v").textContent = Number(v).toFixed(2);
+}
+function params() {
+  return { k1:num("k1"), k2:num("k2"), p1:num("p1"), p2:num("p2"), alpha:num("alpha") };
+}
+function status(msg) { document.getElementById("status").textContent = msg || ""; }
+
+function refreshPreview() {
+  if (!cam) return;
+  const p = params();
+  const q = new URLSearchParams({
+    cam, k1:p.k1, k2:p.k2, p1:p.p1, p2:p.p2, alpha:p.alpha, t:String(Date.now())
+  });
+  document.getElementById("prev").src = "/match3_fisheye_preview?" + q.toString();
+}
+function schedulePreview() {
+  clearTimeout(timer);
+  timer = setTimeout(refreshPreview, 120);
+}
+function camRec() {
+  if (!tags.cameras[cam]) tags.cameras[cam] = {};
+  return tags.cameras[cam];
+}
+function paintCams() {
+  const root = document.getElementById("cams");
+  root.innerHTML = "";
+  cams.forEach(c => {
+    const t = (tags.cameras[c.id] || {}).tag || "unknown";
+    const b = document.createElement("button");
+    b.className = (c.id === cam ? "active " : "") + "tag-" + t;
+    const use = (tags.cameras[c.id] || {}).use_undistort ? " · use" : "";
+    b.innerHTML = c.id + "<span class='meta'>" + t + use + "</span>";
+    b.onclick = () => selectCam(c.id);
+    root.appendChild(b);
+  });
+}
+function paintTags() {
+  const root = document.getElementById("tagBtns");
+  root.innerHTML = "";
+  const cur = (camRec().tag || "unknown");
+  TAGS.forEach(t => {
+    const b = document.createElement("button");
+    b.textContent = t;
+    if (t === cur) b.className = "on";
+    b.onclick = () => { camRec().tag = t; paintTags(); paintCams(); };
+    root.appendChild(b);
+  });
+}
+function selectCam(id) {
+  cam = id;
+  const c = cams.find(x => x.id === id);
+  const rec = Object.assign({
+    tag:"unknown", use_undistort:false, k1:-0.20, k2:0, p1:0, p2:0, alpha:0.5, notes:""
+  }, tags.cameras[id] || {});
+  tags.cameras[id] = rec;
+  document.getElementById("camTitle").textContent = id;
+  document.getElementById("camFile").textContent = c ? c.file : "";
+  document.getElementById("orig").src = c.still + "?v=" + Date.now();
+  document.getElementById("useUnd").checked = !!rec.use_undistort;
+  document.getElementById("notes").value = rec.notes || "";
+  setNum("k1", rec.k1); setNum("k2", rec.k2);
+  setNum("p1", rec.p1); setNum("p2", rec.p2);
+  setNum("alpha", rec.alpha);
+  paintCams(); paintTags(); refreshPreview();
+}
+async function load() {
+  const [c, t] = await Promise.all([
+    fetch("cams.json").then(r => r.json()),
+    fetch("tags.json").then(r => r.json()),
+  ]);
+  cams = c.cameras || [];
+  tags = t;
+  if (!tags.cameras) tags.cameras = {};
+  selectCam((cams[0] || {}).id || "P1");
+}
+["k1","k2","p1","p2","alpha"].forEach(id => {
+  document.getElementById(id).addEventListener("input", () => {
+    const el = document.getElementById(id);
+    document.getElementById(id + "v").textContent = (Number(el.value)/100).toFixed(2);
+    schedulePreview();
+  });
+});
+document.getElementById("saveCam").onclick = async () => {
+  const p = params();
+  const rec = camRec();
+  Object.assign(rec, p, {
+    tag: rec.tag || "unknown",
+    use_undistort: document.getElementById("useUnd").checked,
+    notes: document.getElementById("notes").value || "",
+  });
+  status("Saving…");
+  const res = await fetch("/save_match3_fisheye_tags", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({cameras: {[cam]: rec}}),
+  });
+  const body = await res.json();
+  if (!body.ok) { status("Save failed: " + (body.error || res.status)); return; }
+  tags = body.tags;
+  paintCams();
+  status("Saved " + cam + " → tags.json");
+};
+document.getElementById("resetSliders").onclick = () => {
+  setNum("k1",-0.20); setNum("k2",0); setNum("p1",0); setNum("p2",0); setNum("alpha",0.5);
+  refreshPreview();
+};
+document.getElementById("copyParams").onclick = async () => {
+  const p = params();
+  const text = JSON.stringify({
+    cam, ...p, tag: camRec().tag,
+    use_undistort: document.getElementById("useUnd").checked
+  }, null, 2);
+  await navigator.clipboard.writeText(text);
+  status("Copied params");
+};
+load();
+</script>
+</body>
+</html>
