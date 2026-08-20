@@ -622,7 +622,9 @@ def main():
     st.title("Soccer Analysis — Phase 1 Review")
 
     st.sidebar.header("Data Selection")
-    default_root = "data/output/full_match_2min_partial"
+    default_root = "data/output/full_match_2min"
+    if not Path(default_root).is_dir():
+        default_root = "data/output/full_match_2min_partial"
     if not Path(default_root).is_dir():
         default_root = "data/output"
     output_root = st.sidebar.text_input("Output root", value=default_root)
