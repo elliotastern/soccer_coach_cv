@@ -28,6 +28,109 @@ HALF_L = PITCH_LEN / 2.0
 HALF_W = PITCH_WID / 2.0
 
 
+def _inject_scroll_fix() -> None:
+    """Keep main + sidebar scrollable; restore scroll after Streamlit reruns."""
+    import streamlit.components.v1 as components
+
+    st.markdown(
+        """
+        <style>
+        /* Scroll lives on stMain / sidebar content — keep them open */
+        [data-testid="stMain"] {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            height: 100vh !important;
+        }
+        [data-testid="stSidebarContent"] {
+            overflow-y: auto !important;
+            height: 100% !important;
+        }
+        div[data-testid="stAppViewContainer"] > .main .block-container,
+        [data-testid="stMainBlockContainer"] {
+            max-width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        /* Cap images so one mosaic doesn't eat the whole page */
+        div[data-testid="stImage"] img {
+            width: 100% !important;
+            max-height: 65vh !important;
+            object-fit: contain !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    nonce = f"{time.time():.3f}"
+    components.html(
+        f"""
+        <script>
+        (function () {{
+          const doc = window.parent.document;
+          const KEY_MAIN = "scv_review_main_scroll";
+          const KEY_SIDE = "scv_review_side_scroll";
+          const NONCE = "{nonce}";
+          let ignoreUntil = 0;
+
+          function mainEl() {{
+            return doc.querySelector('[data-testid="stMain"]');
+          }}
+          function sideEl() {{
+            return doc.querySelector('[data-testid="stSidebarContent"]');
+          }}
+          function restore() {{
+            const m = mainEl();
+            const s = sideEl();
+            const my = sessionStorage.getItem(KEY_MAIN);
+            const sy = sessionStorage.getItem(KEY_SIDE);
+            ignoreUntil = Date.now() + 500;
+            if (m && my !== null && +my > 0) {{
+              if (Math.abs(m.scrollTop - +my) > 2) m.scrollTop = +my;
+            }}
+            if (s && sy !== null && +sy > 0) {{
+              if (Math.abs(s.scrollTop - +sy) > 2) s.scrollTop = +sy;
+            }}
+          }}
+          function bind() {{
+            const m = mainEl();
+            const s = sideEl();
+            if (m && m.dataset.scvScrollNonce !== NONCE) {{
+              m.dataset.scvScrollNonce = NONCE;
+              m.addEventListener("scroll", () => {{
+                if (Date.now() < ignoreUntil) return;
+                sessionStorage.setItem(KEY_MAIN, String(m.scrollTop));
+              }}, {{ passive: true }});
+            }}
+            if (s && s.dataset.scvScrollNonce !== NONCE) {{
+              s.dataset.scvScrollNonce = NONCE;
+              s.addEventListener("scroll", () => {{
+                if (Date.now() < ignoreUntil) return;
+                sessionStorage.setItem(KEY_SIDE, String(s.scrollTop));
+              }}, {{ passive: true }});
+            }}
+          }}
+          bind();
+          restore();
+          // Keep restoring while Streamlit finishes layout / RF-DETR images
+          let n = 0;
+          const t = setInterval(() => {{
+            bind();
+            restore();
+            n += 1;
+            if (n > 120) clearInterval(t);
+          }}, 100);
+          const obs = new MutationObserver(() => restore());
+          const root = doc.querySelector('[data-testid="stAppViewContainer"]');
+          if (root) obs.observe(root, {{ childList: true, subtree: true }});
+          setTimeout(() => obs.disconnect(), 20000);
+        }})();
+        </script>
+        <div style="display:none">{nonce}</div>
+        """,
+        height=0,
+    )
+
+
 @st.cache_resource
 def _load_verify_detector(player_ckpt: str, ball_ckpt: str, thr: float, nms_ver: str = "v4"):
     from src.perception.rfdetr_local import LocalRFDETRDetector
@@ -359,6 +462,23 @@ def render_synced_frame_review(
         int(x) for x in frame_df.loc[frame_df["Player_ID"] == -1, "frame_id"].unique()
     )
 
+    st.sidebar.subheader("Camera stitch / filter")
+    from src.review.cam_mosaic import VIEW_OPTIONS, build_cam_view
+
+    cam_view = st.sidebar.selectbox(
+        "Camera view",
+        options=VIEW_OPTIONS,
+        index=0,
+        key="cam_stitch_view",
+        help="4 quads = coach mosaic (P10|P9 top 180°, P7|P8 bottom). Boxes on each tile.",
+    )
+    apply_defish = st.sidebar.checkbox(
+        "Defish P7–P10 in camera view",
+        value=True,
+        key="cam_view_defish",
+        help="Brown undistort using Match 3 locked tags (same as map path).",
+    )
+
     st.sidebar.subheader("Verify overlays")
     show_dets = st.sidebar.checkbox("RF-DETR boxes (truth check)", value=True, key="show_dets")
     show_map_ball = st.sidebar.checkbox(
@@ -488,28 +608,72 @@ def render_synced_frame_review(
     m3.metric("Export tracks", int(len(rows)))
     m4.metric("Export ball", int((rows["Player_ID"] == -1).sum()) if len(rows) else 0)
 
-    # Full-bleed video stage
-    st.markdown(
-        """
-        <style>
-        div[data-testid="stAppViewContainer"] > .main .block-container {
-            max-width: 100% !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-        div[data-testid="stImage"] img {
-            width: 100% !important;
-            max-height: 88vh !important;
-            object-fit: contain !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
+    # Full-bleed stage (scroll CSS injected once in main)
+
+    from src.review.pitch1_panel import cam_label_from_video
+    from src.review.cam_mosaic import build_cam_view
+
+    primary_cam = cam_label_from_video(video_path)
+    output_root_view = Path(run_dir).parent
+    dets_by_cam: dict = {}
+    if dets_enabled and dets:
+        dets_by_cam[primary_cam] = dets
+
+    def _detect_other_cam(cam: str, frame_bgr):
+        """RF-DETR on sibling cams (cached) so every stitch/tile option has boxes."""
+        if cam == primary_cam and primary_cam in dets_by_cam:
+            return dets_by_cam[primary_cam]
+        cache = st.session_state.setdefault("verify_cam_dets", {})
+        key = (cam, int(frame_id), float(det_thr), "nms_v4")
+        if key in cache:
+            return cache[key]
+        player_ckpt = str(repo / "models/people_after_100_epochs.pth")
+        ball_ckpt = str(repo / "models/v12_hard_snaps/post_train/checkpoint.pth")
+        detector = _load_verify_detector(
+            player_ckpt, ball_ckpt, float(det_thr), nms_ver="v4"
+        )
+        out = keep_top1_ball(detector.detect(frame_bgr))
+        cache[key] = out
+        if len(cache) > 64:
+            for old in list(cache.keys())[:16]:
+                cache.pop(old, None)
+        return out
+
+    detect_fn = _detect_other_cam if dets_enabled else None
+    mosaic, used_cams = build_cam_view(
+        repo,
+        cam_view,
+        frame_id,
+        output_root_view,
+        primary_cam=primary_cam,
+        dets_by_cam=dets_by_cam if dets_enabled else None,
+        detect_fn=detect_fn,
+        apply_defish=bool(apply_defish),
+    )
+    if (
+        (cam_view.startswith("Only ") or cam_view.startswith("Best camera"))
+        and used_cams
+        and used_cams[0] == primary_cam
+        and dets_enabled
+    ):
+        stage = vis
+        stage_caption = f"{video_path.name} · frame {frame_id} · boxes on"
+    else:
+        stage = mosaic
+        box_note = " · boxes on" if dets_enabled else ""
+        stage_caption = f"{cam_view} · frame {frame_id} · {','.join(used_cams)}{box_note}"
+
+    st.subheader("Camera view")
+    st.caption(
+        "**4 quads** = coach mosaic: **P10|P9** top (both 180°) · **P7|P8** bottom "
+        "(P7 bottom-left, P8 bottom-right). "
+        "P7–P10 show **defished** video when the sidebar toggle is on. "
+        "Pitch 1 panel below = whole-field tactics map (fused positions)."
     )
     st.image(
-        cv2.cvtColor(vis, cv2.COLOR_BGR2RGB),
+        cv2.cvtColor(stage, cv2.COLOR_BGR2RGB),
         use_container_width=True,
-        caption=f"{video_path.name} · frame {frame_id}",
+        caption=stage_caption,
     )
 
     from src.review.pitch1_panel import (
@@ -619,6 +783,7 @@ def render_synced_frame_review(
 
 def main():
     st.set_page_config(page_title="Soccer Analysis Dashboard", layout="wide")
+    _inject_scroll_fix()
     st.title("Soccer Analysis — Phase 1 Review")
 
     st.sidebar.header("Data Selection")
