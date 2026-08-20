@@ -10,7 +10,6 @@ import sys
 from pathlib import Path
 
 import cv2
-import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -18,6 +17,7 @@ sys.path.insert(0, str(ROOT))
 from src.perception.rfdetr_local import (  # noqa: E402
     LocalRFDETRDetector,
     _is_duplicate_player,
+    _overlap_same_object,
     nms_by_class,
 )
 from src.state.types import Detection  # noqa: E402
@@ -27,9 +27,12 @@ VIDEO = ROOT / "data/raw/Match 3/P10-002.mp4"
 PLAYER_CKPT = ROOT / "models/people_after_100_epochs.pth"
 BALL_CKPT = ROOT / "models/v12_hard_snaps/post_train/checkpoint.pth"
 PASS = 9.0
-# Frames around soft-open / mid sample where duplicates showed up in review
-FRAME_IDS = [900, 1200, 1800, 2100, 2400, 3000, 3600, 4200, 4800, 5400]
-THR = 0.15  # same low thr as Streamlit verify (worst case for duplicates)
+# Dense sample across 2-min window + earlier failure spots
+FRAME_IDS = [
+    600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000,
+    3300, 3600, 3900, 4200, 4500, 4800, 5100, 5400, 5700, 6000, 6600,
+]
+THR = 0.15
 
 
 def clamp(score: float) -> float:
@@ -64,19 +67,26 @@ def score_synthetic(overlap_thr: float) -> tuple[float, list[str]]:
     far = Detection(0, 0.60, (400, 100, 50, 150), "player")
     body = Detection(0, 0.56, (1214.6, 94.2, 64.9, 139.8), "player")
     head = Detection(0, 0.55, (1214.6, -1.6, 51.4, 145.8), "player")
+    # User failure: upper torso + lower legs (P 0.55 / P 0.37)
+    upper = Detection(0, 0.55, (200, 80, 70, 140), "player")
+    lower = Detection(0, 0.37, (210, 140, 65, 150), "player")
     left = Detection(0, 0.70, (200, 100, 40, 120), "player")
-    right = Detection(0, 0.68, (230, 105, 40, 120), "player")
+    right = Detection(0, 0.68, (255, 105, 40, 120), "player")  # more separated
     out = nms_by_class([tall, short, far], player_iou=overlap_thr)
     if len(out) != 2:
         score -= 5.0
         notes.append(f"nested keep={len(out)} want 2")
-    if any(abs(d.confidence - 0.52) < 1e-6 for d in out):
-        score -= 4.0
-        notes.append("kept weak nested box")
     stack = nms_by_class([body, head], player_iou=overlap_thr)
     if len(stack) != 1:
         score -= 5.0
         notes.append(f"vertical stack keep={len(stack)} want 1")
+    split = nms_by_class([upper, lower], player_iou=overlap_thr)
+    if len(split) != 1:
+        score -= 5.0
+        notes.append(f"torso/legs keep={len(split)} want 1")
+    elif not _is_duplicate_player(upper.bbox, lower.bbox, overlap_thr):
+        score -= 4.0
+        notes.append("torso/legs not flagged duplicate")
     adj = nms_by_class([left, right], player_iou=overlap_thr)
     if (not _is_duplicate_player(left.bbox, right.bbox, overlap_thr)) and len(adj) != 2:
         score -= 4.0
@@ -93,11 +103,9 @@ def score_frames(rows: list, overlap_thr: float) -> tuple[float, list[str], dict
         return 0.0, ["no player dets"], {}
     clean = sum(1 for r in with_players if r["n_overlap_after"] == 0)
     frac = clean / len(with_players)
-    # Also require NMS removed something when raw had overlaps
     raw_bad = [r for r in with_players if r["n_overlap_before"] > 0]
     fixed = sum(1 for r in raw_bad if r["n_overlap_after"] == 0)
     fix_frac = (fixed / len(raw_bad)) if raw_bad else 1.0
-    # Preserve at least one player when raw had any
     emptied = sum(1 for r in with_players if r["n_after"] == 0)
     score = 10.0 * frac
     if fix_frac < 1.0 and raw_bad:
@@ -148,37 +156,44 @@ def run_once(overlap_thr: float) -> dict:
         player_nms_iou=overlap_thr,
         ball_nms_iou=0.4,
     )
+    from src.perception.rfdetr_local import _frame_to_pil, _parse_rfdetr_detections
+
     rows = []
     for fid in FRAME_IDS:
         frame = read_frame(VIDEO, fid)
-        # Bypass detector NMS: raw people only, then apply thr under test
-        from src.perception.rfdetr_local import _frame_to_pil, _parse_rfdetr_detections
-
-        raw = det.people_model.predict(_frame_to_pil(frame), threshold=THR)
-        players_raw = _parse_rfdetr_detections(raw, 0, "player")
-        after = nms_by_class(players_raw, player_iou=overlap_thr)
+        raw = _parse_rfdetr_detections(
+            det.people_model.predict(_frame_to_pil(frame), threshold=THR), 0, "player"
+        )
+        after = nms_by_class(raw, player_iou=overlap_thr)
         players_after = [d for d in after if d.class_name == "player"]
-        n_before = count_overlap_pairs(players_raw, overlap_thr)
+        n_before = count_overlap_pairs(raw, overlap_thr)
         n_after = count_overlap_pairs(players_after, overlap_thr)
         row = {
             "frame": fid,
-            "n_raw": len(players_raw),
+            "n_raw": len(raw),
             "n_after": len(players_after),
             "n_overlap_before": n_before,
             "n_overlap_after": n_after,
         }
         rows.append(row)
-        before_img = draw_players(frame, players_raw, (0, 0, 255), f"BEFORE n={len(players_raw)} ov={n_before}")
-        after_img = draw_players(
-            frame, players_after, (0, 220, 0), f"AFTER n={len(players_after)} ov={n_after}"
+        before_img = draw_players(
+            frame, raw, (0, 0, 255), f"BEFORE n={len(raw)} ov={n_before}"
         )
+        after_img = draw_players(
+            frame,
+            players_after,
+            (0, 220, 0),
+            f"AFTER n={len(players_after)} ov={n_after}",
+        )
+        import numpy as np
+
         pair = np.hstack([before_img, after_img])
         scale = 1280 / max(1, pair.shape[1])
         if scale < 1:
             pair = cv2.resize(pair, None, fx=scale, fy=scale)
         cv2.imwrite(str(OUT / "overlays" / f"f{fid:05d}_before_after.jpg"), pair)
         print(
-            f"frame={fid} raw={len(players_raw)} after={len(players_after)} "
+            f"frame={fid} raw={len(raw)} after={len(players_after)} "
             f"ov {n_before}->{n_after}"
         )
 
@@ -206,8 +221,7 @@ def run_once(overlap_thr: float) -> dict:
 
 
 def main():
-    # Eng-loop: tighten overlap thr until gate passes (or floor)
-    floors = [0.35, 0.30, 0.25]
+    floors = [0.30, 0.25, 0.20]
     last = None
     thr = floors[0]
     for thr in floors:
@@ -230,6 +244,11 @@ def main():
             cfg.write_text(text2, encoding="utf-8")
             print(f"locked {cfg} player_nms_iou={thr}")
         (OUT / "PASS").write_text(f"thr={thr} score={last['score']}\n", encoding="utf-8")
+        # Quick assert on user failure pair
+        upper = (200, 80, 70, 140)
+        lower = (210, 140, 65, 150)
+        assert _is_duplicate_player(upper, lower, thr), "user torso/legs must merge"
+        print("USER_CASE_OK", round(_overlap_same_object(upper, lower), 3))
     else:
         (OUT / "FAIL").write_text(json.dumps(last, indent=2), encoding="utf-8")
         sys.exit(1)

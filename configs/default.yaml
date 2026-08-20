@@ -21,7 +21,7 @@ detection:
   enhance_ball: true
   use_sahi: false  # C2: SAHI no gain vs v12_plain; keep off for batch throughput
   use_kalman: true
-  player_nms_iou: 0.35  # + vertical-stack merge in rfdetr_local._is_duplicate_player
+  player_nms_iou: 0.3  # torso/legs + vertical-stack merge in _is_duplicate_player
   ball_nms_iou: 0.4
 
 # Tracker Settings (ByteTrack)

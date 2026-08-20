@@ -1,0 +1,8 @@
+# Mac-stable batch overlay: less GPU churn; Match 3 ball still map+hold on raw dets.
+detection:
+  enhance_ball: false
+  use_sahi: false
+  use_kalman: false
+
+checkpoint:
+  interval_frames: 150

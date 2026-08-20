@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List
@@ -28,7 +29,7 @@ HALF_W = PITCH_WID / 2.0
 
 
 @st.cache_resource
-def _load_verify_detector(player_ckpt: str, ball_ckpt: str, thr: float, nms_ver: str = "v2"):
+def _load_verify_detector(player_ckpt: str, ball_ckpt: str, thr: float, nms_ver: str = "v4"):
     from src.perception.rfdetr_local import LocalRFDETRDetector
 
     _ = nms_ver  # bust cache when NMS logic changes
@@ -39,7 +40,7 @@ def _load_verify_detector(player_ckpt: str, ball_ckpt: str, thr: float, nms_ver:
         enhance_ball=False,
         use_sahi=False,
         use_kalman=False,
-        player_nms_iou=0.35,
+        player_nms_iou=0.30,
         ball_nms_iou=0.4,
     )
 
@@ -328,17 +329,17 @@ def render_synced_frame_review(
         draw_labels_on_frame,
         draw_legend,
         guess_video_for_run,
+        keep_top1_ball,
         load_H_inv,
-        pitch_figure_for_frame,
         read_video_frame,
         rows_for_frame,
     )
 
     st.header("Verify labels — video + pitch")
     st.info(
-        "**How to check:** green/orange **boxes** = what the detector sees on this frame. "
-        "Colored **dots / MAP-*** = what the pipeline exported after pitch mapping. "
-        "Dots should land on the same players/ball as the boxes."
+        "**Video:** RF-DETR bounding boxes only. "
+        "**Pitch 1 panel:** yellow ball + team-colored players. "
+        "MAP-BALL X is off by default (optional debug in sidebar)."
     )
     repo = Path(__file__).resolve().parents[2]
     default_video = guess_video_for_run(run_name or run_dir.name, repo)
@@ -360,42 +361,70 @@ def render_synced_frame_review(
 
     st.sidebar.subheader("Verify overlays")
     show_dets = st.sidebar.checkbox("RF-DETR boxes (truth check)", value=True, key="show_dets")
-    show_maps = st.sidebar.checkbox("Mapped export dots", value=True, key="show_maps")
+    show_map_ball = st.sidebar.checkbox(
+        "MAP-BALL X on video (debug)", value=False, key="show_map_ball_off"
+    )
+    show_map_players = st.sidebar.checkbox(
+        "Player map dots on video (debug)", value=False, key="show_map_players"
+    )
     show_zoom = st.sidebar.checkbox("Ball zoom crop", value=False, key="show_zoom")
     only_ball = st.sidebar.checkbox("Only frames with exported ball", value=True, key="only_ball")
     det_thr = st.sidebar.slider("Detect thr", 0.05, 0.5, 0.15, 0.05, key="det_thr")
+    play_fps = st.sidebar.slider(
+        "Play speed (UI fps)", 0.5, 8.0, 2.0, 0.5, key="play_fps",
+        help="Play runs RF-DETR each frame (boxes). Keep speed low or raise stride.",
+    )
+    play_stride = st.sidebar.slider(
+        "Play stride (frames in list)", 1, 10, 1, 1, key="play_stride",
+    )
 
     nav = ball_frames if (only_ball and ball_frames) else frame_ids
     if "verify_nav_i" not in st.session_state:
         st.session_state.verify_nav_i = len(nav) // 2
+    if "verify_playing" not in st.session_state:
+        st.session_state.verify_playing = False
     st.session_state.verify_nav_i = int(
         np.clip(st.session_state.verify_nav_i, 0, max(0, len(nav) - 1))
     )
 
-    cprev, cind, cnext = st.columns([1, 2, 1])
+    playing = bool(st.session_state.verify_playing)
+    dets_enabled = True if playing else bool(show_dets)
+    # Never show MAP-BALL during play; paused only if debug checkbox on
+    map_ball_on = (not playing) and bool(show_map_ball)
+    map_players_on = (not playing) and bool(show_map_players)
+
+    cplay, cprev, cind, cnext = st.columns([1, 1, 2, 1])
+    with cplay:
+        label = "⏸ Pause" if playing else "▶ Play"
+        if st.button(label, use_container_width=True, type="primary"):
+            st.session_state.verify_playing = not playing
+            st.rerun()
     with cprev:
-        if st.button("◀ Prev ball/frame", use_container_width=True):
+        if st.button("◀ Prev", use_container_width=True, disabled=playing):
             st.session_state.verify_nav_i = max(0, st.session_state.verify_nav_i - 1)
     with cnext:
-        if st.button("Next ball/frame ▶", use_container_width=True):
+        if st.button("Next ▶", use_container_width=True, disabled=playing):
             st.session_state.verify_nav_i = min(len(nav) - 1, st.session_state.verify_nav_i + 1)
     frame_id = int(nav[st.session_state.verify_nav_i])
     with cind:
-        frame_id = st.slider(
-            "Frame",
-            min_value=int(nav[0]),
-            max_value=int(nav[-1]),
-            value=frame_id,
-            step=1,
-            key="review_frame_slider",
-        )
-        frame_id = min(nav, key=lambda f: abs(f - int(frame_id)))
-        # keep nav index in sync when slider moves
-        st.session_state.verify_nav_i = nav.index(frame_id)
+        if playing:
+            st.caption(f"Playing… frame **{frame_id}**")
+        else:
+            frame_id = st.slider(
+                "Frame",
+                min_value=int(nav[0]),
+                max_value=int(nav[-1]),
+                value=frame_id,
+                step=1,
+                key="review_frame_slider",
+            )
+            frame_id = min(nav, key=lambda f: abs(f - int(frame_id)))
+            st.session_state.verify_nav_i = nav.index(frame_id)
 
     st.caption(
-        f"Frame **{frame_id}** · {st.session_state.verify_nav_i + 1}/{len(nav)} in "
-        f"{'ball-export' if only_ball and ball_frames else 'all-export'} list"
+        f"Nav {st.session_state.verify_nav_i + 1}/{len(nav)} · "
+        f"{'ball-export' if only_ball and ball_frames else 'all-export'}"
+        + (" · **PLAYING** (boxes on, MAP-BALL off)" if playing else "")
     )
 
     events_here = [
@@ -411,33 +440,45 @@ def render_synced_frame_review(
         st.error(f"Video read failed: {exc}")
         return
 
+    t_sec = float(frame_id) / max(float(fps), 1.0)
+    st.caption(f"Frame **{frame_id}** · ~{t_sec:.1f}s · source {fps:.0f} fps · file has {nframes} frames")
+
     H_inv, calib = load_H_inv(video_path)
     calib_wh = (calib or {}).get("image_wh") or [frame.shape[1], frame.shape[0]]
     vis = frame.copy()
 
     dets = []
-    if show_dets:
+    if dets_enabled:
         player_ckpt = str(repo / "models/people_after_100_epochs.pth")
         ball_ckpt = str(repo / "models/v12_hard_snaps/post_train/checkpoint.pth")
-        cache_key = (frame_id, float(det_thr), str(video_path), "nms_v3")
+        cache_key = (frame_id, float(det_thr), str(video_path), "nms_v4")
         if st.session_state.get("verify_det_key") != cache_key:
             with st.spinner("Running RF-DETR on this frame for verification…"):
                 detector = _load_verify_detector(
-                    player_ckpt, ball_ckpt, float(det_thr), nms_ver="v3"
+                    player_ckpt, ball_ckpt, float(det_thr), nms_ver="v4"
                 )
                 dets = detector.detect(frame)
                 st.session_state.verify_dets = dets
                 st.session_state.verify_det_key = cache_key
         else:
             dets = st.session_state.get("verify_dets") or []
+        dets = keep_top1_ball(dets)
         vis = draw_det_boxes(vis, dets)
 
-    if show_maps:
+    if map_ball_on or map_players_on:
         if H_inv is None:
             st.warning("No Match 3 calib — cannot draw mapped dots.")
+        elif map_players_on:
+            vis = draw_labels_on_frame(
+                vis, rows, H_inv, calib_wh, ball_only=False, dedupe_players=True
+            )
         else:
-            vis = draw_labels_on_frame(vis, rows, H_inv, calib_wh)
-    vis = draw_legend(vis)
+            vis = draw_labels_on_frame(vis, rows, H_inv, calib_wh, ball_only=True)
+    vis = draw_legend(
+        vis,
+        ball_only_maps=map_ball_on and not map_players_on,
+        maps_on=map_ball_on or map_players_on,
+    )
 
     n_p = sum(1 for d in dets if getattr(d, "class_name", "") != "ball" and int(d.class_id) != 1)
     n_b = sum(1 for d in dets if getattr(d, "class_name", "") == "ball" or int(d.class_id) == 1)
@@ -471,20 +512,42 @@ def render_synced_frame_review(
         caption=f"{video_path.name} · frame {frame_id}",
     )
 
+    from src.review.pitch1_panel import (
+        ball_trail_from_frame_df,
+        ball_xy_from_rows,
+        cam_label_from_video,
+        draw_pitch1_ball_panel,
+        players_from_rows,
+    )
+
+    ball_xy = ball_xy_from_rows(rows)
+    players = players_from_rows(rows)
+    trail = ball_trail_from_frame_df(frame_df, frame_id, back=40)
+    cam = cam_label_from_video(video_path)
+    pitch_panel = draw_pitch1_ball_panel(
+        720,
+        960,
+        ball_xy,
+        cam=cam,
+        mode="export",
+        trail=trail,
+        players=players,
+    )
+    st.subheader("Pitch 1 — ball + players")
+    st.caption("Blue = Team 0 · Red = Team 1 · Yellow = ball")
+    st.image(
+        cv2.cvtColor(pitch_panel, cv2.COLOR_BGR2RGB),
+        use_container_width=True,
+        caption=f"Pitch 1 meters · {cam} · frame {frame_id} · {len(players)} players",
+    )
+
     if show_zoom and H_inv is not None:
         with st.expander("Ball zoom", expanded=False):
-            zoom_base = vis if (show_dets or show_maps) else frame
+            zoom_base = vis if (dets_enabled or map_ball_on or map_players_on) else frame
             zoom = ball_zoom_crop(zoom_base, rows, H_inv, calib_wh)
             st.image(cv2.cvtColor(zoom, cv2.COLOR_BGR2RGB), use_container_width=True)
 
-    with st.expander("Pitch 1 + tables (same frame)", expanded=False):
-        if PLOTLY_AVAILABLE:
-            try:
-                fig = pitch_figure_for_frame(rows, events_here, go)
-                fig.update_layout(height=640)
-                st.plotly_chart(fig, use_container_width=True)
-            except Exception as exc:
-                st.warning(f"Pitch plot failed: {exc}")
+    with st.expander("Tables (same frame)", expanded=False):
         if len(rows):
             st.dataframe(
                 rows[
@@ -520,6 +583,18 @@ def render_synced_frame_review(
                 use_container_width=True,
                 hide_index=True,
             )
+
+    # Auto-advance like video while Play is on
+    if st.session_state.verify_playing:
+        nxt = st.session_state.verify_nav_i + int(play_stride)
+        if nxt >= len(nav):
+            st.session_state.verify_playing = False
+            st.toast("Playback finished")
+            st.rerun()
+        else:
+            st.session_state.verify_nav_i = nxt
+            time.sleep(1.0 / max(float(play_fps), 0.5))
+            st.rerun()
 
 
 def main():

@@ -141,35 +141,70 @@ def _x_overlap_frac(a, b) -> float:
     return inter / denom if denom > 0 else 0.0
 
 
+def _y_overlap_frac(a, b) -> float:
+    _, ay, _, ah = [float(v) for v in a]
+    _, by, _, bh = [float(v) for v in b]
+    inter = max(0.0, min(ay + ah, by + bh) - max(ay, by))
+    denom = min(ah, bh)
+    return inter / denom if denom > 0 else 0.0
+
+
 def _is_duplicate_player(a, b, overlap_thr: float) -> bool:
-    """True when two boxes are the same person (overlap, nest, or vertical stack)."""
+    """True when two boxes are the same person (nest, overlap, or torso/legs split)."""
     if _overlap_same_object(a, b) >= overlap_thr:
         return True
-    # Vertical double-hit: same column, centers within ~0.75 body height
     ax, ay, aw, ah = [float(v) for v in a]
     bx, by, bw, bh = [float(v) for v in b]
-    if _x_overlap_frac(a, b) < 0.55:
+    x_ov = _x_overlap_frac(a, b)
+    y_ov = _y_overlap_frac(a, b)
+    if x_ov < 0.30:
         return False
     cax, cay = ax + aw / 2.0, ay + ah / 2.0
     cbx, cby = bx + bw / 2.0, by + bh / 2.0
     dist = ((cax - cbx) ** 2 + (cay - cby) ** 2) ** 0.5
     ref_h = max(ah, bh)
-    return dist < 0.75 * ref_h
+    # Center close relative to body height (upper+lower splits)
+    if dist < 1.15 * ref_h and x_ov >= 0.35:
+        return True
+    # Stacked / overlapping in y with shared column (torso vs legs)
+    if x_ov >= 0.40 and y_ov >= 0.20:
+        return True
+    # Nearly touching vertically in same column
+    gap = max(0.0, max(ay, by) - min(ay + ah, by + bh))
+    if x_ov >= 0.45 and gap < 0.25 * (0.5 * (ah + bh)):
+        return True
+    return False
 
 
-def nms_class(dets: List[Detection], overlap_thr: float = 0.35) -> List[Detection]:
-    """Keep highest-conf box when two same-class boxes cover the same object."""
-    ordered = sorted(dets, key=lambda d: float(d.confidence), reverse=True)
+def nms_class(dets: List[Detection], overlap_thr: float = 0.30) -> List[Detection]:
+    """Keep one box per person; prefer higher conf, then taller (full body)."""
+    ordered = sorted(
+        dets,
+        key=lambda d: (float(d.confidence), float(d.bbox[3])),
+        reverse=True,
+    )
     kept: List[Detection] = []
     for det in ordered:
-        if all(not _is_duplicate_player(det.bbox, k.bbox, overlap_thr) for k in kept):
+        rival_i = None
+        for i, k in enumerate(kept):
+            if _is_duplicate_player(det.bbox, k.bbox, overlap_thr):
+                rival_i = i
+                break
+        if rival_i is None:
             kept.append(det)
+            continue
+        rival = kept[rival_i]
+        # Swap in taller box when conf is close (coach: full body > torso stub)
+        taller = float(det.bbox[3]) > float(rival.bbox[3]) * 1.08
+        close = float(det.confidence) >= float(rival.confidence) * 0.70
+        if taller and close:
+            kept[rival_i] = det
     return kept
 
 
 def nms_by_class(
     dets: List[Detection],
-    player_iou: float = 0.35,
+    player_iou: float = 0.30,
     ball_iou: float = 0.4,
 ) -> List[Detection]:
     players = [d for d in dets if d.class_name == "player" or int(d.class_id) == 0]
@@ -219,7 +254,7 @@ class LocalRFDETRDetector:
         enhance_ball: bool = False,
         use_sahi: bool = False,
         use_kalman: bool = False,
-        player_nms_iou: float = 0.35,
+        player_nms_iou: float = 0.30,
         ball_nms_iou: float = 0.4,
     ):
         self.confidence_threshold = confidence_threshold
@@ -306,7 +341,7 @@ def build_detector(config: dict):
             enhance_ball=bool(detection.get("enhance_ball", True)),
             use_sahi=bool(detection.get("use_sahi", True)),
             use_kalman=bool(detection.get("use_kalman", False)),
-            player_nms_iou=float(detection.get("player_nms_iou", 0.35)),
+            player_nms_iou=float(detection.get("player_nms_iou", 0.30)),
             ball_nms_iou=float(detection.get("ball_nms_iou", 0.4)),
         )
 

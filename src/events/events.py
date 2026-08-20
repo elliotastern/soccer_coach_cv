@@ -94,7 +94,7 @@ class EventDetector:
     
     def detect_dribble(self, frame_data: FrameData, prev_frame_data: Optional[FrameData]) -> Optional[Event]:
         """Detect dribble event"""
-        if prev_frame_data is None or not frame_data.ball:
+        if prev_frame_data is None or not frame_data.ball or not prev_frame_data.ball:
             return None
         
         # Find player with ball
@@ -130,7 +130,7 @@ class EventDetector:
     
     def detect_shot(self, frame_data: FrameData, prev_frame_data: Optional[FrameData]) -> Optional[Event]:
         """Detect shot event"""
-        if prev_frame_data is None or not frame_data.ball:
+        if prev_frame_data is None or not frame_data.ball or not prev_frame_data.ball:
             return None
         
         ball_vel = self._calculate_velocity(
@@ -177,7 +177,7 @@ class EventDetector:
     
     def detect_recovery(self, frame_data: FrameData, prev_frame_data: Optional[FrameData]) -> Optional[Event]:
         """Detect ball recovery event"""
-        if prev_frame_data is None or not frame_data.ball:
+        if prev_frame_data is None or not frame_data.ball or not prev_frame_data.ball:
             return None
         
         ball_loc = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)

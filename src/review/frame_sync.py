@@ -89,23 +89,53 @@ def rows_for_frame(frame_df: pd.DataFrame, frame_id: int) -> pd.DataFrame:
     return frame_df[frame_df["frame_id"] == int(frame_id)]
 
 
-def draw_legend(vis: np.ndarray) -> np.ndarray:
+def draw_legend(vis: np.ndarray, ball_only_maps: bool = True, maps_on: bool = True) -> np.ndarray:
     """Burn a verification legend into the top-left of the frame."""
     out = vis.copy()
-    lines = [
-        ("GREEN box = RF-DETR player (detector)", (0, 220, 0)),
-        ("ORANGE box = RF-DETR ball (detector)", (0, 165, 255)),
-        ("DOT + ID = exported map track (pipeline)", (255, 255, 255)),
-        ("If dots sit on the wrong person/ball, mapping is wrong", (180, 180, 180)),
-    ]
+    if not maps_on:
+        lines = [
+            ("GREEN box = RF-DETR player", (0, 220, 0)),
+            ("ORANGE box = RF-DETR ball (top-1)", (0, 165, 255)),
+            ("Play mode: bounding boxes only", (200, 200, 200)),
+        ]
+    elif ball_only_maps:
+        lines = [
+            ("GREEN box = RF-DETR player (detector)", (0, 220, 0)),
+            ("ORANGE box = RF-DETR ball (detector, top-1)", (0, 165, 255)),
+            ("YELLOW X = MAP-BALL (exported pitch→video)", (0, 255, 255)),
+            ("Players by team live on Pitch 1 panel below", (180, 180, 180)),
+        ]
+    else:
+        lines = [
+            ("GREEN box = RF-DETR player (detector)", (0, 220, 0)),
+            ("ORANGE box = RF-DETR ball (detector)", (0, 165, 255)),
+            ("DOT + ID = exported player map track", (255, 255, 255)),
+            ("YELLOW X = MAP-BALL (exported)", (0, 255, 255)),
+        ]
     y0 = 28
-    cv2.rectangle(out, (8, 8), (720, 8 + 28 * len(lines) + 12), (0, 0, 0), -1)
+    cv2.rectangle(out, (8, 8), (760, 8 + 28 * len(lines) + 12), (0, 0, 0), -1)
     for i, (text, color) in enumerate(lines):
         cv2.putText(
             out, text, (18, y0 + i * 28),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2, cv2.LINE_AA,
+            cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2, cv2.LINE_AA,
         )
     return out
+
+
+def keep_top1_ball(detections: list) -> list:
+    """Coach/gallery style: at most one ball box on video."""
+    players = [
+        d for d in detections
+        if getattr(d, "class_name", "") != "ball" and int(getattr(d, "class_id", -1)) != 1
+    ]
+    balls = [
+        d for d in detections
+        if getattr(d, "class_name", "") == "ball" or int(getattr(d, "class_id", -1)) == 1
+    ]
+    if not balls:
+        return players
+    best = max(balls, key=lambda d: float(d.confidence))
+    return players + [best]
 
 
 def draw_det_boxes(frame: np.ndarray, detections: list) -> np.ndarray:
@@ -155,15 +185,22 @@ def draw_labels_on_frame(
     H_inv,
     calib_wh,
     dedupe_players: bool = True,
+    ball_only: bool = False,
 ) -> np.ndarray:
-    """Draw exported pitch tracks reprojected to pixels (verification dots)."""
+    """Draw exported pitch tracks reprojected to pixels.
+
+    ball_only=True → gallery style: only MAP-BALL (no player dots on video).
+    """
     vis = frame.copy()
     fh, fw = vis.shape[:2]
-    draw_rows = (
-        _dedupe_player_map_rows(rows, H_inv, (fw, fh), calib_wh)
-        if dedupe_players
-        else rows
-    )
+    if rows is None or len(rows) == 0:
+        return vis
+    if ball_only:
+        draw_rows = rows[rows["Player_ID"] == -1]
+    elif dedupe_players:
+        draw_rows = _dedupe_player_map_rows(rows, H_inv, (fw, fh), calib_wh)
+    else:
+        draw_rows = rows
     for _, r in draw_rows.iterrows():
         pt = pitch_to_pixel(
             H_inv, float(r.Location_X), float(r.Location_Y), (fw, fh), calib_wh
