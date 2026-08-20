@@ -514,31 +514,51 @@ def render_synced_frame_review(
 
     from src.review.pitch1_panel import (
         ball_trail_from_frame_df,
-        ball_xy_from_rows,
         cam_label_from_video,
         draw_pitch1_ball_panel,
-        players_from_rows,
     )
+    from src.review.multicam_fuse import fuse_frame_for_pitch
 
-    ball_xy = ball_xy_from_rows(rows)
-    players = players_from_rows(rows)
+    # Sibling cams under same output root → fused Pitch 1 (falls back to this cam only)
+    output_root = Path(run_dir).parent
+    fused = fuse_frame_for_pitch(output_root, frame_id, primary_rows=rows)
+    ball_xy = fused["ball_xy"]
+    players = fused["players"]
     trail = ball_trail_from_frame_df(frame_df, frame_id, back=40)
     cam = cam_label_from_video(video_path)
+    mode = (
+        f"fuse n_cams={fused['n_cams']} ({','.join(fused['cams'])})"
+        if fused["n_cams"] > 1
+        else "single-cam export"
+    )
     pitch_panel = draw_pitch1_ball_panel(
         720,
         960,
         ball_xy,
         cam=cam,
-        mode="export",
+        mode=mode,
         trail=trail,
         players=players,
     )
     st.subheader("Pitch 1 — ball + players")
-    st.caption("Blue = Team 0 · Red = Team 1 · Yellow = ball")
+    if fused["n_cams"] > 1:
+        st.caption(
+            f"Fused across **{fused['n_cams']}** cams ({', '.join(fused['cams'])}). "
+            "Blue = Team 0 · Red = Team 1 · Yellow = ball. "
+            "Still not a full 22 — only mapped detections from available exports."
+        )
+    else:
+        st.caption(
+            "Single-cam export only (add sibling cam runs under the same output root to fuse). "
+            "Blue = Team 0 · Red = Team 1 · Yellow = ball"
+        )
     st.image(
         cv2.cvtColor(pitch_panel, cv2.COLOR_BGR2RGB),
         use_container_width=True,
-        caption=f"Pitch 1 meters · {cam} · frame {frame_id} · {len(players)} players",
+        caption=(
+            f"Pitch 1 · {mode} · frame {frame_id} · "
+            f"{len(players)} players · ball={'yes' if ball_xy else 'no'}"
+        ),
     )
 
     if show_zoom and H_inv is not None:
