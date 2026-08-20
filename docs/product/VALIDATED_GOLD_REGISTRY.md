@@ -2,7 +2,7 @@
 
 **Purpose:** Single checklist of every human-validated ball (and related) label pack so we do not lose corrected boxes.  
 **Rule:** Canonical labels live in `gold/annotations.xml` only. Never treat `prelabels/` as GT.  
-**Last updated:** 2026-08-16
+**Last updated:** 2026-08-19
 
 After any editor **Save**, re-run checksums (below) and push `gold/annotations.xml` to GitHub.
 
@@ -36,6 +36,22 @@ Spec detail: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
 | `match1_1_100` | Eval Gold100 | **Validated** | `04d8f6102fc39b21340bce41196f5da2079519422a36399e27ea257d57f6ee5a` |
 | `math_1_training` | Train | **Validated** | `0cf70efb31f5780af7c0ecf9d1eadc714cd4c871e7138425280299bde51c0baf` |
 | `math_1_training_batch3` | Train batch | **Validated** | `6b0b54df1539d81ac2b543a4af4b6366abe7f8cd06299eda035dce65dc36078d` |
+
+## Match 3 — M1 strip (P10 0:31–0:36)
+
+| Pack | Camera | Status | Notes |
+|---|---|---|---|
+| `match3_quad_p10_31` | P10 | **Human-reviewed** frames 0–194 (`labels.json`) | Product M1 eval. Train mix v11 uses **≤119 stride 2 only**; **120–194 held out**. |
+
+## Continuous → TrackNet sequence pack
+
+Dense Top Left 300 (P10/P7/Cam4plus) + Match3 P10 M1 are exported as consecutive `(prev, mid, next)` triplets for a TrackNet/VballNet side test:
+
+- Builder: `scripts/gold_set/build_tracknet_seq_pack.py`
+- Pack: `/Volumes/LaCie/Projects/Soccer project data/ball_tracknet_seq_v1/`
+- Doc: [TRAIN_MIX_TRACKNET_SEQ.md](../ball_detection/TRAIN_MIX_TRACKNET_SEQ.md)
+
+Same temporal holdouts as v11 (4quad 240+, Match3 120–194). Does **not** include `match3_quad_p8_87`.
 
 ## Not validated (do not treat as GT)
 

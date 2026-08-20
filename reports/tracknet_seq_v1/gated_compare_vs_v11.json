@@ -1,0 +1,180 @@
+{
+  "tol_full_px": 15.0,
+  "n_vis": 249,
+  "n_rows": 250,
+  "v11": {
+    "emit08_hit": 73,
+    "emit08_n": 73,
+    "emit08_clear_R": 0.2931726907630522,
+    "emit08_P_proxy": 1.0,
+    "thr03_clear_R": 0.7429718875502008
+  },
+  "tracknet_ungated_clear_R": 0.678714859437751,
+  "tracknet_sweep": [
+    {
+      "tn_peak_gate": 0.05,
+      "n_emit": 240,
+      "n_emit_vis": 239,
+      "hit": 168,
+      "P_emit_proxy": 0.702928870292887,
+      "clear_R": 0.6746987951807228
+    },
+    {
+      "tn_peak_gate": 0.1,
+      "n_emit": 217,
+      "n_emit_vis": 216,
+      "hit": 163,
+      "P_emit_proxy": 0.7546296296296297,
+      "clear_R": 0.6546184738955824
+    },
+    {
+      "tn_peak_gate": 0.15,
+      "n_emit": 206,
+      "n_emit_vis": 205,
+      "hit": 162,
+      "P_emit_proxy": 0.7902439024390244,
+      "clear_R": 0.6506024096385542
+    },
+    {
+      "tn_peak_gate": 0.2,
+      "n_emit": 201,
+      "n_emit_vis": 200,
+      "hit": 162,
+      "P_emit_proxy": 0.81,
+      "clear_R": 0.6506024096385542
+    },
+    {
+      "tn_peak_gate": 0.25,
+      "n_emit": 192,
+      "n_emit_vis": 191,
+      "hit": 158,
+      "P_emit_proxy": 0.8272251308900523,
+      "clear_R": 0.6345381526104418
+    },
+    {
+      "tn_peak_gate": 0.3,
+      "n_emit": 188,
+      "n_emit_vis": 187,
+      "hit": 155,
+      "P_emit_proxy": 0.8288770053475936,
+      "clear_R": 0.6224899598393574
+    },
+    {
+      "tn_peak_gate": 0.35,
+      "n_emit": 185,
+      "n_emit_vis": 184,
+      "hit": 153,
+      "P_emit_proxy": 0.8315217391304348,
+      "clear_R": 0.6144578313253012
+    },
+    {
+      "tn_peak_gate": 0.4,
+      "n_emit": 183,
+      "n_emit_vis": 182,
+      "hit": 152,
+      "P_emit_proxy": 0.8351648351648352,
+      "clear_R": 0.6104417670682731
+    },
+    {
+      "tn_peak_gate": 0.45,
+      "n_emit": 179,
+      "n_emit_vis": 178,
+      "hit": 151,
+      "P_emit_proxy": 0.848314606741573,
+      "clear_R": 0.606425702811245
+    },
+    {
+      "tn_peak_gate": 0.5,
+      "n_emit": 174,
+      "n_emit_vis": 173,
+      "hit": 148,
+      "P_emit_proxy": 0.8554913294797688,
+      "clear_R": 0.5943775100401606
+    },
+    {
+      "tn_peak_gate": 0.55,
+      "n_emit": 167,
+      "n_emit_vis": 166,
+      "hit": 145,
+      "P_emit_proxy": 0.8734939759036144,
+      "clear_R": 0.5823293172690763
+    },
+    {
+      "tn_peak_gate": 0.6,
+      "n_emit": 162,
+      "n_emit_vis": 161,
+      "hit": 141,
+      "P_emit_proxy": 0.8757763975155279,
+      "clear_R": 0.5662650602409639
+    },
+    {
+      "tn_peak_gate": 0.65,
+      "n_emit": 159,
+      "n_emit_vis": 158,
+      "hit": 139,
+      "P_emit_proxy": 0.879746835443038,
+      "clear_R": 0.5582329317269076
+    },
+    {
+      "tn_peak_gate": 0.7,
+      "n_emit": 154,
+      "n_emit_vis": 153,
+      "hit": 135,
+      "P_emit_proxy": 0.8823529411764706,
+      "clear_R": 0.5421686746987951
+    },
+    {
+      "tn_peak_gate": 0.75,
+      "n_emit": 149,
+      "n_emit_vis": 148,
+      "hit": 130,
+      "P_emit_proxy": 0.8783783783783784,
+      "clear_R": 0.5220883534136547
+    },
+    {
+      "tn_peak_gate": 0.8,
+      "n_emit": 144,
+      "n_emit_vis": 143,
+      "hit": 127,
+      "P_emit_proxy": 0.8881118881118881,
+      "clear_R": 0.5100401606425703
+    },
+    {
+      "tn_peak_gate": 0.85,
+      "n_emit": 138,
+      "n_emit_vis": 137,
+      "hit": 123,
+      "P_emit_proxy": 0.8978102189781022,
+      "clear_R": 0.4939759036144578
+    },
+    {
+      "tn_peak_gate": 0.9,
+      "n_emit": 121,
+      "n_emit_vis": 121,
+      "hit": 114,
+      "P_emit_proxy": 0.9421487603305785,
+      "clear_R": 0.4578313253012048
+    },
+    {
+      "tn_peak_gate": 0.95,
+      "n_emit": 74,
+      "n_emit_vis": 74,
+      "hit": 74,
+      "P_emit_proxy": 1.0,
+      "clear_R": 0.2971887550200803
+    }
+  ],
+  "tracknet_pick_P80": {
+    "tn_peak_gate": 0.2,
+    "n_emit": 201,
+    "n_emit_vis": 200,
+    "hit": 162,
+    "P_emit_proxy": 0.81,
+    "clear_R": 0.6506024096385542
+  },
+  "peak_hist_vis": {
+    "p50": 0.8970342874526978,
+    "p10": 0.08387703150510788,
+    "p90": 0.9730611205101013
+  }
+}

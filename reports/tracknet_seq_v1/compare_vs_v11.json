@@ -1,0 +1,56 @@
+{
+  "tol_full_px": 15.0,
+  "totals": {
+    "n_vis": 249,
+    "tn_hit": 169,
+    "v11_hit08": 73,
+    "v11_hit03": 185,
+    "tn_empty_ok": 0,
+    "n_empty": 1,
+    "tn_recall": 0.678714859437751,
+    "v11_recall_emit08": 0.2931726907630522,
+    "v11_recall_thr03": 0.7429718875502008
+  },
+  "by_clip": {
+    "match2_4quad_top_left": {
+      "n_vis": 58,
+      "tn_hit": 42,
+      "v11_hit08": 0,
+      "v11_hit03": 48,
+      "tn_recall": 0.7241379310344828,
+      "v11_recall_emit08": 0.0,
+      "v11_recall_thr03": 0.8275862068965517
+    },
+    "match2_4quad_top_left_p7": {
+      "n_vis": 59,
+      "tn_hit": 17,
+      "v11_hit08": 0,
+      "v11_hit03": 27,
+      "tn_recall": 0.288135593220339,
+      "v11_recall_emit08": 0.0,
+      "v11_recall_thr03": 0.4576271186440678
+    },
+    "match2_4quad_top_left_cam4plus": {
+      "n_vis": 58,
+      "tn_hit": 58,
+      "v11_hit08": 58,
+      "v11_hit03": 58,
+      "tn_recall": 1.0,
+      "v11_recall_emit08": 1.0,
+      "v11_recall_thr03": 1.0
+    },
+    "match3_quad_p10_31": {
+      "n_vis": 74,
+      "tn_hit": 52,
+      "v11_hit08": 15,
+      "v11_hit03": 52,
+      "tn_recall": 0.7027027027027027,
+      "v11_recall_emit08": 0.20270270270270271,
+      "v11_recall_thr03": 0.7027027027027027
+    }
+  },
+  "split": "test",
+  "tracknet_ckpt": "/Volumes/LaCie/Projects/Soccer Coach CV/models/tracknet_seq_v1/best.pth",
+  "v11_ckpt": "/Volumes/LaCie/Projects/Soccer Coach CV/models/v11_snaps/post_train/checkpoint.pth",
+  "n_rows": 250
+}
