@@ -1,268 +1,606 @@
-# Streamlit Review Dashboard
-import streamlit as st
-import pandas as pd
+# Streamlit Review Dashboard — Phase 1
+from __future__ import annotations
+
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
+
+import cv2
+import numpy as np
+import pandas as pd
+import streamlit as st
 
 try:
     import plotly.express as px
     import plotly.graph_objects as go
+
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
-    st.warning("Plotly not available. Some visualizations will be disabled.")
 
+# Pitch 1 / Field 1 (docs/product/PITCH1_DIMENSIONS.json) — not FIFA 105×68
+PITCH_LEN = 53.9
+PITCH_WID = 34.84
+HALF_L = PITCH_LEN / 2.0
+HALF_W = PITCH_WID / 2.0
+
+
+@st.cache_resource
+def _load_verify_detector(player_ckpt: str, ball_ckpt: str, thr: float, nms_ver: str = "v2"):
+    from src.perception.rfdetr_local import LocalRFDETRDetector
+
+    _ = nms_ver  # bust cache when NMS logic changes
+    return LocalRFDETRDetector(
+        player_checkpoint=player_ckpt,
+        ball_checkpoint=ball_ckpt,
+        confidence_threshold=thr,
+        enhance_ball=False,
+        use_sahi=False,
+        use_kalman=False,
+        player_nms_iou=0.35,
+        ball_nms_iou=0.4,
+    )
 
 def load_events(json_path: str) -> List[Dict]:
-    """Load events from JSON file"""
     if not os.path.exists(json_path):
         return []
-    
-    with open(json_path, 'r') as f:
+    with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-        return data.get('events', [])
+    return data.get("events", [])
+
+
+def load_match_meta(json_path: str) -> Dict:
+    if not os.path.exists(json_path):
+        return {}
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return {"match_id": data.get("match_id"), "metadata": data.get("metadata") or {}}
 
 
 def load_checkpoints(checkpoint_dir: str) -> List[str]:
-    """List available checkpoint files"""
     if not os.path.exists(checkpoint_dir):
         return []
-    
-    checkpoints = sorted([
-        f for f in os.listdir(checkpoint_dir)
-        if f.startswith('checkpoint_') and f.endswith('.json')
-    ])
-    return checkpoints
+    return sorted(
+        f
+        for f in os.listdir(checkpoint_dir)
+        if f.startswith("checkpoint_") and f.endswith(".json")
+    )
+
+
+def list_run_dirs(output_root: str) -> List[str]:
+    root = Path(output_root)
+    if not root.is_dir():
+        return []
+    runs = []
+    for p in sorted(root.iterdir()):
+        if p.is_dir() and (p / "events.json").is_file():
+            runs.append(p.name)
+    return runs
 
 
 def render_event_summary(events: List[Dict]):
-    """Render event summary statistics"""
     if not events:
         st.info("No events loaded")
         return
-    
-    # Count events by type
-    event_counts = {}
+    counts = {}
     for event in events:
-        event_type = event.get('type', 'unknown')
-        event_counts[event_type] = event_counts.get(event_type, 0) + 1
-    
-    # Display metrics
-    col1, col2, col3, col4, col5 = st.columns(5)
-    
-    with col1:
-        st.metric("Total Events", len(events))
-    with col2:
-        st.metric("Passes", event_counts.get('pass', 0))
-    with col3:
-        st.metric("Dribbles", event_counts.get('dribble', 0))
-    with col4:
-        st.metric("Shots", event_counts.get('shot', 0))
-    with col5:
-        st.metric("Recoveries", event_counts.get('recovery', 0))
+        t = event.get("type", "unknown")
+        counts[t] = counts.get(t, 0) + 1
+    cols = st.columns(5)
+    metrics = [
+        ("Total Events", len(events)),
+        ("Passes", counts.get("pass", 0)),
+        ("Dribbles", counts.get("dribble", 0)),
+        ("Shots", counts.get("shot", 0)),
+        ("Recoveries", counts.get("recovery", 0)),
+    ]
+    for col, (label, value) in zip(cols, metrics):
+        col.metric(label, value)
 
 
 def render_event_timeline(events: List[Dict]):
-    """Render event timeline visualization"""
-    if not events:
+    if not events or not PLOTLY_AVAILABLE:
         return
-    
-    if not PLOTLY_AVAILABLE:
-        st.info("Plotly not available for timeline visualization")
-        return
-    
-    # Prepare data
-    timeline_data = []
-    for event in events:
-        timeline_data.append({
-            'frame': event.get('start_frame', 0),
-            'type': event.get('type', 'unknown'),
-            'confidence': event.get('confidence', 0.0)
-        })
-    
-    df = pd.DataFrame(timeline_data)
-    
-    # Create timeline plot
+    df = pd.DataFrame(
+        [
+            {
+                "frame": e.get("start_frame", 0),
+                "type": e.get("type", "unknown"),
+                "confidence": e.get("confidence", 0.0),
+            }
+            for e in events
+        ]
+    )
     fig = px.scatter(
         df,
-        x='frame',
-        y='type',
-        color='confidence',
-        color_continuous_scale='Viridis',
-        title='Event Timeline',
-        labels={'frame': 'Frame Number', 'type': 'Event Type'}
+        x="frame",
+        y="type",
+        color="confidence",
+        color_continuous_scale="Viridis",
+        title="Event Timeline",
     )
-    
     st.plotly_chart(fig, use_container_width=True)
 
 
 def render_event_table(events: List[Dict]):
-    """Render events in a table"""
     if not events:
         return
-    
-    # Convert to DataFrame
-    table_data = []
-    for event in events:
-        table_data.append({
-            'ID': event.get('id', ''),
-            'Type': event.get('type', ''),
-            'Start Frame': event.get('start_frame', 0),
-            'End Frame': event.get('end_frame', 0),
-            'Confidence': f"{event.get('confidence', 0.0):.2f}",
-            'Players': len(event.get('involved_players', []))
-        })
-    
-    df = pd.DataFrame(table_data)
-    st.dataframe(df, use_container_width=True)
+    rows = [
+        {
+            "ID": e.get("id", ""),
+            "Type": e.get("type", ""),
+            "Start Frame": e.get("start_frame", 0),
+            "End Frame": e.get("end_frame", 0),
+            "Confidence": f"{e.get('confidence', 0.0):.2f}",
+            "Players": len(e.get("involved_players", [])),
+        }
+        for e in events
+    ]
+    st.dataframe(pd.DataFrame(rows), use_container_width=True)
 
 
 def render_pitch_map(events: List[Dict]):
-    """Render events on pitch map"""
-    if not events:
+    if not events or not PLOTLY_AVAILABLE:
         return
-    
-    if not PLOTLY_AVAILABLE:
-        st.info("Plotly not available for pitch map visualization")
-        return
-    
-    # Extract locations
-    pass_locs = []
-    shot_locs = []
-    dribble_locs = []
-    
-    for event in events:
-        event_type = event.get('type', '')
-        start_loc = event.get('start_location', {})
-        end_loc = event.get('end_location', {})
-        
-        if event_type == 'pass':
-            pass_locs.append({
-                'x': [start_loc.get('x', 0), end_loc.get('x', 0)],
-                'y': [start_loc.get('y', 0), end_loc.get('y', 0)]
-            })
-        elif event_type == 'shot':
-            shot_locs.append({
-                'x': end_loc.get('x', 0),
-                'y': end_loc.get('y', 0)
-            })
-        elif event_type == 'dribble':
-            dribble_locs.append({
-                'x': end_loc.get('x', 0),
-                'y': end_loc.get('y', 0)
-            })
-    
-    # Create pitch visualization
     fig = go.Figure()
-    
-    # Draw pitch outline (105m x 68m)
-    pitch_x = [-52.5, 52.5, 52.5, -52.5, -52.5]
-    pitch_y = [-34, -34, 34, 34, -34]
-    fig.add_trace(go.Scatter(
-        x=pitch_x,
-        y=pitch_y,
-        mode='lines',
-        name='Pitch',
-        line=dict(color='green', width=2)
-    ))
-    
-    # Draw passes
-    for pass_loc in pass_locs:
-        fig.add_trace(go.Scatter(
-            x=pass_loc['x'],
-            y=pass_loc['y'],
-            mode='lines+markers',
-            name='Pass',
-            line=dict(color='blue', width=1),
-            marker=dict(size=5)
-        ))
-    
-    # Draw shots
-    if shot_locs:
-        shot_x = [loc['x'] for loc in shot_locs]
-        shot_y = [loc['y'] for loc in shot_locs]
-        fig.add_trace(go.Scatter(
-            x=shot_x,
-            y=shot_y,
-            mode='markers',
-            name='Shot',
-            marker=dict(size=10, color='red', symbol='star')
-        ))
-    
-    # Draw dribbles
-    if dribble_locs:
-        dribble_x = [loc['x'] for loc in dribble_locs]
-        dribble_y = [loc['y'] for loc in dribble_locs]
-        fig.add_trace(go.Scatter(
-            x=dribble_x,
-            y=dribble_y,
-            mode='markers',
-            name='Dribble',
-            marker=dict(size=8, color='orange', symbol='circle')
-        ))
-    
-    fig.update_layout(
-        title='Event Map on Pitch',
-        xaxis_title='X (meters)',
-        yaxis_title='Y (meters)',
-        showlegend=True,
-        width=800,
-        height=600
+    fig.add_trace(
+        go.Scatter(
+            x=[-HALF_L, HALF_L, HALF_L, -HALF_L, -HALF_L],
+            y=[-HALF_W, -HALF_W, HALF_W, HALF_W, -HALF_W],
+            mode="lines",
+            name="Pitch 1",
+            line=dict(color="green", width=2),
+        )
     )
-    
+    # Cap markers so large runs stay responsive
+    show = events[:500]
+    for event in show:
+        start = event.get("start_location") or {}
+        end = event.get("end_location") or {}
+        et = event.get("type", "")
+        color = {"pass": "blue", "shot": "red", "dribble": "orange", "recovery": "purple"}.get(
+            et, "gray"
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[start.get("x", 0), end.get("x", 0)],
+                y=[start.get("y", 0), end.get("y", 0)],
+                mode="lines+markers",
+                name=et,
+                line=dict(color=color, width=1),
+                marker=dict(size=6),
+                showlegend=False,
+            )
+        )
+    fig.update_layout(
+        title=f"Events on Pitch 1 (showing {len(show)}/{len(events)})",
+        xaxis_title="X meters (+north)",
+        yaxis_title="Y meters (+left)",
+        yaxis=dict(scaleanchor="x", scaleratio=1),
+        height=560,
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 
+def load_frame_data(csv_path: Path) -> pd.DataFrame:
+    if not csv_path.is_file():
+        return pd.DataFrame()
+    return pd.read_csv(csv_path)
+
+
+def render_frame_pitch(frame_df: pd.DataFrame):
+    if frame_df.empty or not PLOTLY_AVAILABLE:
+        return
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=[-HALF_L, HALF_L, HALF_L, -HALF_L, -HALF_L],
+            y=[-HALF_W, -HALF_W, HALF_W, HALF_W, -HALF_W],
+            mode="lines",
+            name="Pitch 1",
+            line=dict(color="green", width=2),
+        )
+    )
+    players = frame_df[frame_df["Player_ID"] != -1]
+    balls = frame_df[frame_df["Player_ID"] == -1]
+    if not players.empty:
+        sample = players.sample(n=min(2000, len(players)), random_state=0)
+        fig.add_trace(
+            go.Scatter(
+                x=sample["Location_X"],
+                y=sample["Location_Y"],
+                mode="markers",
+                name="Players",
+                marker=dict(
+                    size=5,
+                    color=sample["Team_ID"],
+                    colorscale="Bluered",
+                    opacity=0.45,
+                ),
+            )
+        )
+    if not balls.empty:
+        fig.add_trace(
+            go.Scatter(
+                x=balls["Location_X"],
+                y=balls["Location_Y"],
+                mode="markers",
+                name="Ball",
+                marker=dict(size=8, color="orange", symbol="circle"),
+            )
+        )
+    fig.update_layout(
+        title="Tracked locations on Pitch 1",
+        xaxis_title="X meters (+north)",
+        yaxis_title="Y meters (+left)",
+        yaxis=dict(scaleanchor="x", scaleratio=1),
+        height=560,
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def persist_corrections(run_dir: Path, events: List[Dict], notes: str) -> Path:
+    path = run_dir / "corrections.json"
+    payload = {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "notes": notes,
+        "events": events,
+    }
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    events_path = run_dir / "events.json"
+    meta = load_match_meta(str(events_path))
+    out = {
+        "match_id": meta.get("match_id") or run_dir.name,
+        "events": events,
+        "metadata": {
+            **(meta.get("metadata") or {}),
+            "reviewed": True,
+            "reviewed_at": payload["updated_at"],
+        },
+    }
+    events_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+    return path
+
+
+def render_corrections_editor(run_dir: Path, events: List[Dict]):
+    st.subheader("Manual corrections")
+    st.caption("Edit type / confidence, drop bad rows, then Persist to update events.json.")
+    if not events:
+        st.info("No events to edit")
+        return
+    edit_rows = []
+    for e in events:
+        start = e.get("start_location") or {}
+        edit_rows.append(
+            {
+                "id": e.get("id", ""),
+                "type": e.get("type", ""),
+                "start_frame": int(e.get("start_frame", 0)),
+                "confidence": float(e.get("confidence", 0.0)),
+                "x": float(start.get("x", 0.0)),
+                "y": float(start.get("y", 0.0)),
+                "keep": True,
+            }
+        )
+    edited = st.data_editor(
+        pd.DataFrame(edit_rows),
+        use_container_width=True,
+        num_rows="dynamic",
+        key="corrections_editor",
+    )
+    notes = st.text_input("Review notes", value="")
+    if st.button("Persist corrections", type="primary"):
+        by_id = {e.get("id"): e for e in events}
+        updated = []
+        for _, row in edited.iterrows():
+            if not bool(row.get("keep", True)):
+                continue
+            eid = row["id"]
+            base = dict(by_id.get(eid) or {})
+            base["id"] = eid
+            base["type"] = str(row["type"])
+            base["start_frame"] = int(row["start_frame"])
+            base["confidence"] = float(row["confidence"])
+            loc = dict(base.get("start_location") or {})
+            loc["x"] = float(row["x"])
+            loc["y"] = float(row["y"])
+            base["start_location"] = loc
+            if "end_location" not in base:
+                base["end_location"] = dict(loc)
+            updated.append(base)
+        path = persist_corrections(run_dir, updated, notes)
+        st.success(f"Saved {len(updated)} events → {path.name} and events.json")
+        st.rerun()
+
+
+def render_synced_frame_review(
+    run_dir: Path,
+    run_name: str,
+    frame_df: pd.DataFrame,
+    events: List[Dict],
+):
+    """Video verification: detector boxes vs mapped tracks + pitch."""
+    from src.review.frame_sync import (
+        ball_zoom_crop,
+        draw_det_boxes,
+        draw_labels_on_frame,
+        draw_legend,
+        guess_video_for_run,
+        load_H_inv,
+        pitch_figure_for_frame,
+        read_video_frame,
+        rows_for_frame,
+    )
+
+    st.header("Verify labels — video + pitch")
+    st.info(
+        "**How to check:** green/orange **boxes** = what the detector sees on this frame. "
+        "Colored **dots / MAP-*** = what the pipeline exported after pitch mapping. "
+        "Dots should land on the same players/ball as the boxes."
+    )
+    repo = Path(__file__).resolve().parents[2]
+    default_video = guess_video_for_run(run_name or run_dir.name, repo)
+    video_default = str(default_video) if default_video else ""
+    video_path = Path(
+        st.sidebar.text_input("Video file", value=video_default, key="review_video")
+    )
+    if not video_path.is_file():
+        st.warning("Set a valid video path in the sidebar to scrub frames.")
+        return
+
+    frame_ids = sorted(int(x) for x in frame_df["frame_id"].unique())
+    if not frame_ids:
+        st.warning("No frame_id values in frame_data.csv")
+        return
+    ball_frames = sorted(
+        int(x) for x in frame_df.loc[frame_df["Player_ID"] == -1, "frame_id"].unique()
+    )
+
+    st.sidebar.subheader("Verify overlays")
+    show_dets = st.sidebar.checkbox("RF-DETR boxes (truth check)", value=True, key="show_dets")
+    show_maps = st.sidebar.checkbox("Mapped export dots", value=True, key="show_maps")
+    show_zoom = st.sidebar.checkbox("Ball zoom crop", value=False, key="show_zoom")
+    only_ball = st.sidebar.checkbox("Only frames with exported ball", value=True, key="only_ball")
+    det_thr = st.sidebar.slider("Detect thr", 0.05, 0.5, 0.15, 0.05, key="det_thr")
+
+    nav = ball_frames if (only_ball and ball_frames) else frame_ids
+    if "verify_nav_i" not in st.session_state:
+        st.session_state.verify_nav_i = len(nav) // 2
+    st.session_state.verify_nav_i = int(
+        np.clip(st.session_state.verify_nav_i, 0, max(0, len(nav) - 1))
+    )
+
+    cprev, cind, cnext = st.columns([1, 2, 1])
+    with cprev:
+        if st.button("◀ Prev ball/frame", use_container_width=True):
+            st.session_state.verify_nav_i = max(0, st.session_state.verify_nav_i - 1)
+    with cnext:
+        if st.button("Next ball/frame ▶", use_container_width=True):
+            st.session_state.verify_nav_i = min(len(nav) - 1, st.session_state.verify_nav_i + 1)
+    frame_id = int(nav[st.session_state.verify_nav_i])
+    with cind:
+        frame_id = st.slider(
+            "Frame",
+            min_value=int(nav[0]),
+            max_value=int(nav[-1]),
+            value=frame_id,
+            step=1,
+            key="review_frame_slider",
+        )
+        frame_id = min(nav, key=lambda f: abs(f - int(frame_id)))
+        # keep nav index in sync when slider moves
+        st.session_state.verify_nav_i = nav.index(frame_id)
+
+    st.caption(
+        f"Frame **{frame_id}** · {st.session_state.verify_nav_i + 1}/{len(nav)} in "
+        f"{'ball-export' if only_ball and ball_frames else 'all-export'} list"
+    )
+
+    events_here = [
+        e
+        for e in events
+        if abs(int(e.get("start_frame", -10**9)) - int(frame_id)) <= 2
+    ]
+    rows = rows_for_frame(frame_df, frame_id)
+
+    try:
+        frame, fps, nframes = read_video_frame(video_path, frame_id)
+    except Exception as exc:
+        st.error(f"Video read failed: {exc}")
+        return
+
+    H_inv, calib = load_H_inv(video_path)
+    calib_wh = (calib or {}).get("image_wh") or [frame.shape[1], frame.shape[0]]
+    vis = frame.copy()
+
+    dets = []
+    if show_dets:
+        player_ckpt = str(repo / "models/people_after_100_epochs.pth")
+        ball_ckpt = str(repo / "models/v12_hard_snaps/post_train/checkpoint.pth")
+        cache_key = (frame_id, float(det_thr), str(video_path), "nms_v3")
+        if st.session_state.get("verify_det_key") != cache_key:
+            with st.spinner("Running RF-DETR on this frame for verification…"):
+                detector = _load_verify_detector(
+                    player_ckpt, ball_ckpt, float(det_thr), nms_ver="v3"
+                )
+                dets = detector.detect(frame)
+                st.session_state.verify_dets = dets
+                st.session_state.verify_det_key = cache_key
+        else:
+            dets = st.session_state.get("verify_dets") or []
+        vis = draw_det_boxes(vis, dets)
+
+    if show_maps:
+        if H_inv is None:
+            st.warning("No Match 3 calib — cannot draw mapped dots.")
+        else:
+            vis = draw_labels_on_frame(vis, rows, H_inv, calib_wh)
+    vis = draw_legend(vis)
+
+    n_p = sum(1 for d in dets if getattr(d, "class_name", "") != "ball" and int(d.class_id) != 1)
+    n_b = sum(1 for d in dets if getattr(d, "class_name", "") == "ball" or int(d.class_id) == 1)
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Detector players", n_p)
+    m2.metric("Detector balls", n_b)
+    m3.metric("Export tracks", int(len(rows)))
+    m4.metric("Export ball", int((rows["Player_ID"] == -1).sum()) if len(rows) else 0)
+
+    # Full-bleed video stage
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stAppViewContainer"] > .main .block-container {
+            max-width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        div[data-testid="stImage"] img {
+            width: 100% !important;
+            max-height: 88vh !important;
+            object-fit: contain !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.image(
+        cv2.cvtColor(vis, cv2.COLOR_BGR2RGB),
+        use_container_width=True,
+        caption=f"{video_path.name} · frame {frame_id}",
+    )
+
+    if show_zoom and H_inv is not None:
+        with st.expander("Ball zoom", expanded=False):
+            zoom_base = vis if (show_dets or show_maps) else frame
+            zoom = ball_zoom_crop(zoom_base, rows, H_inv, calib_wh)
+            st.image(cv2.cvtColor(zoom, cv2.COLOR_BGR2RGB), use_container_width=True)
+
+    with st.expander("Pitch 1 + tables (same frame)", expanded=False):
+        if PLOTLY_AVAILABLE:
+            try:
+                fig = pitch_figure_for_frame(rows, events_here, go)
+                fig.update_layout(height=640)
+                st.plotly_chart(fig, use_container_width=True)
+            except Exception as exc:
+                st.warning(f"Pitch plot failed: {exc}")
+        if len(rows):
+            st.dataframe(
+                rows[
+                    [
+                        c
+                        for c in [
+                            "Player_ID",
+                            "Team_ID",
+                            "Location_X",
+                            "Location_Y",
+                            "Event",
+                            "confidence",
+                        ]
+                        if c in rows.columns
+                    ]
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+        if dets:
+            st.caption("Detector boxes this frame")
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {
+                            "class": getattr(d, "class_name", d.class_id),
+                            "conf": round(float(d.confidence), 3),
+                            "bbox": tuple(round(float(v), 1) for v in d.bbox),
+                        }
+                        for d in dets
+                    ]
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
+
+
 def main():
-    """Main Streamlit app"""
     st.set_page_config(page_title="Soccer Analysis Dashboard", layout="wide")
-    st.title("Soccer Analysis Pipeline - Review Dashboard")
-    
-    # Sidebar for file selection
+    st.title("Soccer Analysis — Phase 1 Review")
+
     st.sidebar.header("Data Selection")
-    
-    output_dir = st.sidebar.text_input("Output Directory", value="data/output")
-    
-    # Load events
-    json_path = os.path.join(output_dir, "events.json")
-    events = load_events(json_path)
-    
-    # Checkpoint selection
-    checkpoint_dir = os.path.join(output_dir, "checkpoints")
-    checkpoints = load_checkpoints(checkpoint_dir)
-    
+    default_root = "data/output/full_match_2min_partial"
+    if not Path(default_root).is_dir():
+        default_root = "data/output"
+    output_root = st.sidebar.text_input("Output root", value=default_root)
+    runs = list_run_dirs(output_root)
+    if runs:
+        prefer = 0
+        if "P10-002" in runs:
+            prefer = runs.index("P10-002")
+        selected = st.sidebar.selectbox("Match run", options=runs, index=prefer)
+        run_dir = Path(output_root) / selected
+    else:
+        selected = None
+        run_dir = Path(output_root)
+        st.sidebar.warning("No run folders with events.json yet")
+
+    json_path = run_dir / "events.json"
+    try:
+        events = load_events(str(json_path))
+        meta = load_match_meta(str(json_path))
+    except Exception as exc:
+        st.error(f"Failed to load events: {exc}")
+        events, meta = [], {}
+
+    checkpoints = load_checkpoints(str(run_dir / "checkpoints"))
     if checkpoints:
         st.sidebar.subheader("Checkpoints")
-        selected_checkpoint = st.sidebar.selectbox(
-            "Select Checkpoint",
-            options=checkpoints,
-            index=len(checkpoints) - 1 if checkpoints else 0
-        )
-        
-        if selected_checkpoint:
-            checkpoint_path = os.path.join(checkpoint_dir, selected_checkpoint)
-            checkpoint_events = load_events(checkpoint_path)
-            if checkpoint_events:
-                st.sidebar.info(f"Loaded {len(checkpoint_events)} events from checkpoint")
-    
-    # Main content
+        pick = st.sidebar.selectbox("Checkpoint", options=["(final)"] + checkpoints, index=0)
+        if pick != "(final)":
+            events = load_events(str(run_dir / "checkpoints" / pick))
+
+    if meta.get("match_id"):
+        st.caption(f"Match: `{meta['match_id']}` · path `{json_path}`")
+
+    try:
+        frame_df = load_frame_data(run_dir / "frame_data.csv")
+    except Exception as exc:
+        st.error(f"Failed to load frame_data: {exc}")
+        frame_df = pd.DataFrame()
+
+    if not frame_df.empty:
+        try:
+            render_synced_frame_review(run_dir, selected or run_dir.name, frame_df, events)
+        except Exception as exc:
+            st.error(f"Frame review failed: {exc}")
+
+        with st.expander("All-frames pitch density", expanded=False):
+            try:
+                render_frame_pitch(frame_df)
+            except Exception as exc:
+                st.warning(f"Pitch map skipped: {exc}")
+            balls = int((frame_df["Player_ID"] == -1).sum()) if "Player_ID" in frame_df.columns else 0
+            st.caption(f"{len(frame_df)} rows · {balls} ball rows")
+
     if events:
         st.header("Event Summary")
         render_event_summary(events)
-        
-        st.header("Event Timeline")
-        render_event_timeline(events)
-        
-        st.header("Pitch Map")
-        render_pitch_map(events)
-        
+        try:
+            with st.expander("Event timeline + map", expanded=False):
+                render_event_timeline(events)
+                render_pitch_map(events)
+        except Exception as exc:
+            st.warning(f"Event plots skipped: {exc}")
         st.header("Event Details")
         render_event_table(events)
+        if len(events) > 400:
+            st.info(f"{len(events)} events — showing first 400 in editor.")
+            render_corrections_editor(run_dir, events[:400])
+        else:
+            render_corrections_editor(run_dir, events)
     else:
-        st.warning(f"No events found at {json_path}")
-        st.info("Run the main pipeline to generate events")
+        st.warning(f"No heuristic events in {json_path}")
+        if frame_df.empty:
+            st.info("Point Output root at a run folder with events.json + frame_data.csv")
 
 
 if __name__ == "__main__":

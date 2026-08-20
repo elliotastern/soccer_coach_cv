@@ -5,7 +5,8 @@ roboflow:
 
 # Gameplay gate / scene-cut (Phase 1 Step 1)
 camera:
-  green_threshold: 0.5
+  # Match 3 wide cams often sit under 0.5 green fraction; 0.25 keeps gate useful.
+  green_threshold: 0.25
   scene_cut_threshold: 0.7
 
 # Detection Settings
@@ -16,10 +17,12 @@ detection:
   player_class_id: 0
   ball_class_id: 1
   player_checkpoint: models/people_after_100_epochs.pth
-  ball_checkpoint: models/v8_snaps/post_train/checkpoint.pth
+  ball_checkpoint: models/v12_hard_snaps/post_train/checkpoint.pth
   enhance_ball: true
-  use_sahi: true
+  use_sahi: false  # C2: SAHI no gain vs v12_plain; keep off for batch throughput
   use_kalman: true
+  player_nms_iou: 0.35  # + vertical-stack merge in rfdetr_local._is_duplicate_player
+  ball_nms_iou: 0.4
 
 # Tracker Settings (ByteTrack)
 # Ingest low-conf dets for association; publish balls only if tracklet EMA >= emit_thresh.

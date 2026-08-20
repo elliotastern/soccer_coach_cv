@@ -104,6 +104,84 @@ def _parse_rfdetr_detections(detections_raw, class_id: int, class_name: str) -> 
     return results
 
 
+def _inter_xywh(a, b) -> float:
+    ax, ay, aw, ah = [float(v) for v in a]
+    bx, by, bw, bh = [float(v) for v in b]
+    ix1, iy1 = max(ax, bx), max(ay, by)
+    ix2, iy2 = min(ax + aw, bx + bw), min(ay + ah, by + bh)
+    return max(0.0, ix2 - ix1) * max(0.0, iy2 - iy1)
+
+
+def _iou_xywh(a, b) -> float:
+    ax, ay, aw, ah = [float(v) for v in a]
+    bx, by, bw, bh = [float(v) for v in b]
+    inter = _inter_xywh(a, b)
+    union = aw * ah + bw * bh - inter
+    return inter / union if union > 0 else 0.0
+
+
+def _overlap_same_object(a, b) -> float:
+    """IoU or containment (inter/min area). Nested torso/full-body boxes often have low IoU."""
+    ax, ay, aw, ah = [float(v) for v in a]
+    bx, by, bw, bh = [float(v) for v in b]
+    inter = _inter_xywh(a, b)
+    area_a, area_b = aw * ah, bw * bh
+    if area_a <= 0 or area_b <= 0:
+        return 0.0
+    iou = inter / (area_a + area_b - inter)
+    iomin = inter / min(area_a, area_b)
+    return max(iou, iomin)
+
+
+def _x_overlap_frac(a, b) -> float:
+    ax, _, aw, _ = [float(v) for v in a]
+    bx, _, bw, _ = [float(v) for v in b]
+    inter = max(0.0, min(ax + aw, bx + bw) - max(ax, bx))
+    denom = min(aw, bw)
+    return inter / denom if denom > 0 else 0.0
+
+
+def _is_duplicate_player(a, b, overlap_thr: float) -> bool:
+    """True when two boxes are the same person (overlap, nest, or vertical stack)."""
+    if _overlap_same_object(a, b) >= overlap_thr:
+        return True
+    # Vertical double-hit: same column, centers within ~0.75 body height
+    ax, ay, aw, ah = [float(v) for v in a]
+    bx, by, bw, bh = [float(v) for v in b]
+    if _x_overlap_frac(a, b) < 0.55:
+        return False
+    cax, cay = ax + aw / 2.0, ay + ah / 2.0
+    cbx, cby = bx + bw / 2.0, by + bh / 2.0
+    dist = ((cax - cbx) ** 2 + (cay - cby) ** 2) ** 0.5
+    ref_h = max(ah, bh)
+    return dist < 0.75 * ref_h
+
+
+def nms_class(dets: List[Detection], overlap_thr: float = 0.35) -> List[Detection]:
+    """Keep highest-conf box when two same-class boxes cover the same object."""
+    ordered = sorted(dets, key=lambda d: float(d.confidence), reverse=True)
+    kept: List[Detection] = []
+    for det in ordered:
+        if all(not _is_duplicate_player(det.bbox, k.bbox, overlap_thr) for k in kept):
+            kept.append(det)
+    return kept
+
+
+def nms_by_class(
+    dets: List[Detection],
+    player_iou: float = 0.35,
+    ball_iou: float = 0.4,
+) -> List[Detection]:
+    players = [d for d in dets if d.class_name == "player" or int(d.class_id) == 0]
+    balls = [d for d in dets if d.class_name == "ball" or int(d.class_id) == 1]
+    other = [
+        d
+        for d in dets
+        if d not in players and d not in balls
+    ]
+    return nms_class(players, player_iou) + nms_class(balls, ball_iou) + other
+
+
 def load_people_model(checkpoint_path: str):
     _patch_rfdetr_imports()
     from rfdetr import RFDETRMedium
@@ -141,6 +219,8 @@ class LocalRFDETRDetector:
         enhance_ball: bool = False,
         use_sahi: bool = False,
         use_kalman: bool = False,
+        player_nms_iou: float = 0.35,
+        ball_nms_iou: float = 0.4,
     ):
         self.confidence_threshold = confidence_threshold
         self.player_class_id = player_class_id
@@ -148,6 +228,8 @@ class LocalRFDETRDetector:
         self.enhance_ball = enhance_ball
         self.use_sahi = use_sahi
         self.use_kalman = use_kalman
+        self.player_nms_iou = float(player_nms_iou)
+        self.ball_nms_iou = float(ball_nms_iou)
         self.people_model = load_people_model(player_checkpoint)
         self.ball_model = load_ball_model(ball_checkpoint)
         self._ball_prelabeler = None
@@ -188,8 +270,11 @@ class LocalRFDETRDetector:
             detections.extend(_parse_rfdetr_detections(
                 ball_raw, self.ball_class_id, "ball"
             ))
-        return detections
-
+        return nms_by_class(
+            detections,
+            player_iou=self.player_nms_iou,
+            ball_iou=self.ball_nms_iou,
+        )
 
 def _checkpoint_from_config(detection: dict, key: str, env_key: str) -> str:
     import os
@@ -221,6 +306,8 @@ def build_detector(config: dict):
             enhance_ball=bool(detection.get("enhance_ball", True)),
             use_sahi=bool(detection.get("use_sahi", True)),
             use_kalman=bool(detection.get("use_kalman", False)),
+            player_nms_iou=float(detection.get("player_nms_iou", 0.35)),
+            ball_nms_iou=float(detection.get("ball_nms_iou", 0.4)),
         )
 
     if backend == "roboflow":
