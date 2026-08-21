@@ -60,8 +60,21 @@ def test_weak_solo_dropped() -> None:
     assert abs(fused[0][0]) < 0.01
 
 
+def test_goal_box_wider_merge() -> None:
+    # South box feet 2.5 m apart — base 1.8 would split; box merge 3.2 should join
+    pts = [
+        {"xy": (-24.0, 0.0), "conf": 0.9, "team": 0, "pid": 1, "cam": "P7"},
+        {"xy": (-24.0, 2.5), "conf": 0.8, "team": 0, "pid": 2, "cam": "P8"},
+    ]
+    clusters = _cluster_players(pts, merge_m=1.8)
+    assert len(clusters) == 1
+    fused = _fuse_player_clusters(clusters)
+    assert len(fused) == 1
+
+
 if __name__ == "__main__":
     test_player_det_ok_rejects_tiny_and_weak()
     test_fuse_uses_max_conf_xy_not_mean()
     test_weak_solo_dropped()
+    test_goal_box_wider_merge()
     print("ok")

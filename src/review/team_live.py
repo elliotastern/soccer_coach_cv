@@ -22,15 +22,16 @@ if str(_GS) not in sys.path:
 from pitch1 import load_pitch1, pitch1_landmarks  # noqa: E402
 
 TEAM_MIN_CROPS = 5
-TEAM_ASSIGN_CONF = 0.48
+TEAM_ASSIGN_CONF = 0.55
 OUTLIER_MEDIAN_MULT = 2.4
 MIN_JERSEY_FRAC = 0.08
 MIN_CROP_STD = 4.0
 STICKY_M = 4.0
 STICKY_FLIP_CONF = 0.78
 CENTROID_EMA = 0.06
-HOLD_MAX_GAP = 5
+HOLD_MAX_GAP = 2
 HOLD_M = 3.0
+BOX_DEDUP_M = 2.0
 HUE_BINS = 10
 VOTE_LEN = 5
 VOTE_MIN = 2
@@ -254,6 +255,31 @@ def apply_goal_box_prior(players: list[dict]) -> None:
                     m["team"] = -1
 
 
+def soft_cap_goal_box_duplicates(players: list[dict]) -> list[dict]:
+    """In each goal box, keep one of near-duplicate dots (≤ BOX_DEDUP_M).
+
+    Prefer live (age 0) over hold, labeled over gray — kills multi-cam doubles/ghosts.
+    """
+    outside = [p for p in players if which_goal_box(p["xy"]) is None]
+    kept = list(outside)
+    for box_name in ("south", "north"):
+        members = [p for p in players if which_goal_box(p["xy"]) == box_name]
+        members.sort(
+            key=lambda p: (
+                int(p.get("age", 0)),
+                0 if int(p.get("team", -1)) >= 0 else 1,
+                -float(p.get("conf", 0.0)),
+            )
+        )
+        chosen: list[dict] = []
+        for m in members:
+            if any(_dist_xy(m["xy"], c["xy"]) <= BOX_DEDUP_M for c in chosen):
+                continue
+            chosen.append(m)
+        kept.extend(chosen)
+    return kept
+
+
 class TeamSession:
     """Session-locked team model: fit once, EMA, sticky, vote buffer, box prior."""
 
@@ -365,6 +391,9 @@ class TeamSession:
                 continue
             if int(q.get("team", -1)) < 0:
                 continue
+            # No hold inside goal boxes — main source of “3rd ghost” at the end
+            if which_goal_box(q["xy"]) is not None:
+                continue
             if any(_dist_xy(q["xy"], c["xy"]) <= HOLD_M for c in cur):
                 continue
             held.append(
@@ -377,7 +406,7 @@ class TeamSession:
                     "votes": list(q.get("votes") or [int(q["team"])]),
                 }
             )
-        out_dicts = cur + held
+        out_dicts = soft_cap_goal_box_duplicates(cur + held)
         apply_goal_box_prior(out_dicts)
         self.prev_fused = [
             {

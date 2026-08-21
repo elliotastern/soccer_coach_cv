@@ -1,0 +1,77 @@
+{
+  "ts": "2026-08-21T20:27:02.972542+00:00",
+  "frame": 2400,
+  "frames_smoke": {
+    "1200": {
+      "video": 11,
+      "fused": 7,
+      "ok": true
+    },
+    "2400": {
+      "video": 16,
+      "fused": 11,
+      "ok": true
+    },
+    "3600": {
+      "video": 11,
+      "fused": 3,
+      "ok": true
+    }
+  },
+  "gate": 9.0,
+  "scores": {
+    "01_detector_loads": 10.0,
+    "02_box_on_body": 10.0,
+    "03_defish_detect_path": 10.0,
+    "04_rotate180_ready": 10.0,
+    "05_nms_dupes": 10.0,
+    "06_tiny_box_reject": 10.0,
+    "07_weak_conf_reject": 10.0,
+    "08_map_wh_match": 10.0,
+    "09_no_double_undistort": 9.0,
+    "10_hull_gate_sane": 10.0,
+    "11_pitch_bounds": 10.0,
+    "12_fuse_uses_live": 10.0,
+    "13_fuse_count_sane": 10.0,
+    "14_cross_cam_spread": 10.0,
+    "15_maxconf_not_mean": 10.0,
+    "16_ghost_prune": 10.0,
+    "17_count_consistency": 10.0,
+    "18_p7_overfire": 9.0,
+    "19_player_filter_wired": 10.0,
+    "20_product_players_ready": 9.875
+  },
+  "notes": {
+    "01_detector_loads": "RF-DETR player+ball loaded",
+    "02_box_on_body": "mean_contain=10.0",
+    "03_defish_detect_path": "dets after defish + __wh set",
+    "04_rotate180_ready": "P10|P9 flagged for 180\u00b0",
+    "05_nms_dupes": "iou>=0.55 pairs=0",
+    "06_tiny_box_reject": "tiny_left=0",
+    "07_weak_conf_reject": "conf<0.5 left=0",
+    "08_map_wh_match": "wh_ok=True",
+    "09_no_double_undistort": "cases where only double-undistort maps=1 (should be 0 preference)",
+    "10_hull_gate_sane": "mapped=13 unmapped=3 frac=0.81 cams_with_boxes=3 (video boxes keep unmapped; pitch fuse drops them)",
+    "11_pitch_bounds": "map_ball_box drops OOB",
+    "12_fuse_uses_live": "n_cams=3 cams_with_players=3 source=live",
+    "13_fuse_count_sane": "fused=11 video=16 ratio=0.69",
+    "14_cross_cam_spread": "max_pair_spread_m=1.73",
+    "15_maxconf_not_mean": "each fused \u22640.35m from a mapped foot (True)",
+    "16_ghost_prune": "weak_solos_on_pitch=0 solo_conf>=0.5 ghost>=0.55",
+    "17_count_consistency": "|video-fused|/max=0.31 merge_ok=True",
+    "18_p7_overfire": "P7_players=9",
+    "19_player_filter_wired": "all kept dets pass player_det_ok=True",
+    "20_product_players_ready": "mean_hard=9.9"
+  },
+  "n_video_players": 16,
+  "n_fused_players": 11,
+  "failed": {},
+  "pass": true,
+  "constants": {
+    "PLAYER_MIN_CONF": 0.5,
+    "PLAYER_MIN_H": 40.0,
+    "PLAYER_SOLO_CONF": 0.5,
+    "PLAYER_GHOST_CONF": 0.55,
+    "PLAYER_MERGE_M": 1.8
+  }
+}

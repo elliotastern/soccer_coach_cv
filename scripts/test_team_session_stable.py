@@ -121,6 +121,32 @@ def test_goal_box_prior_conflict_grays() -> None:
     assert a["team"] == -1 and b["team"] == -1
 
 
+def test_no_hold_inside_goal_box() -> None:
+    sess = TeamSession()
+    # Prior in south goal box — must not hold when unmatched
+    sess.prev_fused = [
+        {"xy": (-24.0, 0.0), "team": 0, "pid": 1, "age": 0, "votes": [0, 0]}
+    ]
+    out = sess.stabilize_fused([])
+    assert out == []
+
+
+def test_soft_cap_goal_box_near_duplicates() -> None:
+    from src.review.team_live import soft_cap_goal_box_duplicates
+
+    # Three near-duplicates in south box + one midfield
+    pts = [
+        {"xy": (-24.0, 0.0), "team": 0, "pid": 1, "age": 0, "conf": 0.9},
+        {"xy": (-23.5, 0.3), "team": 0, "pid": 2, "age": 0, "conf": 0.7},
+        {"xy": (-23.2, -0.2), "team": 1, "pid": 3, "age": 1, "conf": 0.6},
+        {"xy": (0.0, 0.0), "team": 0, "pid": 4, "age": 0, "conf": 0.8},
+    ]
+    out = soft_cap_goal_box_duplicates(pts)
+    box_n = sum(1 for p in out if which_goal_box(p["xy"]) == "south")
+    assert box_n <= 2
+    assert any(which_goal_box(p["xy"]) is None for p in out)
+
+
 if __name__ == "__main__":
     test_fit_order_stable_under_reshuffle()
     test_session_no_centroid_swap()
@@ -131,4 +157,6 @@ if __name__ == "__main__":
     test_vote_buffer_overrides_one_frame_flip()
     test_goal_box_prior_alone_keeps_clear()
     test_goal_box_prior_conflict_grays()
+    test_no_hold_inside_goal_box()
+    test_soft_cap_goal_box_near_duplicates()
     print("ok")

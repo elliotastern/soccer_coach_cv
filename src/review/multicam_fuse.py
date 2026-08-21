@@ -10,6 +10,8 @@ from src.mapping.match3_xy import fuse_balls
 
 # Pitch-space merge radius for same person seen by two cams (meters)
 PLAYER_MERGE_M = 1.8
+# End-line H error is larger — wider merge inside Pitch 1 goal boxes
+PLAYER_MERGE_M_BOX = 3.2
 # Coach / live map: precision-first player gates (bodies look ok; map was noisy)
 PLAYER_MIN_CONF = 0.50
 PLAYER_MIN_H = 40.0
@@ -39,6 +41,15 @@ def player_det_ok(d, *, min_conf: float = PLAYER_MIN_CONF) -> bool:
     return True
 
 
+def _merge_radius_m(xy_a, xy_b, base_m: float = PLAYER_MERGE_M) -> float:
+    """Wider merge if either foot sits in a Pitch 1 goal box."""
+    from src.review.team_live import which_goal_box
+
+    if which_goal_box(xy_a) is not None or which_goal_box(xy_b) is not None:
+        return max(float(base_m), float(PLAYER_MERGE_M_BOX))
+    return float(base_m)
+
+
 def _cluster_players(
     player_pts: list[dict],
     merge_m: float = PLAYER_MERGE_M,
@@ -48,7 +59,8 @@ def _cluster_players(
     for p in pts:
         placed = False
         for cl in clusters:
-            if _dist(p["xy"], cl[0]["xy"]) <= merge_m:
+            r = _merge_radius_m(p["xy"], cl[0]["xy"], merge_m)
+            if _dist(p["xy"], cl[0]["xy"]) <= r:
                 cl.append(p)
                 placed = True
                 break
@@ -83,7 +95,10 @@ def _fuse_player_clusters(
     for i, cl in enumerate(eligible):
         best = max(cl, key=lambda c: c["conf"])
         if len(cl) == 1 and float(best["conf"]) < ghost_conf and strong_xy:
-            if min(_dist(best["xy"], s) for s in strong_xy) > merge_m * 1.5:
+            lim = min(
+                _merge_radius_m(best["xy"], s, merge_m) * 1.5 for s in strong_xy
+            )
+            if min(_dist(best["xy"], s) for s in strong_xy) > lim:
                 continue
         # Team vote: only count confident team labels; conflict → gray
         team_votes = [int(c.get("team", -1)) for c in cl if int(c.get("team", -1)) >= 0]

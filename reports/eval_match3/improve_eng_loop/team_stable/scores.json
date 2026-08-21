@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-21T19:10:06.550773+00:00",
+  "ts": "2026-08-21T20:26:39.401425+00:00",
   "frames": [
     2300,
     2350,
@@ -12,23 +12,23 @@
     {
       "fr": 2300,
       "n0": 3,
-      "n1": 2,
-      "gray": 4,
+      "n1": 3,
+      "gray": 3,
       "n": 9
     },
     {
       "fr": 2350,
-      "n0": 10,
-      "n1": 2,
+      "n0": 8,
+      "n1": 4,
       "gray": 0,
       "n": 12
     },
     {
       "fr": 2400,
       "n0": 6,
-      "n1": 4,
+      "n1": 5,
       "gray": 0,
-      "n": 10
+      "n": 11
     },
     {
       "fr": 2450,
@@ -39,10 +39,10 @@
     },
     {
       "fr": 2500,
-      "n0": 9,
+      "n0": 8,
       "n1": 4,
       "gray": 0,
-      "n": 13
+      "n": 12
     }
   ],
   "gate": 9.0,
@@ -74,17 +74,17 @@
     "03_kit_lock": "blue_dom_all=True n=5",
     "04_no_identity_swap": "blue_dom_all=True n=5",
     "05_hard_kit_rules": "flip_conf=0.78 sticky_m=4.0",
-    "06_unsure_gray": "[(2300, 4), (2350, 0), (2400, 0), (2450, 1), (2500, 0)]",
-    "07_ema_no_reorder": "hold_gap=5",
-    "08_track_sticky": "keep_rate=0.935 n=446",
-    "09_sticky_vote": "keep_rate=0.935 n=446",
+    "06_unsure_gray": "[(2300, 3), (2350, 0), (2400, 0), (2450, 1), (2500, 0)]",
+    "07_ema_no_reorder": "hold_gap=2",
+    "08_track_sticky": "keep_rate=0.939 n=444",
+    "09_sticky_vote": "keep_rate=0.939 n=444",
     "10_multicam_vote": "fuse majority/tie\u2192gray",
-    "11_best_ball": "n=10 n0=6 n1=3",
-    "12_count_flicker": "share_swaps=0 dense_swaps=0 shares=[0.6, 0.8333333333333334, 0.6, 0.5384615384615384, 0.6923076923076923]",
+    "11_best_ball": "n=11 n0=5 n1=4",
+    "12_count_flicker": "share_swaps=0 dense_swaps=0 shares=[0.5, 0.6666666666666666, 0.5454545454545454, 0.5384615384615384, 0.6666666666666666]",
     "13_no_swap_gate": "blue_dom_all=True n=5",
     "14_both_kits": "both_ok=5/5",
-    "15_gray_not_explode": "mean_gray_frac=0.10",
-    "16_live_fuse": "prev_fused=13",
+    "15_gray_not_explode": "mean_gray_frac=0.08",
+    "16_live_fuse": "prev_fused=12",
     "17_review_hook": "app.py st.session_state.team_session",
     "18_unit_no_swap": "ok\n",
     "19_unit_sticky": "ok\n",
