@@ -29,106 +29,60 @@ HALF_W = PITCH_WID / 2.0
 
 
 def _inject_scroll_fix() -> None:
-    """Keep main + sidebar scrollable; restore scroll after Streamlit reruns."""
-    import streamlit.components.v1 as components
+    """CSS-only layout + optional sidebar hide (no components.html — avoids temp I/O)."""
+    hide = bool(st.session_state.get("hide_sidebar", False))
+    hide_css = ""
+    if hide:
+        hide_css = """
+        section[data-testid="stSidebar"] {
+            display: none !important;
+            width: 0 !important;
+            min-width: 0 !important;
+        }
+        """
 
     st.markdown(
-        """
+        f"""
         <style>
-        /* Scroll lives on stMain / sidebar content — keep them open */
-        [data-testid="stMain"] {
+        [data-testid="stMain"] {{
             overflow-y: auto !important;
             overflow-x: hidden !important;
-            height: 100vh !important;
-        }
-        [data-testid="stSidebarContent"] {
+            overscroll-behavior: contain;
+        }}
+        [data-testid="stSidebarContent"] {{
             overflow-y: auto !important;
-            height: 100% !important;
-        }
+        }}
         div[data-testid="stAppViewContainer"] > .main .block-container,
-        [data-testid="stMainBlockContainer"] {
+        [data-testid="stMainBlockContainer"] {{
             max-width: 100% !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
-        }
-        /* Cap images so one mosaic doesn't eat the whole page */
-        div[data-testid="stImage"] img {
+        }}
+        div[data-testid="stImage"] img {{
             width: 100% !important;
-            max-height: 65vh !important;
+            max-height: 78vh !important;
             object-fit: contain !important;
-        }
+        }}
+        {hide_css}
         </style>
         """,
         unsafe_allow_html=True,
     )
-    nonce = f"{time.time():.3f}"
-    components.html(
-        f"""
-        <script>
-        (function () {{
-          const doc = window.parent.document;
-          const KEY_MAIN = "scv_review_main_scroll";
-          const KEY_SIDE = "scv_review_side_scroll";
-          const NONCE = "{nonce}";
-          let ignoreUntil = 0;
 
-          function mainEl() {{
-            return doc.querySelector('[data-testid="stMain"]');
-          }}
-          function sideEl() {{
-            return doc.querySelector('[data-testid="stSidebarContent"]');
-          }}
-          function restore() {{
-            const m = mainEl();
-            const s = sideEl();
-            const my = sessionStorage.getItem(KEY_MAIN);
-            const sy = sessionStorage.getItem(KEY_SIDE);
-            ignoreUntil = Date.now() + 500;
-            if (m && my !== null && +my > 0) {{
-              if (Math.abs(m.scrollTop - +my) > 2) m.scrollTop = +my;
-            }}
-            if (s && sy !== null && +sy > 0) {{
-              if (Math.abs(s.scrollTop - +sy) > 2) s.scrollTop = +sy;
-            }}
-          }}
-          function bind() {{
-            const m = mainEl();
-            const s = sideEl();
-            if (m && m.dataset.scvScrollNonce !== NONCE) {{
-              m.dataset.scvScrollNonce = NONCE;
-              m.addEventListener("scroll", () => {{
-                if (Date.now() < ignoreUntil) return;
-                sessionStorage.setItem(KEY_MAIN, String(m.scrollTop));
-              }}, {{ passive: true }});
-            }}
-            if (s && s.dataset.scvScrollNonce !== NONCE) {{
-              s.dataset.scvScrollNonce = NONCE;
-              s.addEventListener("scroll", () => {{
-                if (Date.now() < ignoreUntil) return;
-                sessionStorage.setItem(KEY_SIDE, String(s.scrollTop));
-              }}, {{ passive: true }});
-            }}
-          }}
-          bind();
-          restore();
-          // Keep restoring while Streamlit finishes layout / RF-DETR images
-          let n = 0;
-          const t = setInterval(() => {{
-            bind();
-            restore();
-            n += 1;
-            if (n > 120) clearInterval(t);
-          }}, 100);
-          const obs = new MutationObserver(() => restore());
-          const root = doc.querySelector('[data-testid="stAppViewContainer"]');
-          if (root) obs.observe(root, {{ childList: true, subtree: true }});
-          setTimeout(() => obs.disconnect(), 20000);
-        }})();
-        </script>
-        <div style="display:none">{nonce}</div>
-        """,
-        height=0,
-    )
+
+def _log_review_exc(where: str, exc: BaseException) -> Path:
+    """Write full traceback to local SSD (not LaCie) for EIO debugging."""
+    import traceback
+
+    log = Path("/tmp/scv_frame_review_errors.log")
+    try:
+        with log.open("a", encoding="utf-8") as f:
+            f.write(f"\n=== {datetime.now(timezone.utc).isoformat()} {where} ===\n")
+            f.write(f"{type(exc).__name__}: {exc}\n")
+            f.write(traceback.format_exc())
+    except OSError:
+        pass
+    return log
 
 
 @st.cache_resource
@@ -469,18 +423,24 @@ def render_synced_frame_review(
         "Camera view",
         options=VIEW_OPTIONS,
         index=0,
-        key="cam_stitch_view",
-        help="4 quads = coach mosaic (P10|P9 top 180°, P7|P8 bottom). Boxes on each tile.",
+        key="cam_stitch_view_v2",
+        help="Locked: Top P10|P9 (180°) · Bottom P7|P8. See match3_camera_layout rule.",
     )
     apply_defish = st.sidebar.checkbox(
         "Defish P7–P10 in camera view",
-        value=True,
+        value=False,
         key="cam_view_defish",
-        help="Brown undistort using Match 3 locked tags (same as map path).",
+        help="Off = boxes lock to players on raw video. On = straighter pitch (boxes remapped with same α).",
     )
 
     st.sidebar.subheader("Verify overlays")
-    show_dets = st.sidebar.checkbox("RF-DETR boxes (truth check)", value=True, key="show_dets")
+    # Default OFF — 4-cam RF-DETR blocks the page for ~15–40s and looks like "not loading"
+    show_dets = st.sidebar.checkbox(
+        "RF-DETR boxes (slow · all cams)",
+        value=False,
+        key="show_dets_v2",
+        help="Off = mosaic loads instantly. On = detect every cam (can take 20–40s). Turn off if stuck.",
+    )
     show_map_ball = st.sidebar.checkbox(
         "MAP-BALL X on video (debug)", value=False, key="show_map_ball_off"
     )
@@ -508,10 +468,14 @@ def render_synced_frame_review(
     )
 
     playing = bool(st.session_state.verify_playing)
-    dets_enabled = True if playing else bool(show_dets)
+    # Never force RF-DETR during play — dual ckpt + 4-cam USB reads cause LaCie EIO
+    dets_enabled = bool(show_dets)
     # Never show MAP-BALL during play; paused only if debug checkbox on
     map_ball_on = (not playing) and bool(show_map_ball)
     map_players_on = (not playing) and bool(show_map_players)
+
+    if "hide_sidebar" not in st.session_state:
+        st.session_state.hide_sidebar = False
 
     cplay, cprev, cind, cnext = st.columns([1, 1, 2, 1])
     with cplay:
@@ -544,7 +508,8 @@ def render_synced_frame_review(
     st.caption(
         f"Nav {st.session_state.verify_nav_i + 1}/{len(nav)} · "
         f"{'ball-export' if only_ball and ball_frames else 'all-export'}"
-        + (" · **PLAYING** (boxes on, MAP-BALL off)" if playing else "")
+        + (" · **PLAYING**" if playing else "")
+        + (" · boxes on" if dets_enabled else "")
     )
 
     events_here = [
@@ -554,10 +519,17 @@ def render_synced_frame_review(
     ]
     rows = rows_for_frame(frame_df, frame_id)
 
+    from src.review.io_retry import is_transient_io
+
     try:
         frame, fps, nframes = read_video_frame(video_path, frame_id)
     except Exception as exc:
-        st.error(f"Video read failed: {exc}")
+        _log_review_exc("read_video_frame", exc)
+        if is_transient_io(exc):
+            st.session_state.verify_playing = False
+            st.error(f"Video I/O blip ({exc}) — paused. Retry ▶ / Next.")
+        else:
+            st.error(f"Video read failed: {exc}")
         return
 
     t_sec = float(frame_id) / max(float(fps), 1.0)
@@ -572,18 +544,25 @@ def render_synced_frame_review(
         player_ckpt = str(repo / "models/people_after_100_epochs.pth")
         ball_ckpt = str(repo / "models/v12_hard_snaps/post_train/checkpoint.pth")
         cache_key = (frame_id, float(det_thr), str(video_path), "nms_v4")
-        if st.session_state.get("verify_det_key") != cache_key:
-            with st.spinner("Running RF-DETR on this frame for verification…"):
-                detector = _load_verify_detector(
-                    player_ckpt, ball_ckpt, float(det_thr), nms_ver="v4"
-                )
-                dets = detector.detect(frame)
-                st.session_state.verify_dets = dets
-                st.session_state.verify_det_key = cache_key
-        else:
-            dets = st.session_state.get("verify_dets") or []
-        dets = keep_top1_ball(dets)
-        vis = draw_det_boxes(vis, dets)
+        try:
+            if st.session_state.get("verify_det_key") != cache_key:
+                with st.spinner("Running RF-DETR on this frame for verification…"):
+                    detector = _load_verify_detector(
+                        player_ckpt, ball_ckpt, float(det_thr), nms_ver="v4"
+                    )
+                    dets = detector.detect(frame)
+                    st.session_state.verify_dets = dets
+                    st.session_state.verify_det_key = cache_key
+            else:
+                dets = st.session_state.get("verify_dets") or []
+            dets = keep_top1_ball(dets)
+            vis = draw_det_boxes(vis, dets)
+        except Exception as exc:
+            _log_review_exc("rfdetr_detect", exc)
+            st.warning(f"RF-DETR skipped ({exc})")
+            dets = []
+            if is_transient_io(exc):
+                st.session_state.verify_playing = False
 
     if map_ball_on or map_players_on:
         if H_inv is None:
@@ -615,16 +594,17 @@ def render_synced_frame_review(
 
     primary_cam = cam_label_from_video(video_path)
     output_root_view = Path(run_dir).parent
+    # Mutable bag: mosaic tiles fill dets + `{cam}__wh` for Pitch 1 live map
     dets_by_cam: dict = {}
-    if dets_enabled and dets:
+    if dets_enabled and dets and not apply_defish:
         dets_by_cam[primary_cam] = dets
+        dets_by_cam[f"{primary_cam}__wh"] = (int(frame.shape[1]), int(frame.shape[0]))
 
     def _detect_other_cam(cam: str, frame_bgr):
-        """RF-DETR on sibling cams (cached) so every stitch/tile option has boxes."""
-        if cam == primary_cam and primary_cam in dets_by_cam:
-            return dets_by_cam[primary_cam]
+        """RF-DETR on the exact pixels shown in the tile (raw or already-defished)."""
         cache = st.session_state.setdefault("verify_cam_dets", {})
-        key = (cam, int(frame_id), float(det_thr), "nms_v4")
+        h, w = frame_bgr.shape[:2]
+        key = (cam, int(frame_id), float(det_thr), "nms_v4", bool(apply_defish), w, h)
         if key in cache:
             return cache[key]
         player_ckpt = str(repo / "models/people_after_100_epochs.pth")
@@ -640,16 +620,29 @@ def render_synced_frame_review(
         return out
 
     detect_fn = _detect_other_cam if dets_enabled else None
-    mosaic, used_cams = build_cam_view(
-        repo,
-        cam_view,
-        frame_id,
-        output_root_view,
-        primary_cam=primary_cam,
-        dets_by_cam=dets_by_cam if dets_enabled else None,
-        detect_fn=detect_fn,
-        apply_defish=bool(apply_defish),
-    )
+    det_status = st.empty() if dets_enabled else None
+    if dets_enabled and det_status is not None:
+        det_status.info("Detecting cameras for boxes… first load can take 20–40s. Uncheck boxes if stuck.")
+    try:
+        mosaic, used_cams = build_cam_view(
+            repo,
+            cam_view,
+            frame_id,
+            output_root_view,
+            primary_cam=primary_cam,
+            dets_by_cam=dets_by_cam if dets_enabled else None,
+            detect_fn=detect_fn,
+            apply_defish=bool(apply_defish),
+        )
+    except Exception as exc:
+        _log_review_exc("build_cam_view", exc)
+        if is_transient_io(exc):
+            st.session_state.verify_playing = False
+        st.warning(f"Camera mosaic skipped ({exc}) — showing primary frame.")
+        mosaic, used_cams = vis, [primary_cam]
+    if det_status is not None:
+        det_status.empty()
+
     if (
         (cam_view.startswith("Only ") or cam_view.startswith("Best camera"))
         and used_cams
@@ -663,67 +656,92 @@ def render_synced_frame_review(
         box_note = " · boxes on" if dets_enabled else ""
         stage_caption = f"{cam_view} · frame {frame_id} · {','.join(used_cams)}{box_note}"
 
-    st.subheader("Camera view")
-    st.caption(
-        "**4 quads** = coach mosaic: **P10|P9** top (both 180°) · **P7|P8** bottom "
-        "(P7 bottom-left, P8 bottom-right). "
-        "P7–P10 show **defished** video when the sidebar toggle is on. "
-        "Pitch 1 panel below = whole-field tactics map (fused positions)."
-    )
-    st.image(
-        cv2.cvtColor(stage, cv2.COLOR_BGR2RGB),
-        use_container_width=True,
-        caption=stage_caption,
-    )
-
     from src.review.pitch1_panel import (
         ball_trail_from_frame_df,
         cam_label_from_video,
         draw_pitch1_ball_panel,
+        ball_xy_from_rows,
+        players_from_rows,
     )
-    from src.review.multicam_fuse import fuse_frame_for_pitch
+    from src.review.multicam_fuse import fuse_frame_for_pitch, fuse_live_dets_for_pitch
 
-    # Sibling cams under same output root → fused Pitch 1 (falls back to this cam only)
+    # Prefer live mosaic boxes → Pitch 1 (matches what coach sees). Export CSV is fallback.
     output_root = Path(run_dir).parent
-    fused = fuse_frame_for_pitch(output_root, frame_id, primary_rows=rows)
+    fused = None
+    if dets_enabled and dets_by_cam:
+        try:
+            live = fuse_live_dets_for_pitch(
+                dets_by_cam,
+                apply_undistort=not bool(apply_defish),
+            )
+            if live["n_cams"] > 0 and (live["players"] or live["ball_xy"]):
+                fused = live
+        except Exception as exc:
+            _log_review_exc("fuse_live_dets_for_pitch", exc)
+    if fused is None:
+        try:
+            fused = fuse_frame_for_pitch(output_root, frame_id, primary_rows=rows)
+        except Exception as exc:
+            _log_review_exc("fuse_frame_for_pitch", exc)
+            st.warning(f"Multi-cam fuse skipped ({exc})")
+            fused = {
+                "players": players_from_rows(rows),
+                "ball_xy": ball_xy_from_rows(rows),
+                "n_cams": 1,
+                "cams": [primary_cam],
+                "source": "export",
+            }
     ball_xy = fused["ball_xy"]
     players = fused["players"]
     trail = ball_trail_from_frame_df(frame_df, frame_id, back=40)
     cam = cam_label_from_video(video_path)
-    mode = (
-        f"fuse n_cams={fused['n_cams']} ({','.join(fused['cams'])})"
-        if fused["n_cams"] > 1
-        else "single-cam export"
-    )
+    src = fused.get("source", "export")
+    if src == "live":
+        mode = f"live boxes → pitch ({','.join(fused['cams'])})"
+    elif fused["n_cams"] > 1:
+        mode = f"fuse n_cams={fused['n_cams']} ({','.join(fused['cams'])})"
+    else:
+        mode = "single-cam export"
+    # Smaller map, sidelines-only crop (no outside margin)
     pitch_panel = draw_pitch1_ball_panel(
-        720,
-        960,
+        360,
+        560,
         ball_xy,
         cam=cam,
         mode=mode,
         trail=trail,
         players=players,
+        tight=True,
     )
-    st.subheader("Pitch 1 — ball + players")
-    if fused["n_cams"] > 1:
-        st.caption(
-            f"Fused across **{fused['n_cams']}** cams ({', '.join(fused['cams'])}). "
-            "Blue = Team 0 · Red = Team 1 · Yellow = ball. "
-            "Still not a full 22 — only mapped detections from available exports."
-        )
-    else:
-        st.caption(
-            "Single-cam export only (add sibling cam runs under the same output root to fuse). "
-            "Blue = Team 0 · Red = Team 1 · Yellow = ball"
-        )
-    st.image(
-        cv2.cvtColor(pitch_panel, cv2.COLOR_BGR2RGB),
-        use_container_width=True,
-        caption=(
-            f"Pitch 1 · {mode} · frame {frame_id} · "
-            f"{len(players)} players · ball={'yes' if ball_xy else 'no'}"
-        ),
+
+    st.caption(
+        "Top **P10|P9** (180°) · Bottom **P7|P8** · right = Pitch 1 (sidelines only). "
+        "Hide sidebar for a bigger video."
     )
+    col_vid, col_pitch = st.columns([2.35, 0.75], gap="small")
+    with col_vid:
+        st.image(
+            cv2.cvtColor(stage, cv2.COLOR_BGR2RGB),
+            use_container_width=True,
+            caption=stage_caption,
+        )
+    with col_pitch:
+        st.image(
+            cv2.cvtColor(pitch_panel, cv2.COLOR_BGR2RGB),
+            use_container_width=True,
+            caption=(
+                f"Pitch 1 · {len(players)}p · "
+                f"ball={'yes' if ball_xy else 'no'}"
+            ),
+        )
+        if fused.get("source") == "live":
+            st.caption(
+                f"Live map {fused['n_cams']} cams · gray=player · yellow=ball"
+            )
+        elif fused["n_cams"] > 1:
+            st.caption(f"Fused {fused['n_cams']} cams · blue T0 · red T1")
+        else:
+            st.caption("Single-cam · blue T0 · red T1")
 
     if show_zoom and H_inv is not None:
         with st.expander("Ball zoom", expanded=False):
@@ -783,8 +801,17 @@ def render_synced_frame_review(
 
 def main():
     st.set_page_config(page_title="Soccer Analysis Dashboard", layout="wide")
+    if "hide_sidebar" not in st.session_state:
+        st.session_state.hide_sidebar = False
     _inject_scroll_fix()
-    st.title("Soccer Analysis — Phase 1 Review")
+    head_l, head_r = st.columns([5, 1])
+    with head_l:
+        st.title("Soccer Analysis — Phase 1 Review")
+    with head_r:
+        side_lbl = "Show sidebar" if st.session_state.hide_sidebar else "Hide sidebar"
+        if st.button(side_lbl, key="toggle_sidebar_top"):
+            st.session_state.hide_sidebar = not st.session_state.hide_sidebar
+            st.rerun()
 
     st.sidebar.header("Data Selection")
     default_root = "data/output/full_match_2min"
@@ -833,7 +860,17 @@ def main():
         try:
             render_synced_frame_review(run_dir, selected or run_dir.name, frame_df, events)
         except Exception as exc:
-            st.error(f"Frame review failed: {exc}")
+            from src.review.io_retry import is_transient_io
+
+            log = _log_review_exc("render_synced_frame_review", exc)
+            if is_transient_io(exc):
+                st.session_state.verify_playing = False
+                st.error(
+                    f"Frame review hit a USB/disk I/O blip ({exc}). "
+                    f"Playback paused — click ▶ or refresh. Log: `{log}`"
+                )
+            else:
+                st.error(f"Frame review failed: {exc}  · log `{log}`")
 
         with st.expander("All-frames pitch density", expanded=False):
             try:

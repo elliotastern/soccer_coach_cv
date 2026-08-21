@@ -1,0 +1,58 @@
+---
+description: Match 3 camera positions + locked WHOLE PITCH mosaic layout
+alwaysApply: true
+---
+
+# Match 3 camera layout (locked)
+
+Camera **id = filename** (see `match_raw_camera_ids`). This rule is about **where** each cam sits and how the coach mosaic is arranged. Do not “fix” the mosaic by guessing FOV.
+
+## Pitch 1 axes (reminder)
+
+Origin = centre. **+x north (P6)**, **−x south (P1)**. **+y left**, **−y right** from P1 looking north. Not FIFA 105×68.
+
+## Physical placement (diagram chips)
+
+Around Pitch 1 (landmark dashboard / `CAM_XY`):
+
+| Cam | Side of pitch | Notes |
+|-----|---------------|--------|
+| **P1** | South end | End-line / Goal 1 |
+| **P6** | North end | End-line / Goal 2 |
+| **P10** | South–**left** | Quad, +y |
+| **P7** | South–**right** | Quad, −y |
+| **P8** | North–**left** | Quad, +y |
+| **P9** | North–**right** | Quad, −y |
+| **P_Goal1** | Near Goal 1 | |
+| **P_Goal2** | Near Goal 2 | |
+
+Compass shorthand on the diagram: **LEFT = P10 · P8**, **RIGHT = P7 · P9**.
+
+Code/docs: `reports/eval_match3/landmark_dashboard/index.html`, `docs/product/MATCH3_CAPTURE.md`.
+
+## WHOLE PITCH mosaic (coach UI) — LOCKED
+
+Do **not** rearrange by “far/near north-up” intuition. User-locked order in `src/review/cam_mosaic.py` (`QUAD_GRID`, `QUAD_ROTATE_180`):
+
+```
+        TOP (180°)              BOTTOM (upright)
+   P10 (TL)  |  P9 (TR)     P7 (BL)  |  P8 (BR)
+```
+
+| Cell | Camera | Rotate |
+|------|--------|--------|
+| Top left | **P10** | **180°** |
+| Top right | **P9** | **180°** |
+| Bottom left | **P7** | none |
+| Bottom right | **P8** | none |
+
+Reference still that matches: `reports/eval_match3/improve_eng_loop/cam_stitch_boxes/coach_layout.jpg`.
+
+### Do / don't
+
+- **Do** keep `QUAD_GRID = [["P10","P9"],["P7","P8"]]` and `QUAD_ROTATE_180 = {P10, P9}`.
+- **Do** update captions/labels to match (Top P10\|P9 180° · Bottom P7\|P8).
+- **Don't** swap to Far P8\|P9 / Near P10\|P7 or flip P7/P10 instead of P9/P10.
+- **Don't** remap video files to different cells because a still “looks” wrong — fix labels/rotation only.
+
+P7–P10 fisheye/defish: `match3_defish` rule + `docs/product/MATCH3_DEFISH.md`.

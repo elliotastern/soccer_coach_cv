@@ -46,9 +46,16 @@ def discover_cam_frame_csvs(output_root: Path) -> dict[str, Path]:
 
 
 def load_cam_tables(cam_csvs: dict[str, Path]) -> dict[str, pd.DataFrame]:
+    from src.review.io_retry import call_with_io_retry, is_transient_io
+
     out = {}
     for cam, path in cam_csvs.items():
-        df = pd.read_csv(path)
+        try:
+            df = call_with_io_retry(lambda p=path: pd.read_csv(p), tries=4, label=f"csv:{cam}")
+        except Exception as exc:  # noqa: BLE001
+            if is_transient_io(exc):
+                continue
+            raise
         if "frame_id" not in df.columns:
             continue
         df = df.copy()
@@ -180,4 +187,106 @@ def fuse_frame_for_pitch(
         "ball_xy": ball_xy,
         "n_cams": n_cams,
         "cams": sorted(tables.keys()),
+        "source": "export",
+    }
+
+
+def _is_ball_det(d) -> bool:
+    name = str(getattr(d, "class_name", "") or "").lower()
+    return name == "ball" or int(getattr(d, "class_id", -1)) == 1
+
+
+def fuse_live_dets_for_pitch(
+    dets_by_cam: dict,
+    *,
+    apply_undistort: bool = True,
+    merge_m: float = PLAYER_MERGE_M,
+) -> dict:
+    """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
+
+    ``dets_by_cam`` may include ``{cam}__wh`` = (w, h) of the detect frame.
+    Use apply_undistort=True for raw mosaic pixels; False when dets are already defished.
+    """
+    from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box
+
+    if not dets_by_cam:
+        return {"players": [], "ball_xy": None, "n_cams": 0, "cams": [], "source": "live"}
+
+    cam_ids = [
+        k
+        for k in dets_by_cam.keys()
+        if isinstance(k, str) and not k.endswith("__wh") and dets_by_cam.get(k)
+    ]
+    player_pts = []
+    ball_rows = []
+    used = []
+    for cam in cam_ids:
+        calib = load_calib(cam)
+        if calib is None:
+            continue
+        dets = dets_by_cam.get(cam) or []
+        wh = dets_by_cam.get(f"{cam}__wh")
+        mapped_any = False
+        for d in dets:
+            mapped = map_ball_box(
+                calib,
+                d.bbox,
+                float(d.confidence),
+                frame_wh=wh,
+                apply_undistort=apply_undistort,
+            )
+            if mapped is None:
+                continue
+            mapped_any = True
+            if _is_ball_det(d):
+                ball_rows.append(mapped)
+            else:
+                player_pts.append(
+                    {
+                        "xy": mapped["xy"],
+                        "team": -1,
+                        "pid": -1,
+                        "conf": float(mapped["conf"]),
+                        "cam": cam,
+                    }
+                )
+        if mapped_any:
+            used.append(cam)
+
+    players = []
+    if player_pts:
+        player_pts.sort(key=lambda p: p["conf"], reverse=True)
+        clusters: list[list[dict]] = []
+        for p in player_pts:
+            placed = False
+            for cl in clusters:
+                if _dist(p["xy"], cl[0]["xy"]) <= merge_m:
+                    cl.append(p)
+                    placed = True
+                    break
+            if not placed:
+                clusters.append([p])
+        for i, cl in enumerate(clusters):
+            xs = [c["xy"][0] for c in cl]
+            ys = [c["xy"][1] for c in cl]
+            best = max(cl, key=lambda c: c["conf"])
+            players.append(
+                (sum(xs) / len(xs), sum(ys) / len(ys), -1, 20_000 + i)
+            )
+
+    ball_xy = None
+    if ball_rows:
+        fused = fuse_balls(ball_rows)
+        if fused is not None:
+            ball_xy = tuple(fused["xy"])
+        else:
+            best = max(ball_rows, key=lambda r: r["conf"])
+            ball_xy = tuple(best["xy"])
+
+    return {
+        "players": players,
+        "ball_xy": ball_xy,
+        "n_cams": len(used),
+        "cams": sorted(used),
+        "source": "live",
     }

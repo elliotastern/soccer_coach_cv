@@ -25,24 +25,32 @@ from src.mapping.match3_xy import (  # noqa: E402
 from src.review.frame_sync import draw_det_boxes, keep_top1_ball  # noqa: E402
 from src.review.pitch1_panel import PITCH_LEN_M, PITCH_WID_M  # noqa: E402
 
-# Coach mosaic layout (screen positions):
-#   P10 top-left (180°) | P9 top-right (180°)
-#   P7  bottom-left     | P8 bottom-right
+# Coach mosaic (user-locked pitch order):
+#   Top  (far):  P10 left | P9 right  — both rotated 180°
+#   Bottom (near): P7 left | P8 right — upright
 QUAD_GRID = [
-    ["P10", "P9"],  # top (both rotated 180°)
+    ["P10", "P9"],  # top
     ["P7", "P8"],   # bottom
 ]
-QUAD_ROTATE_180 = frozenset({"P9", "P10"})
+QUAD_ROTATE_180 = frozenset({"P10", "P9"})
 ENDS = ["P1", "P6"]  # south / north
 GOALS = ["P_Goal1", "P_Goal2"]
 ALL_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 
 VIEW_OPTIONS = [
-    "4 quads (whole pitch · N-up mosaic)",
+    "Whole pitch (P10|P9 top 180° · P7|P8 bottom)",
     "P1 + P6 (ends)",
     "Goals (Goal1 + Goal2)",
     "Best camera (ball)",
 ] + [f"Only {c}" for c in ALL_CAMS]
+
+# Corner names a coach understands
+COACH_CORNER = {
+    "P10": "Top · left · P10 (180°)",
+    "P9": "Top · right · P9 (180°)",
+    "P7": "Bottom · left · P7",
+    "P8": "Bottom · right · P8",
+}
 
 DetectFn = Callable[[str, np.ndarray], list]
 
@@ -66,17 +74,30 @@ def match3_videos(repo_root: Path) -> dict[str, Path]:
 
 
 def read_frame_bgr(video: Path, frame_id: int) -> Optional[np.ndarray]:
-    cap = cv2.VideoCapture(str(video))
-    if not cap.isOpened():
+    """Read one mosaic tile frame; retry transient USB/LaCie EIO, never raise."""
+    from src.review.io_retry import call_with_io_retry, is_transient_io
+
+    def _once():
+        cap = cv2.VideoCapture(str(video))
+        if not cap.isOpened():
+            return None
+        try:
+            n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+            fid = int(frame_id)
+            if n > 0:
+                fid = min(max(0, fid), n - 1)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, fid)
+            ok, frame = cap.read()
+        finally:
+            cap.release()
+        return frame if ok else None
+
+    try:
+        return call_with_io_retry(_once, tries=4, label=f"mosaic:{video.name}")
+    except Exception as exc:  # noqa: BLE001 — tile soft-fail
+        if is_transient_io(exc):
+            return None
         return None
-    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-    fid = int(frame_id)
-    if n > 0:
-        fid = min(max(0, fid), n - 1)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, fid)
-    ok, frame = cap.read()
-    cap.release()
-    return frame if ok else None
 
 
 def _letterbox_meta(frame: np.ndarray, tw: int, th: int) -> tuple[np.ndarray, float, int, int]:
@@ -114,22 +135,91 @@ def _scale_dets(dets: list, scale: float, x0: int, y0: int) -> list:
 
 
 def _label_tile(tile: np.ndarray, text: str, missing: bool = False) -> np.ndarray:
+    """Compact corner chip — readable, not a tech banner."""
     out = tile.copy()
-    color = (0, 165, 255) if missing else (0, 255, 255)
-    cv2.rectangle(out, (0, 0), (out.shape[1] - 1, 36), (0, 0, 0), -1)
-    cv2.putText(out, text, (10, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
+    color = (0, 165, 255) if missing else (255, 255, 255)
+    (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
+    pad = 8
+    cv2.rectangle(out, (0, 0), (tw + pad * 2, th + pad * 2), (0, 0, 0), -1)
+    cv2.putText(out, text, (pad, th + pad - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
     if missing:
         cv2.putText(
-            out, "NO FRAME", (10, out.shape[0] // 2),
+            out, "NO CAMERA", (10, out.shape[0] // 2),
             cv2.FONT_HERSHEY_SIMPLEX, 1.0, (80, 80, 200), 2,
         )
     return out
 
 
-def _annotate(frame: np.ndarray, dets: list | None) -> np.ndarray:
+def _annotate(
+    frame: np.ndarray,
+    dets: list | None,
+    coach_simple: bool = True,
+    draw_labels: bool = True,
+) -> np.ndarray:
     if not dets:
         return frame
-    return draw_det_boxes(frame, keep_top1_ball(list(dets)))
+    dets = keep_top1_ball(list(dets))
+    if not coach_simple:
+        return draw_det_boxes(frame, dets)
+    # Coach mode: thick boxes, plain PLAYER / BALL (no conf clutter)
+    vis = frame.copy()
+    for det in dets:
+        x, y, w, h = [int(v) for v in det.bbox]
+        is_ball = getattr(det, "class_name", "") == "ball" or int(det.class_id) == 1
+        color = (0, 165, 255) if is_ball else (0, 220, 0)
+        thick = 5 if is_ball else 4
+        cv2.rectangle(vis, (x, y), (x + max(1, w), y + max(1, h)), color, thick)
+        # Coach: label only the ball — player boxes speak for themselves (less clutter)
+        if draw_labels and is_ball:
+            label = "BALL"
+            ty = max(32, y - 10)
+            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.85, 2)
+            cv2.rectangle(vis, (x, ty - th - 6), (x + tw + 8, ty + 4), (0, 0, 0), -1)
+            cv2.putText(vis, label, (x + 4, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.85, color, 2)
+    return vis
+
+
+def _rotate_dets_180(dets: list, w: int, h: int) -> list:
+    from src.state.types import Detection
+
+    out = []
+    for d in dets:
+        x, y, bw, bh = [float(v) for v in d.bbox]
+        out.append(
+            Detection(
+                int(d.class_id),
+                float(d.confidence),
+                (w - x - bw, h - y - bh, bw, bh),
+                getattr(d, "class_name", "") or "",
+            )
+        )
+    return out
+
+
+def _remap_bbox_undistort(
+    bbox,
+    calib: dict,
+    wh,
+    alpha_override: float | None = None,
+) -> tuple[float, float, float, float]:
+    """Undistort AABB corners with the SAME alpha as undistort_bgr for this tile."""
+    params = calib_undistort_params(calib)
+    if not params:
+        return tuple(float(v) for v in bbox)
+    if alpha_override is not None:
+        params = {**params, "alpha": float(alpha_override)}
+    x, y, bw, bh = [float(v) for v in bbox]
+    cw, ch = float(wh[0]), float(wh[1])
+    corners = [(x, y), (x + bw, y), (x + bw, y + bh), (x, y + bh)]
+    pts = [undistort_px(u, v, cw, ch, params) for u, v in corners]
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    x0, y0 = min(xs), min(ys)
+    return (x0, y0, max(xs) - x0, max(ys) - y0)
+
+
+# Use the same Brown alpha as locked landmarks so remap ↔ pixels match.
+MOSAIC_DEFISH_ALPHA = None  # None → calib undistort.alpha
 
 
 def _tile(
@@ -143,66 +233,67 @@ def _tile(
     rotate_180: bool = False,
     apply_defish: bool = True,
 ) -> np.ndarray:
+    """One mosaic cell.
+
+    Box lock rule: draw boxes only after the final pixel warp for that tile.
+    - defish off: detect/raw dets → rotate → draw
+    - defish on: warp image first, then detect_fn on warped pixels (or skip boxes)
+    """
+    from src.state.types import Detection
+
     path = videos.get(cam)
     if path is None or not path.is_file():
         blank = np.zeros((th, tw, 3), dtype=np.uint8)
         blank[:] = (40, 40, 40)
-        return _label_tile(blank, f"{cam} (missing video)", missing=True)
+        return _label_tile(blank, f"{COACH_CORNER.get(cam, cam)} (missing)", missing=True)
     frame = read_frame_bgr(path, frame_id)
     if frame is None:
         blank = np.zeros((th, tw, 3), dtype=np.uint8)
         blank[:] = (40, 40, 40)
-        return _label_tile(blank, f"{cam} (no frame {frame_id})", missing=True)
-    dets = None
-    if dets_by_cam is not None and cam in dets_by_cam:
-        dets = dets_by_cam[cam]
-    elif detect_fn is not None:
-        dets = detect_fn(cam, frame)
+        return _label_tile(blank, f"{COACH_CORNER.get(cam, cam)} (no frame)", missing=True)
 
-    # Detect on raw; draw on full-res; then Brown defish so coach sees straight lines
-    # and boxes stay glued (undistort remaps the painted pixels).
     work = frame
     calib = load_calib(cam) if apply_defish else None
-    did_defish = False
-    if calib is not None and calib_undistort_params(calib):
+    do_defish = bool(calib is not None and calib_undistort_params(calib))
+
+    if do_defish:
         cw, ch = [int(v) for v in (calib.get("image_wh") or [work.shape[1], work.shape[0]])]
         if work.shape[1] != cw or work.shape[0] != ch:
-            sx = cw / float(work.shape[1])
-            sy = ch / float(work.shape[0])
             work = cv2.resize(work, (cw, ch))
-            if dets:
-                from src.state.types import Detection
-                dets = [
-                    Detection(
-                        int(d.class_id),
-                        float(d.confidence),
-                        (
-                            float(d.bbox[0]) * sx,
-                            float(d.bbox[1]) * sy,
-                            float(d.bbox[2]) * sx,
-                            float(d.bbox[3]) * sy,
-                        ),
-                        getattr(d, "class_name", "") or "",
-                    )
-                    for d in dets
-                ]
+        params = calib_undistort_params(calib) or {}
+        alpha = (
+            float(MOSAIC_DEFISH_ALPHA)
+            if MOSAIC_DEFISH_ALPHA is not None
+            else float(params.get("alpha", 0.8))
+        )
+        work = undistort_bgr(work, calib, alpha_override=alpha)
+        # Detect on defished pixels so boxes match what we show (remap from raw is unreliable here)
+        dets = list(detect_fn(cam, work) or []) if detect_fn is not None else None
+        if dets is None and dets_by_cam is not None and cam in dets_by_cam:
+            # Fall back: no detect_fn — omit boxes rather than misaligned remap
+            dets = None
+    else:
+        dets = None
+        if dets_by_cam is not None and cam in dets_by_cam:
+            dets = list(dets_by_cam[cam])
+        elif detect_fn is not None:
+            dets = list(detect_fn(cam, work) or [])
+
+    # Keep pre-rotate dets for Pitch 1 mapping (rotation is display-only)
+    if dets_by_cam is not None and dets:
+        dets_by_cam[cam] = list(dets)
+        dets_by_cam[f"{cam}__wh"] = (int(work.shape[1]), int(work.shape[0]))
+
+    if rotate_180:
+        h, w = work.shape[:2]
+        work = cv2.rotate(work, cv2.ROTATE_180)
         if dets:
-            work = _annotate(work, dets)
-            dets = None  # already painted
-        work = undistort_bgr(work, calib)
-        did_defish = True
+            dets = _rotate_dets_180(dets, w, h)
 
     tile, scale, x0, y0 = _letterbox_meta(work, tw, th)
     if dets:
-        tile = _annotate(tile, _scale_dets(dets, scale, x0, y0))
-    if rotate_180:
-        tile = cv2.rotate(tile, cv2.ROTATE_180)
-    bits = [cam]
-    if did_defish:
-        bits.append("defish")
-    if rotate_180:
-        bits.append("180°")
-    return _label_tile(tile, " · ".join(bits))
+        tile = _annotate(tile, _scale_dets(dets, scale, x0, y0), coach_simple=True)
+    return _label_tile(tile, COACH_CORNER.get(cam, cam))
 
 
 def mosaic_grid(tiles: list[list[np.ndarray]], gap: int = 4) -> np.ndarray:
@@ -211,7 +302,7 @@ def mosaic_grid(tiles: list[list[np.ndarray]], gap: int = 4) -> np.ndarray:
         h = max(t.shape[0] for t in row)
         w = sum(t.shape[1] for t in row) + gap * (len(row) - 1)
         strip = np.zeros((h, w, 3), dtype=np.uint8)
-        strip[:] = (12, 12, 12)
+        strip[:] = (40, 90, 50)
         x = 0
         for t in row:
             strip[0 : t.shape[0], x : x + t.shape[1]] = t
@@ -220,7 +311,7 @@ def mosaic_grid(tiles: list[list[np.ndarray]], gap: int = 4) -> np.ndarray:
     max_w = max(r.shape[1] for r in rows)
     out_h = sum(r.shape[0] for r in rows) + gap * (len(rows) - 1)
     out = np.zeros((out_h, max_w, 3), dtype=np.uint8)
-    out[:] = (12, 12, 12)
+    out[:] = (40, 90, 50)
     y = 0
     for r in rows:
         out[y : y + r.shape[0], 0 : r.shape[1]] = r
@@ -246,7 +337,7 @@ def best_cam_for_frame(output_root: Path, frame_id: int, fallback: str = "P10") 
 
 
 def cams_for_view(view: str, output_root: Path, frame_id: int, primary_cam: str) -> list[str]:
-    if view.startswith("4 quads"):
+    if view.startswith("4 quads") or view.startswith("Whole pitch"):
         return ["P10", "P9", "P7", "P8"]
     if view.startswith("P1 + P6"):
         return list(ENDS)
@@ -287,7 +378,9 @@ def meters_to_canvas_matrix(panel_w: int, panel_h: int, margin: int = 28) -> np.
     )
 
 
-def undistort_bgr(frame: np.ndarray, calib: dict) -> np.ndarray:
+def undistort_bgr(
+    frame: np.ndarray, calib: dict, alpha_override: float | None = None
+) -> np.ndarray:
     """Full-frame Brown undistort matching match3_xy / landmark stills."""
     params = calib_undistort_params(calib)
     if not params:
@@ -307,8 +400,9 @@ def undistort_bgr(frame: np.ndarray, calib: dict) -> np.ndarray:
         ],
         dtype=np.float64,
     )
+    alpha = float(params["alpha"]) if alpha_override is None else float(alpha_override)
     new_k, _ = cv2.getOptimalNewCameraMatrix(
-        k_mat, dist, (w, h), float(params["alpha"]), (w, h)
+        k_mat, dist, (w, h), alpha, (w, h)
     )
     return cv2.undistort(frame, k_mat, dist, None, new_k)
 
@@ -432,7 +526,7 @@ def stitch_quads_pitch_order(
     acc = np.zeros((panel_h, panel_w, 3), dtype=np.float32)
     wsum = np.zeros((panel_h, panel_w), dtype=np.float32)
     pending_boxes: list[tuple[list, dict, tuple[int, int]]] = []
-    for cam in ["P8", "P9", "P10", "P7"]:
+    for cam in ["P10", "P9", "P7", "P8"]:
         path = videos.get(cam)
         calib = load_calib(cam)
         if path is None or not path.is_file() or calib is None:
@@ -482,7 +576,7 @@ def mosaic_quads_coach(
     detect_fn: DetectFn | None = None,
     apply_defish: bool = True,
 ) -> np.ndarray:
-    """Coach mosaic: P10|P9 on top (180°), P7|P8 on bottom. Boxes in image space."""
+    """Coach mosaic: whole pitch at a glance. Plain labels + PLAYER/BALL boxes."""
     def cell(cam: str) -> np.ndarray:
         return _tile(
             videos,
@@ -497,32 +591,31 @@ def mosaic_quads_coach(
         )
 
     grid = [
-        [cell("P10"), cell("P9")],  # top
-        [cell("P7"), cell("P8")],   # bottom — P7 BL, P8 BR
+        [cell("P10"), cell("P9")],  # top · P10/P9 @ 180°
+        [cell("P7"), cell("P8")],   # bottom · P7/P8 upright
     ]
-    mosaic = mosaic_grid(grid, gap=6)
-    ban_h = 40
-    foot_h = 28
-    out = np.zeros((mosaic.shape[0] + ban_h + foot_h, mosaic.shape[1], 3), dtype=np.uint8)
-    out[:] = (18, 18, 18)
-    out[ban_h : ban_h + mosaic.shape[0]] = mosaic
-    defish_note = " · DEFISHED P7–P10" if apply_defish else ""
+    # Tight pitch-green gap so it reads as one field, not four windows
+    mosaic = mosaic_grid(grid, gap=2)
+    ban_h = 52
+    out = np.zeros((mosaic.shape[0] + ban_h, mosaic.shape[1], 3), dtype=np.uint8)
+    out[:] = (28, 42, 32)
+    out[ban_h:] = mosaic
     cv2.putText(
         out,
-        f"TOP    P10 (180) | P9 (180)     mosaic{defish_note} · boxes on",
-        (12, 28),
+        "WHOLE PITCH",
+        (14, 34),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.65,
-        (0, 255, 255),
+        1.0,
+        (255, 255, 255),
         2,
     )
     cv2.putText(
         out,
-        "BOTTOM P7 (BL)   | P8 (BR)",
-        (12, out.shape[0] - 8),
+        "Top P10|P9 (180)   Bottom P7|P8    Green=player  Orange=ball",
+        (260, 34),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.65,
-        (0, 255, 255),
+        (200, 255, 200),
         2,
     )
     return out
@@ -546,12 +639,12 @@ def build_cam_view(
     videos = match3_videos(repo_root)
     cams = cams_for_view(view, output_root, frame_id, primary_cam)
 
-    if view.startswith("4 quads"):
+    if view.startswith("4 quads") or view.startswith("Whole pitch"):
         img = mosaic_quads_coach(
             videos,
             frame_id,
-            tile_w=max(tile_w, 800),
-            tile_h=max(tile_h, 450),
+            tile_w=max(tile_w, 640),
+            tile_h=max(tile_h, 360),
             dets_by_cam=dets_by_cam,
             detect_fn=detect_fn,
             apply_defish=apply_defish,

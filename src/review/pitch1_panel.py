@@ -30,11 +30,15 @@ def draw_pitch1_ball_panel(
     mode: str = "export",
     trail: Sequence[tuple[float, float]] = (),
     players: Sequence[tuple[float, float, int, int]] = (),
+    tight: bool = False,
 ) -> np.ndarray:
-    """North up, +y left — gallery pitch with players (by team) + yellow ball."""
+    """North up, +y left — gallery pitch with players (by team) + yellow ball.
+
+    tight=True: crop to sidelines only (no outside margin) for compact coach map.
+    """
     vis = np.zeros((panel_h, panel_w, 3), dtype=np.uint8)
     vis[:] = (32, 48, 36)
-    margin = 28
+    margin = 4 if tight else 28
     avail_w = panel_w - 2 * margin
     avail_h = panel_h - 2 * margin
     field_aspect = PITCH_WID_M / PITCH_LEN_M
@@ -91,7 +95,6 @@ def draw_pitch1_ball_panel(
     line_marks("left_post_near", "left_post_far", color=(180, 255, 180), thick=3)
     line_marks("right_post_near", "right_post_far", color=(180, 255, 180), thick=3)
 
-    # Players first (under ball): team 0 = blue, team 1 = red (BGR)
     team_color = {0: (255, 120, 60), 1: (60, 60, 255)}
     n0 = n1 = 0
     for xm, ym, team, pid in players:
@@ -102,20 +105,36 @@ def draw_pitch1_ball_panel(
         elif team_i == 1:
             n1 += 1
         p = m_to_px(xm, ym)
-        cv2.circle(vis, p, 9, color, -1)
-        cv2.circle(vis, p, 11, (255, 255, 255), 2)
-        label = f"T{team_i}#{int(pid)}"
-        cv2.putText(
-            vis, label, (p[0] + 12, p[1] + 4),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA,
-        )
+        cv2.circle(vis, p, 8 if tight else 9, color, -1)
+        cv2.circle(vis, p, 10 if tight else 11, (255, 255, 255), 2)
+        if not tight:
+            label = f"T{team_i}#{int(pid)}"
+            cv2.putText(
+                vis, label, (p[0] + 12, p[1] + 4),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA,
+            )
 
     for xm, ym in list(trail)[-40:]:
         cv2.circle(vis, m_to_px(xm, ym), 3, (80, 180, 255), -1)
     if ball_xy is not None:
         p = m_to_px(*ball_xy)
-        cv2.circle(vis, p, 10, (0, 255, 255), -1)
-        cv2.circle(vis, p, 12, (0, 0, 0), 2)
+        cv2.circle(vis, p, 9 if tight else 10, (0, 255, 255), -1)
+        cv2.circle(vis, p, 11 if tight else 12, (0, 0, 0), 2)
+
+    if tight:
+        # Sidelines only — drop outside margin + verbose chrome
+        crop = vis[y0 : y0 + ph, x0 : x0 + pw].copy()
+        if n0 or n1:
+            tag = f"N↑  blue={n0} red={n1}"
+        else:
+            tag = f"N↑  players={len(players)}"
+        cv2.putText(
+            crop, tag, (8, 22),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1, cv2.LINE_AA,
+        )
+        return crop
+
+    if ball_xy is not None:
         tag = f"pitch  x={ball_xy[0]:+.1f}m  y={ball_xy[1]:+.1f}m"
     else:
         tag = "pitch  no ball"

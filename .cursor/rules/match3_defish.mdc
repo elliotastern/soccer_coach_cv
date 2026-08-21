@@ -1,0 +1,37 @@
+---
+description: Match 3 P7–P10 defish is wired and measured — keep it on
+alwaysApply: true
+---
+
+# Match 3 defish (P7–P10)
+
+Fisheye cams **P7, P8, P9, P10** use Brown `cv2.undistort` before homography. Full evidence: `docs/product/MATCH3_DEFISH.md`.
+
+## Required pairing
+
+- Landmarks and H are on **defished** stills (`match3_landmarks.py`, calibs in `reports/eval_match3/match3_pitch_calib/`).
+- **`map_ball_box`** undistorts **raw** detection feet with the same params before H (`src/mapping/match3_xy.py`).
+- **Never** map raw fisheye pixels through a defish H without undistort — ~10× pitch error at edge landmarks (see `test_map_ball_uses_undistort_for_raw_foot`).
+
+Locked tags (`reports/eval_match3/fisheye_dashboard/tags.json`): P7 k1=−0.30 k2=−0.08 α=0.80; P8 k1=−0.30 α=0.80; P9 k1=−0.40 α=0.80; P10 k1=−0.32 α=0.80.
+
+## Measured lift (vs nodefish / no undistort on feet)
+
+Same v12 dets, F0 hold. PoC gates: **P_emit ≥ 0.80**, **clear_ball_R ≥ 0.80** ([MATCH3_MULTICAM_IMPROVE_PLAN.md](docs/product/MATCH3_MULTICAM_IMPROVE_PLAN.md)).
+
+| Metric | Before (nodefish) | After (defish) |
+|--------|------------------:|---------------:|
+| Random gallery emits (750 fr) | 189 | **247** (+31%) |
+| Multi-cam agree | 3 | **54** |
+| Clear-ball proxy R (A/B 1495 fr) | **0.30** | **0.63** |
+| P7–P10 maps (A/B) | 98 | **224** |
+
+Clip **15:31**: emit 22→76, agree 1→49. M1 P10 strip with defish: **P_emit 1.0**, **clear_R 0.81** (passes). Random proxy still below 0.80 recall; P8 strip still fails — not fixed by stronger k1.
+
+## Do / don't
+
+- **Do** keep `apply_undistort=True` as product default; use `--no-undistort` / `apply_undistort=False` only for A/B or nodefish gallery.
+- **Do** re-click landmarks on defished stills when changing k/α.
+- **Don't** revert P7–P10 to raw landmark stills or skip undistort in the map path.
+- **Don't** expect defish alone to hit full PoC recall on random packs or fix P8 — need L1/L2/C1/M2 from improve plan.
+- Detection pipeline stays on **raw** frames; defish is map-step only unless user asks for frame-level undistort in detect.

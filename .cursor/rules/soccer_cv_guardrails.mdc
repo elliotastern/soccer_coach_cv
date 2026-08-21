@@ -23,6 +23,7 @@ globs: "**/*"
 - Do not implement Product Phase 2/3 features (multi-view fusion, predictive coaching, wearable haptic protocols) unless the user explicitly asks. See `docs/product/PHASES.md`.
 - Prefer new package paths (`src.mapping`, `src.events`, `src.state`, `src.review`, `apps/…`). Legacy `src.analysis` / `src.visualization` shims exist for compatibility only.
 - Pitch 1 / Field 1 is the **measured** pitch (`docs/product/PITCH1_DIMENSIONS.json`: 53.90 × ~34.8 m). Never use FIFA 105×68 for this field.
+- Match 3 **P7–P10 defish** is product-wired and measured (+31% emits, +51 agree on random gallery vs nodefish). Keep undistort in `map_ball_box`; see `docs/product/MATCH3_DEFISH.md` and `.cursor/rules/match3_defish.mdc`.
 
 ## Code quality
 

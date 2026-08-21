@@ -276,7 +276,7 @@ def fuse_balls(
 
 
 # Detect-tick hold (F0): re-emit last good fuse across silent ticks. Not Phase-2 fusion.
-HOLD_MAX_GAP = 2
+HOLD_MAX_GAP = 4
 
 
 def fuse_balls_with_hold(

@@ -28,4 +28,4 @@ The camera id is the P-code (or Goal id) **in the filename**. Do not assign a fi
 
 Move the **diagram chip** or fix landmarks. **Never** swap files across ids (e.g. do not map `P1-006.mp4` → P9).
 
-Parser: `scripts/gold_set/raw_cam_id.py`. Doc: `docs/product/MATCH3_CAPTURE.md`. Pitch meters: `docs/product/PITCH1_DIMENSIONS.md`.
+Parser: `scripts/gold_set/raw_cam_id.py`. Doc: `docs/product/MATCH3_CAPTURE.md` (placement + locked mosaic). Pitch meters: `docs/product/PITCH1_DIMENSIONS.md`. Mosaic layout rule: `match3_camera_layout`.

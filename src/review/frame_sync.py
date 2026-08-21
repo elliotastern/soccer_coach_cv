@@ -72,17 +72,25 @@ def pitch_to_pixel(H_inv, x: float, y: float, frame_wh, calib_wh) -> tuple[int, 
 
 
 def read_video_frame(video_path: Path, frame_id: int):
-    cap = cv2.VideoCapture(str(video_path))
-    if not cap.isOpened():
-        raise ValueError(f"cannot open {video_path}")
-    cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_id))
-    ok, frame = cap.read()
-    fps = float(cap.get(cv2.CAP_PROP_FPS) or 60.0)
-    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-    cap.release()
-    if not ok:
-        raise ValueError(f"cannot read frame {frame_id}")
-    return frame, fps, n
+    """Read one frame; retry on LaCie/USB EIO."""
+    from src.review.io_retry import call_with_io_retry
+
+    def _once():
+        cap = cv2.VideoCapture(str(video_path))
+        if not cap.isOpened():
+            raise ValueError(f"cannot open {video_path}")
+        try:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_id))
+            ok, frame = cap.read()
+            fps = float(cap.get(cv2.CAP_PROP_FPS) or 60.0)
+            n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        finally:
+            cap.release()
+        if not ok or frame is None:
+            raise ValueError(f"cannot read frame {frame_id}")
+        return frame, fps, n
+
+    return call_with_io_retry(_once, tries=5, label=f"read:{video_path.name}")
 
 
 def rows_for_frame(frame_df: pd.DataFrame, frame_id: int) -> pd.DataFrame:
