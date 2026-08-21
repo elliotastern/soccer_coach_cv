@@ -426,20 +426,21 @@ def render_synced_frame_review(
         key="cam_stitch_view_v2",
         help="Locked: Top P10|P9 (180°) · Bottom P7|P8. See match3_camera_layout rule.",
     )
+    # Product default ON (P7–P10). New key so old session False cannot sticky-disable.
     apply_defish = st.sidebar.checkbox(
         "Defish P7–P10 in camera view",
-        value=False,
-        key="cam_view_defish",
-        help="Off = boxes lock to players on raw video. On = straighter pitch (boxes remapped with same α).",
+        value=True,
+        key="cam_view_defish_on",
+        help="ON = product default (straighter pitch). Boxes run after defish. Off only for raw A/B.",
     )
 
     st.sidebar.subheader("Verify overlays")
-    # Default OFF — 4-cam RF-DETR blocks the page for ~15–40s and looks like "not loading"
+    # Default ON so coach always sees player/ball boxes (cached per frame).
     show_dets = st.sidebar.checkbox(
-        "RF-DETR boxes (slow · all cams)",
-        value=False,
-        key="show_dets_v2",
-        help="Off = mosaic loads instantly. On = detect every cam (can take 20–40s). Turn off if stuck.",
+        "RF-DETR boxes (players + ball)",
+        value=True,
+        key="show_dets_ball_on",
+        help="ON = product default. First frame can take 20–40s (4 cams). Uncheck only if USB EIO / hung.",
     )
     show_map_ball = st.sidebar.checkbox(
         "MAP-BALL X on video (debug)", value=False, key="show_map_ball_off"

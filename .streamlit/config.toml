@@ -6,11 +6,9 @@ enableCORS = true
 enableXsrfProtection = true
 fileWatcherType = "none"
 maxUploadSize = 200
-
 [browser]
 gatherUsageStats = false
 serverAddress = "127.0.0.1"
 serverPort = 8501
-
 [runner]
 fastReruns = false

@@ -19,6 +19,7 @@ from src.mapping.match3_xy import (  # noqa: E402
     apply_H,
     calib_undistort_params,
     load_calib,
+    map_ball_box,
     scale_px,
     undistort_px,
 )
@@ -150,32 +151,108 @@ def _label_tile(tile: np.ndarray, text: str, missing: bool = False) -> np.ndarra
     return out
 
 
+def _is_ball_det(det) -> bool:
+    name = str(getattr(det, "class_name", "") or "").lower()
+    return name == "ball" or int(getattr(det, "class_id", -1)) == 1
+
+
+def _bbox_iou(a, b) -> float:
+    ax, ay, aw, ah = [float(v) for v in a]
+    bx, by, bw, bh = [float(v) for v in b]
+    x0, y0 = max(ax, bx), max(ay, by)
+    x1, y1 = min(ax + aw, bx + bw), min(ay + ah, by + bh)
+    iw, ih = max(0.0, x1 - x0), max(0.0, y1 - y0)
+    inter = iw * ih
+    if inter <= 0:
+        return 0.0
+    union = aw * ah + bw * bh - inter
+    return inter / union if union > 0 else 0.0
+
+
+def _filter_coach_dets(
+    dets: list,
+    calib: dict | None,
+    frame_wh: tuple[int, int],
+    *,
+    already_defished: bool,
+) -> list:
+    """Precision-first: drop weak / off-pitch / player-overlapping ball boxes."""
+    if not dets:
+        return []
+    players = [d for d in dets if not _is_ball_det(d)]
+    out = list(players)
+    balls = [d for d in dets if _is_ball_det(d)]
+    kept_balls = []
+    fw, fh = float(frame_wh[0]), float(frame_wh[1])
+    edge_x, edge_y = 0.08 * fw, 0.08 * fh
+    for d in balls:
+        if float(d.confidence) < 0.30:
+            continue
+        bx, by, bw, bh = [float(v) for v in d.bbox]
+        cx, cy = bx + bw / 2.0, by + bh / 2.0
+        # Edge-hugging "balls" are usually FPs after fisheye / letterbox
+        if cx < edge_x or cy < edge_y or cx > fw - edge_x or cy > fh - edge_y:
+            continue
+        # Ball on a player torso is almost always a false positive
+        if any(_bbox_iou(d.bbox, p.bbox) >= 0.12 for p in players):
+            continue
+        if calib is not None:
+            mapped = map_ball_box(
+                calib,
+                d.bbox,
+                float(d.confidence),
+                frame_wh=frame_wh,
+                apply_undistort=not already_defished,
+            )
+            if mapped is None:
+                continue
+        kept_balls.append(d)
+    out.extend(keep_top1_ball(kept_balls))
+    return out
+
+
 def _annotate(
     frame: np.ndarray,
     dets: list | None,
     coach_simple: bool = True,
     draw_labels: bool = True,
+    min_ball_side: int = 32,
+    min_ball_conf: float = 0.30,
 ) -> np.ndarray:
     if not dets:
         return frame
     dets = keep_top1_ball(list(dets))
     if not coach_simple:
         return draw_det_boxes(frame, dets)
-    # Coach mode: thick boxes, plain PLAYER / BALL (no conf clutter)
+    # Coach mode: thick boxes; ball gets a visible min-size box centered on the det
     vis = frame.copy()
     for det in dets:
-        x, y, w, h = [int(v) for v in det.bbox]
         is_ball = getattr(det, "class_name", "") == "ball" or int(det.class_id) == 1
+        if is_ball and float(det.confidence) < float(min_ball_conf):
+            continue
+        x, y, w, h = [float(v) for v in det.bbox]
+        if is_ball:
+            cx, cy = x + w / 2.0, y + h / 2.0
+            side = max(float(min_ball_side), w, h)
+            # Slight pad so the orange ring clearly sits on the ball
+            side = max(side * 1.15, float(min_ball_side))
+            x, y, w, h = cx - side / 2.0, cy - side / 2.0, side, side
+        xi, yi = int(round(x)), int(round(y))
+        wi, hi = max(1, int(round(w))), max(1, int(round(h)))
+        # Clip to frame
+        xi = max(0, min(xi, vis.shape[1] - 1))
+        yi = max(0, min(yi, vis.shape[0] - 1))
+        wi = max(1, min(wi, vis.shape[1] - xi))
+        hi = max(1, min(hi, vis.shape[0] - yi))
         color = (0, 165, 255) if is_ball else (0, 220, 0)
         thick = 5 if is_ball else 4
-        cv2.rectangle(vis, (x, y), (x + max(1, w), y + max(1, h)), color, thick)
-        # Coach: label only the ball — player boxes speak for themselves (less clutter)
+        cv2.rectangle(vis, (xi, yi), (xi + wi, yi + hi), color, thick)
         if draw_labels and is_ball:
             label = "BALL"
-            ty = max(32, y - 10)
+            ty = max(32, yi - 8)
             (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.85, 2)
-            cv2.rectangle(vis, (x, ty - th - 6), (x + tw + 8, ty + 4), (0, 0, 0), -1)
-            cv2.putText(vis, label, (x + 4, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.85, color, 2)
+            cv2.rectangle(vis, (xi, ty - th - 6), (xi + tw + 8, ty + 4), (0, 0, 0), -1)
+            cv2.putText(vis, label, (xi + 4, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.85, color, 2)
     return vis
 
 
@@ -253,8 +330,11 @@ def _tile(
         return _label_tile(blank, f"{COACH_CORNER.get(cam, cam)} (no frame)", missing=True)
 
     work = frame
-    calib = load_calib(cam) if apply_defish else None
-    do_defish = bool(calib is not None and calib_undistort_params(calib))
+    # Always load calib when present so ball boxes can be pitch-gated
+    calib = load_calib(cam)
+    do_defish = bool(
+        apply_defish and calib is not None and calib_undistort_params(calib)
+    )
 
     if do_defish:
         cw, ch = [int(v) for v in (calib.get("image_wh") or [work.shape[1], work.shape[0]])]
@@ -267,10 +347,12 @@ def _tile(
             else float(params.get("alpha", 0.8))
         )
         work = undistort_bgr(work, calib, alpha_override=alpha)
-        # Detect on defished pixels so boxes match what we show (remap from raw is unreliable here)
-        dets = list(detect_fn(cam, work) or []) if detect_fn is not None else None
-        if dets is None and dets_by_cam is not None and cam in dets_by_cam:
-            # Fall back: no detect_fn — omit boxes rather than misaligned remap
+        # Prefer live detect on defished pixels; else reuse bag (already detect-after-defish)
+        if detect_fn is not None:
+            dets = list(detect_fn(cam, work) or [])
+        elif dets_by_cam is not None and cam in dets_by_cam:
+            dets = list(dets_by_cam[cam] or [])
+        else:
             dets = None
     else:
         dets = None
@@ -278,6 +360,19 @@ def _tile(
             dets = list(dets_by_cam[cam])
         elif detect_fn is not None:
             dets = list(detect_fn(cam, work) or [])
+
+    if dets:
+        # Skip re-filter if bag already pruned (has __wh from ensure pass)
+        already_pruned = bool(
+            dets_by_cam is not None and f"{cam}__wh" in dets_by_cam and detect_fn is None
+        )
+        if not already_pruned:
+            dets = _filter_coach_dets(
+                list(dets),
+                calib,
+                (int(work.shape[1]), int(work.shape[0])),
+                already_defished=do_defish,
+            )
 
     # Keep pre-rotate dets for Pitch 1 mapping (rotation is display-only)
     if dets_by_cam is not None and dets:
@@ -567,6 +662,94 @@ def stitch_quads_pitch_order(
     return label
 
 
+def _keep_single_mosaic_ball(dets_by_cam: dict, *, apply_defish: bool = True) -> str | None:
+    """One pitch → one orange ball. Keep highest-conf mapped ball; strip others.
+
+    Matches the Pitch 1 panel (single yellow ball). Returns winning cam id or None.
+    """
+    if not dets_by_cam:
+        return None
+    candidates = []
+    for cam, dets in list(dets_by_cam.items()):
+        if not isinstance(cam, str) or cam.endswith("__wh") or not dets:
+            continue
+        calib = load_calib(cam)
+        wh = dets_by_cam.get(f"{cam}__wh")
+        already = bool(
+            apply_defish and calib is not None and calib_undistort_params(calib)
+        )
+        for d in dets:
+            if not _is_ball_det(d):
+                continue
+            mapped = None
+            if calib is not None and wh is not None:
+                mapped = map_ball_box(
+                    calib,
+                    d.bbox,
+                    float(d.confidence),
+                    frame_wh=wh,
+                    apply_undistort=not already,
+                )
+            candidates.append((float(d.confidence), cam, mapped is not None))
+    if not candidates:
+        return None
+    mapped_ok = [c for c in candidates if c[2]]
+    pool = mapped_ok if mapped_ok else candidates
+    best_cam = max(pool, key=lambda c: c[0])[1]
+    for cam, dets in list(dets_by_cam.items()):
+        if not isinstance(cam, str) or cam.endswith("__wh") or not dets:
+            continue
+        if cam == best_cam:
+            dets_by_cam[cam] = keep_top1_ball(list(dets))
+        else:
+            dets_by_cam[cam] = [d for d in dets if not _is_ball_det(d)]
+    return best_cam
+
+
+def _ensure_cam_dets(
+    videos: dict[str, Path],
+    cam: str,
+    frame_id: int,
+    dets_by_cam: dict,
+    detect_fn: DetectFn | None,
+    apply_defish: bool,
+) -> None:
+    """Fill dets_by_cam[cam] using the same detect-after-defish path as _tile."""
+    if detect_fn is None:
+        return
+    path = videos.get(cam)
+    if path is None or not path.is_file():
+        return
+    frame = read_frame_bgr(path, frame_id)
+    if frame is None:
+        return
+    work = frame
+    calib = load_calib(cam)
+    do_defish = bool(
+        apply_defish and calib is not None and calib_undistort_params(calib)
+    )
+    if do_defish:
+        cw, ch = [int(v) for v in (calib.get("image_wh") or [work.shape[1], work.shape[0]])]
+        if work.shape[1] != cw or work.shape[0] != ch:
+            work = cv2.resize(work, (cw, ch))
+        params = calib_undistort_params(calib) or {}
+        alpha = (
+            float(MOSAIC_DEFISH_ALPHA)
+            if MOSAIC_DEFISH_ALPHA is not None
+            else float(params.get("alpha", 0.8))
+        )
+        work = undistort_bgr(work, calib, alpha_override=alpha)
+    dets = list(detect_fn(cam, work) or [])
+    dets = _filter_coach_dets(
+        dets,
+        calib,
+        (int(work.shape[1]), int(work.shape[0])),
+        already_defished=do_defish,
+    )
+    dets_by_cam[cam] = dets
+    dets_by_cam[f"{cam}__wh"] = (int(work.shape[1]), int(work.shape[0]))
+
+
 def mosaic_quads_coach(
     videos: dict[str, Path],
     frame_id: int,
@@ -577,6 +760,17 @@ def mosaic_quads_coach(
     apply_defish: bool = True,
 ) -> np.ndarray:
     """Coach mosaic: whole pitch at a glance. Plain labels + PLAYER/BALL boxes."""
+    bag: dict = dict(dets_by_cam or {})
+    # Pass 1: detect all quads into bag
+    if detect_fn is not None:
+        for cam in ["P10", "P9", "P7", "P8"]:
+            _ensure_cam_dets(videos, cam, frame_id, bag, detect_fn, apply_defish)
+        # Pass 1b: one ball for the whole pitch (matches Pitch 1 panel)
+        _keep_single_mosaic_ball(bag, apply_defish=apply_defish)
+        if dets_by_cam is not None:
+            dets_by_cam.clear()
+            dets_by_cam.update(bag)
+
     def cell(cam: str) -> np.ndarray:
         return _tile(
             videos,
@@ -584,8 +778,8 @@ def mosaic_quads_coach(
             frame_id,
             tile_w,
             tile_h,
-            dets_by_cam,
-            detect_fn,
+            dets_by_cam=bag,
+            detect_fn=None,  # already filled + single-ball pruned
             rotate_180=(cam in QUAD_ROTATE_180),
             apply_defish=apply_defish,
         )
@@ -611,7 +805,7 @@ def mosaic_quads_coach(
     )
     cv2.putText(
         out,
-        "Top P10|P9 (180)   Bottom P7|P8    Green=player  Orange=ball",
+        "Top P10|P9 (180)   Bottom P7|P8    Green=player  Orange=ball (1)",
         (260, 34),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.65,

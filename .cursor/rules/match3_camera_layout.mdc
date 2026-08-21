@@ -52,7 +52,9 @@ Reference still that matches: `reports/eval_match3/improve_eng_loop/cam_stitch_b
 
 - **Do** keep `QUAD_GRID = [["P10","P9"],["P7","P8"]]` and `QUAD_ROTATE_180 = {P10, P9}`.
 - **Do** update captions/labels to match (Top P10\|P9 180° · Bottom P7\|P8).
+- **Do** keep mosaic **defish ON** for P7–P10 (see `match3_defish`).
 - **Don't** swap to Far P8\|P9 / Near P10\|P7 or flip P7/P10 instead of P9/P10.
 - **Don't** remap video files to different cells because a still “looks” wrong — fix labels/rotation only.
+- **Don't** default review defish to OFF.
 
 P7–P10 fisheye/defish: `match3_defish` rule + `docs/product/MATCH3_DEFISH.md`.

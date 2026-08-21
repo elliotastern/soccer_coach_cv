@@ -31,7 +31,9 @@ Clip **15:31**: emit 22→76, agree 1→49. M1 P10 strip with defish: **P_emit 1
 ## Do / don't
 
 - **Do** keep `apply_undistort=True` as product default; use `--no-undistort` / `apply_undistort=False` only for A/B or nodefish gallery.
+- **Do** keep **review mosaic defish ON** (`src/review/app.py` checkbox default `True`, key `cam_view_defish_on`). When boxes are on, detect **after** defish on shown pixels.
 - **Do** re-click landmarks on defished stills when changing k/α.
+- **Don't** default the review “Defish P7–P10” checkbox to OFF (box-lock experiments are A/B only).
 - **Don't** revert P7–P10 to raw landmark stills or skip undistort in the map path.
 - **Don't** expect defish alone to hit full PoC recall on random packs or fix P8 — need L1/L2/C1/M2 from improve plan.
-- Detection pipeline stays on **raw** frames; defish is map-step only unless user asks for frame-level undistort in detect.
+- Batch detection pipeline can stay on **raw** frames; product **map** always undistorts feet. Review mosaic shows defished tiles by default.
