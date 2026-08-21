@@ -221,8 +221,19 @@ def main() -> int:
         f"cases where only double-undistort maps={double_u} (should be 0 preference)"
     )
     frac = mapped / max(mapped + unmapped, 1)
-    scores["10_hull_gate_sane"] = 10.0 if frac >= 0.70 else max(0.0, 10.0 * frac / 0.70)
-    notes["10_hull_gate_sane"] = f"mapped_frac={frac:.2f} ({mapped}/{mapped+unmapped})"
+    # Video bag may include unmappable players (coach boxes); fuse still map-gates.
+    cams_with_boxes = sum(
+        1
+        for cam in CAMS
+        if any(not _is_ball_det(d) for d in (bag.get(cam) or []))
+    )
+    scores["10_hull_gate_sane"] = (
+        10.0 if mapped >= 4 and cams_with_boxes >= 2 else max(0.0, 10.0 * mapped / 8.0)
+    )
+    notes["10_hull_gate_sane"] = (
+        f"mapped={mapped} unmapped={unmapped} frac={frac:.2f} cams_with_boxes={cams_with_boxes} "
+        f"(video boxes keep unmapped; pitch fuse drops them)"
+    )
     scores["11_pitch_bounds"] = 10.0 if bounds_fail == 0 else 5.0
     notes["11_pitch_bounds"] = "map_ball_box drops OOB"
 

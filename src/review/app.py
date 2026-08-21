@@ -423,7 +423,8 @@ def render_synced_frame_review(
         "Camera view",
         options=VIEW_OPTIONS,
         index=0,
-        key="cam_stitch_view_v2",
+        # v3: clear stale session after Whole-pitch / Best-ball mosaic changes
+        key="cam_stitch_view_v3",
         help="Locked: Top P10|P9 (180°) · Bottom P7|P8. See match3_camera_layout rule.",
     )
     # Product default ON (P7–P10). New key so old session False cannot sticky-disable.
@@ -591,26 +592,23 @@ def render_synced_frame_review(
     # Full-bleed stage (scroll CSS injected once in main)
 
     from src.review.pitch1_panel import cam_label_from_video
-    try:
-        from src.review.cam_mosaic import (
-            build_cam_view,
-            fill_quad_dets_for_pitch,
-            match3_videos,
-        )
-    except ImportError:
-        # Streamlit can keep a stale cam_mosaic without new symbols — force reload.
-        import importlib
+    # Always reload review modules — fileWatcher was none; stale imports hide box/team fixes.
+    import importlib
 
-        from src.review import cam_mosaic as _cam_mosaic
+    from src.review import cam_mosaic as _cam_mosaic
+    from src.review import multicam_fuse as _mc_fuse
+    from src.review import team_live as _team_live
 
-        importlib.reload(_cam_mosaic)
-        build_cam_view = _cam_mosaic.build_cam_view
-        fill_quad_dets_for_pitch = _cam_mosaic.fill_quad_dets_for_pitch
-        match3_videos = _cam_mosaic.match3_videos
+    importlib.reload(_team_live)
+    importlib.reload(_mc_fuse)
+    importlib.reload(_cam_mosaic)
+    build_cam_view = _cam_mosaic.build_cam_view
+    fill_quad_dets_for_pitch = _cam_mosaic.fill_quad_dets_for_pitch
+    match3_videos = _cam_mosaic.match3_videos
 
     primary_cam = cam_label_from_video(video_path)
     output_root_view = Path(run_dir).parent
-    # Mutable bag: mosaic tiles fill dets + `{cam}__wh` for Pitch 1 live map
+    # Mutable bag: mosaic tiles fill dets + `{cam}__wh` / `__bgr` for Pitch 1 live map
     dets_by_cam: dict = {}
     if dets_enabled and dets and not apply_defish:
         dets_by_cam[primary_cam] = dets
@@ -639,6 +637,11 @@ def render_synced_frame_review(
     det_status = st.empty() if dets_enabled else None
     if dets_enabled and det_status is not None:
         det_status.info("Detecting cameras for boxes… first load can take 20–40s. Uncheck boxes if stuck.")
+    wants_quad = (
+        cam_view.startswith("Whole pitch")
+        or cam_view.startswith("4 quads")
+        or cam_view.startswith("Best camera")
+    )
     try:
         mosaic, used_cams = build_cam_view(
             repo,
@@ -654,13 +657,32 @@ def render_synced_frame_review(
         _log_review_exc("build_cam_view", exc)
         if is_transient_io(exc):
             st.session_state.verify_playing = False
-        st.warning(f"Camera mosaic skipped ({exc}) — showing primary frame.")
-        mosaic, used_cams = vis, [primary_cam]
+        if wants_quad:
+            # Never collapse Whole pitch / Best-ball to a single primary cam.
+            st.warning(f"Boxes failed on mosaic ({exc}) — showing 4 cams without boxes.")
+            try:
+                mosaic, used_cams = build_cam_view(
+                    repo,
+                    cam_view,
+                    frame_id,
+                    output_root_view,
+                    primary_cam=primary_cam,
+                    dets_by_cam=None,
+                    detect_fn=None,
+                    apply_defish=bool(apply_defish),
+                )
+            except Exception as exc2:
+                _log_review_exc("build_cam_view_no_dets", exc2)
+                st.warning(f"Camera mosaic skipped ({exc2}) — showing primary frame.")
+                mosaic, used_cams = vis, [primary_cam]
+        else:
+            st.warning(f"Camera mosaic skipped ({exc}) — showing primary frame.")
+            mosaic, used_cams = vis, [primary_cam]
     if det_status is not None:
         det_status.empty()
 
-    # Best-ball stage is one cam, but Pitch 1 should still show all quad players.
-    if dets_enabled and detect_fn is not None and cam_view.startswith("Best camera"):
+    # Best-ball uses whole-pitch mosaic (ball pick only). Only-* may still be one cam.
+    if dets_enabled and detect_fn is not None and cam_view.startswith("Only "):
         try:
             fill_quad_dets_for_pitch(
                 match3_videos(repo),
@@ -674,7 +696,7 @@ def render_synced_frame_review(
             _log_review_exc("fill_quad_dets_for_pitch", exc)
 
     if (
-        (cam_view.startswith("Only ") or cam_view.startswith("Best camera"))
+        cam_view.startswith("Only ")
         and used_cams
         and used_cams[0] == primary_cam
         and dets_enabled
@@ -684,7 +706,13 @@ def render_synced_frame_review(
     else:
         stage = mosaic
         box_note = " · boxes on" if dets_enabled else ""
-        stage_caption = f"{cam_view} · frame {frame_id} · {','.join(used_cams)}{box_note}"
+        if cam_view.startswith("Best camera"):
+            stage_caption = (
+                f"Best ball · whole pitch · frame {frame_id} · "
+                f"{','.join(used_cams)}{box_note}"
+            )
+        else:
+            stage_caption = f"{cam_view} · frame {frame_id} · {','.join(used_cams)}{box_note}"
 
     from src.review.pitch1_panel import (
         ball_trail_from_frame_df,
@@ -694,15 +722,23 @@ def render_synced_frame_review(
         players_from_rows,
     )
     from src.review.multicam_fuse import fuse_frame_for_pitch, fuse_live_dets_for_pitch
+    from src.review.team_live import TeamSession
 
     # Prefer live mosaic boxes → Pitch 1 (matches what coach sees). Export CSV is fallback.
     output_root = Path(run_dir).parent
+    # Session-locked kits so blue/red do not swap while scrubbing
+    sess_key = f"team_session::{Path(run_dir).name}"
+    if st.session_state.get("_team_session_key") != sess_key:
+        st.session_state._team_session_key = sess_key
+        st.session_state.team_session = TeamSession()
+    team_session = st.session_state.team_session
     fused = None
     if dets_enabled and dets_by_cam:
         try:
             live = fuse_live_dets_for_pitch(
                 dets_by_cam,
                 apply_undistort=not bool(apply_defish),
+                team_session=team_session,
             )
             if live["n_cams"] > 0 and (live["players"] or live["ball_xy"]):
                 fused = live
@@ -766,7 +802,7 @@ def render_synced_frame_review(
         )
         if fused.get("source") == "live":
             st.caption(
-                f"Live map {fused['n_cams']} cams · gray=player · yellow=ball"
+                f"Live map {fused['n_cams']} cams · blue/red=team · gray=unsure · yellow=ball"
             )
         elif fused["n_cams"] > 1:
             st.caption(f"Fused {fused['n_cams']} cams · blue T0 · red T1")

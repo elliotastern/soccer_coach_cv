@@ -11,7 +11,7 @@ Report: `reports/eval_match3/improve_eng_loop/players_pitch/scores.json`
 ## What fixed map inconsistency
 
 1. `player_det_ok` — drop weak / tiny / board-like boxes (`PLAYER_MIN_CONF=0.50`).
-2. Mosaic filter requires **pitch map** for players (same idea as ball).
+2. Mosaic **video** draws all `player_det_ok` boxes on every cam; Pitch 1 fuse still requires a successful pitch map.
 3. Live fuse uses **max-conf foot** (not cluster mean) + weak-solo / ghost prune.
 
 ## Constants (`src/review/multicam_fuse.py`)

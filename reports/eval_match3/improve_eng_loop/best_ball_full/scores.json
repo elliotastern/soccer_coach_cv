@@ -1,0 +1,31 @@
+{
+  "ts": "2026-08-21T05:54:49.221648+00:00",
+  "frame": 2400,
+  "gate": 9.0,
+  "scores": {
+    "01_best_uses_mosaic": 10.0,
+    "02_mosaic_shape": 10.0,
+    "03_players_multi_quad": 10.0,
+    "04_single_ball": 10.0,
+    "05_pitch_players_vs_whole": 10.0,
+    "06_pitch_ball_parity": 10.0,
+    "07_used_four_quads": 10.0,
+    "08_soft_ball_recover": 10.0,
+    "09_defish_path": 10.0,
+    "10_product": 10.0
+  },
+  "notes": {
+    "01_best_uses_mosaic": "used=['P10', 'P9', 'P7', 'P8']",
+    "02_mosaic_shape": "shape=(774, 1282, 3)",
+    "03_players_multi_quad": "cams_with_players=3",
+    "04_single_ball": "balls_in_bag=1",
+    "05_pitch_players_vs_whole": "best=10 whole=10 ratio=1.00",
+    "06_pitch_ball_parity": "best_ball=True whole_ball=True",
+    "07_used_four_quads": "used=['P10', 'P9', 'P7', 'P8']",
+    "08_soft_ball_recover": "parity=True any_ball=True",
+    "09_defish_path": "apply_defish=True",
+    "10_product": "mean=10.0"
+  },
+  "failed": {},
+  "pass": true
+}

@@ -1,0 +1,95 @@
+{
+  "ts": "2026-08-21T19:10:06.550773+00:00",
+  "frames": [
+    2300,
+    2350,
+    2400,
+    2450,
+    2500
+  ],
+  "dense_step": 5,
+  "series": [
+    {
+      "fr": 2300,
+      "n0": 3,
+      "n1": 2,
+      "gray": 4,
+      "n": 9
+    },
+    {
+      "fr": 2350,
+      "n0": 10,
+      "n1": 2,
+      "gray": 0,
+      "n": 12
+    },
+    {
+      "fr": 2400,
+      "n0": 6,
+      "n1": 4,
+      "gray": 0,
+      "n": 10
+    },
+    {
+      "fr": 2450,
+      "n0": 7,
+      "n1": 6,
+      "gray": 1,
+      "n": 14
+    },
+    {
+      "fr": 2500,
+      "n0": 9,
+      "n1": 4,
+      "gray": 0,
+      "n": 13
+    }
+  ],
+  "gate": 9.0,
+  "scores": {
+    "01_import_wire": 10.0,
+    "02_session_centroids": 10.0,
+    "03_kit_lock": 10.0,
+    "04_no_identity_swap": 10.0,
+    "05_hard_kit_rules": 10.0,
+    "06_unsure_gray": 10.0,
+    "07_ema_no_reorder": 10.0,
+    "08_track_sticky": 10.0,
+    "09_sticky_vote": 10.0,
+    "10_multicam_vote": 10.0,
+    "11_best_ball": 10.0,
+    "12_count_flicker": 10.0,
+    "13_no_swap_gate": 10.0,
+    "14_both_kits": 10.0,
+    "15_gray_not_explode": 10.0,
+    "16_live_fuse": 10.0,
+    "17_review_hook": 10.0,
+    "18_unit_no_swap": 10.0,
+    "19_unit_sticky": 10.0,
+    "20_product_ready": 10.0
+  },
+  "notes": {
+    "01_import_wire": "TeamSession + stabilize_fused",
+    "02_session_centroids": "locked=True",
+    "03_kit_lock": "blue_dom_all=True n=5",
+    "04_no_identity_swap": "blue_dom_all=True n=5",
+    "05_hard_kit_rules": "flip_conf=0.78 sticky_m=4.0",
+    "06_unsure_gray": "[(2300, 4), (2350, 0), (2400, 0), (2450, 1), (2500, 0)]",
+    "07_ema_no_reorder": "hold_gap=5",
+    "08_track_sticky": "keep_rate=0.935 n=446",
+    "09_sticky_vote": "keep_rate=0.935 n=446",
+    "10_multicam_vote": "fuse majority/tie\u2192gray",
+    "11_best_ball": "n=10 n0=6 n1=3",
+    "12_count_flicker": "share_swaps=0 dense_swaps=0 shares=[0.6, 0.8333333333333334, 0.6, 0.5384615384615384, 0.6923076923076923]",
+    "13_no_swap_gate": "blue_dom_all=True n=5",
+    "14_both_kits": "both_ok=5/5",
+    "15_gray_not_explode": "mean_gray_frac=0.10",
+    "16_live_fuse": "prev_fused=13",
+    "17_review_hook": "app.py st.session_state.team_session",
+    "18_unit_no_swap": "ok\n",
+    "19_unit_sticky": "ok\n",
+    "20_product_ready": "mean_hard=10.0"
+  },
+  "failed": {},
+  "pass": true
+}

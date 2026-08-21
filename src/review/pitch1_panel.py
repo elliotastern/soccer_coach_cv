@@ -125,9 +125,9 @@ def draw_pitch1_ball_panel(
         # Sidelines only — drop outside margin + verbose chrome
         crop = vis[y0 : y0 + ph, x0 : x0 + pw].copy()
         if n0 or n1:
-            tag = f"N↑  blue={n0} red={n1}"
+            tag = f"N  blue={n0} red={n1}"
         else:
-            tag = f"N↑  players={len(players)}"
+            tag = f"N  players={len(players)}"
         cv2.putText(
             crop, tag, (8, 22),
             cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1, cv2.LINE_AA,

@@ -176,47 +176,40 @@ def _filter_coach_dets(
     *,
     already_defished: bool,
 ) -> list:
-    """Precision-first: keep mappable players; drop weak / off-pitch / overlapping balls."""
+    """Coach video boxes: keep solid player dets; balls still pitch-gated.
+
+    Players are drawn on every camera tile when conf/size pass ``player_det_ok``.
+    Pitch 1 mapping still drops unmappable feet in ``fuse_live_dets_for_pitch``.
+    """
     if not dets:
         return []
     from src.review.multicam_fuse import player_det_ok
 
-    players_raw = [d for d in dets if not _is_ball_det(d) and player_det_ok(d)]
-    players = []
-    for d in players_raw:
-        if calib is None:
-            players.append(d)
-            continue
-        mapped = map_ball_box(
-            calib,
-            d.bbox,
-            float(d.confidence),
-            frame_wh=frame_wh,
-            apply_undistort=not already_defished,
-        )
-        if mapped is not None:
-            players.append(d)
+    # Video: show bodies on all cams (do not hide boxes that fail H/hull)
+    players = [d for d in dets if not _is_ball_det(d) and player_det_ok(d)]
     out = list(players)
     balls = [d for d in dets if _is_ball_det(d)]
     kept_balls = []
     fw, fh = float(frame_wh[0]), float(frame_wh[1])
-    edge_x, edge_y = 0.08 * fw, 0.08 * fh
+    edge_x, edge_y = 0.06 * fw, 0.06 * fh
     for d in balls:
-        if float(d.confidence) < 0.30:
+        conf = float(d.confidence)
+        # Review coverage: allow weaker balls if they still map onto Pitch 1
+        if conf < 0.18:
             continue
         bx, by, bw, bh = [float(v) for v in d.bbox]
         cx, cy = bx + bw / 2.0, by + bh / 2.0
-        # Edge-hugging "balls" are usually FPs after fisheye / letterbox
-        if cx < edge_x or cy < edge_y or cx > fw - edge_x or cy > fh - edge_y:
+        near_edge = cx < edge_x or cy < edge_y or cx > fw - edge_x or cy > fh - edge_y
+        # Edge FPs common; keep only if fairly confident
+        if near_edge and conf < 0.42:
             continue
-        # Ball on a player torso is almost always a false positive
         if any(_bbox_iou(d.bbox, p.bbox) >= 0.12 for p in players):
             continue
         if calib is not None:
             mapped = map_ball_box(
                 calib,
                 d.bbox,
-                float(d.confidence),
+                conf,
                 frame_wh=frame_wh,
                 apply_undistort=not already_defished,
             )
@@ -394,6 +387,7 @@ def _tile(
     if dets_by_cam is not None and dets:
         dets_by_cam[cam] = list(dets)
         dets_by_cam[f"{cam}__wh"] = (int(work.shape[1]), int(work.shape[0]))
+        dets_by_cam[f"{cam}__bgr"] = work
 
     if rotate_180:
         h, w = work.shape[:2]
@@ -403,7 +397,12 @@ def _tile(
 
     tile, scale, x0, y0 = _letterbox_meta(work, tw, th)
     if dets:
-        tile = _annotate(tile, _scale_dets(dets, scale, x0, y0), coach_simple=True)
+        tile = _annotate(
+            tile,
+            _scale_dets(dets, scale, x0, y0),
+            coach_simple=True,
+            min_ball_conf=0.18,
+        )
     return _label_tile(tile, COACH_CORNER.get(cam, cam))
 
 
@@ -450,12 +449,13 @@ def best_cam_for_frame(output_root: Path, frame_id: int, fallback: str = "P10") 
 def cams_for_view(view: str, output_root: Path, frame_id: int, primary_cam: str) -> list[str]:
     if view.startswith("4 quads") or view.startswith("Whole pitch"):
         return ["P10", "P9", "P7", "P8"]
+    if view.startswith("Best camera"):
+        # Best-ball is a ball pick on the whole-pitch mosaic — not a single-cam crop.
+        return ["P10", "P9", "P7", "P8"]
     if view.startswith("P1 + P6"):
         return list(ENDS)
     if view.startswith("Goals"):
         return list(GOALS)
-    if view.startswith("Best camera"):
-        return [best_cam_for_frame(output_root, frame_id, fallback=primary_cam)]
     if view.startswith("Only "):
         return [view.replace("Only ", "").strip()]
     return [primary_cam]
@@ -678,6 +678,18 @@ def stitch_quads_pitch_order(
     return label
 
 
+def _iter_cam_dets(dets_by_cam: dict):
+    """Yield (cam_id, det_list) — skip meta keys like ``__wh`` / ``__bgr`` frames."""
+    for cam, dets in list(dets_by_cam.items()):
+        if not isinstance(cam, str):
+            continue
+        if cam.endswith("__wh") or cam.endswith("__bgr"):
+            continue
+        if not isinstance(dets, (list, tuple)):
+            continue
+        yield cam, dets
+
+
 def _keep_single_mosaic_ball(dets_by_cam: dict, *, apply_defish: bool = True) -> str | None:
     """One pitch → one orange ball. Keep highest-conf mapped ball; strip others.
 
@@ -686,8 +698,8 @@ def _keep_single_mosaic_ball(dets_by_cam: dict, *, apply_defish: bool = True) ->
     if not dets_by_cam:
         return None
     candidates = []
-    for cam, dets in list(dets_by_cam.items()):
-        if not isinstance(cam, str) or cam.endswith("__wh") or not dets:
+    for cam, dets in _iter_cam_dets(dets_by_cam):
+        if not dets:
             continue
         calib = load_calib(cam)
         wh = dets_by_cam.get(f"{cam}__wh")
@@ -712,8 +724,8 @@ def _keep_single_mosaic_ball(dets_by_cam: dict, *, apply_defish: bool = True) ->
     mapped_ok = [c for c in candidates if c[2]]
     pool = mapped_ok if mapped_ok else candidates
     best_cam = max(pool, key=lambda c: c[0])[1]
-    for cam, dets in list(dets_by_cam.items()):
-        if not isinstance(cam, str) or cam.endswith("__wh") or not dets:
+    for cam, dets in _iter_cam_dets(dets_by_cam):
+        if not dets:
             continue
         if cam == best_cam:
             dets_by_cam[cam] = keep_top1_ball(list(dets))
@@ -764,6 +776,8 @@ def _ensure_cam_dets(
     )
     dets_by_cam[cam] = dets
     dets_by_cam[f"{cam}__wh"] = (int(work.shape[1]), int(work.shape[0]))
+    # Detect-space BGR for live jersey team labeling on Pitch 1
+    dets_by_cam[f"{cam}__bgr"] = work
 
 
 def mosaic_quads_coach(
@@ -875,7 +889,11 @@ def build_cam_view(
     videos = match3_videos(repo_root)
     cams = cams_for_view(view, output_root, frame_id, primary_cam)
 
-    if view.startswith("4 quads") or view.startswith("Whole pitch"):
+    if (
+        view.startswith("4 quads")
+        or view.startswith("Whole pitch")
+        or view.startswith("Best camera")
+    ):
         img = mosaic_quads_coach(
             videos,
             frame_id,
@@ -885,6 +903,25 @@ def build_cam_view(
             detect_fn=detect_fn,
             apply_defish=apply_defish,
         )
+        # Annotate which cam won the single-ball pick (Best-ball filter).
+        if view.startswith("Best camera") and dets_by_cam is not None:
+            win = None
+            for c in ("P10", "P9", "P7", "P8"):
+                dets = dets_by_cam.get(c) or []
+                if any(_is_ball_det(d) for d in dets):
+                    win = c
+                    break
+            tag = f"BEST BALL · {win or best_cam_for_frame(output_root, frame_id, primary_cam)}"
+            cv2.rectangle(img, (0, img.shape[0] - 36), (img.shape[1], img.shape[0]), (0, 0, 0), -1)
+            cv2.putText(
+                img,
+                tag,
+                (12, img.shape[0] - 12),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (0, 200, 255),
+                2,
+            )
         return img, cams
 
     if view.startswith("P1 + P6") or view.startswith("Goals"):
@@ -899,22 +936,10 @@ def build_cam_view(
 
     cam = cams[0]
     big_w, big_h = tile_w * 2, tile_h * 2
-    img = _tile(
-        videos, cam, frame_id, big_w, big_h, dets_by_cam, detect_fn,
-        apply_defish=apply_defish,
-    )
-    # Best-ball / Only-* stage shows one cam; still fill quads for Pitch 1 players.
-    if (
-        view.startswith("Best camera")
-        and dets_by_cam is not None
-        and detect_fn is not None
-    ):
-        fill_quad_dets_for_pitch(
-            videos,
-            frame_id,
-            dets_by_cam,
-            detect_fn,
+    return (
+        _tile(
+            videos, cam, frame_id, big_w, big_h, dets_by_cam, detect_fn,
             apply_defish=apply_defish,
-            single_ball=True,
-        )
-    return img, cams
+        ),
+        cams,
+    )

@@ -14,7 +14,7 @@ PLAYER_MERGE_M = 1.8
 PLAYER_MIN_CONF = 0.50
 PLAYER_MIN_H = 40.0
 PLAYER_MIN_AREA = 800.0
-PLAYER_SOLO_CONF = 0.60
+PLAYER_SOLO_CONF = 0.50
 PLAYER_GHOST_CONF = 0.55
 MATCH3_CAMS = ("P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2")
 
@@ -85,8 +85,17 @@ def _fuse_player_clusters(
         if len(cl) == 1 and float(best["conf"]) < ghost_conf and strong_xy:
             if min(_dist(best["xy"], s) for s in strong_xy) > merge_m * 1.5:
                 continue
-        teams = [c["team"] for c in cl if int(c.get("team", -1)) >= 0]
-        team = max(set(teams), key=teams.count) if teams else int(best.get("team", -1))
+        # Team vote: only count confident team labels; conflict → gray
+        team_votes = [int(c.get("team", -1)) for c in cl if int(c.get("team", -1)) >= 0]
+        if not team_votes:
+            team = -1
+        elif len(set(team_votes)) == 1:
+            team = team_votes[0]
+        else:
+            # majority; tie → gray
+            c0 = team_votes.count(0)
+            c1 = team_votes.count(1)
+            team = 0 if c0 > c1 else (1 if c1 > c0 else -1)
         pid = int(best["pid"]) if len(cl) == 1 and int(best.get("pid", -1)) >= 0 else 20_000 + i
         fused.append(
             (float(best["xy"][0]), float(best["xy"][1]), int(team), pid)
@@ -254,13 +263,17 @@ def fuse_live_dets_for_pitch(
     *,
     apply_undistort: bool = True,
     merge_m: float = PLAYER_MERGE_M,
+    team_session=None,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
-    ``dets_by_cam`` may include ``{cam}__wh`` = (w, h) of the detect frame.
+    ``dets_by_cam`` may include ``{cam}__wh`` = (w, h) of the detect frame and
+    optional ``{cam}__bgr`` = detect-space frame for jersey team labeling.
+    Pass ``team_session`` (TeamSession) to lock kit identity across frames.
     Use apply_undistort=True for raw mosaic pixels; False when dets are already defished.
     """
     from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box
+    from src.review.team_live import label_player_pts
 
     if not dets_by_cam:
         return {"players": [], "ball_xy": None, "n_cams": 0, "cams": [], "source": "live"}
@@ -268,12 +281,19 @@ def fuse_live_dets_for_pitch(
     cam_ids = [
         k
         for k in dets_by_cam.keys()
-        if isinstance(k, str) and not k.endswith("__wh") and dets_by_cam.get(k)
+        if isinstance(k, str)
+        and not k.endswith("__wh")
+        and not k.endswith("__bgr")
+        and dets_by_cam.get(k)
     ]
     player_pts = []
     ball_rows = []
     used = []
+    frames_by_cam = {}
     for cam in cam_ids:
+        fr = dets_by_cam.get(f"{cam}__bgr")
+        if fr is not None:
+            frames_by_cam[cam] = fr
         calib = load_calib(cam)
         if calib is None:
             continue
@@ -313,15 +333,21 @@ def fuse_live_dets_for_pitch(
                     "pid": -1,
                     "conf": float(mapped["conf"]),
                     "cam": cam,
+                    "bbox": tuple(float(v) for v in d.bbox),
                 }
             )
         if mapped_any:
             used.append(cam)
 
+    if player_pts and frames_by_cam:
+        label_player_pts(player_pts, frames_by_cam, team_session=team_session)
+
     players = _fuse_player_clusters(
         _cluster_players(player_pts, merge_m=merge_m),
         merge_m=merge_m,
     ) if player_pts else []
+    if team_session is not None and players:
+        players = team_session.stabilize_fused(players)
 
     ball_xy = None
     if ball_rows:
