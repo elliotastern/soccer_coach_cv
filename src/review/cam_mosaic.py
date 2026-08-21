@@ -176,10 +176,26 @@ def _filter_coach_dets(
     *,
     already_defished: bool,
 ) -> list:
-    """Precision-first: drop weak / off-pitch / player-overlapping ball boxes."""
+    """Precision-first: keep mappable players; drop weak / off-pitch / overlapping balls."""
     if not dets:
         return []
-    players = [d for d in dets if not _is_ball_det(d)]
+    from src.review.multicam_fuse import player_det_ok
+
+    players_raw = [d for d in dets if not _is_ball_det(d) and player_det_ok(d)]
+    players = []
+    for d in players_raw:
+        if calib is None:
+            players.append(d)
+            continue
+        mapped = map_ball_box(
+            calib,
+            d.bbox,
+            float(d.confidence),
+            frame_wh=frame_wh,
+            apply_undistort=not already_defished,
+        )
+        if mapped is not None:
+            players.append(d)
     out = list(players)
     balls = [d for d in dets if _is_ball_det(d)]
     kept_balls = []
@@ -815,6 +831,32 @@ def mosaic_quads_coach(
     return out
 
 
+def fill_quad_dets_for_pitch(
+    videos: dict[str, Path],
+    frame_id: int,
+    dets_by_cam: dict,
+    detect_fn: DetectFn | None,
+    apply_defish: bool = True,
+    *,
+    single_ball: bool = True,
+) -> dict:
+    """Ensure P10/P9/P7/P8 player+ball dets are in ``dets_by_cam`` for Pitch 1 fuse.
+
+    Used when the stage shows Best-ball / single cam so the pitch map still
+    gets every mappable player across the quads (one orange ball if single_ball).
+    """
+    if detect_fn is None or dets_by_cam is None:
+        return dets_by_cam or {}
+    bag: dict = dict(dets_by_cam)
+    for cam in ["P10", "P9", "P7", "P8"]:
+        _ensure_cam_dets(videos, cam, frame_id, bag, detect_fn, apply_defish)
+    if single_ball:
+        _keep_single_mosaic_ball(bag, apply_defish=apply_defish)
+    dets_by_cam.clear()
+    dets_by_cam.update(bag)
+    return dets_by_cam
+
+
 def build_cam_view(
     repo_root: Path,
     view: str,
@@ -857,10 +899,22 @@ def build_cam_view(
 
     cam = cams[0]
     big_w, big_h = tile_w * 2, tile_h * 2
-    return (
-        _tile(
-            videos, cam, frame_id, big_w, big_h, dets_by_cam, detect_fn,
-            apply_defish=apply_defish,
-        ),
-        cams,
+    img = _tile(
+        videos, cam, frame_id, big_w, big_h, dets_by_cam, detect_fn,
+        apply_defish=apply_defish,
     )
+    # Best-ball / Only-* stage shows one cam; still fill quads for Pitch 1 players.
+    if (
+        view.startswith("Best camera")
+        and dets_by_cam is not None
+        and detect_fn is not None
+    ):
+        fill_quad_dets_for_pitch(
+            videos,
+            frame_id,
+            dets_by_cam,
+            detect_fn,
+            apply_defish=apply_defish,
+            single_ball=True,
+        )
+    return img, cams

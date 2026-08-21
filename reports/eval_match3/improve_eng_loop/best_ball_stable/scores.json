@@ -1,0 +1,32 @@
+{
+  "ts": "2026-08-21T04:36:46.504914+00:00",
+  "frame": 2400,
+  "gate": 9.0,
+  "scores": {
+    "01_import_fill_quad": 10.0,
+    "02_videos_present": 10.0,
+    "03_build_best_view": 10.0,
+    "04_bag_has_quads": 10.0,
+    "05_players_multi_cam": 10.0,
+    "06_single_ball": 10.0,
+    "07_pitch_players": 10.0,
+    "08_pitch_more_than_stage": 10.0,
+    "09_fill_idempotent": 10.0,
+    "10_app_import_triplet": 10.0
+  },
+  "notes": {
+    "01_import_fill_quad": "reload + hasattr ok",
+    "02_videos_present": "P1,P10,P6,P7,P8,P9,P_Goal1,P_Goal2",
+    "03_build_best_view": "used=['P10'] shape=(720, 1280, 3)",
+    "04_bag_has_quads": "quad_cams_in_bag=4",
+    "05_players_multi_cam": "video_players=12",
+    "06_single_ball": "balls_in_bag=0",
+    "07_pitch_players": "fused=9 cams=['P10', 'P7', 'P8'] ball=False",
+    "08_pitch_more_than_stage": "stage_cams=1 pitch_players=9",
+    "09_fill_idempotent": "second fill ok",
+    "10_app_import_triplet": "triplet import ok"
+  },
+  "failed": {},
+  "pass": true,
+  "best_cam_hint": "P10"
+}

@@ -10,7 +10,88 @@ from src.mapping.match3_xy import fuse_balls
 
 # Pitch-space merge radius for same person seen by two cams (meters)
 PLAYER_MERGE_M = 1.8
+# Coach / live map: precision-first player gates (bodies look ok; map was noisy)
+PLAYER_MIN_CONF = 0.50
+PLAYER_MIN_H = 40.0
+PLAYER_MIN_AREA = 800.0
+PLAYER_SOLO_CONF = 0.60
+PLAYER_GHOST_CONF = 0.55
 MATCH3_CAMS = ("P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2")
+
+
+def _is_ball_det(d) -> bool:
+    name = str(getattr(d, "class_name", "") or "").lower()
+    return name == "ball" or int(getattr(d, "class_id", -1)) == 1
+
+
+def player_det_ok(d, *, min_conf: float = PLAYER_MIN_CONF) -> bool:
+    """Keep person-like boxes for mosaic draw + pitch map."""
+    if _is_ball_det(d):
+        return False
+    if float(getattr(d, "confidence", 0.0)) < float(min_conf):
+        return False
+    _x, _y, w, h = [float(v) for v in d.bbox]
+    if h < PLAYER_MIN_H or (w * h) < PLAYER_MIN_AREA:
+        return False
+    # Extremely wide flat boxes are usually ads / boards
+    if w > 2.8 * h:
+        return False
+    return True
+
+
+def _cluster_players(
+    player_pts: list[dict],
+    merge_m: float = PLAYER_MERGE_M,
+) -> list[list[dict]]:
+    pts = sorted(player_pts, key=lambda p: p["conf"], reverse=True)
+    clusters: list[list[dict]] = []
+    for p in pts:
+        placed = False
+        for cl in clusters:
+            if _dist(p["xy"], cl[0]["xy"]) <= merge_m:
+                cl.append(p)
+                placed = True
+                break
+        if not placed:
+            clusters.append([p])
+    return clusters
+
+
+def _fuse_player_clusters(
+    clusters: list[list[dict]],
+    *,
+    merge_m: float = PLAYER_MERGE_M,
+    solo_conf: float = PLAYER_SOLO_CONF,
+    ghost_conf: float = PLAYER_GHOST_CONF,
+) -> list[tuple[float, float, int, int]]:
+    """Max-conf xy per cluster; drop weak solos / ghosts far from strong anchors."""
+    eligible: list[list[dict]] = []
+    for cl in clusters:
+        best = max(cl, key=lambda c: c["conf"])
+        if len(cl) >= 2:
+            eligible.append(cl)
+        elif float(best["conf"]) >= solo_conf:
+            eligible.append(cl)
+    if not eligible:
+        return []
+    strong_xy = [
+        max(cl, key=lambda c: c["conf"])["xy"]
+        for cl in eligible
+        if float(max(cl, key=lambda c: c["conf"])["conf"]) >= ghost_conf
+    ]
+    fused = []
+    for i, cl in enumerate(eligible):
+        best = max(cl, key=lambda c: c["conf"])
+        if len(cl) == 1 and float(best["conf"]) < ghost_conf and strong_xy:
+            if min(_dist(best["xy"], s) for s in strong_xy) > merge_m * 1.5:
+                continue
+        teams = [c["team"] for c in cl if int(c.get("team", -1)) >= 0]
+        team = max(set(teams), key=teams.count) if teams else int(best.get("team", -1))
+        pid = int(best["pid"]) if len(cl) == 1 and int(best.get("pid", -1)) >= 0 else 20_000 + i
+        fused.append(
+            (float(best["xy"][0]), float(best["xy"][1]), int(team), pid)
+        )
+    return fused
 
 
 def _cam_from_run_name(name: str) -> str:
@@ -83,11 +164,12 @@ def fuse_players_at_frame(
     for cam, df in cam_tables.items():
         sub = _rows_near_frame(df, frame_id, tol)
         players = sub[sub["Player_ID"] != -1] if "Player_ID" in sub.columns else sub
-        # prefer exact frame_id when present
         exact = players[players["frame_id"] == int(frame_id)]
         use = exact if len(exact) else players
         for _, r in use.iterrows():
             conf = float(r["confidence"]) if "confidence" in use.columns else 0.5
+            if conf < PLAYER_MIN_CONF:
+                continue
             pts.append(
                 {
                     "xy": (float(r.Location_X), float(r.Location_Y)),
@@ -99,34 +181,10 @@ def fuse_players_at_frame(
             )
     if not pts:
         return []
-    pts.sort(key=lambda p: p["conf"], reverse=True)
-    clusters: list[list[dict]] = []
-    for p in pts:
-        placed = False
-        for cl in clusters:
-            if _dist(p["xy"], cl[0]["xy"]) <= merge_m:
-                cl.append(p)
-                placed = True
-                break
-        if not placed:
-            clusters.append([p])
-    fused = []
-    for i, cl in enumerate(clusters):
-        xs = [c["xy"][0] for c in cl]
-        ys = [c["xy"][1] for c in cl]
-        teams = [c["team"] for c in cl if c["team"] >= 0]
-        team = max(set(teams), key=teams.count) if teams else -1
-        # stable-ish id from max-conf member
-        best = max(cl, key=lambda c: c["conf"])
-        fused.append(
-            (
-                sum(xs) / len(xs),
-                sum(ys) / len(ys),
-                int(team),
-                int(best["pid"]) if len(cl) == 1 else 10_000 + i,
-            )
-        )
-    return fused
+    return _fuse_player_clusters(
+        _cluster_players(pts, merge_m=merge_m),
+        merge_m=merge_m,
+    )
 
 
 def fuse_ball_at_frame(
@@ -191,11 +249,6 @@ def fuse_frame_for_pitch(
     }
 
 
-def _is_ball_det(d) -> bool:
-    name = str(getattr(d, "class_name", "") or "").lower()
-    return name == "ball" or int(getattr(d, "class_id", -1)) == 1
-
-
 def fuse_live_dets_for_pitch(
     dets_by_cam: dict,
     *,
@@ -228,6 +281,21 @@ def fuse_live_dets_for_pitch(
         wh = dets_by_cam.get(f"{cam}__wh")
         mapped_any = False
         for d in dets:
+            if _is_ball_det(d):
+                mapped = map_ball_box(
+                    calib,
+                    d.bbox,
+                    float(d.confidence),
+                    frame_wh=wh,
+                    apply_undistort=apply_undistort,
+                )
+                if mapped is None:
+                    continue
+                mapped_any = True
+                ball_rows.append(mapped)
+                continue
+            if not player_det_ok(d):
+                continue
             mapped = map_ball_box(
                 calib,
                 d.bbox,
@@ -238,41 +306,22 @@ def fuse_live_dets_for_pitch(
             if mapped is None:
                 continue
             mapped_any = True
-            if _is_ball_det(d):
-                ball_rows.append(mapped)
-            else:
-                player_pts.append(
-                    {
-                        "xy": mapped["xy"],
-                        "team": -1,
-                        "pid": -1,
-                        "conf": float(mapped["conf"]),
-                        "cam": cam,
-                    }
-                )
+            player_pts.append(
+                {
+                    "xy": mapped["xy"],
+                    "team": -1,
+                    "pid": -1,
+                    "conf": float(mapped["conf"]),
+                    "cam": cam,
+                }
+            )
         if mapped_any:
             used.append(cam)
 
-    players = []
-    if player_pts:
-        player_pts.sort(key=lambda p: p["conf"], reverse=True)
-        clusters: list[list[dict]] = []
-        for p in player_pts:
-            placed = False
-            for cl in clusters:
-                if _dist(p["xy"], cl[0]["xy"]) <= merge_m:
-                    cl.append(p)
-                    placed = True
-                    break
-            if not placed:
-                clusters.append([p])
-        for i, cl in enumerate(clusters):
-            xs = [c["xy"][0] for c in cl]
-            ys = [c["xy"][1] for c in cl]
-            best = max(cl, key=lambda c: c["conf"])
-            players.append(
-                (sum(xs) / len(xs), sum(ys) / len(ys), -1, 20_000 + i)
-            )
+    players = _fuse_player_clusters(
+        _cluster_players(player_pts, merge_m=merge_m),
+        merge_m=merge_m,
+    ) if player_pts else []
 
     ball_xy = None
     if ball_rows:

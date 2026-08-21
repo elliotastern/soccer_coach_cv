@@ -591,7 +591,22 @@ def render_synced_frame_review(
     # Full-bleed stage (scroll CSS injected once in main)
 
     from src.review.pitch1_panel import cam_label_from_video
-    from src.review.cam_mosaic import build_cam_view
+    try:
+        from src.review.cam_mosaic import (
+            build_cam_view,
+            fill_quad_dets_for_pitch,
+            match3_videos,
+        )
+    except ImportError:
+        # Streamlit can keep a stale cam_mosaic without new symbols — force reload.
+        import importlib
+
+        from src.review import cam_mosaic as _cam_mosaic
+
+        importlib.reload(_cam_mosaic)
+        build_cam_view = _cam_mosaic.build_cam_view
+        fill_quad_dets_for_pitch = _cam_mosaic.fill_quad_dets_for_pitch
+        match3_videos = _cam_mosaic.match3_videos
 
     primary_cam = cam_label_from_video(video_path)
     output_root_view = Path(run_dir).parent
@@ -643,6 +658,20 @@ def render_synced_frame_review(
         mosaic, used_cams = vis, [primary_cam]
     if det_status is not None:
         det_status.empty()
+
+    # Best-ball stage is one cam, but Pitch 1 should still show all quad players.
+    if dets_enabled and detect_fn is not None and cam_view.startswith("Best camera"):
+        try:
+            fill_quad_dets_for_pitch(
+                match3_videos(repo),
+                frame_id,
+                dets_by_cam,
+                detect_fn,
+                apply_defish=bool(apply_defish),
+                single_ball=True,
+            )
+        except Exception as exc:
+            _log_review_exc("fill_quad_dets_for_pitch", exc)
 
     if (
         (cam_view.startswith("Only ") or cam_view.startswith("Best camera"))
