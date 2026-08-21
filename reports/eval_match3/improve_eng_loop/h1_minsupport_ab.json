@@ -1,0 +1,45 @@
+{
+  "baseline_0_25": {
+    "min_support": 0.25,
+    "holdout_R": 0.867,
+    "holdout_agree": 0.338,
+    "strips": {
+      "match3_quad_p10_31": {
+        "P_emit": 1.0,
+        "clear_ball_R": 0.876,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "match3_quad_p8_87": {
+        "P_emit": 0.966,
+        "clear_ball_R": 0.801,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      }
+    }
+  },
+  "trial_0_20": {
+    "min_support": 0.2,
+    "holdout_R": 0.884,
+    "holdout_agree": 0.336,
+    "strips": {
+      "match3_quad_p10_31": {
+        "P_emit": 1.0,
+        "clear_ball_R": 0.876,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "match3_quad_p8_87": {
+        "P_emit": 0.966,
+        "clear_ball_R": 0.801,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      }
+    }
+  },
+  "promote_0_20": true,
+  "notes": [
+    "holdout R improved",
+    "promote 0.20"
+  ]
+}

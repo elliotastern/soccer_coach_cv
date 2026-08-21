@@ -1,0 +1,830 @@
+{
+  "focus": "P10",
+  "n_fn": 73,
+  "decision": {
+    "proceed_hull": true,
+    "abort_junk": false,
+    "reason": "feet in playable FOV outside landmark hull",
+    "n": 73,
+    "in_frame": 73,
+    "lower_half": 66,
+    "foot_x_range": [
+      141.0,
+      915.2
+    ],
+    "foot_y_range": [
+      498.1,
+      859.6
+    ],
+    "median_support": 0.0
+  },
+  "samples": [
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 114,
+      "conf": 0.8508653044700623,
+      "side": 32.58306884765625,
+      "foot_px": [
+        458.0,
+        763.3
+      ],
+      "support": 0.0,
+      "box": [
+        382.8661193847656,
+        752.2098999023438,
+        34.703582763671875,
+        32.58306884765625
+      ],
+      "in_frame": true,
+      "lower_half": true,
+      "still": "reports/ball_testing/holdout_map_fn_spot/rand_t00166.0s_i0114_P10.jpg"
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 116,
+      "conf": 0.852072536945343,
+      "side": 30.19146728515625,
+      "foot_px": [
+        476.1,
+        743.4
+      ],
+      "support": 0.0,
+      "box": [
+        401.4561462402344,
+        733.536376953125,
+        34.65606689453125,
+        30.19146728515625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 118,
+      "conf": 0.7759073376655579,
+      "side": 31.82421875,
+      "foot_px": [
+        494.4,
+        727.7
+      ],
+      "support": 0.0,
+      "box": [
+        418.0811462402344,
+        715.2171630859375,
+        39.437591552734375,
+        31.82421875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 120,
+      "conf": 0.8622860908508301,
+      "side": 31.3153076171875,
+      "foot_px": [
+        511.5,
+        713.0
+      ],
+      "support": 0.0,
+      "box": [
+        438.8362121582031,
+        699.9552001953125,
+        33.792327880859375,
+        31.3153076171875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 128,
+      "conf": 0.811053991317749,
+      "side": 27.978271484375,
+      "foot_px": [
+        569.8,
+        655.2
+      ],
+      "support": 0.0,
+      "box": [
+        499.6863098144531,
+        640.2855224609375,
+        36.231964111328125,
+        27.978271484375
+      ],
+      "in_frame": true,
+      "lower_half": true,
+      "still": "reports/ball_testing/holdout_map_fn_spot/rand_t00166.0s_i0128_P10.jpg"
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 140,
+      "conf": 0.8574970364570618,
+      "side": 30.54498291015625,
+      "foot_px": [
+        642.9,
+        597.5
+      ],
+      "support": 0.0,
+      "box": [
+        581.2900390625,
+        573.913818359375,
+        33.40838623046875,
+        30.54498291015625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 142,
+      "conf": 0.8638120293617249,
+      "side": 30.334228515625,
+      "foot_px": [
+        652.2,
+        591.2
+      ],
+      "support": 0.0,
+      "box": [
+        591.4239501953125,
+        567.1029663085938,
+        33.80584716796875,
+        30.334228515625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 144,
+      "conf": 0.8343327045440674,
+      "side": 29.23614501953125,
+      "foot_px": [
+        662.2,
+        584.9
+      ],
+      "support": 0.0,
+      "box": [
+        602.627197265625,
+        561.1661987304688,
+        33.8817138671875,
+        29.23614501953125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 168,
+      "conf": 0.8520915508270264,
+      "side": 31.988433837890625,
+      "foot_px": [
+        771.8,
+        514.5
+      ],
+      "support": 0.1227,
+      "box": [
+        724.7617797851562,
+        479.05084228515625,
+        37.16705322265625,
+        31.988433837890625
+      ],
+      "in_frame": true,
+      "lower_half": false,
+      "still": "reports/ball_testing/holdout_map_fn_spot/rand_t00166.0s_i0168_P10.jpg"
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 170,
+      "conf": 0.8345409631729126,
+      "side": 31.25115966796875,
+      "foot_px": [
+        779.7,
+        507.6
+      ],
+      "support": 0.1638,
+      "box": [
+        735.3954467773438,
+        471.9945068359375,
+        34.00152587890625,
+        31.25115966796875
+      ],
+      "in_frame": true,
+      "lower_half": false
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 172,
+      "conf": 0.8265904188156128,
+      "side": 29.78973388671875,
+      "foot_px": [
+        787.8,
+        501.4
+      ],
+      "support": 0.2013,
+      "box": [
+        744.2719116210938,
+        466.40167236328125,
+        34.88629150390625,
+        29.78973388671875
+      ],
+      "in_frame": true,
+      "lower_half": false
+    },
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "stem": "rand_t00166.0s",
+      "i": 174,
+      "conf": 0.7753647565841675,
+      "side": 30.17510986328125,
+      "foot_px": [
+        797.2,
+        498.1
+      ],
+      "support": 0.2226,
+      "box": [
+        755.1439819335938,
+        462.3642883300781,
+        34.5028076171875,
+        30.17510986328125
+      ],
+      "in_frame": true,
+      "lower_half": false
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 24,
+      "conf": 0.704131007194519,
+      "side": 26.2764892578125,
+      "foot_px": [
+        141.0,
+        859.6
+      ],
+      "support": 0.0,
+      "box": [
+        85.16011047363281,
+        844.1317138671875,
+        26.2764892578125,
+        26.5274658203125
+      ],
+      "in_frame": true,
+      "lower_half": true,
+      "still": "reports/ball_testing/holdout_map_fn_spot/rand_t00552.8s_i0024_P10.jpg"
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 28,
+      "conf": 0.8361544013023376,
+      "side": 28.1942138671875,
+      "foot_px": [
+        177.5,
+        854.7
+      ],
+      "support": 0.0,
+      "box": [
+        115.04703521728516,
+        839.9456787109375,
+        30.539207458496094,
+        28.1942138671875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 30,
+      "conf": 0.7588937282562256,
+      "side": 27.756103515625,
+      "foot_px": [
+        198.2,
+        853.5
+      ],
+      "support": 0.0,
+      "box": [
+        134.65476989746094,
+        840.5160522460938,
+        28.568267822265625,
+        27.756103515625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 32,
+      "conf": 0.8241341710090637,
+      "side": 30.86431884765625,
+      "foot_px": [
+        219.1,
+        852.0
+      ],
+      "support": 0.0,
+      "box": [
+        152.35890197753906,
+        837.1762084960938,
+        31.2427978515625,
+        30.86431884765625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 34,
+      "conf": 0.8130561709403992,
+      "side": 27.59259033203125,
+      "foot_px": [
+        241.2,
+        849.5
+      ],
+      "support": 0.0,
+      "box": [
+        173.48385620117188,
+        839.1083374023438,
+        29.708694458007812,
+        27.59259033203125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 38,
+      "conf": 0.8472322225570679,
+      "side": 28.518310546875,
+      "foot_px": [
+        289.8,
+        848.7
+      ],
+      "support": 0.0,
+      "box": [
+        217.99264526367188,
+        840.1635131835938,
+        32.81129455566406,
+        28.518310546875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 40,
+      "conf": 0.8606763482093811,
+      "side": 28.864990234375,
+      "foot_px": [
+        315.9,
+        849.9
+      ],
+      "support": 0.0,
+      "box": [
+        242.77528381347656,
+        842.420166015625,
+        33.96080017089844,
+        28.864990234375
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 42,
+      "conf": 0.8612399697303772,
+      "side": 29.32861328125,
+      "foot_px": [
+        334.8,
+        848.6
+      ],
+      "support": 0.0,
+      "box": [
+        261.99932861328125,
+        841.6124877929688,
+        32.4691162109375,
+        29.32861328125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 44,
+      "conf": 0.8049728870391846,
+      "side": 30.8375244140625,
+      "foot_px": [
+        351.7,
+        847.8
+      ],
+      "support": 0.0,
+      "box": [
+        276.97247314453125,
+        840.0670166015625,
+        35.93017578125,
+        30.8375244140625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 46,
+      "conf": 0.8643599152565002,
+      "side": 31.94097900390625,
+      "foot_px": [
+        370.3,
+        844.5
+      ],
+      "support": 0.0,
+      "box": [
+        295.672119140625,
+        836.4261474609375,
+        35.3203125,
+        31.94097900390625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 48,
+      "conf": 0.8389528393745422,
+      "side": 29.6934814453125,
+      "foot_px": [
+        386.9,
+        841.7
+      ],
+      "support": 0.0,
+      "box": [
+        312.7854309082031,
+        836.463623046875,
+        34.23687744140625,
+        29.6934814453125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 50,
+      "conf": 0.8439236879348755,
+      "side": 31.1156005859375,
+      "foot_px": [
+        406.4,
+        842.6
+      ],
+      "support": 0.0,
+      "box": [
+        333.0242614746094,
+        836.8889770507812,
+        33.4710693359375,
+        31.1156005859375
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 52,
+      "conf": 0.8706274032592773,
+      "side": 32.184814453125,
+      "foot_px": [
+        426.9,
+        842.3
+      ],
+      "support": 0.0,
+      "box": [
+        353.5834045410156,
+        836.3587036132812,
+        34.36907958984375,
+        32.184814453125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 54,
+      "conf": 0.8040175437927246,
+      "side": 31.45489501953125,
+      "foot_px": [
+        447.2,
+        841.6
+      ],
+      "support": 0.0,
+      "box": [
+        372.24798583984375,
+        837.2481079101562,
+        38.998321533203125,
+        31.45489501953125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 56,
+      "conf": 0.8770579695701599,
+      "side": 32.146728515625,
+      "foot_px": [
+        466.7,
+        841.7
+      ],
+      "support": 0.0,
+      "box": [
+        394.33270263671875,
+        837.4031372070312,
+        35.46405029296875,
+        32.146728515625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 58,
+      "conf": 0.8255613446235657,
+      "side": 28.7940673828125,
+      "foot_px": [
+        486.5,
+        841.1
+      ],
+      "support": 0.0,
+      "box": [
+        415.0677185058594,
+        840.8328857421875,
+        35.35565185546875,
+        28.7940673828125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 60,
+      "conf": 0.8698945641517639,
+      "side": 31.18707275390625,
+      "foot_px": [
+        503.5,
+        838.3
+      ],
+      "support": 0.0,
+      "box": [
+        433.3252868652344,
+        836.0435791015625,
+        34.68701171875,
+        31.18707275390625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 62,
+      "conf": 0.8663912415504456,
+      "side": 33.26580810546875,
+      "foot_px": [
+        519.1,
+        837.1
+      ],
+      "support": 0.0,
+      "box": [
+        448.8429870605469,
+        833.2765502929688,
+        36.536834716796875,
+        33.26580810546875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 64,
+      "conf": 0.8056181073188782,
+      "side": 30.45489501953125,
+      "foot_px": [
+        537.6,
+        834.7
+      ],
+      "support": 0.0,
+      "box": [
+        468.9537658691406,
+        834.076416015625,
+        35.7548828125,
+        30.45489501953125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 66,
+      "conf": 0.8603265285491943,
+      "side": 31.44696044921875,
+      "foot_px": [
+        553.9,
+        833.1
+      ],
+      "support": 0.0,
+      "box": [
+        487.2568664550781,
+        831.9351196289062,
+        34.170257568359375,
+        31.44696044921875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 70,
+      "conf": 0.6210565567016602,
+      "side": 27.5684814453125,
+      "foot_px": [
+        570.7,
+        835.5
+      ],
+      "support": 0.0,
+      "box": [
+        506.967041015625,
+        838.8692626953125,
+        31.1773681640625,
+        27.5684814453125
+      ],
+      "in_frame": true,
+      "lower_half": true,
+      "still": "reports/ball_testing/holdout_map_fn_spot/rand_t00552.8s_i0070_P10.jpg"
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 76,
+      "conf": 0.7845436930656433,
+      "side": 25.1876220703125,
+      "foot_px": [
+        574.6,
+        836.4
+      ],
+      "support": 0.0,
+      "box": [
+        512.2026977539062,
+        842.353515625,
+        29.23577880859375,
+        25.1876220703125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 78,
+      "conf": 0.7905372977256775,
+      "side": 29.12237548828125,
+      "foot_px": [
+        580.2,
+        836.5
+      ],
+      "support": 0.0,
+      "box": [
+        513.7615356445312,
+        838.7369995117188,
+        38.2001953125,
+        29.12237548828125
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 80,
+      "conf": 0.8258594870567322,
+      "side": 29.46160888671875,
+      "foot_px": [
+        583.3,
+        836.0
+      ],
+      "support": 0.0,
+      "box": [
+        517.2522583007812,
+        837.8915405273438,
+        37.9815673828125,
+        29.46160888671875
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 82,
+      "conf": 0.8487147092819214,
+      "side": 30.84228515625,
+      "foot_px": [
+        585.8,
+        836.2
+      ],
+      "support": 0.0,
+      "box": [
+        520.5269775390625,
+        836.8260498046875,
+        36.71881103515625,
+        30.84228515625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 84,
+      "conf": 0.8723548650741577,
+      "side": 31.6116943359375,
+      "foot_px": [
+        589.1,
+        837.6
+      ],
+      "support": 0.0,
+      "box": [
+        523.7754516601562,
+        837.73193359375,
+        37.5177001953125,
+        31.6116943359375
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 86,
+      "conf": 0.8763095140457153,
+      "side": 31.13519287109375,
+      "foot_px": [
+        591.1,
+        838.1
+      ],
+      "support": 0.0,
+      "box": [
+        527.1419677734375,
+        838.751220703125,
+        35.13555908203125,
+        31.13519287109375
+      ],
+      "in_frame": true,
+      "lower_half": true
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "stem": "rand_t00552.8s",
+      "i": 88,
+      "conf": 0.8756927847862244,
+      "side": 30.4937744140625,
+      "foot_px": [
+        594.7,
+        840.2
+      ],
+      "support": 0.0,
+      "box": [
+        532.1076049804688,
+        841.7947387695312,
+        33.3358154296875,
+        30.4937744140625
+      ],
+      "in_frame": true,
+      "lower_half": true
+    }
+  ],
+  "stills_saved": 6,
+  "out_dir": "reports/ball_testing/holdout_map_fn_spot"
+}

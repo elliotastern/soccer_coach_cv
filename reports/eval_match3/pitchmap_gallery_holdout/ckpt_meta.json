@@ -1,0 +1,31 @@
+{
+  "gallery": "reports/eval_match3/pitchmap_gallery_holdout",
+  "tag": "v12_hard_holdout",
+  "role": "holdout",
+  "seed": 20260821,
+  "tune_starts_excluded": [
+    627.9,
+    931.2,
+    1162.3,
+    1237.3,
+    1714.0
+  ],
+  "min_gap_s": 25.0,
+  "checkpoint": "models/v12_hard_snaps/post_train/checkpoint.pth",
+  "n": 5,
+  "starts": [
+    166.0,
+    519.7,
+    552.8,
+    821.8,
+    1767.3
+  ],
+  "det_caches": [
+    "reports/eval_match3/pitchmap_gallery_holdout/det_cache/det_cache_rand_t00166.0s_thr010.json",
+    "reports/eval_match3/pitchmap_gallery_holdout/det_cache/det_cache_rand_t00519.7s_thr010.json",
+    "reports/eval_match3/pitchmap_gallery_holdout/det_cache/det_cache_rand_t00552.8s_thr010.json",
+    "reports/eval_match3/pitchmap_gallery_holdout/det_cache/det_cache_rand_t00821.8s_thr010.json",
+    "reports/eval_match3/pitchmap_gallery_holdout/det_cache/det_cache_rand_t01767.3s_thr010.json"
+  ],
+  "note": "Held-out clear-ball baseline. Do not tune hull/checkpoint on these times in the same pass as building them."
+}

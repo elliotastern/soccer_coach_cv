@@ -14,6 +14,7 @@ from src.mapping.match3_xy import (  # noqa: E402
     GHOST_CONF,
     HOLD_MAX_GAP,
     MATCH3_CAMS,
+    MIN_SUPPORT,
     apply_H,
     bbox_foot,
     combined_conf,
@@ -163,6 +164,39 @@ def test_far_hull_dropped() -> None:
         raise AssertionError(f"far P9 pixel should be weak support {sup} {row}")
     if row is not None and sup < MIN_SUPPORT:
         raise AssertionError("map_ball_box should drop below MIN_SUPPORT")
+
+
+def test_p6_hull_image_points_expand() -> None:
+    rec = load_calib("P6")
+    hull = rec.get("hull_image_points") or []
+    if len(hull) <= len(rec["image_points"]):
+        raise AssertionError("P6 hull_image_points should expand toward near touch")
+    # Clear balls on P9-t00559 lived around py~700–900
+    if hull_support(960.0, 850.0, hull) < MIN_SUPPORT:
+        raise AssertionError("P6 expanded hull should cover near-touch ball zone")
+
+
+def test_p8_hull_image_points_expand() -> None:
+    rec = load_calib("P8")
+    hull = rec.get("hull_image_points") or []
+    if len(hull) <= len(rec["image_points"]):
+        raise AssertionError("P8 hull_image_points should expand beyond landmarks")
+    # Midfield ball feet from C1 FN audit should pass support gate
+    mid_px, mid_py = 1088.0, 456.0
+    if hull_support(mid_px, mid_py, hull) < MIN_SUPPORT:
+        raise AssertionError("P8 expanded hull should cover midfield ball zone")
+
+
+def test_p10_hull_image_points_expand() -> None:
+    rec = load_calib("P10")
+    hull = rec.get("hull_image_points") or []
+    if len(hull) <= len(rec["image_points"]):
+        raise AssertionError("P10 hull_image_points should expand beyond landmarks")
+    # Holdout P10 low_support clear feet clustered ~x140–915, y500–860
+    if hull_support(500.0, 750.0, hull) < MIN_SUPPORT:
+        raise AssertionError("P10 expanded hull should cover lower-FOV clear-ball zone")
+    if hull_support(200.0, 850.0, hull) < MIN_SUPPORT:
+        raise AssertionError("P10 expanded hull should cover near-touch left zone")
 
 
 def test_hull_image_points_expand() -> None:
@@ -338,6 +372,9 @@ def main() -> int:
     test_off_pitch_dropped()
     test_far_hull_dropped()
     test_hull_image_points_expand()
+    test_p8_hull_image_points_expand()
+    test_p6_hull_image_points_expand()
+    test_p10_hull_image_points_expand()
     test_fuse_agree()
     test_fuse_no_midpoint()
     test_low_conf_silent()

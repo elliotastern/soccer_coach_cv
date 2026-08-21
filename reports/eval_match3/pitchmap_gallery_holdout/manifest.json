@@ -1,0 +1,42 @@
+[
+  {
+    "id": "rand_166",
+    "label": "Holdout 2:46",
+    "clock": "2:46\u20132:51",
+    "stem": "rand_t00166.0s",
+    "start_sec": 166.0,
+    "role": "holdout"
+  },
+  {
+    "id": "rand_519",
+    "label": "Holdout 8:40",
+    "clock": "8:40\u20138:45",
+    "stem": "rand_t00519.7s",
+    "start_sec": 519.7,
+    "role": "holdout"
+  },
+  {
+    "id": "rand_552",
+    "label": "Holdout 9:13",
+    "clock": "9:13\u20139:18",
+    "stem": "rand_t00552.8s",
+    "start_sec": 552.8,
+    "role": "holdout"
+  },
+  {
+    "id": "rand_821",
+    "label": "Holdout 13:42",
+    "clock": "13:42\u201313:47",
+    "stem": "rand_t00821.8s",
+    "start_sec": 821.8,
+    "role": "holdout"
+  },
+  {
+    "id": "rand_1767",
+    "label": "Holdout 29:27",
+    "clock": "29:27\u201329:32",
+    "stem": "rand_t01767.3s",
+    "start_sec": 1767.3,
+    "role": "holdout"
+  }
+]

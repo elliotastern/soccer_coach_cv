@@ -1,0 +1,26 @@
+---
+description: Match 3 clear-ball product-wide R — holdout gate, P10 hull, MIN_SUPPORT 0.20
+alwaysApply: true
+---
+
+# Match 3 clear-ball coverage
+
+Secondary Phase 1 gate: **clear-ball R ≥ 0.80** on product fuse; keep **P_emit ≥ 0.80**. **EMIT_CONF = 0.80**, agree ≤ **4 m**, Pitch 1 (not FIFA). **MIN_SUPPORT = 0.20** (H1 promote).
+
+## Product fuse (locked)
+
+`src/mapping/match3_xy.py`: **F1+F2+F0+F3** + hold. Do not lower emit or widen agree.
+
+## Status
+
+- **Holdout** proxy R **0.884** (gate; freeze was 0.556) after P10 `hull_image_points` + MIN_SUPPORT 0.20.
+- Strips product-F0: P10 P/R 1.0/0.876 · P8 0.966/0.801.
+- Tune pack = report-only (0.625).
+- Log failures in `reports/ball_testing/DEAD_ENDS.md`. Details: `docs/product/MATCH3_CLEAR_BALL.md`.
+
+## Do / don’t
+
+- **Do** score packs with product F0; use **holdout** as product-wide clear gate.
+- **Do** keep strip P_emit ≥ 0.80 as kill switch on map changes.
+- **Don’t** hull-for-one-seed, stronger k1 as primary recall fix, drop hull, FIFA meters, or Phase-2 RNN.
+- **Don’t** treat tune-proxy lifts as product progress.
