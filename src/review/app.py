@@ -142,17 +142,12 @@ def render_event_summary(events: List[Dict]):
     if not events:
         st.info("No events loaded")
         return
-    counts = {}
-    for event in events:
-        t = event.get("type", "unknown")
-        counts[t] = counts.get(t, 0) + 1
-    cols = st.columns(5)
-    metrics = [
-        ("Total Events", len(events)),
-        ("Passes", counts.get("pass", 0)),
-        ("Dribbles", counts.get("dribble", 0)),
-        ("Shots", counts.get("shot", 0)),
-        ("Recoveries", counts.get("recovery", 0)),
+    from src.review.events_bar import EVENT_TYPES, event_counts
+
+    counts = event_counts(events)
+    cols = st.columns(6)
+    metrics = [("Total", len(events))] + [
+        (t.capitalize(), counts.get(t, 0)) for t in EVENT_TYPES
     ]
     for col, (label, value) in zip(cols, metrics):
         col.metric(label, value)
@@ -213,14 +208,14 @@ def render_pitch_map(events: List[Dict]):
         )
     )
     # Cap markers so large runs stay responsive
+    from src.review.events_bar import EVENT_COLORS_PLOTLY
+
     show = events[:500]
     for event in show:
         start = event.get("start_location") or {}
         end = event.get("end_location") or {}
         et = event.get("type", "")
-        color = {"pass": "blue", "shot": "red", "dribble": "orange", "recovery": "purple"}.get(
-            et, "gray"
-        )
+        color = EVENT_COLORS_PLOTLY.get(et, "gray")
         fig.add_trace(
             go.Scatter(
                 x=[start.get("x", 0), end.get("x", 0)],
@@ -354,6 +349,8 @@ def render_growth_label_panel(
     else:
         st.caption("Growth engineering — persists to `labels.json`.")
 
+    from src.review.events_bar import events_at_frame
+
     data = load_labels(run_dir)
     cur = get_frame_label(data, frame_id)
     stats = label_stats(data)
@@ -362,11 +359,15 @@ def render_growth_label_panel(
     lc2.metric("Flagged", stats["flagged"])
     lc3.metric("Ball issues", stats["bad_ball"])
 
-    events_here = [
-        e for e in events if abs(int(e.get("start_frame", -10**9)) - int(frame_id)) <= 2
-    ]
+    events_here = events_at_frame(events, frame_id)
     low_here = [e for e in events_here if float(e.get("confidence", 0)) < 0.80]
 
+    if events_here:
+        chips = " · ".join(
+            f"**{e.get('type', '?')}** ({float(e.get('confidence', 0)):.2f})"
+            for e in events_here
+        )
+        st.markdown(f"Events at this moment: {chips}")
     vis_opts = ball_visible_options()
     qa_opts = qa_options()
 
@@ -563,6 +564,13 @@ def render_corrections_editor(run_dir: Path, events: List[Dict], simple: bool = 
         use_container_width=True,
         num_rows="dynamic",
         key="corrections_editor",
+        column_config={
+            "type": st.column_config.SelectboxColumn(
+                "type",
+                options=["pass", "dribble", "movement", "recovery", "shot"],
+                required=True,
+            ),
+        },
     )
     notes_lbl = "Notes about your changes" if simple else "Review notes"
     notes = st.text_input(notes_lbl, value="")
@@ -618,7 +626,8 @@ def render_synced_frame_review(
     if simple:
         st.info(
             "**Left:** four camera views with player and ball boxes. "
-            "**Right:** mini pitch map — yellow dot = ball, blue/red = teams."
+            "**Right:** mini pitch map — yellow dot = ball, blue/red = teams. "
+            "**Events bar** under the video: Pass · Dribble · Movement · Recovery · Shot."
         )
     else:
         st.info(
@@ -773,11 +782,10 @@ def render_synced_frame_review(
         + (" · boxes on" if dets_enabled else "")
     )
 
-    events_here = [
-        e
-        for e in events
-        if abs(int(e.get("start_frame", -10**9)) - int(frame_id)) <= 2
-    ]
+    from src.review.events_bar import draw_events_bar, events_at_frame, events_up_to_frame
+
+    events_here = events_at_frame(events, frame_id)
+
     rows = rows_for_frame(frame_df, frame_id)
 
     from src.review.io_retry import is_transient_io
@@ -1039,6 +1047,11 @@ def render_synced_frame_review(
         tight=True,
     )
 
+    recent_events = events_up_to_frame(events, frame_id)
+    flash = events_here[-1].get("type") if events_here else None
+    bar_w = max(int(stage.shape[1]), 640)
+    events_bar = draw_events_bar(bar_w, t_sec, recent_events, flash)
+
     st.caption(
         "Top **P10|P9** (180°) · Bottom **P7|P8** · right = Pitch 1 (sidelines only). "
         "Hide sidebar for a bigger video."
@@ -1049,6 +1062,11 @@ def render_synced_frame_review(
             cv2.cvtColor(stage, cv2.COLOR_BGR2RGB),
             use_container_width=True,
             caption=stage_caption,
+        )
+        st.image(
+            cv2.cvtColor(events_bar, cv2.COLOR_BGR2RGB),
+            use_container_width=True,
+            caption="Events — Pass · Dribble · Movement · Recovery · Shot",
         )
     with col_pitch:
         pitch_cap = (
@@ -1260,7 +1278,10 @@ def main():
         if events:
             if simple:
                 st.header("Automatic events")
-                st.caption("These were detected by the system. Remove or fix anything that looks wrong.")
+                st.caption(
+                    "Pass · Dribble · Movement · Recovery · Shot — from batch pipeline. "
+                    "Uncheck **keep** to remove wrong rows, then **Save changes**."
+                )
                 render_event_summary(events)
             else:
                 st.header("Event Summary")

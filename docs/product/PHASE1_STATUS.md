@@ -5,6 +5,8 @@ Clear-ball: [MATCH3_CLEAR_BALL.md](MATCH3_CLEAR_BALL.md) · holdout: [`reports/b
 
 Check clip (25 s match @ 30 fps, regular speed; mosaic + Pitch 1; defish tiles / no second undistort; pitch N-up / S-dn + `tile!=side · P8=north`): [`reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4`](../reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4).
 
+**Phase 1 proof pack** (per-pillar clips + manifest): [`reports/eval_match3/improve_eng_loop/phase1_proof/manifest.json`](../reports/eval_match3/improve_eng_loop/phase1_proof/manifest.json). Rebuild: `python3 scripts/gold_set/build_phase1_proof_pack.py`.
+
 ## Scorecard (out of 10; **≥7 = enough for Phase 1**)
 
 Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
@@ -23,6 +25,13 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 | Commercial-safe stack (no YOLO / no FIFA as product) | **9** | Yes | Unchanged. |
 
 **Phase 1 overall: ~7.5/10** — ball + holdout clear-ball + first-slice events at the bar; dribble/movement and 2-match delivery still open.
+
+## Next (see [PHASE1_SCOPE.md](PHASE1_SCOPE.md) § “What needs to be done next”)
+
+1. Run **batch pipeline** on **2 full matches** with checkpoints + CSV/JSON export.  
+2. Wire **heuristic events** through batch/review; finish **dribble + movement** (E2).  
+3. **Handover session** on a **3rd match**.  
+4. Optional map polish (P8 upper / P9 edge) before locking export quality.
 
 Ball precision, **holdout clear-ball (0.884)**, and heuristic events (**real P_emit 1.0** on check25 fuse) pass ≥7. Remaining blockers: E2 events + full-match delivery.
 

@@ -1,0 +1,91 @@
+{
+  "ts": "2026-08-22T10:51:27.763438+00:00",
+  "root": "reports/eval_match3/improve_eng_loop/phase1_proof",
+  "clips": [
+    {
+      "folder": "integrated",
+      "pillar": "Full product demo (ball + mapping + players + team + events)",
+      "video": "phase1_proof/integrated/coach_mosaic_pitch_min.mp4",
+      "source_dir": "reports/eval_match3/improve_eng_loop/phase1_check",
+      "duration_s": 25.0,
+      "ball_frame_frac": 0.96,
+      "n_emits": 1,
+      "events_bar": true,
+      "copied_files": [
+        "reports/eval_match3/improve_eng_loop/phase1_proof/integrated/coach_mosaic_pitch_min.mp4",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/integrated/meta.json",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/integrated/still_mid.jpg",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/integrated/emits_render.json"
+      ]
+    },
+    {
+      "folder": "ball",
+      "pillar": "Ball detect + fuse on mosaic (no events bar)",
+      "video": "phase1_proof/ball/coach_mosaic_pitch_min.mp4",
+      "source_dir": "rendered",
+      "duration_s": 25.0,
+      "ball_frame_frac": 0.964,
+      "n_emits": 0,
+      "events_bar": false,
+      "copied_files": []
+    },
+    {
+      "folder": "mapping",
+      "pillar": "Pitch 1 player/ball mapping (cam labels on dots)",
+      "video": "phase1_proof/mapping/coach_mosaic_pitch_min.mp4",
+      "source_dir": "reports/eval_match3/improve_eng_loop/player_map/check_15s_s4",
+      "duration_s": 15.0,
+      "ball_frame_frac": 0.956,
+      "n_emits": 2,
+      "events_bar": true,
+      "copied_files": [
+        "reports/eval_match3/improve_eng_loop/phase1_proof/mapping/coach_mosaic_pitch_min.mp4",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/mapping/meta.json"
+      ]
+    },
+    {
+      "folder": "players_team",
+      "pillar": "Multi-cam player boxes + team A/B colors on pitch",
+      "video": "phase1_proof/players_team/coach_mosaic_pitch_min.mp4",
+      "source_dir": "reports/eval_match3/improve_eng_loop/players_pitch/check_15s_s4",
+      "duration_s": 15.0,
+      "ball_frame_frac": 0.88,
+      "n_emits": 0,
+      "events_bar": null,
+      "copied_files": [
+        "reports/eval_match3/improve_eng_loop/phase1_proof/players_team/coach_mosaic_pitch_min.mp4",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/players_team/meta.json"
+      ]
+    },
+    {
+      "folder": "events",
+      "pillar": "Heuristic pass/shot/recovery events bar",
+      "video": "phase1_proof/events/coach_mosaic_pitch_min.mp4",
+      "source_dir": "reports/eval_match3/improve_eng_loop/phase1_check_smooth",
+      "duration_s": 25.0,
+      "ball_frame_frac": 0.963,
+      "n_emits": 4,
+      "events_bar": true,
+      "copied_files": [
+        "reports/eval_match3/improve_eng_loop/phase1_proof/events/coach_mosaic_pitch_min.mp4",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/events/meta.json",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/events/emits_render.json",
+        "reports/eval_match3/improve_eng_loop/phase1_proof/events/v1_check25_event_labels.jpg"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "pillar": "Batch / checkpoints / CSV/JSON export",
+      "note": "No MP4; run apps/batch_pipeline.py for data outputs"
+    },
+    {
+      "pillar": "Review app (Streamlit)",
+      "note": "Live UI; screen recording not included"
+    },
+    {
+      "pillar": "2-match delivery / handover",
+      "note": "Process milestone, not a single demo clip"
+    }
+  ]
+}

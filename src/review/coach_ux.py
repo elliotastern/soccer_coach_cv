@@ -19,6 +19,7 @@ QA_LABELS = {
 GUIDE_STEPS = [
     "Use **Previous** / **Next** (or Play) to move through the match.",
     "Check the **video** (left) and **mini pitch map** (right): orange box on the ball, yellow dot on the map.",
+    "Watch the **events bar** under the video — Pass, Dribble, Movement, Recovery, Shot.",
     "Answer the quick questions below, then click **Save this frame**.",
 ]
 
