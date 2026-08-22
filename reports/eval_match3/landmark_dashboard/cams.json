@@ -117,6 +117,14 @@
       ],
       "spec": "Outer south-right box. 5.95 m from goal line."
     },
+    "left_box_18_mid": {
+      "label": "South Box Front Centre",
+      "xy": [
+        -21.0,
+        -0.875
+      ],
+      "spec": "Front of south box \u00d7 goal centre. 5.95 m from goal line."
+    },
     "left_post_near": {
       "label": "South Left Goal Post",
       "xy": [
@@ -164,6 +172,14 @@
         -5.415
       ],
       "spec": "Outer north-right box. 5.95 m from goal line."
+    },
+    "right_box_18_mid": {
+      "label": "North Box Front Centre",
+      "xy": [
+        21.0,
+        -0.94
+      ],
+      "spec": "Front of north box \u00d7 goal centre. 5.95 m from goal line."
     },
     "right_post_near": {
       "label": "North Left Goal Post",
@@ -216,12 +232,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -239,12 +257,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -262,12 +282,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -285,12 +307,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -308,12 +332,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -331,12 +357,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -354,12 +382,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ],
@@ -377,12 +407,14 @@
       "left_box_goal_far",
       "left_box_18_near",
       "left_box_18_far",
+      "left_box_18_mid",
       "left_post_near",
       "left_post_far",
       "right_box_goal_near",
       "right_box_goal_far",
       "right_box_18_near",
       "right_box_18_far",
+      "right_box_18_mid",
       "right_post_near",
       "right_post_far"
     ]
@@ -413,6 +445,7 @@
         "left_box_goal_near",
         "left_box_goal_far",
         "left_box_18_near",
+        "left_box_18_mid",
         "left_box_18_far"
       ]
     },
@@ -429,6 +462,7 @@
         "right_box_goal_near",
         "right_box_goal_far",
         "right_box_18_near",
+        "right_box_18_mid",
         "right_box_18_far"
       ]
     },
@@ -454,12 +488,14 @@
     "left_box_goal_far",
     "left_box_18_near",
     "left_box_18_far",
+    "left_box_18_mid",
     "left_post_near",
     "left_post_far",
     "right_box_goal_near",
     "right_box_goal_far",
     "right_box_18_near",
     "right_box_18_far",
+    "right_box_18_mid",
     "right_post_near",
     "right_post_far"
   ],

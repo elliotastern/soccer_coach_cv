@@ -14,6 +14,7 @@ def main() -> int:
     want = {
         "left_box_18_near": (-21.0, 3.6),
         "right_box_18_far": (21.0, -5.415),
+        "right_box_18_mid": (21.0, -0.94),
         "left_post_near": (-26.95, 1.45),
         "right_post_far": (26.95, -3.265),
         "circle_far": (0.0, -3.5),

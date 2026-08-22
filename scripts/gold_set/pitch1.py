@@ -81,6 +81,9 @@ def pitch1_landmarks(rec: dict | None = None) -> dict:
         "left_box_18_far": _pt(
             "South Right Box Corner", (-hx + pd, south["box_r"]),
             f"Outer south-right box. {pd} m from goal line."),
+        "left_box_18_mid": _pt(
+            "South Box Front Centre", (-hx + pd, 0.5 * (south["box_l"] + south["box_r"])),
+            f"Front of south box × goal centre. {pd} m from goal line."),
         "left_post_near": _pt(
             "South Left Goal Post", (-hx, south["post_l"]),
             f"South left post. Goal {gw} m, {m['south']['left_corner_to_post_m']} m from Corner 2."),
@@ -99,6 +102,9 @@ def pitch1_landmarks(rec: dict | None = None) -> dict:
         "right_box_18_far": _pt(
             "North Right Box Corner", (hx - pd, north["box_r"]),
             f"Outer north-right box. {pd} m from goal line."),
+        "right_box_18_mid": _pt(
+            "North Box Front Centre", (hx - pd, 0.5 * (north["box_l"] + north["box_r"])),
+            f"Front of north box × goal centre. {pd} m from goal line."),
         "right_post_near": _pt(
             "North Left Goal Post", (hx, north["post_l"]),
             f"North left post. Goal {gw} m, {m['north']['left_corner_to_post_m']} m from Corner 4."),

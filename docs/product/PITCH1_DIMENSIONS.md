@@ -37,12 +37,14 @@ Diagram corners: Corner 2 = south-left, Corner 1 = south-right (P1), Corner 4 = 
 | `left_box_goal_near` | South Left Box Goal-Line Corner | -26.95 | 3.60 | 5.95 m box, left of south goal. |
 | `left_box_goal_far` | South Right Box Goal-Line Corner | -26.95 | -5.35 | 5.95 m box, right of south goal. |
 | `left_box_18_near` | South Left Box Corner | -21.00 | 3.60 | Outer south-left box. |
+| `left_box_18_mid` | South Box Front Centre | -21.00 | -0.94 | Front of south box × goal centre. |
 | `left_box_18_far` | South Right Box Corner | -21.00 | -5.35 | Outer south-right box. |
 | `left_post_near` | South Left Goal Post | -26.95 | 1.45 | 15.97 m from Corner 2. |
 | `left_post_far` | South Right Goal Post | -26.95 | -3.20 | 14.22 m from Corner 1. |
 | `right_box_goal_near` | North Left Box Goal-Line Corner | 26.95 | 3.54 | 5.95 m box, left of north goal. |
 | `right_box_goal_far` | North Right Box Goal-Line Corner | 26.95 | -5.42 | 5.95 m box, right of north goal. |
 | `right_box_18_near` | North Left Box Corner | 21.00 | 3.54 | Outer north-left box. |
+| `right_box_18_mid` | North Box Front Centre | 21.00 | -0.94 | Front of north box × goal centre. |
 | `right_box_18_far` | North Right Box Corner | 21.00 | -5.42 | Outer north-right box. |
 | `right_post_near` | North Left Goal Post | 26.95 | 1.39 | 16.02 m from Corner 4. |
 | `right_post_far` | North Right Goal Post | 26.95 | -3.27 | 14.14 m from Corner 3. |

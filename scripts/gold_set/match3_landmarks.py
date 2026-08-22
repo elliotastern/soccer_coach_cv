@@ -20,6 +20,15 @@ STILL_DIR = DASH / "stills"
 STILL_RAW_DIR = DASH / "stills_raw"
 CALIB_DIR = ROOT / "reports/eval_match3/match3_pitch_calib"
 FISH_TAGS = ROOT / "reports/eval_match3/fisheye_dashboard/tags.json"
+CALIB_PRESERVE_KEYS = (
+    "H_player",
+    "player_landmark_names",
+    "player_image_points",
+    "player_h_note",
+    "player_roundtrip_max_m",
+    "hull_image_points",
+    "hull_note",
+)
 MATCH3_RAW = ROOT / "data/raw/Match 3"
 # Camera id = filename P-code. Never remap by FOV (P1-006.mp4 is P1, not P9).
 RAW_FILE = load_match_raw(MATCH3_RAW)
@@ -112,14 +121,14 @@ SWAP_GROUPS = [
     ]),
     ("South box", [
         "left_box_goal_near", "left_box_goal_far",
-        "left_box_18_near", "left_box_18_far",
+        "left_box_18_near", "left_box_18_mid", "left_box_18_far",
     ]),
     ("South goal", [
         "left_post_near", "left_post_far",
     ]),
     ("North box", [
         "right_box_goal_near", "right_box_goal_far",
-        "right_box_18_near", "right_box_18_far",
+        "right_box_18_near", "right_box_18_mid", "right_box_18_far",
     ]),
     ("North goal", [
         "right_post_near", "right_post_far",
@@ -447,6 +456,14 @@ def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=No
         payload["undistort"] = fish
         payload["undistort_fingerprint"] = undistort_fingerprint(fish)
     out = CALIB_DIR / f"{cam}_manual.json"
+    if out.is_file():
+        try:
+            prev = json.loads(out.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            prev = {}
+        for key in CALIB_PRESERVE_KEYS:
+            if key in prev:
+                payload[key] = prev[key]
     out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     write_manifest()
     return {
