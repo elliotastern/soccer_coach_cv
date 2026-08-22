@@ -12,7 +12,7 @@ Maps the **Fiverr Phase 1 gig** to this repository. Technical detail: [PHASE1_SC
 | **Team A / B** | Color clustering (`src/perception/team.py`, live fuse in review) | Blue / red on Pitch 1 panel; gray when unsure. |
 | **Pitch (x, y) mapping** | Pitch 1 homography + multi-cam fuse (`src/mapping/match3_xy.py`) | **53.90 × ~34.8 m** — not FIFA 105×68. |
 | **Batch multiple files** | `apps/batch_pipeline.py` + shell runners below | One subfolder per camera under an output root. |
-| **Heuristic events** | `src/events/events.py` | **Pass, shot, recovery** proven on eng-loop gold. **Dribble + movement** = E2 (UI ready; detectors next). |
+| **Heuristic events** | `src/events/events.py` | **All 5 types** (pass, shot, recovery, dribble, movement) on eng-loop gold **P_emit 1.0**; dribble/movement suppressed in goal band (fusion noise). |
 | **Checkpoints** | `checkpoints/checkpoint_frame_*.json` per run | Incremental saves during batch. |
 | **Review UI** | `apps/review_dashboard.py` | Coach mode: mosaic + pitch + **events bar**. Guide: [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md). |
 | **CSV / JSON export** | `frame_data.csv`, `events.csv`, `events.json` | Phase 2-ready schema (see below). |
@@ -129,7 +129,7 @@ Rebuild proof pack: `python3 scripts/gold_set/build_phase1_proof_pack.py`
 |------|--------|
 | 2 **full** matches through batch | Run `run_phase1_full_matches.sh` (hours on GPU) |
 | 3rd-match handover session | Manual — use [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md) |
-| Dribble + **movement** heuristic emits | E2 — review UI supports all 5 types; batch emits pass/shot/recovery |
+| Dribble + **movement** heuristic emits | **Done (E2)** — batch + review; goal-band guard for precision |
 | Live RTSP / wearables | Phase 2+ — not in Phase 1 scope |
 
 ---

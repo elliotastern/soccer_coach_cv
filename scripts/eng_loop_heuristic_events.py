@@ -103,6 +103,9 @@ def score_clip(clip: dict, det: EventDetector) -> dict | None:
         max_ball_speed_m_s=det.max_ball_speed_m_s,
         min_emit_gap_s=det.min_emit_gap_s,
         enable_dribble=det.enable_dribble,
+        enable_movement=det.enable_movement,
+        movement_velocity_min=det.movement_velocity_min,
+        movement_proximity=det.movement_proximity,
     )
     tl_path = ROOT / clip["timeline"]
     lab_path = ROOT / clip["labels"]

@@ -238,15 +238,20 @@ def process_video(
         pitch_mapper.set_homography(calib["H"])
         print(f"Match 3 calib loaded for {calib.get('camera')} (ball = map + hold)")
 
+    ev_cfg = config["events"]
     event_detector = EventDetector(
         pitch_mapper=pitch_mapper,
-        pass_velocity_threshold=config["events"]["pass_velocity_threshold"],
-        dribble_distance_threshold=config["events"]["dribble_distance_threshold"],
-        shot_velocity_threshold=config["events"]["shot_velocity_threshold"],
-        recovery_proximity=config["events"]["recovery_proximity"],
-        emit_conf=float(config["events"].get("emit_conf", 0.80)),
-        half_length_m=float(config["events"].get("half_length_m", 26.95)),
-        shot_goal_band_m=float(config["events"].get("shot_goal_band_m", 5.0)),
+        pass_velocity_threshold=ev_cfg["pass_velocity_threshold"],
+        dribble_distance_threshold=ev_cfg["dribble_distance_threshold"],
+        shot_velocity_threshold=ev_cfg["shot_velocity_threshold"],
+        recovery_proximity=ev_cfg["recovery_proximity"],
+        emit_conf=float(ev_cfg.get("emit_conf", 0.80)),
+        half_length_m=float(ev_cfg.get("half_length_m", 26.95)),
+        shot_goal_band_m=float(ev_cfg.get("shot_goal_band_m", 5.0)),
+        enable_dribble=bool(ev_cfg.get("enable_dribble", True)),
+        enable_movement=bool(ev_cfg.get("enable_movement", True)),
+        movement_velocity_min=float(ev_cfg.get("movement_velocity_min", 1.0)),
+        movement_proximity=float(ev_cfg.get("movement_proximity", 4.0)),
     )
     event_manager = EventManager(
         checkpoint_interval=config["checkpoint"]["interval_frames"],

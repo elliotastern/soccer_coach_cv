@@ -57,6 +57,10 @@ events:
   # Pitch 1 half-length from centre (53.90/2); never FIFA 52.5
   half_length_m: 26.95
   shot_goal_band_m: 5.0
+  enable_dribble: true
+  enable_movement: true
+  movement_velocity_min: 1.0  # m/s; below pass_velocity_threshold
+  movement_proximity: 4.0  # meters
 
 # Checkpoint Settings
 checkpoint:

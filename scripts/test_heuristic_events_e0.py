@@ -118,7 +118,7 @@ def test_teleport_rejected():
 
 
 def test_weak_dribble_suppressed():
-    det = EventDetector()
+    det = EventDetector(enable_dribble=True)
     dt = 1 / 30
     prev, cur = _pair(
         [_player(1, 0.0, 0.0, 0, 0.0)],
@@ -130,6 +130,62 @@ def test_weak_dribble_suppressed():
     assert det.detect_dribble(cur, prev) is None
 
 
+def test_dribble_needs_prev_proximity():
+    det = EventDetector(enable_dribble=True)
+    dt = 1.0
+    prev, cur = _pair(
+        [_player(1, 5.0, 0.0, 0, 0.0)],
+        _ball(0.5, 0.0, 0, 0.0),
+        [_player(1, 0.2, 0.0, 1, dt)],
+        _ball(0.9, 0.0, 1, dt),
+        dt=dt,
+    )
+    assert det.detect_dribble(cur, prev) is None
+
+
+def test_dribble_emits():
+    det = EventDetector(enable_dribble=True)
+    dt = 1.0
+    prev, cur = _pair(
+        [_player(1, 0.0, 0.0, 0, 0.0)],
+        _ball(0.5, 0.0, 0, 0.0),
+        [_player(1, 0.2, 0.0, 1, dt)],
+        _ball(0.9, 0.0, 1, dt),
+        dt=dt,
+    )
+    ev = det.detect_dribble(cur, prev)
+    assert ev is not None and ev.type == EventType.DRIBBLE
+    assert ev.confidence >= EMIT_CONF
+
+
+def test_movement_emits():
+    det = EventDetector(enable_movement=True)
+    dt = 1.0
+    prev, cur = _pair(
+        [_player(1, 0.0, 0.0, 0, 0.0)],
+        _ball(0.0, 0.0, 0, 0.0),
+        [_player(1, 0.0, 0.0, 1, dt)],
+        _ball(2.5, 0.0, 1, dt),
+        dt=dt,
+    )
+    ev = det.detect_movement(cur, prev)
+    assert ev is not None and ev.type == EventType.MOVEMENT
+    assert ev.confidence >= EMIT_CONF
+
+
+def test_movement_below_pass_threshold():
+    det = EventDetector(enable_movement=True, enable_dribble=False)
+    dt = 1.0
+    prev, cur = _pair(
+        [_player(1, 0.0, 0.0, 0, 0.0)],
+        _ball(0.0, 0.0, 0, 0.0),
+        [_player(1, 0.0, 0.0, 1, dt)],
+        _ball(18.0, 0.0, 1, dt),
+        dt=dt,
+    )
+    assert det.detect_movement(cur, prev) is None
+
+
 def main() -> int:
     tests = [
         test_no_fifa_52_5,
@@ -139,6 +195,10 @@ def main() -> int:
         test_strong_pass_emits,
         test_priority_shot_over_pass,
         test_weak_dribble_suppressed,
+        test_dribble_needs_prev_proximity,
+        test_dribble_emits,
+        test_movement_emits,
+        test_movement_below_pass_threshold,
     ]
     for fn in tests:
         fn()

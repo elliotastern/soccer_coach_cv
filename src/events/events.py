@@ -22,6 +22,7 @@ _EVENT_PRIORITY = (
     EventType.PASS,
     EventType.RECOVERY,
     EventType.DRIBBLE,
+    EventType.MOVEMENT,
 )
 
 
@@ -40,7 +41,10 @@ class EventDetector:
         shot_goal_band_m: float = SHOT_GOAL_BAND_M,
         max_ball_speed_m_s: float = MAX_BALL_SPEED_M_S,
         min_emit_gap_s: float = MIN_EMIT_GAP_S,
-        enable_dribble: bool = False,
+        enable_dribble: bool = True,
+        enable_movement: bool = True,
+        movement_velocity_min: float = 1.0,
+        movement_proximity: float = 4.0,
     ):
         self.pitch_mapper = pitch_mapper
         self.pass_velocity_threshold = pass_velocity_threshold
@@ -53,6 +57,9 @@ class EventDetector:
         self.max_ball_speed_m_s = max_ball_speed_m_s
         self.min_emit_gap_s = min_emit_gap_s
         self.enable_dribble = enable_dribble
+        self.enable_movement = enable_movement
+        self.movement_velocity_min = movement_velocity_min
+        self.movement_proximity = movement_proximity
         self.player_history: Dict[int, List[Player]] = {}
         self.ball_history: List[Ball] = []
         self._last_emit_t: Optional[float] = None
@@ -73,6 +80,14 @@ class EventDetector:
             and frame_data.ball is not None
             and prev.ball is not None
         )
+
+    def _player_loc(
+        self, players: List[Player], object_id: int
+    ) -> Optional[Location]:
+        for player in players:
+            if player.object_id == object_id:
+                return Location(player.x_pitch, player.y_pitch)
+        return None
 
     def _closest_player(
         self, players: List[Player], loc: Location, max_dist: float
@@ -106,6 +121,9 @@ class EventDetector:
 
     def _in_pitch(self, loc: Location) -> bool:
         return abs(loc.x) <= self.half_length_m + 0.05 and abs(loc.y) <= 17.5
+
+    def _in_goal_band(self, loc: Location) -> bool:
+        return abs(loc.x) >= self.half_length_m - self.shot_goal_band_m
 
     def _cooldown_ok(self, t_end: float) -> bool:
         if self._last_emit_t is None:
@@ -154,12 +172,19 @@ class EventDetector:
         assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
         ball = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
         prev_ball = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
+        if self._in_goal_band(ball) or self._in_goal_band(prev_ball):
+            return None
         moved = self._distance(prev_ball, ball)
+        dt = frame_data.timestamp - prev_frame_data.timestamp
+        if dt > 0 and self._velocity(prev_ball, ball, dt) >= self.pass_velocity_threshold:
+            return None
         for player in frame_data.players:
             pl = Location(player.x_pitch, player.y_pitch)
             if self._distance(ball, pl) >= self.dribble_distance_threshold:
                 continue
-            prev_pl = Location(player.x_pitch, player.y_pitch)
+            prev_pl = self._player_loc(prev_frame_data.players, player.object_id)
+            if prev_pl is None:
+                continue
             if self._distance(prev_ball, prev_pl) >= self.dribble_distance_threshold:
                 continue
             # Require clear carry distance; weak cling stays below emit.
@@ -257,10 +282,52 @@ class EventDetector:
             )
         return None
 
+    def detect_movement(
+        self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
+    ) -> Optional[Event]:
+        if not self._ball_ok(frame_data, prev_frame_data):
+            return None
+        assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
+        dt = frame_data.timestamp - prev_frame_data.timestamp
+        start = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
+        end = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
+        if not (self._in_pitch(start) and self._in_pitch(end)):
+            return None
+        if self._in_goal_band(start) or self._in_goal_band(end):
+            return None
+        moved = self._distance(start, end)
+        if moved < 0.25:
+            return None
+        ball_vel = self._velocity(start, end, dt)
+        if ball_vel < self.movement_velocity_min:
+            return None
+        if ball_vel >= self.pass_velocity_threshold:
+            return None
+        pid = self._closest_player(
+            prev_frame_data.players, start, self.movement_proximity
+        )
+        if pid is None:
+            return None
+        conf = min(1.0, 0.80 + moved / 5.0)
+        return self._gate(
+            Event(
+                id=f"movement_{frame_data.frame_id}",
+                type=EventType.MOVEMENT,
+                start_frame=prev_frame_data.frame_id,
+                end_frame=frame_data.frame_id,
+                start_location=start,
+                end_location=end,
+                involved_players=[pid],
+                confidence=conf,
+                timestamp_start=prev_frame_data.timestamp,
+                timestamp_end=frame_data.timestamp,
+            )
+        )
+
     def detect_events(
         self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
     ) -> List[Event]:
-        """Emit at most one event per frame (shot > pass > recovery > dribble)."""
+        """Emit at most one event per frame (shot > pass > recovery > dribble > movement)."""
         if not self._ball_ok(frame_data, prev_frame_data):
             self._stable_streak = 0
             return []
@@ -283,10 +350,11 @@ class EventDetector:
         }
         if self.enable_dribble:
             detectors[EventType.DRIBBLE] = self.detect_dribble
-            order = _EVENT_PRIORITY
-        else:
-            order = (EventType.SHOT, EventType.PASS, EventType.RECOVERY)
-        for et in order:
+        if self.enable_movement:
+            detectors[EventType.MOVEMENT] = self.detect_movement
+        for et in _EVENT_PRIORITY:
+            if et not in detectors:
+                continue
             ev = detectors[et](frame_data, prev_frame_data)
             if ev is not None:
                 self._last_emit_t = ev.timestamp_end
