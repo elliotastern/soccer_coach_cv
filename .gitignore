@@ -176,10 +176,14 @@ data/**
 !data/processed/gold_sets/match3_quad_p8_87/labels.json
 # Legacy alias (symlink to processed); ignore contents
 data/output
+# Phase 1 client smoke batch (~19 MB) — dashboard demo without full batch
+!data/processed/full_match_2min/
+!data/processed/full_match_2min/**
 
 # Model files (too large for git)
-models/
+models/*
 !models/.gitkeep
+!models/README.md
 
 # Local matplotlib cache from eval runs
 **/.mplcache/

@@ -2,6 +2,8 @@
 
 Maps the **Fiverr Phase 1 gig** to this repository. Technical detail: [PHASE1_SCOPE.md](PHASE1_SCOPE.md) · status: [PHASE1_STATUS.md](PHASE1_STATUS.md).
 
+**Client setup (Linux RTX 5090, AnyDesk):** [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md)
+
 ---
 
 ## Gig scope → what you get

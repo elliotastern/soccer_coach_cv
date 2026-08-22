@@ -1,0 +1,905 @@
+{
+  "frame_count": 4650,
+  "events": [
+    {
+      "id": "pass_4518",
+      "type": "pass",
+      "start_frame": 4517,
+      "end_frame": 4518,
+      "start_location": {
+        "x": -14.308980530999953,
+        "y": 4.344652905601533
+      },
+      "end_location": {
+        "x": -14.137801978387639,
+        "y": 4.609651369848146
+      },
+      "involved_players": [
+        8
+      ],
+      "confidence": 0.9464491918014104,
+      "timestamp_start": 75.28209257544614,
+      "timestamp_end": 75.29875896742654
+    },
+    {
+      "id": "pass_4585",
+      "type": "pass",
+      "start_frame": 4584,
+      "end_frame": 4585,
+      "start_location": {
+        "x": -8.873764976534938,
+        "y": 10.703174919674135
+      },
+      "end_location": {
+        "x": -8.798887811702128,
+        "y": 10.760144186803332
+      },
+      "involved_players": [
+        94
+      ],
+      "confidence": 0.28226124606692193,
+      "timestamp_start": 76.39874083813262,
+      "timestamp_end": 76.41540723011302
+    },
+    {
+      "id": "pass_4588",
+      "type": "pass",
+      "start_frame": 4587,
+      "end_frame": 4588,
+      "start_location": {
+        "x": -8.798887811702128,
+        "y": 10.760144186803332
+      },
+      "end_location": {
+        "x": -8.549189113429648,
+        "y": 11.023054515502874
+      },
+      "involved_players": [
+        2
+      ],
+      "confidence": 1.0,
+      "timestamp_start": 76.44874001407382,
+      "timestamp_end": 76.46540640605421
+    },
+    {
+      "id": "pass_4589",
+      "type": "pass",
+      "start_frame": 4588,
+      "end_frame": 4589,
+      "start_location": {
+        "x": -8.549189113429648,
+        "y": 11.023054515502874
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        94
+      ],
+      "confidence": 0.29061961265418657,
+      "timestamp_start": 76.46540640605421,
+      "timestamp_end": 76.48207279803461
+    },
+    {
+      "id": "dribble_4607",
+      "type": "dribble",
+      "start_frame": 4606,
+      "end_frame": 4607,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.76540146170133,
+      "timestamp_end": 76.78206785368172
+    },
+    {
+      "id": "dribble_4608",
+      "type": "dribble",
+      "start_frame": 4607,
+      "end_frame": 4608,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.78206785368172,
+      "timestamp_end": 76.79873424566212
+    },
+    {
+      "id": "dribble_4609",
+      "type": "dribble",
+      "start_frame": 4608,
+      "end_frame": 4609,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.79873424566212,
+      "timestamp_end": 76.81540063764251
+    },
+    {
+      "id": "dribble_4610",
+      "type": "dribble",
+      "start_frame": 4609,
+      "end_frame": 4610,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.81540063764251,
+      "timestamp_end": 76.8320670296229
+    },
+    {
+      "id": "dribble_4611",
+      "type": "dribble",
+      "start_frame": 4610,
+      "end_frame": 4611,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.8320670296229,
+      "timestamp_end": 76.8487334216033
+    },
+    {
+      "id": "dribble_4612",
+      "type": "dribble",
+      "start_frame": 4611,
+      "end_frame": 4612,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.8487334216033,
+      "timestamp_end": 76.8653998135837
+    },
+    {
+      "id": "dribble_4613",
+      "type": "dribble",
+      "start_frame": 4612,
+      "end_frame": 4613,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.8653998135837,
+      "timestamp_end": 76.8820662055641
+    },
+    {
+      "id": "dribble_4614",
+      "type": "dribble",
+      "start_frame": 4613,
+      "end_frame": 4614,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.8820662055641,
+      "timestamp_end": 76.8987325975445
+    },
+    {
+      "id": "dribble_4615",
+      "type": "dribble",
+      "start_frame": 4614,
+      "end_frame": 4615,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.8987325975445,
+      "timestamp_end": 76.91539898952489
+    },
+    {
+      "id": "dribble_4616",
+      "type": "dribble",
+      "start_frame": 4615,
+      "end_frame": 4616,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.91539898952489,
+      "timestamp_end": 76.93206538150528
+    },
+    {
+      "id": "dribble_4617",
+      "type": "dribble",
+      "start_frame": 4616,
+      "end_frame": 4617,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.93206538150528,
+      "timestamp_end": 76.94873177348568
+    },
+    {
+      "id": "dribble_4618",
+      "type": "dribble",
+      "start_frame": 4617,
+      "end_frame": 4618,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.94873177348568,
+      "timestamp_end": 76.96539816546607
+    },
+    {
+      "id": "dribble_4619",
+      "type": "dribble",
+      "start_frame": 4618,
+      "end_frame": 4619,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.96539816546607,
+      "timestamp_end": 76.98206455744646
+    },
+    {
+      "id": "dribble_4620",
+      "type": "dribble",
+      "start_frame": 4619,
+      "end_frame": 4620,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.98206455744646,
+      "timestamp_end": 76.99873094942687
+    },
+    {
+      "id": "dribble_4621",
+      "type": "dribble",
+      "start_frame": 4620,
+      "end_frame": 4621,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 76.99873094942687,
+      "timestamp_end": 77.01539734140727
+    },
+    {
+      "id": "dribble_4622",
+      "type": "dribble",
+      "start_frame": 4621,
+      "end_frame": 4622,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.01539734140727,
+      "timestamp_end": 77.03206373338766
+    },
+    {
+      "id": "dribble_4623",
+      "type": "dribble",
+      "start_frame": 4622,
+      "end_frame": 4623,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.03206373338766,
+      "timestamp_end": 77.04873012536805
+    },
+    {
+      "id": "dribble_4624",
+      "type": "dribble",
+      "start_frame": 4623,
+      "end_frame": 4624,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.04873012536805,
+      "timestamp_end": 77.06539651734845
+    },
+    {
+      "id": "dribble_4625",
+      "type": "dribble",
+      "start_frame": 4624,
+      "end_frame": 4625,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.06539651734845,
+      "timestamp_end": 77.08206290932884
+    },
+    {
+      "id": "dribble_4626",
+      "type": "dribble",
+      "start_frame": 4625,
+      "end_frame": 4626,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.08206290932884,
+      "timestamp_end": 77.09872930130923
+    },
+    {
+      "id": "dribble_4627",
+      "type": "dribble",
+      "start_frame": 4626,
+      "end_frame": 4627,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.09872930130923,
+      "timestamp_end": 77.11539569328963
+    },
+    {
+      "id": "dribble_4628",
+      "type": "dribble",
+      "start_frame": 4627,
+      "end_frame": 4628,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.11539569328963,
+      "timestamp_end": 77.13206208527002
+    },
+    {
+      "id": "dribble_4629",
+      "type": "dribble",
+      "start_frame": 4628,
+      "end_frame": 4629,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.13206208527002,
+      "timestamp_end": 77.14872847725043
+    },
+    {
+      "id": "dribble_4630",
+      "type": "dribble",
+      "start_frame": 4629,
+      "end_frame": 4630,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.14872847725043,
+      "timestamp_end": 77.16539486923082
+    },
+    {
+      "id": "dribble_4631",
+      "type": "dribble",
+      "start_frame": 4630,
+      "end_frame": 4631,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.16539486923082,
+      "timestamp_end": 77.18206126121122
+    },
+    {
+      "id": "dribble_4632",
+      "type": "dribble",
+      "start_frame": 4631,
+      "end_frame": 4632,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.18206126121122,
+      "timestamp_end": 77.19872765319161
+    },
+    {
+      "id": "dribble_4633",
+      "type": "dribble",
+      "start_frame": 4632,
+      "end_frame": 4633,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.19872765319161,
+      "timestamp_end": 77.215394045172
+    },
+    {
+      "id": "dribble_4634",
+      "type": "dribble",
+      "start_frame": 4633,
+      "end_frame": 4634,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.215394045172,
+      "timestamp_end": 77.2320604371524
+    },
+    {
+      "id": "dribble_4636",
+      "type": "dribble",
+      "start_frame": 4635,
+      "end_frame": 4636,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.24872682913279,
+      "timestamp_end": 77.26539322111319
+    },
+    {
+      "id": "dribble_4637",
+      "type": "dribble",
+      "start_frame": 4636,
+      "end_frame": 4637,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.26539322111319,
+      "timestamp_end": 77.28205961309358
+    },
+    {
+      "id": "dribble_4638",
+      "type": "dribble",
+      "start_frame": 4637,
+      "end_frame": 4638,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.28205961309358,
+      "timestamp_end": 77.29872600507399
+    },
+    {
+      "id": "dribble_4639",
+      "type": "dribble",
+      "start_frame": 4638,
+      "end_frame": 4639,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.29872600507399,
+      "timestamp_end": 77.31539239705438
+    },
+    {
+      "id": "dribble_4640",
+      "type": "dribble",
+      "start_frame": 4639,
+      "end_frame": 4640,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.31539239705438,
+      "timestamp_end": 77.33205878903478
+    },
+    {
+      "id": "dribble_4641",
+      "type": "dribble",
+      "start_frame": 4640,
+      "end_frame": 4641,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.33205878903478,
+      "timestamp_end": 77.34872518101517
+    },
+    {
+      "id": "dribble_4642",
+      "type": "dribble",
+      "start_frame": 4641,
+      "end_frame": 4642,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.34872518101517,
+      "timestamp_end": 77.36539157299556
+    },
+    {
+      "id": "dribble_4643",
+      "type": "dribble",
+      "start_frame": 4642,
+      "end_frame": 4643,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.36539157299556,
+      "timestamp_end": 77.38205796497596
+    },
+    {
+      "id": "dribble_4644",
+      "type": "dribble",
+      "start_frame": 4643,
+      "end_frame": 4644,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.38205796497596,
+      "timestamp_end": 77.39872435695635
+    },
+    {
+      "id": "dribble_4645",
+      "type": "dribble",
+      "start_frame": 4644,
+      "end_frame": 4645,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.39872435695635,
+      "timestamp_end": 77.41539074893674
+    },
+    {
+      "id": "dribble_4646",
+      "type": "dribble",
+      "start_frame": 4645,
+      "end_frame": 4646,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.41539074893674,
+      "timestamp_end": 77.43205714091715
+    },
+    {
+      "id": "dribble_4647",
+      "type": "dribble",
+      "start_frame": 4646,
+      "end_frame": 4647,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        353
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.43205714091715,
+      "timestamp_end": 77.44872353289755
+    },
+    {
+      "id": "dribble_4649",
+      "type": "dribble",
+      "start_frame": 4648,
+      "end_frame": 4649,
+      "start_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "end_location": {
+        "x": -8.488103156043248,
+        "y": 11.098238384622015
+      },
+      "involved_players": [
+        371
+      ],
+      "confidence": 0.7,
+      "timestamp_start": 77.46538992487794,
+      "timestamp_end": 77.48205631685833
+    }
+  ]
+}
