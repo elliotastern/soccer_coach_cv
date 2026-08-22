@@ -72,9 +72,40 @@ def test_goal_box_wider_merge() -> None:
     assert len(fused) == 1
 
 
+def test_live_ghost_keeps_mid_solo() -> None:
+    from src.review.multicam_fuse import PLAYER_LIVE_GHOST_CONF, PLAYER_LIVE_SOLO_CONF
+
+    pts = [
+        {"xy": (0.0, 0.0), "conf": 0.9, "team": -1, "pid": -1, "cam": "P10"},
+        {
+            "xy": (20.0, 0.0),
+            "conf": 0.42,
+            "team": -1,
+            "pid": -1,
+            "cam": "P8",
+        },
+    ]
+    # Old ghost floor 0.55 would drop 0.42 far solo; live floor keeps it if >= solo.
+    fused = _fuse_player_clusters(
+        _cluster_players(pts, merge_m=1.8),
+        solo_conf=PLAYER_LIVE_SOLO_CONF,
+        ghost_conf=PLAYER_LIVE_GHOST_CONF,
+    )
+    assert len(fused) == 2
+
+
+def test_player_min_support_softer_than_ball() -> None:
+    from src.mapping.match3_xy import MIN_SUPPORT, PLAYER_MIN_SUPPORT
+
+    assert PLAYER_MIN_SUPPORT < MIN_SUPPORT
+    assert PLAYER_MIN_SUPPORT >= 0.10 - 1e-9
+
+
 if __name__ == "__main__":
     test_player_det_ok_rejects_tiny_and_weak()
     test_fuse_uses_max_conf_xy_not_mean()
     test_weak_solo_dropped()
     test_goal_box_wider_merge()
+    test_live_ghost_keeps_mid_solo()
+    test_player_min_support_softer_than_ball()
     print("ok")

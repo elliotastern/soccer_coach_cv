@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Write Match 3 M1 review HTML for a strip pack (P10 / P8 / …)."""
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+GOLD = ROOT / "data/processed/gold_sets"
+
+
+def review_html(focus: str, pack: str, clock: str) -> str:
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"/><title>Match3 M1 · {focus}</title>
+<style>
+:root {{ --bg:#12141a; --panel:#1b1f2a; --line:#2c3344; --text:#e8ecf4; --muted:#9aa3b5; --ok:#3ddc97; --warn:#f5a524; }}
+*{{box-sizing:border-box}}
+body{{margin:0;font:14px/1.4 "IBM Plex Sans",system-ui,sans-serif;background:var(--bg);color:var(--text)}}
+main{{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;padding:14px;min-height:100vh}}
+.stage{{position:relative;display:inline-block;max-width:100%;background:#000;border:1px solid var(--line)}}
+canvas{{display:block;max-width:100%;height:auto;cursor:crosshair}}
+aside{{background:var(--panel);border:1px solid var(--line);padding:14px;align-self:start}}
+h1{{font:700 1.1rem/1.2 "IBM Plex Sans",sans-serif;margin:0 0 .4rem}}
+.muted{{color:var(--muted)}}
+code{{color:#8ec8ff}}
+a{{color:#8ec8ff}}
+button,input{{font:inherit}}
+button{{background:#243049;color:var(--text);border:1px solid var(--line);padding:.4rem .7rem;cursor:pointer}}
+button.primary{{background:#1f6feb;border-color:#1f6feb}}
+button.danger{{background:#5a2430}}
+.row{{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0}}
+#status{{min-height:1.2em;margin-top:.6rem}}
+.ok{{color:var(--ok)}} .warn{{color:var(--warn)}}
+label{{display:block;margin:.4rem 0 .2rem;color:var(--muted);font-size:.85rem}}
+</style></head><body>
+<main>
+  <div><div class="stage"><canvas id="cv" width="1920" height="1080"></canvas></div></div>
+  <aside>
+    <h1>Match3 M1 · {focus}</h1>
+    <p class="muted">{pack} · {clock}. Drag box · Clear · Save rematches gold_xy. <a href="/match3-m1">All strips</a></p>
+    <label>Frame</label>
+    <input id="idx" type="number" min="0" max="298" value="0" style="width:100%"/>
+    <div class="row">
+      <button id="prev">Prev</button>
+      <button id="next">Next</button>
+      <button id="clearOnly">Next clear</button>
+    </div>
+    <div class="row">
+      <button id="clearBox" class="danger">Clear box</button>
+      <button id="save" class="primary">Save labels</button>
+    </div>
+    <div id="meta"></div>
+    <div id="status" class="muted"></div>
+  </aside>
+</main>
+<script>
+const W=1920,H=1080, FOCUS="{focus}";
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+let labels=null, img=new Image(), i=0, drag=null, dirty=false;
+const status=document.getElementById('status');
+
+function seed(){{
+  const cams=labels.frames[i].cams;
+  return cams[FOCUS] || (cams[FOCUS]={{gt_balls:[],empty:true,clear:false,gold_xy:null}});
+}}
+function setStatus(t,cls){{status.className=cls||'muted';status.textContent=t;}}
+
+async function load(){{
+  labels=await (await fetch('../labels.json')).json();
+  document.getElementById('idx').max=labels.frames.length-1;
+  show(0);
+}}
+
+function draw(){{
+  ctx.clearRect(0,0,W,H);
+  if(img.complete) ctx.drawImage(img,0,0,W,H);
+  const g=(seed().gt_balls||[])[0];
+  if(g){{
+    ctx.strokeStyle='#3ddc97'; ctx.lineWidth=3;
+    ctx.strokeRect(g.x,g.y,g.w,g.h);
+  }}
+  if(drag){{
+    ctx.strokeStyle='#f5a524'; ctx.lineWidth=2;
+    ctx.strokeRect(drag.x,drag.y,drag.w,drag.h);
+  }}
+}}
+
+function show(n){{
+  i=Math.max(0,Math.min(labels.frames.length-1,n|0));
+  document.getElementById('idx').value=i;
+  const fr=labels.frames[i];
+  img.onload=()=>{{draw(); meta();}};
+  img.src='frames/'+fr.file;
+  if(img.complete) {{draw(); meta();}}
+}}
+
+function meta(){{
+  const s=seed();
+  const xy=s.gold_xy;
+  document.getElementById('meta').innerHTML=
+    `<div>clear=<b>${{!!s.clear}}</b> empty=<b>${{!!s.empty}}</b></div>`+
+    `<div>gold_xy=<code>${{xy?xy.map(v=>Number(v).toFixed(2)).join(', '):'null'}}</code></div>`+
+    `<div class="muted">${{labels.frames[i].file}}${{dirty?' · unsaved':''}}</div>`;
+}}
+
+function canvasPos(e){{
+  const r=cv.getBoundingClientRect();
+  return {{
+    x:(e.clientX-r.left)*(W/r.width),
+    y:(e.clientY-r.top)*(H/r.height)
+  }};
+}}
+
+cv.addEventListener('mousedown',e=>{{
+  const p=canvasPos(e);
+  drag={{x0:p.x,y0:p.y,x:p.x,y:p.y,w:0,h:0}};
+}});
+window.addEventListener('mousemove',e=>{{
+  if(!drag) return;
+  const p=canvasPos(e);
+  drag.x=Math.min(drag.x0,p.x); drag.y=Math.min(drag.y0,p.y);
+  drag.w=Math.abs(p.x-drag.x0); drag.h=Math.abs(p.y-drag.y0);
+  draw();
+}});
+window.addEventListener('mouseup',()=>{{
+  if(!drag) return;
+  if(drag.w>=4 && drag.h>=4){{
+    const s=seed();
+    s.gt_balls=[{{x:drag.x,y:drag.y,w:drag.w,h:drag.h}}];
+    s.empty=false; s.clear=Math.min(drag.w,drag.h)>=25;
+    s.human_conf=1.0; s.gold_xy=null;
+    dirty=true; setStatus('box set — save to rematch gold_xy','warn');
+  }}
+  drag=null; draw(); meta();
+}});
+
+document.getElementById('clearBox').onclick=()=>{{
+  const s=seed();
+  s.gt_balls=[]; s.empty=true; s.clear=false; s.gold_xy=null;
+  dirty=true; draw(); meta(); setStatus('cleared','warn');
+}};
+document.getElementById('prev').onclick=()=>show(i-1);
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('idx').onchange=e=>show(+e.target.value);
+document.getElementById('clearOnly').onclick=()=>{{
+  for(let k=i+1;k<labels.frames.length;k++){{
+    const s=(labels.frames[k].cams||{{}})[FOCUS]||{{}};
+    if(s.clear){{show(k);return;}}
+  }}
+  setStatus('no later clear frame','warn');
+}};
+document.getElementById('save').onclick=async ()=>{{
+  setStatus('saving…');
+  const res=await fetch('/save_match3_m1_labels',{{
+    method:'POST', headers:{{'Content-Type':'application/json'}},
+    body:JSON.stringify(labels)
+  }});
+  const body=await res.json();
+  if(!res.ok || !body.ok){{ setStatus(body.error||'save failed','warn'); return; }}
+  labels=body.labels; dirty=false; show(i);
+  setStatus(`saved clear=${{body.n_clear}} gold_xy=${{body.n_gold_xy}}`,'ok');
+}};
+window.addEventListener('keydown',e=>{{
+  if(e.key==='ArrowLeft') show(i-1);
+  if(e.key==='ArrowRight') show(i+1);
+  if(e.key==='s' && (e.metaKey||e.ctrlKey)){{e.preventDefault();document.getElementById('save').click();}}
+}});
+load();
+</script></body></html>
+"""
+
+
+def write_pack(pack: str) -> Path:
+    labels_path = GOLD / pack / "labels.json"
+    if not labels_path.is_file():
+        raise FileNotFoundError(labels_path)
+    labels = json.loads(labels_path.read_text(encoding="utf-8"))
+    focus = labels.get("focus_cam") or "P10"
+    clock = labels.get("clock") or ""
+    review = GOLD / pack / "review"
+    review.mkdir(parents=True, exist_ok=True)
+    path = review / "index.html"
+    path.write_text(review_html(focus, pack, clock), encoding="utf-8")
+    return path
+
+
+def write_hub(packs: list[str]) -> Path:
+    rows = []
+    for pack in packs:
+        man_path = GOLD / pack / "manifest.json"
+        lab_path = GOLD / pack / "labels.json"
+        if not lab_path.is_file():
+            continue
+        labels = json.loads(lab_path.read_text(encoding="utf-8"))
+        man = json.loads(man_path.read_text(encoding="utf-8")) if man_path.is_file() else {}
+        focus = labels.get("focus_cam") or "?"
+        clock = labels.get("clock") or man.get("clock") or ""
+        n_clear = labels.get("n_clear") or man.get("n_clear")
+        reviewed = bool(man.get("human_reviewed") or labels.get("human_reviewed"))
+        status = "human-reviewed" if reviewed else "provisional — needs review"
+        href = f"/data/processed/gold_sets/{pack}/review/index.html"
+        rows.append(
+            f'<li><a href="{href}"><b>{focus}</b> · {pack}</a> '
+            f'<span class="muted">{clock} · clear={n_clear} · {status}</span></li>'
+        )
+    html = f"""<!doctype html>
+<html><head><meta charset="utf-8"/><title>Match3 M1 strips</title>
+<style>
+body{{margin:0;font:16px/1.45 "IBM Plex Sans",system-ui,sans-serif;background:#12141a;color:#e8ecf4;padding:2rem}}
+a{{color:#8ec8ff}} .muted{{color:#9aa3b5}} h1{{font-size:1.4rem}}
+li{{margin:.7rem 0}}
+</style></head><body>
+<h1>Match 3 M1 — human confirm</h1>
+<p class="muted">Draw/correct the focus-cam ball box. Save rematches pitch gold_xy. Prefer clear frames (≥25 px).</p>
+<ol>
+{chr(10).join(rows)}
+</ol>
+<p class="muted">Shortcuts in strip UI: ← → · ⌘/Ctrl+S save · Next clear</p>
+</body></html>
+"""
+    out = GOLD / "match3_m1_hub.html"
+    out.write_text(html, encoding="utf-8")
+    return out
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--packs",
+        nargs="+",
+        default=["match3_quad_p10_31", "match3_quad_p8_87"],
+    )
+    args = p.parse_args()
+    for pack in args.packs:
+        path = write_pack(pack)
+        print(f"wrote {path}")
+    hub = write_hub(args.packs)
+    print(f"hub {hub}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

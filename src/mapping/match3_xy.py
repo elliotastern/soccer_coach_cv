@@ -19,6 +19,8 @@ SUPPORT_PX = 180.0
 # Soft hull (H1): 0.20 promoted after holdout A/B (0.867→0.884, strip P_emit held).
 # Emit gate still EMIT_CONF ≥ 0.80.
 MIN_SUPPORT = 0.20
+# Players: softer hull than ball (coach XY recall); ball emit path unchanged.
+PLAYER_MIN_SUPPORT = 0.10
 # F3: drop weak maps that disagree with the max-conf anchor (ghost prune).
 GHOST_CONF = 0.45
 MATCH3_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
@@ -155,6 +157,7 @@ def map_ball_box(
     frame_wh=None,
     *,
     apply_undistort: bool | None = None,
+    min_support: float | None = None,
 ) -> dict | None:
     """Map detection box foot to Pitch 1 meters.
 
@@ -175,7 +178,8 @@ def map_ball_box(
     if not in_pitch_bounds(xy[0], xy[1], margin_m=MARGIN_M):
         return None
     support = hull_support(px, py, hull_points(calib))
-    if support < MIN_SUPPORT:
+    floor = MIN_SUPPORT if min_support is None else float(min_support)
+    if support < floor:
         return None
     c = float(conf)
     return {
@@ -184,6 +188,74 @@ def map_ball_box(
         "conf": c,
         "support": support,
         "weight": c * support,
+    }
+
+
+def map_player_box(
+    calib: dict,
+    box,
+    conf: float,
+    frame_wh=None,
+    *,
+    apply_undistort: bool | None = None,
+    min_support: float = PLAYER_MIN_SUPPORT,
+) -> dict | None:
+    """Map player foot to Pitch 1 — softer hull than ball (PLAYER_MIN_SUPPORT)."""
+    return map_ball_box(
+        calib,
+        box,
+        conf,
+        frame_wh=frame_wh,
+        apply_undistort=apply_undistort,
+        min_support=min_support,
+    )
+
+
+def diagnose_map_foot(
+    calib: dict,
+    box,
+    conf: float,
+    frame_wh=None,
+    *,
+    apply_undistort: bool | None = None,
+    min_support: float | None = None,
+) -> dict:
+    """Return drop reason for funnel audits (does not change product gates)."""
+    wh = frame_wh or calib.get("image_wh") or [1920, 1080]
+    fx, fy = bbox_foot(box)
+    px, py = scale_px(fx, fy, wh, calib.get("image_wh") or wh)
+    params = calib_undistort_params(calib)
+    use_u = bool(params) if apply_undistort is None else bool(apply_undistort and params)
+    if use_u:
+        cw, ch = calib.get("image_wh") or wh
+        px, py = undistort_px(px, py, cw, ch, params)
+    xy = apply_H(calib["H"], px, py)
+    if xy is None:
+        return {"ok": False, "reason": "bad_H", "conf": float(conf)}
+    if not in_pitch_bounds(xy[0], xy[1], margin_m=MARGIN_M):
+        return {
+            "ok": False,
+            "reason": "off_pitch",
+            "xy": [float(xy[0]), float(xy[1])],
+            "conf": float(conf),
+        }
+    support = hull_support(px, py, hull_points(calib))
+    floor = MIN_SUPPORT if min_support is None else float(min_support)
+    if support < floor:
+        return {
+            "ok": False,
+            "reason": "low_support",
+            "support": float(support),
+            "min_support": floor,
+            "xy": [float(xy[0]), float(xy[1])],
+            "conf": float(conf),
+        }
+    return {
+        "ok": True,
+        "reason": "ok",
+        "support": float(support),
+        "xy": [float(xy[0]), float(xy[1])],
+        "conf": float(conf),
     }
 
 

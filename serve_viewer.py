@@ -335,6 +335,64 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/match3-pitchmap-v11',
+            '/match3-pitchmap-v11/',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/pitchmap_gallery_v11/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-pitchmap-v12',
+            '/match3-pitchmap-v12/',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/pitchmap_gallery_v12_hard/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-pitchmap-defish',
+            '/match3-pitchmap-defish/',
+            '/match3_pitchmap_defish',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/pitchmap_gallery_defish/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-pitchmap-nodefish',
+            '/match3-pitchmap-nodefish/',
+            '/match3_pitchmap_nodefish',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/pitchmap_gallery_nodefish/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-quad-v12',
+            '/match3-quad-v12/',
+            '/match3-dashboard-v12',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/quad_pitchmap_gallery_v12_hard/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/match3-m1',
             '/match3-m1/',
             '/match3_m1',
@@ -342,7 +400,29 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(302)
             self.send_header(
                 'Location',
+                '/data/processed/gold_sets/match3_m1_hub.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-m1-p10',
+            '/match3-m1-p10/',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
                 '/data/processed/gold_sets/match3_quad_p10_31/review/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
+            '/match3-m1-p8',
+            '/match3-m1-p8/',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match3_quad_p8_87/review/index.html',
             )
             self.end_headers()
             return
@@ -660,9 +740,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 rematch = importlib.reload(rematch)
                 payload = rematch.rematch_labels(data)
                 payload['human_reviewed'] = True
-                path = SCRIPT_DIR / 'data/processed/gold_sets/match3_quad_p10_31/labels.json'
+                pack_dir = rematch.pack_dir_for(payload)
+                path = pack_dir / 'labels.json'
                 path.write_text(json.dumps(payload, indent=2), encoding='utf-8')
-                man = SCRIPT_DIR / 'data/processed/gold_sets/match3_quad_p10_31/manifest.json'
+                man = pack_dir / 'manifest.json'
                 if man.is_file():
                     m = json.loads(man.read_text(encoding='utf-8'))
                     m['n_clear'] = payload.get('n_clear')
@@ -675,6 +756,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     'ok': True,
+                    'pack': payload.get('pack'),
                     'n_clear': payload.get('n_clear'),
                     'n_gold_xy': payload.get('n_gold_xy'),
                     'labels': payload,
@@ -847,7 +929,10 @@ def main():
     print(f"Camera pitch coverage: http://127.0.0.1:{port}/camera-coverage")
     print(f"Match2 aim/zoom guide: http://127.0.0.1:{port}/match2-aim")
     print(f"Match3 pitchmap: http://127.0.0.1:{port}/match3-pitchmap")
-    print(f"Match3 M1 strip: http://127.0.0.1:{port}/match3-m1")
+    print(f"Match3 pitchmap defish: http://127.0.0.1:{port}/match3-pitchmap-defish")
+    print(f"Match3 M1 hub:   http://127.0.0.1:{port}/match3-m1")
+    print(f"  P10 strip:     http://127.0.0.1:{port}/match3-m1-p10")
+    print(f"  P8 strip:      http://127.0.0.1:{port}/match3-m1-p8")
     print(f"Match3 fisheye: http://127.0.0.1:{port}/match3-fisheye")
     print(f"landmark_marker: http://127.0.0.1:{port}/landmark_marker")
     print(f"Match2 pitchmap: http://127.0.0.1:{port}/match2-pitchmap")

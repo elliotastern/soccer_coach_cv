@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rematch Match 3 M1 strip gold_xy from P10 gt boxes after human edits."""
+"""Rematch Match 3 M1 strip gold_xy from focus-cam gt boxes after human edits."""
 from __future__ import annotations
 
 import json
@@ -12,7 +12,6 @@ sys.path.insert(0, str(ROOT))
 from src.mapping.match3_xy import load_calib, map_ball_box  # noqa: E402
 
 STRIP = ROOT / "data/processed/gold_sets/match3_quad_p10_31/labels.json"
-FOCUS = "P10"
 WH = (1920, 1080)
 CLEAR_SIDE = 25.0
 
@@ -38,21 +37,33 @@ def rematch_frame(seed: dict, calib: dict) -> dict:
 
 
 def rematch_labels(payload: dict) -> dict:
-    calib = load_calib(FOCUS)
+    focus = payload.get("focus_cam") or "P10"
+    calib = load_calib(focus)
     if calib is None:
-        raise RuntimeError(f"missing calib {FOCUS}")
+        raise RuntimeError(f"missing calib {focus}")
     n_clear = n_gold = 0
     for fr in payload["frames"]:
-        seed = (fr.get("cams") or {}).get(FOCUS) or {}
+        seed = (fr.get("cams") or {}).get(focus) or {}
         rematch_frame(seed, calib)
-        fr.setdefault("cams", {})[FOCUS] = seed
+        fr.setdefault("cams", {})[focus] = seed
         if seed.get("clear"):
             n_clear += 1
         if seed.get("gold_xy"):
             n_gold += 1
     payload["n_clear"] = n_clear
     payload["n_gold_xy"] = n_gold
+    payload["focus_cam"] = focus
     return payload
+
+
+def pack_dir_for(payload: dict) -> Path:
+    pack = payload.get("pack")
+    if not pack:
+        raise ValueError("labels missing pack")
+    path = ROOT / "data/processed/gold_sets" / pack
+    if not path.is_dir():
+        raise FileNotFoundError(path)
+    return path
 
 
 def main() -> int:

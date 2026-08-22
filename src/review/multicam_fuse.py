@@ -18,6 +18,9 @@ PLAYER_MIN_H = 40.0
 PLAYER_MIN_AREA = 800.0
 PLAYER_SOLO_CONF = 0.50
 PLAYER_GHOST_CONF = 0.55
+# Live coach mosaic: prefer player XY recall (still merge multi-cam).
+PLAYER_LIVE_SOLO_CONF = 0.40
+PLAYER_LIVE_GHOST_CONF = 0.35
 MATCH3_CAMS = ("P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2")
 
 
@@ -279,6 +282,7 @@ def fuse_live_dets_for_pitch(
     apply_undistort: bool = True,
     merge_m: float = PLAYER_MERGE_M,
     team_session=None,
+    player_recall: bool = True,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -286,8 +290,9 @@ def fuse_live_dets_for_pitch(
     optional ``{cam}__bgr`` = detect-space frame for jersey team labeling.
     Pass ``team_session`` (TeamSession) to lock kit identity across frames.
     Use apply_undistort=True for raw mosaic pixels; False when dets are already defished.
+    ``player_recall=True`` (default): softer player hull + live ghost floors.
     """
-    from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box
+    from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box, map_player_box
     from src.review.team_live import label_player_pts
 
     if not dets_by_cam:
@@ -331,7 +336,13 @@ def fuse_live_dets_for_pitch(
                 continue
             if not player_det_ok(d):
                 continue
-            mapped = map_ball_box(
+            mapped = map_player_box(
+                calib,
+                d.bbox,
+                float(d.confidence),
+                frame_wh=wh,
+                apply_undistort=apply_undistort,
+            ) if player_recall else map_ball_box(
                 calib,
                 d.bbox,
                 float(d.confidence),
@@ -357,9 +368,13 @@ def fuse_live_dets_for_pitch(
     if player_pts and frames_by_cam:
         label_player_pts(player_pts, frames_by_cam, team_session=team_session)
 
+    solo = PLAYER_LIVE_SOLO_CONF if player_recall else PLAYER_SOLO_CONF
+    ghost = PLAYER_LIVE_GHOST_CONF if player_recall else PLAYER_GHOST_CONF
     players = _fuse_player_clusters(
         _cluster_players(player_pts, merge_m=merge_m),
         merge_m=merge_m,
+        solo_conf=solo,
+        ghost_conf=ghost,
     ) if player_pts else []
     if team_session is not None and players:
         players = team_session.stabilize_fused(players)

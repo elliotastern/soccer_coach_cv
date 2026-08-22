@@ -110,6 +110,11 @@ def parse_args():
         default="auto",
         help="Detect thr map: match3=all 0.20; match2=P7@0.60; auto=match3 when fuse Hs present",
     )
+    p.add_argument(
+        "--no-undistort",
+        action="store_true",
+        help="Force raw-pixel map (skip Brown undistort even when calib has it)",
+    )
     return p.parse_args()
 
 
@@ -196,7 +201,14 @@ def fov_H(cam: str, frame_wh):
     return A @ H_img_svg
 
 
-def fuse_frame(active: dict, calibs: dict, frame_wh, prev_emit=None, frames_since_emit=0):
+def fuse_frame(
+    active: dict,
+    calibs: dict,
+    frame_wh,
+    prev_emit=None,
+    frames_since_emit=0,
+    apply_undistort=None,
+):
     """Map+fuse current tick; F0 hold if silent and prev still valid."""
     from src.mapping.match3_xy import fuse_balls
 
@@ -208,7 +220,9 @@ def fuse_frame(active: dict, calibs: dict, frame_wh, prev_emit=None, frames_sinc
             continue
         pred = max(preds, key=lambda p: (float(p[2]), float(p[1])))
         pred_of[cam] = pred
-        mapped = map_ball_box(rec, pred[0], pred[1], frame_wh)
+        mapped = map_ball_box(
+            rec, pred[0], pred[1], frame_wh, apply_undistort=apply_undistort
+        )
         if mapped:
             rows.append(mapped)
     fresh = fuse_balls(rows)
@@ -461,6 +475,7 @@ def main() -> int:
                 frame_wh,
                 prev_emit=prev_emit,
                 frames_since_emit=frames_since_emit,
+                apply_undistort=False if args.no_undistort else None,
             )
             if fused is not None and not fused.get("hold"):
                 prev_emit = fused

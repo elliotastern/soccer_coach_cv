@@ -171,7 +171,13 @@ def gallery_entry(clip: dict, out: Path, mp4: Path) -> dict:
     }
 
 
-def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) -> dict:
+def render_one(
+    clip: dict,
+    max_frames: int,
+    stride: int,
+    force: bool = False,
+    no_undistort: bool = False,
+) -> dict:
     out = clip["out"]
     out.mkdir(parents=True, exist_ok=True)
     mp4 = out / f"{clip['stem']}_video_pitch.mp4"
@@ -197,6 +203,8 @@ def render_one(clip: dict, max_frames: int, stride: int, force: bool = False) ->
         "--stride", str(stride),
         "--cams", *CAM_IDS,
     ]
+    if no_undistort:
+        argv.append("--no-undistort")
     old = sys.argv
     try:
         sys.argv = argv

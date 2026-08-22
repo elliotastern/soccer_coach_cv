@@ -87,6 +87,46 @@ def _frame_to_pil(frame: np.ndarray) -> Image.Image:
     return Image.fromarray(frame_rgb)
 
 
+def _model_resolution(model) -> int:
+    inner = getattr(model, "model", model)
+    res = getattr(inner, "resolution", None) or getattr(model, "resolution", None) or 576
+    if isinstance(res, (tuple, list)):
+        return int(res[0])
+    return int(res)
+
+
+def _letterbox_bgr(frame: np.ndarray, size: int) -> tuple[np.ndarray, float, int, int]:
+    """Aspect-preserving pad-to-square (RF-DETR native predict stretch-distorts 16:9)."""
+    h, w = frame.shape[:2]
+    scale = min(size / max(w, 1), size / max(h, 1))
+    nw, nh = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+    resized = cv2.resize(frame, (nw, nh))
+    canvas = np.zeros((size, size, 3), dtype=np.uint8)
+    x0 = (size - nw) // 2
+    y0 = (size - nh) // 2
+    canvas[y0 : y0 + nh, x0 : x0 + nw] = resized
+    return canvas, float(scale), int(x0), int(y0)
+
+
+def _predict_letterboxed(model, frame: np.ndarray, threshold: float) -> list:
+    """Run RF-DETR on letterboxed square; return xyxy in original frame pixels."""
+    size = _model_resolution(model)
+    canvas, scale, x0, y0 = _letterbox_bgr(frame, size)
+    raw = model.predict(_frame_to_pil(canvas), threshold=threshold)
+    if not hasattr(raw, "xyxy") or len(raw.xyxy) == 0:
+        return []
+    out = []
+    for i in range(len(raw.xyxy)):
+        x1, y1, x2, y2 = [float(v) for v in raw.xyxy[i]]
+        x1 = (x1 - x0) / scale
+        x2 = (x2 - x0) / scale
+        y1 = (y1 - y0) / scale
+        y2 = (y2 - y0) / scale
+        conf = float(raw.confidence[i]) if hasattr(raw, "confidence") else 0.0
+        out.append((x1, y1, x2, y2, conf))
+    return out
+
+
 def _parse_rfdetr_detections(detections_raw, class_id: int, class_name: str) -> List[Detection]:
     results = []
     if not hasattr(detections_raw, "class_id"):
@@ -102,6 +142,25 @@ def _parse_rfdetr_detections(detections_raw, class_id: int, class_name: str) -> 
             class_name=class_name,
         ))
     return results
+
+
+def _detections_from_letterbox(
+    rows: list, class_id: int, class_name: str
+) -> List[Detection]:
+    out = []
+    for x1, y1, x2, y2, conf in rows:
+        bbox = _xyxy_to_xywh((x1, y1, x2, y2))
+        if bbox is None:
+            continue
+        out.append(
+            Detection(
+                class_id=class_id,
+                confidence=float(conf),
+                bbox=bbox,
+                class_name=class_name,
+            )
+        )
+    return out
 
 
 def _inter_xywh(a, b) -> float:

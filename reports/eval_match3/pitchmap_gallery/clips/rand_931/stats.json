@@ -8,8 +8,8 @@
     "_default": 0.2
   },
   "n_frames": 150,
-  "n_emit": 55,
-  "n_agree": 29,
+  "n_emit": 58,
+  "n_agree": 28,
   "map_note": "Pitch (x,y) from Match 3 4-click H, bbox foot, hull support, 4 m fuse, emit \u2265 0.80. No FOV wedge.",
   "overlay": "reports/eval_match3/pitchmap_gallery/clips/rand_931/rand_t00931.2s_video_pitch.mp4"
 }

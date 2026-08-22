@@ -8,7 +8,7 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parents[1] / "reports/eval_match3/improve_eng_loop/cam_stitch_boxes"
 URL = "http://127.0.0.1:8501/"
 VIEWS = [
-    "4 quads (whole pitch · N-up mosaic)",
+    "Whole pitch (4 cameras)",
     "P1 + P6 (ends)",
     "Best camera (ball)",
     "Only P10",

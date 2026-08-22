@@ -8,13 +8,13 @@
       "det_cache_stride": 2,
       "variants": {
         "baseline": {
-          "n_clear": 72,
-          "n_emit_scored": 71,
-          "tp": 71,
+          "n_clear": 94,
+          "n_emit_scored": 87,
+          "tp": 87,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.889,
-          "err_median_m": 1.043,
+          "clear_ball_R": 0.809,
+          "err_median_m": 0.514,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -25,13 +25,13 @@
           }
         },
         "F1": {
-          "n_clear": 72,
-          "n_emit_scored": 71,
-          "tp": 71,
+          "n_clear": 94,
+          "n_emit_scored": 87,
+          "tp": 87,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.889,
-          "err_median_m": 1.043,
+          "clear_ball_R": 0.809,
+          "err_median_m": 0.514,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -42,13 +42,13 @@
           }
         },
         "F2": {
-          "n_clear": 72,
-          "n_emit_scored": 71,
-          "tp": 71,
+          "n_clear": 94,
+          "n_emit_scored": 87,
+          "tp": 87,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.889,
-          "err_median_m": 1.043,
+          "clear_ball_R": 0.809,
+          "err_median_m": 0.514,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -59,13 +59,13 @@
           }
         },
         "F3": {
-          "n_clear": 72,
-          "n_emit_scored": 71,
-          "tp": 71,
+          "n_clear": 94,
+          "n_emit_scored": 87,
+          "tp": 87,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.889,
-          "err_median_m": 1.043,
+          "clear_ball_R": 0.809,
+          "err_median_m": 0.514,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -76,13 +76,13 @@
           }
         },
         "F1+F2": {
-          "n_clear": 72,
-          "n_emit_scored": 71,
-          "tp": 71,
+          "n_clear": 94,
+          "n_emit_scored": 87,
+          "tp": 87,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.889,
-          "err_median_m": 1.043,
+          "clear_ball_R": 0.809,
+          "err_median_m": 0.514,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -93,13 +93,13 @@
           }
         },
         "F1+F2+F3": {
-          "n_clear": 72,
-          "n_emit_scored": 71,
-          "tp": 71,
+          "n_clear": 94,
+          "n_emit_scored": 87,
+          "tp": 87,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.889,
-          "err_median_m": 1.043,
+          "clear_ball_R": 0.809,
+          "err_median_m": 0.514,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -110,13 +110,13 @@
           }
         },
         "F1+F2+F0": {
-          "n_clear": 145,
-          "n_emit_scored": 145,
-          "tp": 145,
+          "n_clear": 193,
+          "n_emit_scored": 191,
+          "tp": 191,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.91,
-          "err_median_m": 1.057,
+          "clear_ball_R": 0.876,
+          "err_median_m": 0.525,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -127,13 +127,13 @@
           }
         },
         "F1+F2+F0+F3": {
-          "n_clear": 145,
-          "n_emit_scored": 145,
-          "tp": 145,
+          "n_clear": 193,
+          "n_emit_scored": 191,
+          "tp": 191,
           "fp": 0,
           "P_emit": 1.0,
-          "clear_ball_R": 0.91,
-          "err_median_m": 1.057,
+          "clear_ball_R": 0.876,
+          "err_median_m": 0.525,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -148,16 +148,16 @@
     "match3_quad_p8_87": {
       "pack": "match3_quad_p8_87",
       "path": "data/processed/gold_sets/match3_quad_p8_87/labels.json",
-      "det_cache_stride": 2,
+      "det_cache_stride": 1,
       "variants": {
         "baseline": {
-          "n_clear": 85,
-          "n_emit_scored": 65,
-          "tp": 65,
-          "fp": 0,
-          "P_emit": 1.0,
-          "clear_ball_R": 0.765,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 165,
+          "tp": 161,
+          "fp": 4,
+          "P_emit": 0.976,
+          "clear_ball_R": 0.57,
+          "err_median_m": 0.012,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": false,
           "flags": {
@@ -168,13 +168,13 @@
           }
         },
         "F1": {
-          "n_clear": 85,
-          "n_emit_scored": 65,
-          "tp": 65,
-          "fp": 0,
-          "P_emit": 1.0,
-          "clear_ball_R": 0.765,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 165,
+          "tp": 161,
+          "fp": 4,
+          "P_emit": 0.976,
+          "clear_ball_R": 0.57,
+          "err_median_m": 0.012,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": false,
           "flags": {
@@ -185,13 +185,13 @@
           }
         },
         "F2": {
-          "n_clear": 85,
-          "n_emit_scored": 65,
-          "tp": 65,
-          "fp": 0,
-          "P_emit": 1.0,
-          "clear_ball_R": 0.765,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 165,
+          "tp": 161,
+          "fp": 4,
+          "P_emit": 0.976,
+          "clear_ball_R": 0.57,
+          "err_median_m": 0.012,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": false,
           "flags": {
@@ -202,13 +202,13 @@
           }
         },
         "F3": {
-          "n_clear": 85,
-          "n_emit_scored": 65,
-          "tp": 65,
-          "fp": 0,
-          "P_emit": 1.0,
-          "clear_ball_R": 0.765,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 165,
+          "tp": 161,
+          "fp": 4,
+          "P_emit": 0.976,
+          "clear_ball_R": 0.57,
+          "err_median_m": 0.012,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": false,
           "flags": {
@@ -219,13 +219,13 @@
           }
         },
         "F1+F2": {
-          "n_clear": 85,
-          "n_emit_scored": 65,
-          "tp": 65,
-          "fp": 0,
-          "P_emit": 1.0,
-          "clear_ball_R": 0.765,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 165,
+          "tp": 161,
+          "fp": 4,
+          "P_emit": 0.976,
+          "clear_ball_R": 0.57,
+          "err_median_m": 0.012,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": false,
           "flags": {
@@ -236,13 +236,13 @@
           }
         },
         "F1+F2+F3": {
-          "n_clear": 85,
-          "n_emit_scored": 65,
-          "tp": 65,
-          "fp": 0,
-          "P_emit": 1.0,
-          "clear_ball_R": 0.765,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 165,
+          "tp": 161,
+          "fp": 4,
+          "P_emit": 0.976,
+          "clear_ball_R": 0.57,
+          "err_median_m": 0.012,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": false,
           "flags": {
@@ -253,13 +253,13 @@
           }
         },
         "F1+F2+F0": {
-          "n_clear": 85,
-          "n_emit_scored": 75,
-          "tp": 74,
-          "fp": 1,
-          "P_emit": 0.987,
-          "clear_ball_R": 0.882,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 235,
+          "tp": 227,
+          "fp": 8,
+          "P_emit": 0.966,
+          "clear_ball_R": 0.801,
+          "err_median_m": 0.027,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
@@ -270,13 +270,13 @@
           }
         },
         "F1+F2+F0+F3": {
-          "n_clear": 85,
-          "n_emit_scored": 75,
-          "tp": 74,
-          "fp": 1,
-          "P_emit": 0.987,
-          "clear_ball_R": 0.882,
-          "err_median_m": 0.0,
+          "n_clear": 272,
+          "n_emit_scored": 235,
+          "tp": 227,
+          "fp": 8,
+          "P_emit": 0.966,
+          "clear_ball_R": 0.801,
+          "err_median_m": 0.027,
           "poc_pass_P_emit": true,
           "poc_pass_clear_R": true,
           "flags": {
