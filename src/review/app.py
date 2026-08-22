@@ -299,6 +299,216 @@ def render_frame_pitch(frame_df: pd.DataFrame):
     st.plotly_chart(fig, use_container_width=True)
 
 
+def _jump_nav_to_frame(nav: List[int], frame_id: int) -> None:
+    """Set verify_nav_i to closest frame in nav list."""
+    if not nav:
+        return
+    fid = int(frame_id)
+    if fid in nav:
+        st.session_state.verify_nav_i = nav.index(fid)
+    else:
+        st.session_state.verify_nav_i = min(range(len(nav)), key=lambda i: abs(nav[i] - fid))
+
+
+def render_coach_guide(simple: bool) -> None:
+    if not simple:
+        return
+    from src.review.coach_ux import GUIDE_STEPS
+
+    with st.expander("How to use this screen (3 steps)", expanded=True):
+        for i, step in enumerate(GUIDE_STEPS, 1):
+            st.markdown(f"{i}. {step}")
+
+
+def render_growth_label_panel(
+    run_dir: Path,
+    frame_id: int,
+    events: List[Dict],
+    nav: List[int],
+    simple: bool,
+) -> None:
+    """Per-frame human labels → labels.json (growth engineering)."""
+    from src.review.coach_ux import (
+        BALL_VISIBLE_LABELS,
+        QA_LABELS,
+        ball_visible_options,
+        format_ball_visible,
+        format_qa,
+        qa_index,
+        qa_options,
+    )
+    from src.review.frame_labels import (
+        flagged_frames,
+        get_frame_label,
+        label_stats,
+        load_labels,
+        low_conf_event_frames,
+        save_labels,
+        set_frame_label,
+    )
+
+    title = "Quick check — this moment" if simple else "Frame labels"
+    st.subheader(title)
+    if simple:
+        st.caption("Your answers are saved when you click **Save this frame**.")
+    else:
+        st.caption("Growth engineering — persists to `labels.json`.")
+
+    data = load_labels(run_dir)
+    cur = get_frame_label(data, frame_id)
+    stats = label_stats(data)
+    lc1, lc2, lc3 = st.columns(3)
+    lc1.metric("Frames you reviewed", stats["reviewed"])
+    lc2.metric("Flagged", stats["flagged"])
+    lc3.metric("Ball issues", stats["bad_ball"])
+
+    events_here = [
+        e for e in events if abs(int(e.get("start_frame", -10**9)) - int(frame_id)) <= 2
+    ]
+    low_here = [e for e in events_here if float(e.get("confidence", 0)) < 0.80]
+
+    vis_opts = ball_visible_options()
+    qa_opts = qa_options()
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        if simple:
+            ball_visible = st.radio(
+                "Can you see the ball?",
+                vis_opts,
+                index=vis_opts.index(cur["ball_visible"])
+                if cur["ball_visible"] in vis_opts
+                else 2,
+                format_func=format_ball_visible,
+                key=f"lbl_ball_vis_{frame_id}",
+            )
+            ball_box_ok = st.radio(
+                "Is the orange box on the ball?",
+                qa_opts,
+                index=qa_index(cur["ball_box_ok"]),
+                format_func=format_qa,
+                key=f"lbl_ball_box_{frame_id}",
+            )
+        else:
+            ball_visible = st.selectbox(
+                "Ball visible?",
+                vis_opts,
+                index=vis_opts.index(cur["ball_visible"])
+                if cur["ball_visible"] in vis_opts
+                else 2,
+                key=f"lbl_ball_vis_{frame_id}",
+            )
+            ball_box_ok = st.selectbox(
+                "Ball box OK?",
+                qa_opts,
+                index=qa_index(cur["ball_box_ok"]),
+                key=f"lbl_ball_box_{frame_id}",
+            )
+    with c2:
+        if simple:
+            pitch_ball_ok = st.radio(
+                "Is the yellow dot on the map in the right place?",
+                qa_opts,
+                index=qa_index(cur["pitch_ball_ok"]),
+                format_func=format_qa,
+                key=f"lbl_pitch_ball_{frame_id}",
+            )
+            team_ok = st.radio(
+                "Do team colours on the map look right?",
+                qa_opts,
+                index=qa_index(cur["team_ok"]),
+                format_func=format_qa,
+                key=f"lbl_team_{frame_id}",
+            )
+        else:
+            pitch_ball_ok = st.selectbox(
+                "Pitch ball dot OK?",
+                qa_opts,
+                index=qa_index(cur["pitch_ball_ok"]),
+                key=f"lbl_pitch_ball_{frame_id}",
+            )
+            team_ok = st.selectbox(
+                "Team colors OK?",
+                qa_opts,
+                index=qa_index(cur["team_ok"]),
+                key=f"lbl_team_{frame_id}",
+            )
+    with c3:
+        event_default = cur["event_ok"]
+        if event_default == "unset" and low_here:
+            event_default = "bad"
+        elif event_default == "unset" and events_here:
+            event_default = "good"
+        if simple:
+            event_ok = st.radio(
+                "Do the listed events make sense here?",
+                qa_opts,
+                index=qa_index(event_default),
+                format_func=format_qa,
+                key=f"lbl_event_{frame_id}",
+            )
+            flagged = st.checkbox(
+                "Flag this moment for follow-up",
+                value=bool(cur["flag"]),
+                key=f"lbl_flag_{frame_id}",
+            )
+        else:
+            event_ok = st.selectbox(
+                "Events at frame OK?",
+                qa_opts,
+                index=qa_index(event_default),
+                key=f"lbl_event_{frame_id}",
+            )
+            flagged = st.checkbox("Flag for follow-up", value=bool(cur["flag"]), key=f"lbl_flag_{frame_id}")
+    note_lbl = "Notes (optional)" if simple else "Frame note"
+    note = st.text_input(note_lbl, value=cur["note"], key=f"lbl_note_{frame_id}")
+
+    bsave, bflag, blow = st.columns([2, 1, 1])
+    save_lbl = "Save this frame" if simple else "Save frame label"
+    with bsave:
+        if st.button(save_lbl, type="primary", key=f"lbl_save_{frame_id}"):
+            set_frame_label(
+                data,
+                frame_id,
+                {
+                    "ball_visible": ball_visible,
+                    "ball_box_ok": ball_box_ok,
+                    "pitch_ball_ok": pitch_ball_ok,
+                    "team_ok": team_ok,
+                    "event_ok": event_ok,
+                    "flag": flagged,
+                    "note": note,
+                },
+            )
+            path = save_labels(run_dir, data)
+            st.success(f"Saved — frame {frame_id}")
+            if not simple:
+                st.caption(str(path.name))
+            st.rerun()
+    with bflag:
+        flagged_list = flagged_frames(data)
+        flag_lbl = "Next flagged" if simple else "Next flagged ▶"
+        nxt = next((f for f in flagged_list if f > frame_id), None)
+        if st.button(flag_lbl, disabled=not flagged_list, key="lbl_next_flag"):
+            _jump_nav_to_frame(nav, nxt if nxt is not None else flagged_list[0])
+            st.rerun()
+    with blow:
+        low_frames = low_conf_event_frames(events)
+        lc_lbl = "Next unsure event" if simple else "Next low-conf ▶"
+        nxt_lc = next((f for f in low_frames if f > frame_id), None)
+        if st.button(lc_lbl, disabled=not low_frames, key="lbl_next_lc"):
+            _jump_nav_to_frame(nav, nxt_lc if nxt_lc is not None else low_frames[0])
+            st.rerun()
+
+    if low_here and simple:
+        st.info(
+            f"This moment has {len(low_here)} automatic event(s) the system wasn't sure about. "
+            "You can fix them on the **Fix events** tab."
+        )
+    elif low_here:
+        st.warning(f"{len(low_here)} event(s) here with conf < 0.80 — drop or fix in Events tab.")
+
+
 def persist_corrections(run_dir: Path, events: List[Dict], notes: str) -> Path:
     path = run_dir / "corrections.json"
     payload = {
@@ -322,9 +532,15 @@ def persist_corrections(run_dir: Path, events: List[Dict], notes: str) -> Path:
     return path
 
 
-def render_corrections_editor(run_dir: Path, events: List[Dict]):
-    st.subheader("Manual corrections")
-    st.caption("Edit type / confidence, drop bad rows, then Persist to update events.json.")
+def render_corrections_editor(run_dir: Path, events: List[Dict], simple: bool = True):
+    title = "Fix automatic events" if simple else "Manual corrections"
+    st.subheader(title)
+    if simple:
+        st.caption(
+            "Uncheck **keep** to remove a wrong event. Edit the type or location, then **Save changes**."
+        )
+    else:
+        st.caption("Edit type / confidence, drop bad rows, then Persist to update events.json.")
     if not events:
         st.info("No events to edit")
         return
@@ -348,8 +564,10 @@ def render_corrections_editor(run_dir: Path, events: List[Dict]):
         num_rows="dynamic",
         key="corrections_editor",
     )
-    notes = st.text_input("Review notes", value="")
-    if st.button("Persist corrections", type="primary"):
+    notes_lbl = "Notes about your changes" if simple else "Review notes"
+    notes = st.text_input(notes_lbl, value="")
+    btn_lbl = "Save changes" if simple else "Persist corrections"
+    if st.button(btn_lbl, type="primary"):
         by_id = {e.get("id"): e for e in events}
         updated = []
         for _, row in edited.iterrows():
@@ -369,7 +587,8 @@ def render_corrections_editor(run_dir: Path, events: List[Dict]):
                 base["end_location"] = dict(loc)
             updated.append(base)
         path = persist_corrections(run_dir, updated, notes)
-        st.success(f"Saved {len(updated)} events → {path.name} and events.json")
+        msg = f"Saved {len(updated)} events" if simple else f"Saved {len(updated)} events → {path.name} and events.json"
+        st.success(msg)
         st.rerun()
 
 
@@ -378,6 +597,7 @@ def render_synced_frame_review(
     run_name: str,
     frame_df: pd.DataFrame,
     events: List[Dict],
+    simple: bool,
 ):
     """Video verification: detector boxes vs mapped tracks + pitch."""
     from src.review.frame_sync import (
@@ -392,12 +612,20 @@ def render_synced_frame_review(
         rows_for_frame,
     )
 
-    st.header("Verify labels — video + pitch")
-    st.info(
-        "**Video:** RF-DETR bounding boxes only. "
-        "**Pitch 1 panel:** yellow ball + team-colored players. "
-        "MAP-BALL X is off by default (optional debug in sidebar)."
-    )
+    header = "Watch the match" if simple else "Verify labels — video + pitch"
+    st.header(header)
+    render_coach_guide(simple)
+    if simple:
+        st.info(
+            "**Left:** four camera views with player and ball boxes. "
+            "**Right:** mini pitch map — yellow dot = ball, blue/red = teams."
+        )
+    else:
+        st.info(
+            "**Video:** RF-DETR bounding boxes only. "
+            "**Pitch 1 panel:** yellow ball + team-colored players. "
+            "MAP-BALL X is off by default (optional debug in sidebar)."
+        )
     repo = Path(__file__).resolve().parents[2]
     default_video = guess_video_for_run(run_name or run_dir.name, repo)
     video_default = str(default_video) if default_video else ""
@@ -405,7 +633,7 @@ def render_synced_frame_review(
         st.sidebar.text_input("Video file", value=video_default, key="review_video")
     )
     if not video_path.is_file():
-        st.warning("Set a valid video path in the sidebar to scrub frames.")
+        st.warning("Pick a match video in the sidebar (or ask your engineer to set the default path).")
         return
 
     frame_ids = sorted(int(x) for x in frame_df["frame_id"].unique())
@@ -416,49 +644,76 @@ def render_synced_frame_review(
         int(x) for x in frame_df.loc[frame_df["Player_ID"] == -1, "frame_id"].unique()
     )
 
-    st.sidebar.subheader("Camera stitch / filter")
     from src.review.cam_mosaic import VIEW_OPTIONS, build_cam_view
 
-    cam_view = st.sidebar.selectbox(
-        "Camera view",
-        options=VIEW_OPTIONS,
-        index=0,
-        # v3: clear stale session after Whole-pitch / Best-ball mosaic changes
-        key="cam_stitch_view_v3",
-        help="Locked: Top P10|P9 (180°) · Bottom P7|P8. See match3_camera_layout rule.",
-    )
-    # Product default ON (P7–P10). New key so old session False cannot sticky-disable.
-    apply_defish = st.sidebar.checkbox(
-        "Defish P7–P10 in camera view",
-        value=True,
-        key="cam_view_defish_on",
-        help="ON = product default (straighter pitch). Boxes run after defish. Off only for raw A/B.",
-    )
+    whole_pitch = VIEW_OPTIONS[0]
+    if simple:
+        cam_view = whole_pitch
+        apply_defish = True
+        st.sidebar.caption("Camera view: whole pitch (locked in coach mode)")
+    else:
+        st.sidebar.subheader("Camera stitch / filter")
+        cam_view = st.sidebar.selectbox(
+            "Camera view",
+            options=VIEW_OPTIONS,
+            index=0,
+            key="cam_stitch_view_v3",
+            help="Locked: Top P10|P9 (180°) · Bottom P7|P8. See match3_camera_layout rule.",
+        )
+        apply_defish = st.sidebar.checkbox(
+            "Defish P7–P10 in camera view",
+            value=True,
+            key="cam_view_defish_on",
+            help="ON = product default (straighter pitch). Boxes run after defish. Off only for raw A/B.",
+        )
 
-    st.sidebar.subheader("Verify overlays")
-    # Default ON so coach always sees player/ball boxes (cached per frame).
-    show_dets = st.sidebar.checkbox(
-        "RF-DETR boxes (players + ball)",
-        value=True,
-        key="show_dets_ball_on",
-        help="ON = product default. First frame can take 20–40s (4 cams). Uncheck only if USB EIO / hung.",
-    )
-    show_map_ball = st.sidebar.checkbox(
-        "MAP-BALL X on video (debug)", value=False, key="show_map_ball_off"
-    )
-    show_map_players = st.sidebar.checkbox(
-        "Player map dots on video (debug)", value=False, key="show_map_players"
-    )
-    show_zoom = st.sidebar.checkbox("Ball zoom crop", value=False, key="show_zoom")
-    only_ball = st.sidebar.checkbox("Only frames with exported ball", value=True, key="only_ball")
-    det_thr = st.sidebar.slider("Detect thr", 0.05, 0.5, 0.15, 0.05, key="det_thr")
-    play_fps = st.sidebar.slider(
-        "Play speed (UI fps)", 0.5, 8.0, 2.0, 0.5, key="play_fps",
-        help="Play runs RF-DETR each frame (boxes). Keep speed low or raise stride.",
-    )
-    play_stride = st.sidebar.slider(
-        "Play stride (frames in list)", 1, 10, 1, 1, key="play_stride",
-    )
+    st.sidebar.subheader("Your progress")
+    from src.review.frame_labels import label_stats, load_labels
+
+    _lbl = label_stats(load_labels(run_dir))
+    st.sidebar.metric("Frames reviewed", _lbl["reviewed"])
+    if _lbl["flagged"]:
+        st.sidebar.caption(f"⚑ {_lbl['flagged']} flagged for follow-up")
+
+    if simple:
+        show_dets = True
+        show_map_ball = False
+        show_map_players = False
+        show_zoom = False
+        only_ball = False
+        det_thr = 0.15
+        play_fps = 2.0
+        play_stride = 2
+        with st.sidebar.expander("Advanced settings", expanded=False):
+            st.caption("Only change these if you know what you're doing.")
+            show_dets = st.checkbox("Show detection boxes", value=True, key="show_dets_adv")
+            only_ball = st.checkbox("Only ball moments", value=False, key="only_ball_adv")
+            play_fps = st.slider("Play speed", 0.5, 4.0, 2.0, 0.5, key="play_fps_adv")
+            play_stride = st.slider("Skip frames when playing", 1, 10, 2, 1, key="play_stride_adv")
+    else:
+        st.sidebar.subheader("Verify overlays")
+        show_dets = st.sidebar.checkbox(
+            "RF-DETR boxes (players + ball)",
+            value=True,
+            key="show_dets_ball_on",
+            help="ON = product default. First frame can take 20–40s (4 cams). Uncheck only if USB EIO / hung.",
+        )
+        show_map_ball = st.sidebar.checkbox(
+            "MAP-BALL X on video (debug)", value=False, key="show_map_ball_off"
+        )
+        show_map_players = st.sidebar.checkbox(
+            "Player map dots on video (debug)", value=False, key="show_map_players"
+        )
+        show_zoom = st.sidebar.checkbox("Ball zoom crop", value=False, key="show_zoom")
+        only_ball = st.sidebar.checkbox("Only frames with exported ball", value=True, key="only_ball")
+        det_thr = st.sidebar.slider("Detect thr", 0.05, 0.5, 0.15, 0.05, key="det_thr")
+        play_fps = st.sidebar.slider(
+            "Play speed (UI fps)", 0.5, 8.0, 2.0, 0.5, key="play_fps",
+            help="Play runs RF-DETR each frame (boxes). Keep speed low or raise stride.",
+        )
+        play_stride = st.sidebar.slider(
+            "Play stride (frames in list)", 1, 10, 1, 1, key="play_stride",
+        )
 
     nav = ball_frames if (only_ball and ball_frames) else frame_ids
     if "verify_nav_i" not in st.session_state:
@@ -481,15 +736,19 @@ def render_synced_frame_review(
 
     cplay, cprev, cind, cnext = st.columns([1, 1, 2, 1])
     with cplay:
-        label = "⏸ Pause" if playing else "▶ Play"
-        if st.button(label, use_container_width=True, type="primary"):
+        play_lbl = "Pause" if playing else "Play"
+        if not simple:
+            play_lbl = "⏸ Pause" if playing else "▶ Play"
+        if st.button(play_lbl, use_container_width=True, type="primary"):
             st.session_state.verify_playing = not playing
             st.rerun()
     with cprev:
-        if st.button("◀ Prev", use_container_width=True, disabled=playing):
+        prev_lbl = "Previous" if simple else "◀ Prev"
+        if st.button(prev_lbl, use_container_width=True, disabled=playing):
             st.session_state.verify_nav_i = max(0, st.session_state.verify_nav_i - 1)
     with cnext:
-        if st.button("Next ▶", use_container_width=True, disabled=playing):
+        next_lbl = "Next" if simple else "Next ▶"
+        if st.button(next_lbl, use_container_width=True, disabled=playing):
             st.session_state.verify_nav_i = min(len(nav) - 1, st.session_state.verify_nav_i + 1)
     frame_id = int(nav[st.session_state.verify_nav_i])
     with cind:
@@ -792,15 +1051,19 @@ def render_synced_frame_review(
             caption=stage_caption,
         )
     with col_pitch:
+        pitch_cap = (
+            f"Mini pitch map · {len(players)} players · ball {'shown' if ball_xy else 'not shown'}"
+            if simple
+            else f"Pitch 1 · {len(players)}p · ball={'yes' if ball_xy else 'no'}"
+        )
         st.image(
             cv2.cvtColor(pitch_panel, cv2.COLOR_BGR2RGB),
             use_container_width=True,
-            caption=(
-                f"Pitch 1 · {len(players)}p · "
-                f"ball={'yes' if ball_xy else 'no'}"
-            ),
+            caption=pitch_cap,
         )
-        if fused.get("source") == "live":
+        if simple:
+            st.caption("Blue & red = teams · grey = unsure · yellow = ball")
+        elif fused.get("source") == "live":
             st.caption(
                 f"Live map {fused['n_cams']} cams · blue/red=team · gray=unsure · yellow=ball"
             )
@@ -815,42 +1078,45 @@ def render_synced_frame_review(
             zoom = ball_zoom_crop(zoom_base, rows, H_inv, calib_wh)
             st.image(cv2.cvtColor(zoom, cv2.COLOR_BGR2RGB), use_container_width=True)
 
-    with st.expander("Tables (same frame)", expanded=False):
-        if len(rows):
-            st.dataframe(
-                rows[
-                    [
-                        c
-                        for c in [
-                            "Player_ID",
-                            "Team_ID",
-                            "Location_X",
-                            "Location_Y",
-                            "Event",
-                            "confidence",
+    render_growth_label_panel(run_dir, frame_id, events, nav, simple)
+
+    if not simple:
+        with st.expander("Tables (same frame)", expanded=False):
+            if len(rows):
+                st.dataframe(
+                    rows[
+                        [
+                            c
+                            for c in [
+                                "Player_ID",
+                                "Team_ID",
+                                "Location_X",
+                                "Location_Y",
+                                "Event",
+                                "confidence",
+                            ]
+                            if c in rows.columns
                         ]
-                        if c in rows.columns
-                    ]
-                ],
-                use_container_width=True,
-                hide_index=True,
-            )
-        if dets:
-            st.caption("Detector boxes this frame")
-            st.dataframe(
-                pd.DataFrame(
-                    [
-                        {
-                            "class": getattr(d, "class_name", d.class_id),
-                            "conf": round(float(d.confidence), 3),
-                            "bbox": tuple(round(float(v), 1) for v in d.bbox),
-                        }
-                        for d in dets
-                    ]
-                ),
-                use_container_width=True,
-                hide_index=True,
-            )
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            if dets:
+                st.caption("Detector boxes this frame")
+                st.dataframe(
+                    pd.DataFrame(
+                        [
+                            {
+                                "class": getattr(d, "class_name", d.class_id),
+                                "conf": round(float(d.confidence), 3),
+                                "bbox": tuple(round(float(v), 1) for v in d.bbox),
+                            }
+                            for d in dets
+                        ]
+                    ),
+                    use_container_width=True,
+                    hide_index=True,
+                )
 
     # Auto-advance like video while Play is on
     if st.session_state.verify_playing:
@@ -866,37 +1132,59 @@ def render_synced_frame_review(
 
 
 def main():
-    st.set_page_config(page_title="Soccer Analysis Dashboard", layout="wide")
+    from src.review.coach_ux import SIMPLE_MODE_KEY, is_simple_mode
+
+    st.set_page_config(page_title="Match Review", layout="wide", page_icon="⚽")
+    if SIMPLE_MODE_KEY not in st.session_state:
+        st.session_state[SIMPLE_MODE_KEY] = True
     if "hide_sidebar" not in st.session_state:
         st.session_state.hide_sidebar = False
+    simple = is_simple_mode(st.session_state)
     _inject_scroll_fix()
-    head_l, head_r = st.columns([5, 1])
+    head_l, head_m, head_r = st.columns([4, 1, 1])
     with head_l:
-        st.title("Soccer Analysis — Phase 1 Review")
+        st.title("Match Review" if simple else "Soccer Analysis — Phase 1 Review")
+        if simple:
+            st.caption("Watch the match, rate what you see, save your feedback.")
+    with head_m:
+        coach_lbl = "Coach mode" if simple else "Expert mode"
+        if st.button(coach_lbl, key="toggle_coach_mode"):
+            st.session_state[SIMPLE_MODE_KEY] = not simple
+            st.rerun()
     with head_r:
-        side_lbl = "Show sidebar" if st.session_state.hide_sidebar else "Hide sidebar"
+        side_lbl = "Show menu" if st.session_state.hide_sidebar else "Bigger view"
         if st.button(side_lbl, key="toggle_sidebar_top"):
             st.session_state.hide_sidebar = not st.session_state.hide_sidebar
             st.rerun()
 
-    st.sidebar.header("Data Selection")
+    st.sidebar.header("Choose match" if simple else "Data Selection")
     default_root = "data/output/full_match_2min"
     if not Path(default_root).is_dir():
         default_root = "data/output/full_match_2min_partial"
     if not Path(default_root).is_dir():
         default_root = "data/output"
-    output_root = st.sidebar.text_input("Output root", value=default_root)
-    runs = list_run_dirs(output_root)
-    if runs:
-        prefer = 0
-        if "P10-002" in runs:
-            prefer = runs.index("P10-002")
-        selected = st.sidebar.selectbox("Match run", options=runs, index=prefer)
-        run_dir = Path(output_root) / selected
+    if simple:
+        output_root = default_root
+        runs = list_run_dirs(output_root)
+        if runs:
+            prefer = runs.index("P10-002") if "P10-002" in runs else 0
+            selected = st.sidebar.selectbox("Match", options=runs, index=prefer)
+            run_dir = Path(output_root) / selected
+        else:
+            selected = None
+            run_dir = Path(output_root)
+            st.sidebar.warning("No processed matches yet — run the pipeline first.")
     else:
-        selected = None
-        run_dir = Path(output_root)
-        st.sidebar.warning("No run folders with events.json yet")
+        output_root = st.sidebar.text_input("Output root", value=default_root)
+        runs = list_run_dirs(output_root)
+        if runs:
+            prefer = runs.index("P10-002") if "P10-002" in runs else 0
+            selected = st.sidebar.selectbox("Match run", options=runs, index=prefer)
+            run_dir = Path(output_root) / selected
+        else:
+            selected = None
+            run_dir = Path(output_root)
+            st.sidebar.warning("No run folders with events.json yet")
 
     json_path = run_dir / "events.json"
     try:
@@ -907,13 +1195,13 @@ def main():
         events, meta = [], {}
 
     checkpoints = load_checkpoints(str(run_dir / "checkpoints"))
-    if checkpoints:
+    if checkpoints and not simple:
         st.sidebar.subheader("Checkpoints")
         pick = st.sidebar.selectbox("Checkpoint", options=["(final)"] + checkpoints, index=0)
         if pick != "(final)":
             events = load_events(str(run_dir / "checkpoints" / pick))
 
-    if meta.get("match_id"):
+    if meta.get("match_id") and not simple:
         st.caption(f"Match: `{meta['match_id']}` · path `{json_path}`")
 
     try:
@@ -922,50 +1210,80 @@ def main():
         st.error(f"Failed to load frame_data: {exc}")
         frame_df = pd.DataFrame()
 
-    if not frame_df.empty:
-        try:
-            render_synced_frame_review(run_dir, selected or run_dir.name, frame_df, events)
-        except Exception as exc:
-            from src.review.io_retry import is_transient_io
+    tab_watch, tab_events = st.tabs(
+        ["Watch & rate", "Fix events"] if simple else ["Label & verify", "Events & corrections"]
+    )
 
-            log = _log_review_exc("render_synced_frame_review", exc)
-            if is_transient_io(exc):
-                st.session_state.verify_playing = False
-                st.error(
-                    f"Frame review hit a USB/disk I/O blip ({exc}). "
-                    f"Playback paused — click ▶ or refresh. Log: `{log}`"
-                )
-            else:
-                st.error(f"Frame review failed: {exc}  · log `{log}`")
-
-        with st.expander("All-frames pitch density", expanded=False):
+    with tab_watch:
+        if not frame_df.empty:
             try:
-                render_frame_pitch(frame_df)
+                render_synced_frame_review(
+                    run_dir, selected or run_dir.name, frame_df, events, simple
+                )
             except Exception as exc:
-                st.warning(f"Pitch map skipped: {exc}")
-            balls = int((frame_df["Player_ID"] == -1).sum()) if "Player_ID" in frame_df.columns else 0
-            st.caption(f"{len(frame_df)} rows · {balls} ball rows")
+                from src.review.io_retry import is_transient_io
 
-    if events:
-        st.header("Event Summary")
-        render_event_summary(events)
-        try:
-            with st.expander("Event timeline + map", expanded=False):
-                render_event_timeline(events)
-                render_pitch_map(events)
-        except Exception as exc:
-            st.warning(f"Event plots skipped: {exc}")
-        st.header("Event Details")
-        render_event_table(events)
-        if len(events) > 400:
-            st.info(f"{len(events)} events — showing first 400 in editor.")
-            render_corrections_editor(run_dir, events[:400])
+                log = _log_review_exc("render_synced_frame_review", exc)
+                if is_transient_io(exc):
+                    st.session_state.verify_playing = False
+                    st.error(
+                        f"Video read hiccup ({exc}). Playback paused — try **Next** or refresh."
+                        if simple
+                        else f"Frame review hit a USB/disk I/O blip ({exc}). "
+                        f"Playback paused — click ▶ or refresh. Log: `{log}`"
+                    )
+                else:
+                    st.error(f"Something went wrong: {exc}" + ("" if simple else f"  · log `{log}`"))
+
+            if not simple:
+                with st.expander("All-frames pitch density", expanded=False):
+                    try:
+                        render_frame_pitch(frame_df)
+                    except Exception as exc:
+                        st.warning(f"Pitch map skipped: {exc}")
+                    balls = (
+                        int((frame_df["Player_ID"] == -1).sum())
+                        if "Player_ID" in frame_df.columns
+                        else 0
+                    )
+                    st.caption(f"{len(frame_df)} rows · {balls} ball rows")
         else:
-            render_corrections_editor(run_dir, events)
-    else:
-        st.warning(f"No heuristic events in {json_path}")
-        if frame_df.empty:
-            st.info("Point Output root at a run folder with events.json + frame_data.csv")
+            msg = (
+                "No match data loaded yet. Ask your engineer to run the batch pipeline, "
+                "or switch to **Expert mode** to pick a folder."
+                if simple
+                else "No frame_data.csv — run batch pipeline or pick another output root."
+            )
+            st.warning(msg)
+
+    with tab_events:
+        if events:
+            if simple:
+                st.header("Automatic events")
+                st.caption("These were detected by the system. Remove or fix anything that looks wrong.")
+                render_event_summary(events)
+            else:
+                st.header("Event Summary")
+                render_event_summary(events)
+                try:
+                    with st.expander("Event timeline + map", expanded=False):
+                        render_event_timeline(events)
+                        render_pitch_map(events)
+                except Exception as exc:
+                    st.warning(f"Event plots skipped: {exc}")
+                st.header("Event Details")
+                render_event_table(events)
+            if len(events) > 400:
+                st.info(f"{len(events)} events — showing first 400 in editor.")
+                render_corrections_editor(run_dir, events[:400], simple)
+            else:
+                render_corrections_editor(run_dir, events, simple)
+        else:
+            st.warning(
+                "No events found for this match."
+                if simple
+                else f"No heuristic events in {json_path}"
+            )
 
 
 if __name__ == "__main__":
