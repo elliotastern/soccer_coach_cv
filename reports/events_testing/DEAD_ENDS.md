@@ -12,7 +12,8 @@ Log failed A/Bs here. Numbers live in JSON; this file is the anti-rerun list.
 | Raw frame-to-frame events on stride-15 fuse | Ball jumps 40–50 m → fake 150+ m/s passes/shots | `MAX_BALL_SPEED_M_S=40` + post-teleport settle |
 | Recovery on goal-line possession cling | FP spam | Require close-from >2.5 m + move ≥0.8 m |
 | Label goal-band leave as “shot” | Physics is clearance/pass (abs x decreases) | Shot only if moving toward goal line |
-| Shared `EventDetector` across gold clips | Cooldown leaked → synth shot/recovery FN | Fresh detector per clip |
+| Goal-band hard exclusion for dribble/movement | Blocks real goal-mouth carries; tuned to one clip | Use ball–player co-movement gate |
+| Dribble/movement on static player + jittery ball | FP spam on fuse xy (check25) | `co_move_min_player_m` + `co_move_min_cos` |
 
 ## Worked
 
@@ -22,10 +23,10 @@ Log failed A/Bs here. Numbers live in JSON; this file is the anti-rerun list.
 | Teleport reject + cooldown + in-pitch | check25 `score_real.json` |
 | Real pack labels from continuous xy | 3 pass windows; **P_emit_real 1.0** |
 | Eng-loop kill switch on real | `08b_real_p_emit` in `scores.json` |
-| Default thresholds | `t1_threshold_ab.json` |
+| Ball–player co-movement gate | check25 E2 FP 6→0; real P_emit 1.0 without zone exclusion | `co_move_min_player_m` / `co_move_min_cos` |
 
 ## Residual
 
 - Shot/recovery rare on this 25 s window (mostly clearances labeled pass).
 - Stride-15 timeline still loses some sub-second events; denser timeline is compute-heavy.
-- E2: dribble + movement still off.
+- E2 dribble + movement on with co-movement gate; expand gold (`synth_dribble_midfield`, `synth_goal_jitter_none`).

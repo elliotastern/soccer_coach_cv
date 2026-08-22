@@ -45,6 +45,8 @@ class EventDetector:
         enable_movement: bool = True,
         movement_velocity_min: float = 1.0,
         movement_proximity: float = 4.0,
+        co_move_min_player_m: float = 0.15,
+        co_move_min_cos: float = 0.55,
     ):
         self.pitch_mapper = pitch_mapper
         self.pass_velocity_threshold = pass_velocity_threshold
@@ -60,6 +62,8 @@ class EventDetector:
         self.enable_movement = enable_movement
         self.movement_velocity_min = movement_velocity_min
         self.movement_proximity = movement_proximity
+        self.co_move_min_player_m = co_move_min_player_m
+        self.co_move_min_cos = co_move_min_cos
         self.player_history: Dict[int, List[Player]] = {}
         self.ball_history: List[Ball] = []
         self._last_emit_t: Optional[float] = None
@@ -122,8 +126,24 @@ class EventDetector:
     def _in_pitch(self, loc: Location) -> bool:
         return abs(loc.x) <= self.half_length_m + 0.05 and abs(loc.y) <= 17.5
 
-    def _in_goal_band(self, loc: Location) -> bool:
-        return abs(loc.x) >= self.half_length_m - self.shot_goal_band_m
+    def _co_movement_ok(
+        self,
+        from_a: Location,
+        to_a: Location,
+        from_b: Location,
+        to_b: Location,
+    ) -> bool:
+        """Ball and player displacements aligned — rejects map jitter on static players."""
+        ax, ay = to_a.x - from_a.x, to_a.y - from_a.y
+        bx, by = to_b.x - from_b.x, to_b.y - from_b.y
+        player_move = float(np.hypot(bx, by))
+        if player_move < self.co_move_min_player_m:
+            return False
+        ball_move = float(np.hypot(ax, ay))
+        if ball_move < 1e-6:
+            return False
+        cos_sim = (ax * bx + ay * by) / (ball_move * player_move)
+        return cos_sim >= self.co_move_min_cos
 
     def _cooldown_ok(self, t_end: float) -> bool:
         if self._last_emit_t is None:
@@ -172,11 +192,9 @@ class EventDetector:
         assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
         ball = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
         prev_ball = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
-        if self._in_goal_band(ball) or self._in_goal_band(prev_ball):
-            return None
         moved = self._distance(prev_ball, ball)
         dt = frame_data.timestamp - prev_frame_data.timestamp
-        if dt > 0 and self._velocity(prev_ball, ball, dt) >= self.pass_velocity_threshold:
+        if dt > 0 and self._velocity(prev_ball, ball, dt) >= self.pass_velocity_threshold * 0.9:
             return None
         for player in frame_data.players:
             pl = Location(player.x_pitch, player.y_pitch)
@@ -186,6 +204,8 @@ class EventDetector:
             if prev_pl is None:
                 continue
             if self._distance(prev_ball, prev_pl) >= self.dribble_distance_threshold:
+                continue
+            if not self._co_movement_ok(prev_ball, ball, prev_pl, pl):
                 continue
             # Require clear carry distance; weak cling stays below emit.
             conf = 0.85 if moved >= 0.4 else 0.70
@@ -293,8 +313,6 @@ class EventDetector:
         end = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
         if not (self._in_pitch(start) and self._in_pitch(end)):
             return None
-        if self._in_goal_band(start) or self._in_goal_band(end):
-            return None
         moved = self._distance(start, end)
         if moved < 0.25:
             return None
@@ -307,6 +325,12 @@ class EventDetector:
             prev_frame_data.players, start, self.movement_proximity
         )
         if pid is None:
+            return None
+        prev_pl = self._player_loc(prev_frame_data.players, pid)
+        cur_pl = self._player_loc(frame_data.players, pid)
+        if prev_pl is None or cur_pl is None:
+            return None
+        if not self._co_movement_ok(start, end, prev_pl, cur_pl):
             return None
         conf = min(1.0, 0.80 + moved / 5.0)
         return self._gate(

@@ -164,13 +164,28 @@ def test_movement_emits():
     prev, cur = _pair(
         [_player(1, 0.0, 0.0, 0, 0.0)],
         _ball(0.0, 0.0, 0, 0.0),
-        [_player(1, 0.0, 0.0, 1, dt)],
+        [_player(1, 0.5, 0.0, 1, dt)],
         _ball(2.5, 0.0, 1, dt),
         dt=dt,
     )
     ev = det.detect_movement(cur, prev)
     assert ev is not None and ev.type == EventType.MOVEMENT
     assert ev.confidence >= EMIT_CONF
+
+
+def test_goal_jitter_no_dribble_or_movement():
+    """Static player + ball jitter (fusion noise) must not emit E2 types."""
+    det = EventDetector(enable_dribble=True, enable_movement=True)
+    dt = 0.25
+    prev, cur = _pair(
+        [_player(1, 24.0, 2.0, 0, 0.0)],
+        _ball(25.0, 2.5, 0, 0.0),
+        [_player(1, 24.0, 2.0, 1, dt)],
+        _ball(25.4, 2.7, 1, dt),
+        dt=dt,
+    )
+    assert det.detect_dribble(cur, prev) is None
+    assert det.detect_movement(cur, prev) is None
 
 
 def test_movement_below_pass_threshold():
@@ -198,6 +213,7 @@ def main() -> int:
         test_dribble_needs_prev_proximity,
         test_dribble_emits,
         test_movement_emits,
+        test_goal_jitter_no_dribble_or_movement,
         test_movement_below_pass_threshold,
     ]
     for fn in tests:

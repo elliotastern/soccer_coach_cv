@@ -61,6 +61,8 @@ events:
   enable_movement: true
   movement_velocity_min: 1.0  # m/s; below pass_velocity_threshold
   movement_proximity: 4.0  # meters
+  co_move_min_player_m: 0.15  # player must move with ball (anti map jitter)
+  co_move_min_cos: 0.55  # displacement alignment for dribble/movement
 
 # Checkpoint Settings
 checkpoint:

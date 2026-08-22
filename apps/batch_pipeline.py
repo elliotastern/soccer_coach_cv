@@ -252,6 +252,8 @@ def process_video(
         enable_movement=bool(ev_cfg.get("enable_movement", True)),
         movement_velocity_min=float(ev_cfg.get("movement_velocity_min", 1.0)),
         movement_proximity=float(ev_cfg.get("movement_proximity", 4.0)),
+        co_move_min_player_m=float(ev_cfg.get("co_move_min_player_m", 0.15)),
+        co_move_min_cos=float(ev_cfg.get("co_move_min_cos", 0.55)),
     )
     event_manager = EventManager(
         checkpoint_interval=config["checkpoint"]["interval_frames"],

@@ -17,7 +17,7 @@
       2
     ]
   },
-  "tp": 4,
+  "tp": 6,
   "fp": 0,
   "fn": 0,
   "gate_p_emit": 0.8,
@@ -67,6 +67,33 @@
       "recall": 1.0,
       "n_emit": 1,
       "id": "synth_recovery"
+    },
+    {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "id": "synth_dribble_midfield"
+    },
+    {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "id": "synth_movement_midfield"
+    },
+    {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 0.0,
+      "recall": 1.0,
+      "n_emit": 0,
+      "id": "synth_goal_jitter_none"
     }
   ],
   "components": {

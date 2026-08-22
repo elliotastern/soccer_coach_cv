@@ -129,7 +129,7 @@ Rebuild proof pack: `python3 scripts/gold_set/build_phase1_proof_pack.py`
 |------|--------|
 | 2 **full** matches through batch | Run `run_phase1_full_matches.sh` (hours on GPU) |
 | 3rd-match handover session | Manual — use [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md) |
-| Dribble + **movement** heuristic emits | **Done (E2)** — batch + review; goal-band guard for precision |
+| Dribble + **movement** heuristic emits | **Done (E2)** — co-movement gate (not goal-band exclusion) |
 | Live RTSP / wearables | Phase 2+ — not in Phase 1 scope |
 
 ---

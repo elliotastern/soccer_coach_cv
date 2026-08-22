@@ -27,7 +27,7 @@ Scaffold in `src/events/events.py` used FIFA `goal_x = 52.5`, dribble conf 0.7 (
 | **M1b** | Teleport reject, cooldown, toward-goal shot, recovery close-from | Real FP 35→0 |
 | **T1** | Threshold A/B + DEAD_ENDS | Gate holds |
 | **V1** | Overlay / status row | PHASE1_STATUS events ≥7 |
-| **E2** | Dribble + movement | Same gate |
+| **E2** | Dribble + movement + co-movement gate | Same gate; synth dribble/movement/jitter gold |
 
 ## Hard no
 

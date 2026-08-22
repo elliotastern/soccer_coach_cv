@@ -149,30 +149,87 @@ def main() -> int:
         )
     )
 
-    # Check-window anchors (human labels from phase1_check 25s @ fr 2390)
-    # Times are match-relative seconds from clip start (t+ in mosaic footer).
+    # Dribble: player and ball co-move in midfield
+    clips.append(
+        _write(
+            "synth_dribble_midfield",
+            _frames_two(
+                (0.5, 0.0),
+                (0.9, 0.0),
+                [[1, 0.0, 0.0]],
+                [[1, 0.2, 0.0]],
+                dt=1.0,
+            ),
+            {
+                "events": [
+                    {"type": "dribble", "t_start": 0.0, "t_end": 1.0, "frame_end": 1}
+                ]
+            },
+            "Synthetic midfield dribble — expect emit dribble",
+        )
+    )
+
+    # Movement: slow co-moving carry
+    clips.append(
+        _write(
+            "synth_movement_midfield",
+            _frames_two(
+                (0.0, 0.0),
+                (2.5, 0.0),
+                [[1, 0.0, 0.0]],
+                [[1, 0.5, 0.0]],
+                dt=1.0,
+            ),
+            {
+                "events": [
+                    {"type": "movement", "t_start": 0.0, "t_end": 1.0, "frame_end": 1}
+                ]
+            },
+            "Synthetic slow co-move — expect emit movement",
+        )
+    )
+
+    # Goal-band jitter: static player, ball wiggle — must NOT emit
+    clips.append(
+        _write(
+            "synth_goal_jitter_none",
+            _frames_two(
+                (25.0, 2.5),
+                (25.4, 2.7),
+                [[1, 24.0, 2.0]],
+                [[1, 24.0, 2.0]],
+                dt=0.25,
+            ),
+            {"events": []},
+            "Goal-band fusion jitter — expect no dribble/movement emit",
+        )
+    )
+
+    # Check-window anchors — product gate (continuous fuse xy; passes only).
     check_labels = {
         "source": "reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4",
         "start_frame": 2390,
         "src_fps": 60.0,
+        "timeline": "timeline.json",
+        "label_note": "Continuous product-fuse xy only. Goal-band high-speed moves that leave the goal are pass (not shot).",
         "events": [
             {
-                "type": "shot",
-                "t_start": 4.0,
-                "t_end": 5.5,
-                "note": "Ball on Goal2 line / P8 — shot-like",
+                "type": "pass",
+                "t_start": 2.0,
+                "t_end": 2.5,
+                "note": "High-speed continuous move leaving Goal2 band",
             },
             {
                 "type": "pass",
-                "t_start": 10.5,
-                "t_end": 12.0,
-                "note": "Ball relocates midfield→north with pace",
+                "t_start": 5.75,
+                "t_end": 6.25,
+                "note": "Continuous ~29 m/s leave Goal2 toward midfield",
             },
             {
-                "type": "recovery",
-                "t_start": 22.0,
-                "t_end": 23.5,
-                "note": "Clear ball then player contact in P7",
+                "type": "pass",
+                "t_start": 15.25,
+                "t_end": 15.75,
+                "note": "High-speed continuous leave Goal2 band",
             },
         ],
     }
@@ -198,7 +255,7 @@ def main() -> int:
 
     manifest = {
         "id": "match3_events_v1",
-        "slice": ["pass", "shot", "recovery"],
+        "slice": ["pass", "shot", "recovery", "dribble", "movement"],
         "emit_conf": 0.80,
         "pitch": "Pitch 1 (53.90 m)",
         "clips": clips,
