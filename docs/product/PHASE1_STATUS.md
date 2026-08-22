@@ -7,6 +7,8 @@ Check clip (25 s match @ 30 fps, regular speed; mosaic + Pitch 1; defish tiles /
 
 **Phase 1 proof pack** (per-pillar clips + manifest): [`reports/eval_match3/improve_eng_loop/phase1_proof/manifest.json`](../reports/eval_match3/improve_eng_loop/phase1_proof/manifest.json). Rebuild: `python3 scripts/gold_set/build_phase1_proof_pack.py`.
 
+**Client handover:** [PHASE1_CLIENT_HANDOVER.md](PHASE1_CLIENT_HANDOVER.md) · **Delivery manifest:** `python3 scripts/gold_set/build_phase1_delivery_manifest.py` → [`delivery_manifest.json`](../reports/eval_match3/improve_eng_loop/delivery_manifest.json).
+
 ## Scorecard (out of 10; **≥7 = enough for Phase 1**)
 
 Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**

@@ -97,14 +97,11 @@ You must batch each camera you want in **export/fuse** data. For the **4-quad mo
 ## Step 3 — Start the dashboard
 
 ```bash
-bash scripts/start_review_dashboard.sh
-```
-
-Or manually:
-
-```bash
-export PYTHONPATH=.
-streamlit run apps/review_dashboard.py
+bash scripts/open_review_dashboard_terminal.sh   # opens macOS Terminal (recommended)
+# or keep a terminal open:
+bash scripts/run_review_dashboard_foreground.sh
+# or background (may stop when Cursor closes):
+bash scripts/start_review_dashboard.sh restart
 ```
 
 **Open in a normal browser on the same machine:** [http://127.0.0.1:8501](http://127.0.0.1:8501)
@@ -206,7 +203,7 @@ pip install -r requirements.txt
 
 | Symptom | What to do |
 |---------|------------|
-| **Connection failed** | Run `bash scripts/start_review_dashboard.sh`; open `http://127.0.0.1:8501` |
+| **Connection failed** | Run `bash scripts/open_review_dashboard_terminal.sh` (opens **Terminal.app** — stays alive). Or `bash scripts/run_review_dashboard_foreground.sh` in your own terminal. Open `http://127.0.0.1:8501` in **Safari/Chrome**, not Cursor preview. |
 | **No match in sidebar** | Run batch first; each run folder needs `events.json` + `frame_data.csv` |
 | **Stuck 20–40 s on a frame** | Normal on first load (4-cam detection). Wait, or Expert → turn off boxes |
 | **Disk / USB errors** | Move project + videos to internal SSD |
@@ -224,6 +221,7 @@ pip install -r requirements.txt
 
 ## Related docs
 
+- [PHASE1_CLIENT_HANDOVER.md](PHASE1_CLIENT_HANDOVER.md) — gig scope → repo map + acceptance checklist
 - [PHASE1_SCOPE.md](PHASE1_SCOPE.md) — acceptance and batch-first delivery
 - [MATCH3_CAPTURE.md](MATCH3_CAPTURE.md) — camera ids and mosaic layout
 - [reports/eval_match3/improve_eng_loop/streamlit_review/PROMPT.md](../../reports/eval_match3/improve_eng_loop/streamlit_review/PROMPT.md) — eng-loop scoring for the review app

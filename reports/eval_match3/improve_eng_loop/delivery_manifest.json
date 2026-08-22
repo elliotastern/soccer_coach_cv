@@ -1,0 +1,105 @@
+{
+  "ts": "2026-08-22T16:21:47.245749+00:00",
+  "roots_scanned": [
+    "data/output/full_match",
+    "data/output/full_match_2min",
+    "data/processed/full_match_2min"
+  ],
+  "csv_schema": [
+    "Timestamp",
+    "Team_ID",
+    "Player_ID",
+    "Event",
+    "Location_X",
+    "Location_Y",
+    "frame_id",
+    "confidence"
+  ],
+  "runs": [
+    {
+      "run": "P1-006",
+      "path": "data/output/full_match_2min/P1-006",
+      "has_frame_data": true,
+      "has_events_json": true,
+      "has_events_csv": true,
+      "has_checkpoints": true,
+      "n_checkpoints": 2,
+      "n_frame_rows": 2514,
+      "n_events": 0,
+      "event_counts": {
+        "pass": 0,
+        "dribble": 0,
+        "movement": 0,
+        "recovery": 0,
+        "shot": 0
+      },
+      "csv_columns_ok": true,
+      "pass": true,
+      "issues": []
+    },
+    {
+      "run": "P10-002",
+      "path": "data/output/full_match_2min/P10-002",
+      "has_frame_data": true,
+      "has_events_json": true,
+      "has_events_csv": true,
+      "has_checkpoints": true,
+      "n_checkpoints": 48,
+      "n_frame_rows": 35220,
+      "n_events": 330,
+      "event_counts": {
+        "pass": 47,
+        "dribble": 283,
+        "movement": 0,
+        "recovery": 0,
+        "shot": 0
+      },
+      "csv_columns_ok": true,
+      "pass": true,
+      "issues": []
+    },
+    {
+      "run": "P10-002_cumulative",
+      "path": "data/output/full_match_2min/P10-002_cumulative",
+      "has_frame_data": true,
+      "has_events_json": true,
+      "has_events_csv": true,
+      "has_checkpoints": false,
+      "n_checkpoints": 0,
+      "n_frame_rows": 35220,
+      "n_events": 330,
+      "event_counts": {
+        "pass": 47,
+        "dribble": 283,
+        "movement": 0,
+        "recovery": 0,
+        "shot": 0
+      },
+      "csv_columns_ok": true,
+      "pass": false,
+      "issues": [
+        "no checkpoint_*.json files"
+      ]
+    }
+  ],
+  "acceptance": {
+    "required_runs": [
+      "P10-002",
+      "P1-006"
+    ],
+    "found": {
+      "P10-002": true,
+      "P1-006": true
+    },
+    "pass": {
+      "P10-002": true,
+      "P1-006": true
+    },
+    "acceptance_met": true,
+    "note": "Acceptance \u00a75.1 needs 2 full-match batch runs (P10-002 + P1-006)."
+  },
+  "gaps": [
+    "Dribble + Movement heuristic emits (E2) not required for manifest pass",
+    "3rd-match handover session is manual \u2014 not checked by this script"
+  ]
+}
