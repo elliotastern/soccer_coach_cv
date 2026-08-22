@@ -18,12 +18,23 @@ import sys
 
 sys.path.insert(0, str(ROOT))
 
+from src.events.events import EventDetector  # noqa: E402
 from src.perception.rfdetr_local import LocalRFDETRDetector  # noqa: E402
 from src.review.cam_mosaic import mosaic_quads_coach, match3_videos  # noqa: E402
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
 from src.review.team_live import TeamSession  # noqa: E402
+from src.state.types import Ball, FrameData, Player  # noqa: E402
+
+EVENT_BAR_H = 56
+EVENT_COLORS = {
+    "pass": (80, 180, 255),
+    "shot": (60, 60, 255),
+    "recovery": (80, 220, 120),
+    "dribble": (200, 160, 80),
+    "movement": (180, 180, 180),
+}
 
 
 def parse_args():
@@ -33,12 +44,62 @@ def parse_args():
     p.add_argument("--src-fps", type=float, default=60.0)
     p.add_argument("--stride", type=int, default=15)
     p.add_argument("--out-fps", type=float, default=4.0)
+    p.add_argument("--events-bar", action=argparse.BooleanOptionalAction, default=True)
     p.add_argument(
         "--out-dir",
         type=Path,
         default=ROOT / "reports/eval_match3/improve_eng_loop/phase1_check",
     )
     return p.parse_args()
+
+
+def _live_to_frame(fr: int, t_s: float, live: dict) -> FrameData:
+    players = []
+    for j, p in enumerate(live["players"]):
+        x, y = float(p[0]), float(p[1])
+        team = int(p[2]) if len(p) > 2 else -1
+        players.append(Player(j + 1, team, x, y, (0, 0, 10, 10), fr, t_s))
+    ball = None
+    if live.get("ball_xy") is not None:
+        bx, by = live["ball_xy"]
+        ball = Ball(float(bx), float(by), (0, 0, 4, 4), fr, t_s)
+    return FrameData(fr, t_s, players, ball)
+
+
+def draw_events_bar(width: int, t_s: float, recent: list[dict], flash: str | None) -> np.ndarray:
+    bar = np.zeros((EVENT_BAR_H, width, 3), dtype=np.uint8)
+    bar[:] = (28, 28, 32)
+    cv2.putText(
+        bar,
+        f"events  t+{t_s:.1f}s",
+        (10, 22),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.55,
+        (220, 220, 220),
+        1,
+    )
+    x = 160
+    for em in recent[-6:]:
+        label = f"{em['type']} @{em['t_end']:.1f}s"
+        col = EVENT_COLORS.get(em["type"], (200, 200, 200))
+        if flash and em["type"] == flash and abs(t_s - em["t_end"]) < 0.35:
+            col = tuple(min(255, c + 60) for c in col)
+        cv2.rectangle(bar, (x, 28), (x + 118, 50), col, -1)
+        cv2.putText(
+            bar, label[:14], (x + 4, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (20, 20, 20), 1
+        )
+        x += 124
+    if flash and not any(abs(t_s - em["t_end"]) < 0.35 for em in recent[-3:]):
+        cv2.putText(
+            bar,
+            f"NEW {flash.upper()}",
+            (width - 180, 45),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.65,
+            EVENT_COLORS.get(flash, (255, 255, 255)),
+            2,
+        )
+    return bar
 
 
 def main() -> int:
@@ -65,6 +126,10 @@ def main() -> int:
         return keep_top1_ball(det.detect(frame_bgr))
 
     sess = TeamSession()
+    event_det = EventDetector() if args.events_bar else None
+    prev_fd = None
+    recent_emits: list[dict] = []
+    all_emits: list[dict] = []
     trail = []
     writer = None
     mp4 = out / "coach_mosaic_pitch_min.mp4"
@@ -116,8 +181,26 @@ def main() -> int:
         )
         if pitch.shape[0] != mosaic.shape[0]:
             pitch = cv2.resize(pitch, (pitch.shape[1], mosaic.shape[0]))
+        if pitch.shape[0] != mosaic.shape[0]:
+            pitch = cv2.resize(pitch, (pitch.shape[1], mosaic.shape[0]))
         combo = np.hstack([mosaic, pitch])
         t_s = (fr - args.start) / args.src_fps
+        flash = None
+        if event_det is not None:
+            fd = _live_to_frame(fr, t_s, live)
+            if prev_fd is not None:
+                for ev in event_det.detect_events(fd, prev_fd):
+                    row = {
+                        "type": ev.type.value,
+                        "t_end": round(ev.timestamp_end, 3),
+                        "t_start": round(ev.timestamp_start, 3),
+                        "confidence": round(ev.confidence, 3),
+                        "frame_id": fr,
+                    }
+                    recent_emits.append(row)
+                    all_emits.append(row)
+                    flash = ev.type.value
+            prev_fd = fd
         cv2.putText(
             combo,
             f"fr {fr}  t+{t_s:.1f}s  players={len(players)}  ball={'Y' if ball else 'N'}",
@@ -127,6 +210,9 @@ def main() -> int:
             (255, 255, 255),
             2,
         )
+        if args.events_bar:
+            bar = draw_events_bar(combo.shape[1], t_s, recent_emits, flash)
+            combo = np.vstack([combo, bar])
         if writer is None:
             h, w = combo.shape[:2]
             writer = cv2.VideoWriter(
@@ -147,6 +233,7 @@ def main() -> int:
                 "n1": n1,
                 "gray": ng,
                 "ball": ball is not None,
+                "event_flash": flash,
             }
         )
         if (i + 1) % 10 == 0 or i == 0:
@@ -159,8 +246,12 @@ def main() -> int:
         "path": str(mp4.relative_to(ROOT)),
         "note": (
             "Product map: defish tiles, apply_undistort=not apply_defish, "
-            "P10 hull + MIN_SUPPORT 0.20 + F0 fuse; tight pitch orient_hints"
+            "map_player_box (P8 lower-zone H fallback), P_Goal2 hull, F0 fuse; "
+            "events bar = heuristic pass/shot/recovery on fused xy"
         ),
+        "events_bar": bool(args.events_bar),
+        "n_emits": len(all_emits),
+        "emits": all_emits,
         "apply_defish": True,
         "apply_undistort": False,
         "frames_src": frames,
@@ -173,7 +264,11 @@ def main() -> int:
         "stats": stats,
     }
     (out / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    print("WROTE", mp4, f"dur={dur_s:.1f}s ball_frac={ball_frac:.2f}", flush=True)
+    if all_emits:
+        (out / "emits_render.json").write_text(
+            json.dumps({"emits": all_emits}, indent=2), encoding="utf-8"
+        )
+    print("WROTE", mp4, f"dur={dur_s:.1f}s ball_frac={ball_frac:.2f} emits={len(all_emits)}", flush=True)
     return 0
 
 

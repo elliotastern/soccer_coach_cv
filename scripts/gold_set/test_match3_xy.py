@@ -235,6 +235,15 @@ def test_p10_hull_image_points_expand() -> None:
         raise AssertionError("P10 expanded hull should cover near-touch left zone")
 
 
+def test_p_goal2_hull_image_points_expand() -> None:
+    rec = load_calib("P_Goal2")
+    hull = rec.get("hull_image_points") or []
+    if len(hull) <= len(rec["image_points"]):
+        raise AssertionError("P_Goal2 hull_image_points should expand for player FOV")
+    if hull_support(1776.7, 303.6, hull) < PLAYER_MIN_SUPPORT:
+        raise AssertionError("P_Goal2 expanded hull should cover right-edge player feet")
+
+
 def test_hull_image_points_expand() -> None:
     rec = load_calib("P_Goal1")
     if not rec.get("hull_image_points"):
@@ -408,6 +417,7 @@ def main() -> int:
     test_off_pitch_dropped()
     test_far_hull_dropped()
     test_hull_image_points_expand()
+    test_p_goal2_hull_image_points_expand()
     test_p7_hull_image_points_expand()
     test_p8_h_player_dual_homography()
     test_p8_hull_image_points_expand()
