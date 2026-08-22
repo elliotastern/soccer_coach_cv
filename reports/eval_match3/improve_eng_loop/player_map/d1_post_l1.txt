@@ -1,0 +1,50 @@
+Loading people RF-DETR from: /Volumes/LaCie/Projects/Soccer Coach CV/models/people_after_100_epochs.pth
+Using a different number of positional encodings than DINOv2, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+Using patch size 16 instead of 14, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+Loading pretrain weights
+✅ People model loaded
+Loading ball RF-DETR from: /Volumes/LaCie/Projects/Soccer Coach CV/models/v12_hard_snaps/post_train/checkpoint.pth
+Loading pretrain weights
+✅ Ball model loaded
+Model is not optimized for inference. Latency may be higher than expected. You can optimize the model for inference by calling model.optimize_for_inference().
+UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/native/TensorShape.cpp:4316.)
+Model is not optimized for inference. Latency may be higher than expected. You can optimize the model for inference by calling model.optimize_for_inference().
+fr=3022 mapped=8/14 reasons={'ok': 8, 'off_pitch': 6} P8_m_per_100px=5.0262
+fr=3078 mapped=10/13 reasons={'ok': 10, 'off_pitch': 3} P8_m_per_100px=4.9849
+fr=2906 mapped=9/14 reasons={'ok': 9, 'low_support': 1, 'off_pitch': 4} P8_m_per_100px=3.3947
+fr=2746 mapped=13/16 reasons={'ok': 13, 'low_support': 1, 'off_pitch': 2} P8_m_per_100px=5.9781
+fr=2586 mapped=15/18 reasons={'ok': 15, 'low_support': 1, 'off_pitch': 2} P8_m_per_100px=4.7267
+fr=2390 mapped=15/17 reasons={'ok': 15, 'low_support': 2} P8_m_per_100px=None
+SUMMARY {
+  "pack_reasons": {
+    "ok": 70,
+    "off_pitch": 17,
+    "low_support": 5
+  },
+  "per_cam_reasons": {
+    "P10": {
+      "ok": 21,
+      "low_support": 1
+    },
+    "P9": {
+      "ok": 4
+    },
+    "P7": {
+      "ok": 27,
+      "low_support": 4
+    },
+    "P8": {
+      "off_pitch": 17,
+      "ok": 18
+    }
+  },
+  "mapped_frac": 0.7609,
+  "n_ok": 70,
+  "n_map_fail": 22,
+  "residual_majority": "off_pitch",
+  "crush_flags": [],
+  "n_crush_flags": 0,
+  "recommend": "L1_reclick"
+}
+WROTE /Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/player_map/d1_pack_reasons.json
+WROTE /Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/player_map/d2_collapse.json

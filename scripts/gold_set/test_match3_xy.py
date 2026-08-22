@@ -15,6 +15,7 @@ from src.mapping.match3_xy import (  # noqa: E402
     HOLD_MAX_GAP,
     MATCH3_CAMS,
     MIN_SUPPORT,
+    PLAYER_MIN_SUPPORT,
     apply_H,
     bbox_foot,
     combined_conf,
@@ -23,6 +24,7 @@ from src.mapping.match3_xy import (  # noqa: E402
     hull_support,
     load_calib,
     map_ball_box,
+    map_player_box,
     prune_ghost_maps,
 )
 
@@ -174,6 +176,40 @@ def test_p6_hull_image_points_expand() -> None:
     # Clear balls on P9-t00559 lived around py~700–900
     if hull_support(960.0, 850.0, hull) < MIN_SUPPORT:
         raise AssertionError("P6 expanded hull should cover near-touch ball zone")
+
+
+def test_p7_hull_image_points_expand() -> None:
+    rec = load_calib("P7")
+    hull = rec.get("hull_image_points") or []
+    if len(hull) <= len(rec["image_points"]):
+        raise AssertionError("P7 hull_image_points should expand for player FOV")
+    # Player-map H_p low_support feet clustered ~x1760–1870, y230–410
+    if hull_support(1820.0, 300.0, hull) < PLAYER_MIN_SUPPORT:
+        raise AssertionError("P7 expanded hull should cover right-edge player feet")
+
+
+def test_p8_h_player_dual_homography() -> None:
+    rec = load_calib("P8")
+    if rec.get("H_player") is None:
+        raise AssertionError("P8 should set H_player for depth-diverse player map")
+    ball = map_ball_box(
+        rec,
+        [1389.6, 943.8, 30.4, 28.8],
+        0.84,
+        frame_wh=(1920, 1080),
+        apply_undistort=False,
+    )
+    if ball is None or abs(ball["xy"][0] - 25.0) > 6.0:
+        raise AssertionError("ball must stay on H not H_player")
+    ply = map_player_box(
+        rec,
+        [1473.2, 126.7, 53.8, 85.9],
+        0.8,
+        frame_wh=(1920, 1080),
+        apply_undistort=False,
+    )
+    if ply is None:
+        raise AssertionError("P8 player foot should map via H_player")
 
 
 def test_p8_hull_image_points_expand() -> None:
@@ -372,6 +408,8 @@ def main() -> int:
     test_off_pitch_dropped()
     test_far_hull_dropped()
     test_hull_image_points_expand()
+    test_p7_hull_image_points_expand()
+    test_p8_h_player_dual_homography()
     test_p8_hull_image_points_expand()
     test_p6_hull_image_points_expand()
     test_p10_hull_image_points_expand()

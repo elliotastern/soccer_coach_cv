@@ -1,0 +1,42 @@
+{
+  "ts": "2026-08-22T06:55:24.340291+00:00",
+  "gate": 9.0,
+  "scores": {
+    "01_calib_present": 10.0,
+    "02_ball_minsupport_locked": 10.0,
+    "03_player_softer_hull": 10.0,
+    "04_hp_hull_expanded": 10.0,
+    "05_l1_killswitch_honored": 10.0,
+    "06_ball_map_killswitch": 10.0,
+    "07_mapped_frac": 10.0,
+    "08_low_support_rate": 10.0,
+    "09_p8_off_pitch": 10.0,
+    "10_collapse_flags": 10.0,
+    "11_defish_calib": 10.0,
+    "12_docs_ledger": 10.0,
+    "13_product_map_ready": 10.0,
+    "14_p8_bottom_mapped": 10.0
+  },
+  "notes": {
+    "01_calib_present": "missing=[]",
+    "02_ball_minsupport_locked": "MIN_SUPPORT=0.2",
+    "03_player_softer_hull": "PLAYER_MIN_SUPPORT=0.1",
+    "04_hp_hull_expanded": "P7_hull=11 P8_hull=13",
+    "05_l1_killswitch_honored": "l1_status=rejected_l2 names=['right_near_corner', 'right_box_goal_near', 'right_box_18_near', 'right_post_near', 'right_post_far']",
+    "06_ball_map_killswitch": "ball=(25.008035874146344, -13.301534680677786)",
+    "07_mapped_frac": "mapped_frac=0.8458 ok=192 fail=35",
+    "08_low_support_rate": "low=3 rate=0.013",
+    "09_p8_off_pitch": "P8 off=29 ok=57 rate=0.337 gate=0.38 H_player=True",
+    "10_collapse_flags": "n_crush_flags=0",
+    "11_defish_calib": "undistort_on_all_quad=True",
+    "12_docs_ledger": "plan=True dead=True prompt=True",
+    "13_product_map_ready": "mean_hard=10.0",
+    "14_p8_bottom_mapped": "bottom_mapped_frac=0.9412"
+  },
+  "failed": {},
+  "pass": true,
+  "constants": {
+    "MIN_SUPPORT": 0.2,
+    "PLAYER_MIN_SUPPORT": 0.1
+  }
+}

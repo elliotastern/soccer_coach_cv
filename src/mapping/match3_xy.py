@@ -21,6 +21,7 @@ SUPPORT_PX = 180.0
 MIN_SUPPORT = 0.20
 # Players: softer hull than ball (coach XY recall); ball emit path unchanged.
 PLAYER_MIN_SUPPORT = 0.10
+P8_LOWER_ZONE_Y = 520.0
 # F3: drop weak maps that disagree with the max-conf anchor (ghost prune).
 GHOST_CONF = 0.45
 MATCH3_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
@@ -39,8 +40,19 @@ def load_calib(cam: str) -> dict | None:
     if H is None:
         return None
     rec["H"] = np.asarray(H, dtype=float)
+    hp = rec.get("H_player")
+    if hp is not None:
+        rec["H_player"] = np.asarray(hp, dtype=float)
     rec["camera"] = cam
     return rec
+
+
+def player_H(calib: dict) -> np.ndarray:
+    """Player map H — optional ``H_player`` per cam (ball keeps ``H``)."""
+    hp = calib.get("H_player")
+    if hp is not None:
+        return np.asarray(hp, dtype=float)
+    return calib["H"]
 
 
 def load_calib_for_video(path) -> dict | None:
@@ -200,15 +212,42 @@ def map_player_box(
     apply_undistort: bool | None = None,
     min_support: float = PLAYER_MIN_SUPPORT,
 ) -> dict | None:
-    """Map player foot to Pitch 1 — softer hull than ball (PLAYER_MIN_SUPPORT)."""
-    return map_ball_box(
-        calib,
-        box,
-        conf,
-        frame_wh=frame_wh,
-        apply_undistort=apply_undistort,
-        min_support=min_support,
-    )
+    """Map player foot to Pitch 1 — softer hull; uses ``H_player`` when set."""
+    wh = frame_wh or calib.get("image_wh") or [1920, 1080]
+    fx, fy = bbox_foot(box)
+    px, py = scale_px(fx, fy, wh, calib.get("image_wh") or wh)
+    params = calib_undistort_params(calib)
+    use_u = bool(params) if apply_undistort is None else bool(apply_undistort and params)
+    if use_u:
+        cw, ch = calib.get("image_wh") or wh
+        px, py = undistort_px(px, py, cw, ch, params)
+    c = float(conf)
+
+    def _try_h(H_mat: np.ndarray) -> dict | None:
+        xy = apply_H(H_mat, px, py)
+        if xy is None:
+            return None
+        if not in_pitch_bounds(xy[0], xy[1], margin_m=MARGIN_M):
+            return None
+        support = hull_support(px, py, hull_points(calib))
+        if support < float(min_support):
+            return None
+        return {
+            "cam": calib["camera"],
+            "xy": xy,
+            "conf": c,
+            "support": support,
+            "weight": c * support,
+        }
+
+    if calib.get("H_player") is not None:
+        out = _try_h(player_H(calib))
+        if out is not None:
+            return out
+        if calib.get("camera") == "P8" and py >= P8_LOWER_ZONE_Y:
+            return _try_h(calib["H"])
+        return None
+    return _try_h(calib["H"])
 
 
 def diagnose_map_foot(
@@ -219,6 +258,7 @@ def diagnose_map_foot(
     *,
     apply_undistort: bool | None = None,
     min_support: float | None = None,
+    h_player_only: bool = False,
 ) -> dict:
     """Return drop reason for funnel audits (does not change product gates)."""
     wh = frame_wh or calib.get("image_wh") or [1920, 1080]
@@ -229,16 +269,36 @@ def diagnose_map_foot(
     if use_u:
         cw, ch = calib.get("image_wh") or wh
         px, py = undistort_px(px, py, cw, ch, params)
-    xy = apply_H(calib["H"], px, py)
+    use_player_h = min_support is not None and float(min_support) <= PLAYER_MIN_SUPPORT + 1e-9
+    H_use = player_H(calib) if use_player_h and calib.get("H_player") is not None else calib["H"]
+    xy = apply_H(H_use, px, py)
     if xy is None:
         return {"ok": False, "reason": "bad_H", "conf": float(conf)}
     if not in_pitch_bounds(xy[0], xy[1], margin_m=MARGIN_M):
-        return {
-            "ok": False,
-            "reason": "off_pitch",
-            "xy": [float(xy[0]), float(xy[1])],
-            "conf": float(conf),
-        }
+        if (
+            not h_player_only
+            and use_player_h
+            and calib.get("H_player") is not None
+            and calib.get("camera") == "P8"
+            and py >= P8_LOWER_ZONE_Y
+        ):
+            xy = apply_H(calib["H"], px, py)
+            if xy is None:
+                return {"ok": False, "reason": "bad_H", "conf": float(conf)}
+            if not in_pitch_bounds(xy[0], xy[1], margin_m=MARGIN_M):
+                return {
+                    "ok": False,
+                    "reason": "off_pitch",
+                    "xy": [float(xy[0]), float(xy[1])],
+                    "conf": float(conf),
+                }
+        else:
+            return {
+                "ok": False,
+                "reason": "off_pitch",
+                "xy": [float(xy[0]), float(xy[1])],
+                "conf": float(conf),
+            }
     support = hull_support(px, py, hull_points(calib))
     floor = MIN_SUPPORT if min_support is None else float(min_support)
     if support < floor:

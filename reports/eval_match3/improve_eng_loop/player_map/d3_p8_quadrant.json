@@ -1,0 +1,250 @@
+{
+  "frames": [
+    {
+      "frame_id": 2390,
+      "bands": {
+        "top": {
+          "ok": 1
+        },
+        "mid": {},
+        "bottom": {}
+      },
+      "ball_on_H": false
+    },
+    {
+      "frame_id": 2426,
+      "bands": {
+        "top": {
+          "ok": 1,
+          "off_pitch": 1
+        },
+        "mid": {},
+        "bottom": {}
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 2466,
+      "bands": {
+        "top": {
+          "ok": 1,
+          "off_pitch": 1
+        },
+        "mid": {},
+        "bottom": {}
+      },
+      "ball_on_H": false
+    },
+    {
+      "frame_id": 2506,
+      "bands": {
+        "top": {
+          "ok": 1,
+          "off_pitch": 2
+        },
+        "mid": {},
+        "bottom": {}
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 2586,
+      "bands": {
+        "top": {
+          "ok": 3,
+          "off_pitch": 2
+        },
+        "mid": {},
+        "bottom": {}
+      },
+      "ball_on_H": false
+    },
+    {
+      "frame_id": 2666,
+      "bands": {
+        "top": {
+          "ok": 2,
+          "off_pitch": 1
+        },
+        "mid": {
+          "ok": 1
+        },
+        "bottom": {}
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 2746,
+      "bands": {
+        "top": {
+          "ok": 4,
+          "off_pitch": 2
+        },
+        "mid": {
+          "ok": 1
+        },
+        "bottom": {}
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 2826,
+      "bands": {
+        "top": {
+          "ok": 4,
+          "off_pitch": 3
+        },
+        "mid": {
+          "ok": 1
+        },
+        "bottom": {
+          "off_pitch": 1
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 2906,
+      "bands": {
+        "top": {
+          "ok": 2,
+          "off_pitch": 3
+        },
+        "mid": {
+          "ok": 1
+        },
+        "bottom": {
+          "off_pitch": 1
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 2986,
+      "bands": {
+        "top": {
+          "ok": 2,
+          "off_pitch": 2
+        },
+        "mid": {
+          "ok": 1,
+          "off_pitch": 1
+        },
+        "bottom": {
+          "off_pitch": 1
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 3022,
+      "bands": {
+        "top": {
+          "off_pitch": 2,
+          "ok": 1
+        },
+        "mid": {
+          "ok": 2,
+          "off_pitch": 2
+        },
+        "bottom": {
+          "off_pitch": 2
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 3078,
+      "bands": {
+        "top": {
+          "ok": 1
+        },
+        "mid": {
+          "ok": 2,
+          "off_pitch": 1
+        },
+        "bottom": {
+          "off_pitch": 2
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 3146,
+      "bands": {
+        "top": {
+          "ok": 2,
+          "off_pitch": 1
+        },
+        "mid": {
+          "ok": 1,
+          "off_pitch": 1
+        },
+        "bottom": {
+          "off_pitch": 3
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 3226,
+      "bands": {
+        "top": {
+          "ok": 2,
+          "off_pitch": 1
+        },
+        "mid": {
+          "off_pitch": 1
+        },
+        "bottom": {
+          "off_pitch": 3
+        }
+      },
+      "ball_on_H": true
+    },
+    {
+      "frame_id": 3286,
+      "bands": {
+        "top": {
+          "ok": 3,
+          "off_pitch": 1
+        },
+        "mid": {
+          "off_pitch": 1
+        },
+        "bottom": {
+          "off_pitch": 4
+        }
+      },
+      "ball_on_H": true
+    }
+  ],
+  "summary": {
+    "pack_bands_h_player": {
+      "top": {
+        "ok": 30,
+        "off_pitch": 22
+      },
+      "mid": {
+        "ok": 10,
+        "off_pitch": 7
+      },
+      "bottom": {
+        "off_pitch": 17
+      }
+    },
+    "bottom_h_player_mapped_frac": 0.0,
+    "bottom_n_ok_h_player": 0,
+    "bottom_n_total": 17,
+    "bottom_off_pitch_h_player": 17,
+    "bottom_mapped_frac": 0.9412,
+    "bottom_n_ok": 16,
+    "bottom_n_total_product": 17
+  },
+  "bands_y": {
+    "top": "y<350",
+    "mid": "350<=y<550",
+    "bottom": "y>=550"
+  },
+  "note": "bands=H_player-only drops; bottom_mapped_frac=product map_player_box"
+}

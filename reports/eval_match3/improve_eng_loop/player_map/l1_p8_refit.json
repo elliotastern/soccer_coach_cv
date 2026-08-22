@@ -1,0 +1,28 @@
+{
+  "status": "rejected_l2",
+  "l2": "H_player_ball_foot_anchor",
+  "ball_anchor_px": [
+    1404.8,
+    972.6
+  ],
+  "ball_anchor_pitch": [
+    25.008,
+    -13.3015
+  ],
+  "player_landmark_rt_max_m": 58.4501,
+  "ball_ok_on_H": true,
+  "bottom_mapped_frac": {
+    "before": 0.9412,
+    "after": 0.9412,
+    "ok_before": 16,
+    "ok_after": 16,
+    "total_bottom": 17
+  },
+  "weights": {
+    "landmarks": 8.0,
+    "ball_anchor": 4.0
+  },
+  "promote": false,
+  "reason": "rt",
+  "zone_fallback": "P8 map_player_box retries H when H_player off_pitch and foot y>=520"
+}
