@@ -1,0 +1,30 @@
+{
+  "default": {
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "tp": 4,
+    "fp": 0,
+    "fn": 0
+  },
+  "pass_thr_8": {
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "tp": 4,
+    "fp": 0,
+    "fn": 0
+  },
+  "shot_thr_20": {
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "tp": 4,
+    "fp": 0,
+    "fn": 0
+  },
+  "recovery_0_5": {
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "tp": 4,
+    "fp": 0,
+    "fn": 0
+  }
+}

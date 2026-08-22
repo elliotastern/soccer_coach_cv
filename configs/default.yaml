@@ -53,6 +53,10 @@ events:
   dribble_distance_threshold: 2.0  # meters
   shot_velocity_threshold: 15.0  # m/s
   recovery_proximity: 1.0  # meters
+  emit_conf: 0.80  # below → do nothing (Phase 1)
+  # Pitch 1 half-length from centre (53.90/2); never FIFA 52.5
+  half_length_m: 26.95
+  shot_goal_band_m: 5.0
 
 # Checkpoint Settings
 checkpoint:

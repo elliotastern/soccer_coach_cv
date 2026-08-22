@@ -1,0 +1,97 @@
+{
+  "p_emit_synth": 1.0,
+  "recall_synth": 1.0,
+  "p_emit_real": 1.0,
+  "recall_real": 1.0,
+  "real_score": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 3,
+    "n_gold": 3,
+    "matched_gold_idx": [
+      0,
+      1,
+      2
+    ]
+  },
+  "tp": 4,
+  "fp": 0,
+  "fn": 0,
+  "gate_p_emit": 0.8,
+  "pass_bar": 9.0,
+  "per_clip": [
+    {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "id": "synth_pass_strong"
+    },
+    {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 0.0,
+      "recall": 1.0,
+      "n_emit": 0,
+      "id": "synth_pass_weak_none"
+    },
+    {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "id": "synth_shot_goal2"
+    },
+    {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "id": "synth_midfield_fast_pass"
+    },
+    {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "id": "synth_recovery"
+    }
+  ],
+  "components": {
+    "01_prompt_wire": 10.0,
+    "02_pitch1_half": 10.0,
+    "03_no_fifa_52_5": 10.0,
+    "04_emit_conf_const": 10.0,
+    "05_priority_exclusive": 10.0,
+    "06_gold_manifest": 10.0,
+    "07_offline_runner": 10.0,
+    "08_p_emit_gate": 10.0,
+    "08b_real_p_emit": 10.0,
+    "09_weak_none_clean": 10.0,
+    "10_shot_goal2": 10.0,
+    "11_pass_strong": 10.0,
+    "12_recovery": 10.0,
+    "13_midfield_not_shot": 10.0,
+    "14_recall_secondary": 10.0,
+    "15_dead_ends_doc": 10.0,
+    "16_front_doc": 10.0,
+    "17_improve_plan": 10.0,
+    "18_unit_e0": 10.0,
+    "19_config_emit": 10.0,
+    "20_product_ready": 10.0
+  },
+  "failed": {},
+  "pass": true
+}

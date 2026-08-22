@@ -244,6 +244,9 @@ def process_video(
         dribble_distance_threshold=config["events"]["dribble_distance_threshold"],
         shot_velocity_threshold=config["events"]["shot_velocity_threshold"],
         recovery_proximity=config["events"]["recovery_proximity"],
+        emit_conf=float(config["events"].get("emit_conf", 0.80)),
+        half_length_m=float(config["events"].get("half_length_m", 26.95)),
+        shot_goal_band_m=float(config["events"].get("shot_goal_band_m", 5.0)),
     )
     event_manager = EventManager(
         checkpoint_interval=config["checkpoint"]["interval_frames"],

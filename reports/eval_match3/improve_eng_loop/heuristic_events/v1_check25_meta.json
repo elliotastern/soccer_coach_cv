@@ -1,0 +1,25 @@
+{
+  "still": "reports/eval_match3/improve_eng_loop/phase1_check/still_mid.jpg",
+  "labels": "data/processed/gold_sets/match3_events_v1/clips/check25_human/labels.json",
+  "events": [
+    {
+      "type": "shot",
+      "t_start": 4.0,
+      "t_end": 5.5,
+      "note": "Ball on Goal2 line / P8 \u2014 shot-like"
+    },
+    {
+      "type": "pass",
+      "t_start": 10.5,
+      "t_end": 12.0,
+      "note": "Ball relocates midfield\u2192north with pace"
+    },
+    {
+      "type": "recovery",
+      "t_start": 22.0,
+      "t_end": 23.5,
+      "note": "Clear ball then player contact in P7"
+    }
+  ],
+  "note": "Human windows for review; synth gold is eng-loop gate"
+}

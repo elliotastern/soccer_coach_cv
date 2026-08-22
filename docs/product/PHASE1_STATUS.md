@@ -16,15 +16,15 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 | Player boxes on multi-cam video | **8** | Yes | Unchanged — green boxes on mosaic cams. |
 | Pitch 1 mapping (meters, not FIFA) | **7** | Yes | Unchanged — usable; some churn. |
 | Team A/B color ID | **7** | Yes (barely) | Unchanged — demo OK, not trust-every-dot. |
-| Heuristic events (pass/dribble/…) | **2** | No | Unchanged — not in path. |
+| Heuristic events (pass/shot/recovery) | **8** | Yes* | Eng-loop real check25 **P_emit 1.0**; teleport reject. *Not yet proven in batch/review on a full match — eng-loop only. |
 | Review app (Streamlit coach view) | **8** | Yes | Unchanged. |
 | Batch / checkpoints / export | **6** | No | Unchanged — not proven by delivery. |
 | Process 2 matches + 3rd handover | **3** | No | Unchanged. |
 | Commercial-safe stack (no YOLO / no FIFA as product) | **9** | Yes | Unchanged. |
 
-**Phase 1 overall: ~7/10** — ball precision + holdout clear-ball at the bar; events / 2-match delivery still open.
+**Phase 1 overall: ~7.5/10** — ball + holdout clear-ball + first-slice events at the bar; dribble/movement and 2-match delivery still open.
 
-Ball precision and **holdout clear-ball (0.884)** pass ≥7. Remaining blockers: heuristic events and full-match delivery.
+Ball precision, **holdout clear-ball (0.884)**, and heuristic events (**real P_emit 1.0** on check25 fuse) pass ≥7. Remaining blockers: E2 events + full-match delivery.
 
 ## Evidence (ball)
 
@@ -39,5 +39,5 @@ Ball precision and **holdout clear-ball (0.884)** pass ≥7. Remaining blockers:
 
 ## Bottom line
 
-**Demo-ready** Match 3 review for ball precision, players, team colors.  
-Ball emit + **holdout clear-ball** at the Phase 1 bar. Still open: heuristic events and 2-match delivery.
+**Demo-ready** Match 3 review for ball precision, players, team colors, and first-slice events (pass/shot/recovery on eng-loop gold).  
+Still open: dribble/movement (E2) and 2-match delivery.
