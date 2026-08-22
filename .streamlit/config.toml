@@ -2,13 +2,22 @@
 headless = true
 address = "127.0.0.1"
 port = 8501
-enableCORS = true
-enableXsrfProtection = true
-fileWatcherType = "poll"
+enableCORS = false
+enableXsrfProtection = false
+fileWatcherType = "none"
 maxUploadSize = 200
+enableWebsocketCompression = true
+maxMessageSize = 500
+
 [browser]
 gatherUsageStats = false
 serverAddress = "127.0.0.1"
 serverPort = 8501
+
 [runner]
 fastReruns = true
+enforceSerializableSessionState = false
+
+[client]
+showErrorDetails = true
+toolbarMode = "minimal"

@@ -97,16 +97,19 @@ You must batch each camera you want in **export/fuse** data. For the **4-quad mo
 ## Step 3 — Start the dashboard
 
 ```bash
-bash scripts/open_review_dashboard_terminal.sh   # opens macOS Terminal (recommended)
-# or keep a terminal open:
-bash scripts/run_review_dashboard_foreground.sh
-# or background (may stop when Cursor closes):
-bash scripts/start_review_dashboard.sh restart
+# Most stable on Mac (opens Terminal — survives Cursor close):
+bash scripts/start_review_dashboard.sh
+
+# Or macOS LaunchAgent (auto-restart; logs in ~/Library/Logs/soccer-coach-review/):
+bash scripts/start_review_dashboard.sh install-launchd
+
+# Background supervisor only (may stop when agent shell exits):
+bash scripts/start_review_dashboard.sh start-bg
 ```
 
 **Open in a normal browser on the same machine:** [http://127.0.0.1:8501](http://127.0.0.1:8501)
 
-Use Safari or Chrome — not only an IDE embedded preview.
+Use Safari or Chrome — not only an IDE embedded preview. First frame load can take **20–40 s** (4-cam RF-DETR); keep the tab open while it loads.
 
 ---
 
@@ -203,7 +206,7 @@ pip install -r requirements.txt
 
 | Symptom | What to do |
 |---------|------------|
-| **Connection failed** | Run `bash scripts/open_review_dashboard_terminal.sh` (opens **Terminal.app** — stays alive). Or `bash scripts/run_review_dashboard_foreground.sh` in your own terminal. Open `http://127.0.0.1:8501` in **Safari/Chrome**, not Cursor preview. |
+| **Connection failed** | Run `bash scripts/start_review_dashboard.sh install-launchd` (best — macOS auto-restart). Or `bash scripts/start_review_dashboard.sh restart` (supervisor loop). Check `bash scripts/start_review_dashboard.sh status`. Open **Safari/Chrome** at `http://127.0.0.1:8501`, not Cursor preview. Logs: `reports/eval_match3/improve_eng_loop/streamlit_review.log` |
 | **No match in sidebar** | Run batch first; each run folder needs `events.json` + `frame_data.csv` |
 | **Stuck 20–40 s on a frame** | Normal on first load (4-cam detection). Wait, or Expert → turn off boxes |
 | **Disk / USB errors** | Move project + videos to internal SSD |
