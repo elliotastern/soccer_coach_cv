@@ -31,10 +31,12 @@ def draw_pitch1_ball_panel(
     trail: Sequence[tuple[float, float]] = (),
     players: Sequence[tuple[float, float, int, int]] = (),
     tight: bool = False,
+    orient_hints: bool = True,
 ) -> np.ndarray:
     """North up, +y left — gallery pitch with players (by team) + yellow ball.
 
     tight=True: crop to sidelines only (no outside margin) for compact coach map.
+    orient_hints=True (default when tight): N↑ Goal2 / S↓ Goal1 + mosaic≠pitch note.
     """
     vis = np.zeros((panel_h, panel_w, 3), dtype=np.uint8)
     vis[:] = (32, 48, 36)
@@ -132,6 +134,20 @@ def draw_pitch1_ball_panel(
             crop, tag, (8, 22),
             cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1, cv2.LINE_AA,
         )
+        if orient_hints:
+            # HERSHEY has no ↑/↓ glyphs — use N-up / S-dn wording.
+            cv2.putText(
+                crop, "N-up Goal2", (8, 44),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (220, 220, 220), 1, cv2.LINE_AA,
+            )
+            cv2.putText(
+                crop, "S-dn Goal1", (8, crop.shape[0] - 28),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (220, 220, 220), 1, cv2.LINE_AA,
+            )
+            cv2.putText(
+                crop, "tile!=side  P8=north", (8, crop.shape[0] - 8),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1, cv2.LINE_AA,
+            )
         return crop
 
     if ball_xy is not None:

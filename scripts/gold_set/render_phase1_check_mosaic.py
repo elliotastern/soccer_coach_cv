@@ -14,6 +14,9 @@ import cv2
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys
+
+sys.path.insert(0, str(ROOT))
 
 from src.perception.rfdetr_local import LocalRFDETRDetector  # noqa: E402
 from src.review.cam_mosaic import mosaic_quads_coach, match3_videos  # noqa: E402
@@ -40,7 +43,8 @@ def parse_args():
 
 def main() -> int:
     args = parse_args()
-    out = args.out_dir
+    out = args.out_dir if args.out_dir.is_absolute() else (ROOT / args.out_dir)
+    out = out.resolve()
     out.mkdir(parents=True, exist_ok=True)
     n_match = int(round(args.match_sec * args.src_fps))
     end = args.start + n_match - 1
@@ -70,6 +74,13 @@ def main() -> int:
         f"dur≈{len(frames) / args.out_fps:.1f}s match={args.match_sec}s",
         flush=True,
     )
+    apply_defish = True
+    # Product pairing: defish tiles → detect on shown pixels → map WITHOUT second undistort.
+    # Review app: apply_undistort=not apply_defish. Never set both True for P7–P10.
+    apply_undistort = not apply_defish
+    assert not (apply_defish and apply_undistort), (
+        "defish+undistort double-warps P7–P10 feet; use apply_undistort=not apply_defish"
+    )
     for i, fr in enumerate(frames):
         bag = {}
         mosaic = mosaic_quads_coach(
@@ -79,10 +90,10 @@ def main() -> int:
             tile_h=270,
             dets_by_cam=bag,
             detect_fn=detect_fn,
-            apply_defish=True,
+            apply_defish=apply_defish,
         )
         live = fuse_live_dets_for_pitch(
-            bag, apply_undistort=True, team_session=sess
+            bag, apply_undistort=apply_undistort, team_session=sess
         )
         players = live["players"]
         ball = live["ball_xy"]
@@ -101,6 +112,7 @@ def main() -> int:
             trail=trail,
             players=players,
             tight=True,
+            orient_hints=True,
         )
         if pitch.shape[0] != mosaic.shape[0]:
             pitch = cv2.resize(pitch, (pitch.shape[1], mosaic.shape[0]))
@@ -145,7 +157,12 @@ def main() -> int:
     meta = {
         "ts": datetime.now(timezone.utc).isoformat(),
         "path": str(mp4.relative_to(ROOT)),
-        "note": "Product ball map: undistort + P10 hull + MIN_SUPPORT 0.20 + F0 fuse",
+        "note": (
+            "Product map: defish tiles, apply_undistort=not apply_defish, "
+            "P10 hull + MIN_SUPPORT 0.20 + F0 fuse; tight pitch orient_hints"
+        ),
+        "apply_defish": True,
+        "apply_undistort": False,
         "frames_src": frames,
         "n_out_frames": len(frames),
         "out_fps": args.out_fps,

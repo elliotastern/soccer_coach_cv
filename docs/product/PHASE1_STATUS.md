@@ -3,7 +3,7 @@
 Canonical scope: [PHASE1_SCOPE.md](PHASE1_SCOPE.md). Pitch: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md) (not FIFA 105×68).  
 Clear-ball: [MATCH3_CLEAR_BALL.md](MATCH3_CLEAR_BALL.md) · holdout: [`reports/ball_testing/HOLDOUT_BASELINE.md`](../reports/ball_testing/HOLDOUT_BASELINE.md).
 
-Check clip (60 s mosaic + Pitch 1): [`reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4`](../reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4).
+Check clip (25 s match @ 30 fps, regular speed; mosaic + Pitch 1; defish tiles / no second undistort; pitch N-up / S-dn + `tile!=side · P8=north`): [`reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4`](../reports/eval_match3/improve_eng_loop/phase1_check/coach_mosaic_pitch_min.mp4).
 
 ## Scorecard (out of 10; **≥7 = enough for Phase 1**)
 
