@@ -36,7 +36,7 @@ See `match3_camera_layout` rule for tile order / rotation.
 
 ## Symlinks (product id in filename)
 
-Parser: `scripts/gold_set/raw_cam_id.py` — requires **P-code in symlink name**, not `cam-N`.
+Parser: `scripts/gold_set/raw_cam_id.py` — skips `cam-N_...` recorder files when `P*-match4.mp4` symlinks sit in the same folder.
 
 ```bash
 MATCH="/home/catch/Documents/Matches/Match 4"

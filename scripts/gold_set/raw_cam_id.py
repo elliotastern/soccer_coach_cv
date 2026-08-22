@@ -31,7 +31,11 @@ def load_match_raw(match_dir: Path) -> dict[str, Path]:
     for path in sorted(match_dir.glob("*.mp4")):
         if path.name.startswith("._"):
             continue
-        cam = cam_id_from_raw_name(path.name)
+        try:
+            cam = cam_id_from_raw_name(path.name)
+        except ValueError:
+            # Recorder originals (e.g. cam-N_...) beside P-code symlinks — skip.
+            continue
         if cam in out:
             raise ValueError(f"duplicate {cam}: {out[cam].name} and {path.name}")
         out[cam] = path
