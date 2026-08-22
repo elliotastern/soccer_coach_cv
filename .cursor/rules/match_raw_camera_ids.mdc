@@ -20,6 +20,21 @@ The camera id is the P-code (or Goal id) **in the filename**. Do not assign a fi
 | `P_Goal1-007.mp4` | **P_Goal1** |
 | `P_Goal2-008.mp4` | **P_Goal2** |
 
+## Match 4 (catch — physical cam ≠ P number)
+
+Recorder files are `cam-N_...mp4`. **Do not** map `cam-N` → `PN`. Full table + symlinks: [docs/cursorrules/match4_camera_ids.mdc](../../docs/cursorrules/match4_camera_ids.mdc).
+
+| P-code | Physical camera |
+|--------|-----------------|
+| P1 | camera 3 |
+| P6 | camera 6 |
+| P7 | camera 11 |
+| P8 | camera 13 |
+| P9 | camera 9 |
+| P10 | camera 8 |
+| P_Goal1 | camera 7 |
+| P_Goal2 | camera 10 |
+
 ## Match 2
 
 `Cam 3-P1.mp4` → P1, `Cam 8-P10-003.mp4` → P10. Same rule: the P-code in the title is the id.

@@ -1,0 +1,73 @@
+---
+description: Match 4 physical camera → P-code mapping (catch handover). Symlink raw files; never swap by FOV.
+alwaysApply: false
+---
+
+# Match 4 camera IDs (physical cam → P-code)
+
+**Client path:** `/home/catch/Documents/Matches/Match 4`  
+**Raw symlink in repo:** `data/raw/Match 3` → Match 4 folder (legacy folder name; videos are Match 4).
+
+Physical **camera N** in the recorder filename (`cam-N_...`) is **not** the P-code. Use this table only.
+
+## Locked mapping (2026-08-19 session)
+
+| P-code | Physical camera | Example raw file |
+|--------|-----------------|------------------|
+| **P1** | camera **3** | `cam-3_cam-3_LIVE_20260819-143755.mp4` |
+| **P6** | camera **6** | `cam-6_cam-6_LIVE_20260819-143755.mp4` |
+| **P7** | camera **11** | `cam-11_cam-11_LIVE_20260819-143755.mp4` |
+| **P8** | camera **13** | `cam-13_cam-13_LIVE_20260819-143755.mp4` |
+| **P9** | camera **9** | `cam-9_cam-9_LIVE_20260819-143755.mp4` |
+| **P10** | camera **8** | `cam-8_cam-8_LIVE_20260819-143755.mp4` |
+| **P_Goal1** | camera **7** | `cam-7_cam-7_LIVE_20260819-143755.mp4` |
+| **P_Goal2** | camera **10** | `cam-10_cam-10_LIVE_20260819-143755.mp4` |
+
+## Coach mosaic quad (unchanged layout)
+
+| Mosaic cell | P-code | Match 4 physical cam |
+|-------------|--------|----------------------|
+| Top left (180°) | **P10** | camera 8 |
+| Top right (180°) | **P9** | camera 9 |
+| Bottom left | **P7** | camera 11 |
+| Bottom right | **P8** | camera 13 |
+
+See `match3_camera_layout` rule for tile order / rotation.
+
+## Symlinks (product id in filename)
+
+Parser: `scripts/gold_set/raw_cam_id.py` — requires **P-code in symlink name**, not `cam-N`.
+
+```bash
+MATCH="/home/catch/Documents/Matches/Match 4"
+cd "$MATCH"
+ln -sf cam-3_cam-3_LIVE_20260819-143755.mp4   P1-match4.mp4
+ln -sf cam-6_cam-6_LIVE_20260819-143755.mp4   P6-match4.mp4
+ln -sf cam-11_cam-11_LIVE_20260819-143755.mp4 P7-match4.mp4
+ln -sf cam-13_cam-13_LIVE_20260819-143755.mp4 P8-match4.mp4
+ln -sf cam-9_cam-9_LIVE_20260819-143755.mp4   P9-match4.mp4
+ln -sf cam-8_cam-8_LIVE_20260819-143755.mp4  P10-match4.mp4
+ln -sf cam-7_cam-7_LIVE_20260819-143755.mp4  P_Goal1-match4.mp4
+ln -sf cam-10_cam-10_LIVE_20260819-143755.mp4 P_Goal2-match4.mp4
+```
+
+Repo link:
+
+```bash
+mkdir -p ~/soccer_coach_cv/data/raw
+ln -sfn "/home/catch/Documents/Matches/Match 4" ~/soccer_coach_cv/data/raw/Match\ 3
+```
+
+Batch output root: `data/output/match_4`.
+
+## Do / don't
+
+- **Do** keep P-codes in symlink targets; calibs in `reports/eval_match3/match3_pitch_calib/` are keyed by P id.
+- **Do** treat physical cam 8 as **P10**, cam 11 as **P7**, cam 13 as **P8** — non-obvious; use table above.
+- **Don't** rename raw `cam-N` files to `P{N}.mp4` (e.g. `cam-8` → `P8` is **wrong**; cam 8 is **P10**).
+- **Don't** swap files because a still “looks like” another view.
+
+## Related
+
+- Match 3 filenames: `.cursor/rules/match_raw_camera_ids.mdc`
+- Client setup: `docs/product/CLIENT_HANDOVER_QUICKSTART.md`
