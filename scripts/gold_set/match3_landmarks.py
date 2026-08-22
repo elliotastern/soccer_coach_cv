@@ -409,6 +409,208 @@ P9_VISIBLE = [
 ]
 
 
+def _brown_params(rec: dict) -> dict:
+    return {
+        "k1": float(rec.get("k1", 0.0)),
+        "k2": float(rec.get("k2", 0.0)),
+        "p1": float(rec.get("p1", 0.0)),
+        "p2": float(rec.get("p2", 0.0)),
+        "alpha": float(rec.get("alpha", 0.5)),
+    }
+
+
+def _brown_mats(w: float, h: float, params: dict):
+    w_i, h_i = int(round(w)), int(round(h))
+    k_mat = np.array(
+        [[w_i, 0.0, w_i / 2.0], [0.0, w_i, h_i / 2.0], [0.0, 0.0, 1.0]],
+        dtype=np.float64,
+    )
+    dist = np.array(
+        [
+            float(params["k1"]),
+            float(params["k2"]),
+            float(params["p1"]),
+            float(params["p2"]),
+            0.0,
+        ],
+        dtype=np.float64,
+    )
+    new_k, _ = cv2.getOptimalNewCameraMatrix(
+        k_mat, dist, (w_i, h_i), float(params["alpha"]), (w_i, h_i)
+    )
+    return k_mat, dist, new_k, w_i, h_i
+
+
+def undistort_px(x: float, y: float, w: float, h: float, params: dict) -> tuple[float, float]:
+    """Raw/distorted pixel → defished pixel (same recipe as map path)."""
+    w_i, h_i = int(round(w)), int(round(h))
+    if w_i < 2 or h_i < 2:
+        return float(x), float(y)
+    k_mat, dist, new_k, _, _ = _brown_mats(w, h, params)
+    pts = cv2.undistortPoints(
+        np.array([[[float(x), float(y)]]], dtype=np.float64),
+        k_mat,
+        dist,
+        P=new_k,
+    )
+    return float(pts[0, 0, 0]), float(pts[0, 0, 1])
+
+
+def distort_px(x_u: float, y_u: float, w: float, h: float, params: dict) -> tuple[float, float]:
+    """Defished pixel → raw/distorted pixel (inverse Brown)."""
+    k_mat, dist, new_k, _, _ = _brown_mats(w, h, params)
+    xn = (float(x_u) - new_k[0, 2]) / new_k[0, 0]
+    yn = (float(y_u) - new_k[1, 2]) / new_k[1, 1]
+    k1, k2, p1, p2 = float(dist[0]), float(dist[1]), float(dist[2]), float(dist[3])
+    r2 = xn * xn + yn * yn
+    r4 = r2 * r2
+    xd = xn * (1 + k1 * r2 + k2 * r4) + 2 * p1 * xn * yn + p2 * (r2 + 2 * xn * xn)
+    yd = yn * (1 + k1 * r2 + k2 * r4) + p1 * (r2 + 2 * yn * yn) + 2 * p2 * xn * yn
+    x_r = k_mat[0, 0] * xd + k_mat[0, 2]
+    y_r = k_mat[1, 1] * yd + k_mat[1, 2]
+    return float(x_r), float(y_r)
+
+
+def migrate_clicks_to_defish(
+    image_points: list,
+    w: float,
+    h: float,
+    old_params: dict,
+    new_params: dict,
+) -> list:
+    out = []
+    for pt in image_points:
+        if not pt:
+            out.append(None)
+            continue
+        raw = distort_px(pt[0], pt[1], w, h, old_params)
+        out.append(list(undistort_px(raw[0], raw[1], w, h, new_params)))
+    return out
+
+
+def _fit_rt(image_points: list, landmark_names: list) -> tuple[float, np.ndarray | None]:
+    src, dst, names = [], [], []
+    for n, pt in zip(landmark_names, image_points):
+        if not pt:
+            continue
+        src.append(pt)
+        dst.append(LANDMARKS[n]["xy"])
+        names.append(n)
+    if len(src) < 3:
+        return 99.0, None
+    H, _ = _fit_H(src, dst)
+    errs = []
+    for pt, n in zip(src, names):
+        v = H @ np.array([pt[0], pt[1], 1.0], dtype=float)
+        if abs(v[2]) < 1e-9:
+            continue
+        px, py = float(v[0] / v[2]), float(v[1] / v[2])
+        tx, ty = LANDMARKS[n]["xy"]
+        errs.append(float(math.hypot(px - tx, py - ty)))
+    return (max(errs) if errs else 99.0), H
+
+
+def render_defish_raw_jpeg(cam: str, k1: float, k2: float, p1: float, p2: float, alpha: float) -> bytes:
+    path = STILL_RAW_DIR / f"{cam}.jpg"
+    if not path.is_file():
+        raise FileNotFoundError(f"raw still missing {path} — run match3_landmarks extract")
+    fr = cv2.imread(str(path))
+    if fr is None:
+        raise RuntimeError(f"imread failed {path}")
+    out = undistort_bgr(fr, k1, k2, p1, p2, alpha)
+    ok, buf = cv2.imencode(".jpg", out, [int(cv2.IMWRITE_JPEG_QUALITY), 92])
+    if not ok:
+        raise RuntimeError("jpeg encode failed")
+    return buf.tobytes()
+
+
+def estimate_defish_k1(
+    cam: str,
+    image_points: list,
+    landmark_names: list,
+    base_params: dict | None = None,
+) -> dict:
+    raw_path = STILL_RAW_DIR / f"{cam}.jpg"
+    img = cv2.imread(str(raw_path))
+    if img is None:
+        raise FileNotFoundError(raw_path)
+    h, w = img.shape[:2]
+    old = _brown_params(base_params or load_fisheye_tag(cam) or {})
+    filled = sum(1 for p in image_points if p)
+    if filled < 4:
+        raise ValueError(f"need ≥4 clicks to estimate k1 (have {filled})")
+    best = None
+    for k1 in np.arange(-0.48, -0.18, 0.02):
+        new_p = {**old, "k1": float(k1)}
+        migrated = migrate_clicks_to_defish(image_points, w, h, old, new_p)
+        rt, _ = _fit_rt(migrated, landmark_names)
+        row = {"k1": round(float(k1), 3), "rt_max_m": round(rt, 4)}
+        if best is None or rt < best["rt_max_m"]:
+            best = row
+    if best is None:
+        raise RuntimeError("k1 estimate failed")
+    best["base_k1"] = round(old["k1"], 3)
+    return best
+
+
+def tune_defish(
+    cam: str,
+    k1: float,
+    alpha: float,
+    image_points: list,
+    landmark_names: list,
+    apply: bool = False,
+    estimate: bool = False,
+) -> dict:
+    fish = load_fisheye_tag(cam)
+    if fish is None:
+        raise ValueError(f"{cam} is not a defish cam")
+    old = _brown_params(fish)
+    raw_path = STILL_RAW_DIR / f"{cam}.jpg"
+    img = cv2.imread(str(raw_path))
+    if img is None:
+        raise FileNotFoundError(raw_path)
+    h, w = img.shape[:2]
+    if estimate:
+        return {"ok": True, "estimate": estimate_defish_k1(cam, image_points, landmark_names, old)}
+    new_p = {**old, "k1": float(k1), "alpha": float(alpha)}
+    migrated = migrate_clicks_to_defish(image_points, w, h, old, new_p)
+    rt, _ = _fit_rt(migrated, landmark_names)
+    out = {
+        "ok": True,
+        "k1": round(new_p["k1"], 4),
+        "alpha": round(new_p["alpha"], 4),
+        "rt_max_m": round(rt, 4),
+        "image_points": migrated,
+        "undistort_fingerprint": undistort_fingerprint(new_p),
+    }
+    if apply:
+        import match3_fisheye_dashboard as fish_mod
+
+        tags = fish_mod.load_tags()
+        rec = tags["cameras"].setdefault(cam, fish_mod.default_cam_tag(cam))
+        rec.update(
+            {
+                "k1": new_p["k1"],
+                "k2": new_p["k2"],
+                "p1": new_p["p1"],
+                "p2": new_p["p2"],
+                "alpha": new_p["alpha"],
+                "use_undistort": True,
+                "tag": "fisheye",
+            }
+        )
+        fish_mod.save_tags(tags)
+        fr_out = undistort_bgr(
+            img, new_p["k1"], new_p["k2"], new_p["p1"], new_p["p2"], new_p["alpha"]
+        )
+        cv2.imwrite(str(STILL_DIR / f"{cam}.jpg"), fr_out, [int(cv2.IMWRITE_JPEG_QUALITY), 92])
+        write_manifest()
+        out["applied"] = True
+        out["still"] = f"stills/{cam}.jpg"
+    return out
+
+
 def save_clicks(cam: str, order_name: str, image_points: list, landmark_names=None,
                 dry_run: bool = False, min_n: int = 4) -> dict:
     if cam not in {c["id"] for c in CAMS}:

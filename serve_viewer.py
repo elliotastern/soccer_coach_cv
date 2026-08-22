@@ -470,6 +470,37 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(str(e).encode())
             return
+        if self.path.split('?', 1)[0] == '/match3_landmark_defish_preview':
+            try:
+                from urllib.parse import parse_qs, urlparse
+
+                qs = parse_qs(urlparse(self.path).query)
+                cam = (qs.get('cam') or ['P8'])[0]
+                k1 = float((qs.get('k1') or ['-0.3'])[0])
+                k2 = float((qs.get('k2') or ['0'])[0])
+                p1 = float((qs.get('p1') or ['0'])[0])
+                p2 = float((qs.get('p2') or ['0'])[0])
+                alpha = float((qs.get('alpha') or ['0.8'])[0])
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                import importlib
+                import match3_landmarks as lm
+
+                lm = importlib.reload(lm)
+                jpeg = lm.render_defish_raw_jpeg(cam, k1, k2, p1, p2, alpha)
+                self.send_response(200)
+                self.send_header('Content-type', 'image/jpeg')
+                self.send_header('Cache-Control', 'no-store')
+                self.send_header('Content-Length', str(len(jpeg)))
+                self.end_headers()
+                self.wfile.write(jpeg)
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(str(e).encode())
+            return
         if self.path.split('?', 1)[0] in (
             '/landmark_marker',
             '/landmark_marker/',
@@ -693,6 +724,37 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({'ok': True, 'tags': tags}).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
+        if self.path == '/match3_landmark_defish_tune':
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                import importlib
+                import match3_landmarks as lm
+
+                lm = importlib.reload(lm)
+                result = lm.tune_defish(
+                    str(data['camera']),
+                    float(data.get('k1', -0.3)),
+                    float(data.get('alpha', 0.8)),
+                    data.get('image_points') or [],
+                    data.get('landmarks') or [],
+                    apply=bool(data.get('apply')),
+                    estimate=bool(data.get('estimate')),
+                )
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode())
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-type', 'application/json')

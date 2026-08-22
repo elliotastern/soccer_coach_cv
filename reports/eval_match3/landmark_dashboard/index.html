@@ -65,15 +65,45 @@ h1 { font-size: 1.15rem; font-weight: 650; margin: 0; }
 }
 #extraTip.on { display: block; }
 #stillWrap { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
+#stillViewport { position: relative; transform-origin: 0 0; will-change: transform; }
 #still { width: 100%; display: block; cursor: crosshair; }
+#stillWrap.pan-ready #still { cursor: grab; }
+#stillWrap.panning #still { cursor: grabbing; }
 #dots { position: absolute; inset: 0; pointer-events: none; }
-.dot {
-  position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
-  background: var(--accent); color: #111; font-size: 13px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center; border: 2px solid #111;
-  cursor: pointer; pointer-events: auto;
+.still-zoom-hint {
+  position: absolute; right: 8px; bottom: 8px; z-index: 5;
+  font-size: .68rem; color: rgba(238, 242, 238, 0.75);
+  background: rgba(10, 14, 10, 0.65); padding: .2rem .45rem; border-radius: 4px;
+  pointer-events: none;
 }
-.dot.active { outline: 3px solid #fff; }
+.dot {
+  position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px;
+  cursor: crosshair; pointer-events: auto;
+}
+.dot-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(232, 197, 47, 0.22);
+  border: 1.5px solid rgba(232, 197, 47, 0.75);
+  box-sizing: border-box;
+}
+.dot.active .dot-ring {
+  background: rgba(232, 197, 47, 0.32);
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+}
+.dot-pin {
+  position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%; background: #e53935; border: 1px solid #fff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+.dot-num {
+  position: absolute; left: 50%; top: -16px; transform: translateX(-50%);
+  font-size: 15px; font-weight: 800; line-height: 1;
+  color: #f7f4e8; background: rgba(10, 14, 10, 0.88);
+  padding: 2px 6px; border-radius: 4px; pointer-events: none;
+  border: 1px solid rgba(232, 197, 47, 0.55);
+}
 .steps { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; margin: .55rem 0 .2rem; }
 .steps button {
   text-align: left; background: #121612; color: var(--text); border: 1px solid var(--line);
@@ -91,6 +121,12 @@ button.act { cursor: pointer; }
 button.act.primary { background: var(--accent); color: #1a1a12; border-color: var(--accent); font-weight: 700; }
 button.act:disabled { opacity: .4; cursor: not-allowed; }
 .adv { margin-top: .35rem; color: var(--muted); font-size: .75rem; }
+.defish-panel { margin-top: .35rem; }
+.defish-hint { font-size: .75rem; color: var(--muted); margin: .2rem 0 .45rem; line-height: 1.35; }
+.defish-row { display: flex; align-items: center; gap: .45rem; margin: .28rem 0; }
+.defish-row label { width: 2.5rem; font-size: .74rem; color: var(--muted); }
+.defish-row input[type=range] { flex: 1; }
+.defish-row .val { width: 3.2rem; font: .72rem/1 monospace; text-align: right; color: var(--accent); }
 .adv summary { cursor: pointer; }
 .status { margin-top: .35rem; font-size: .8rem; color: var(--muted); min-height: 1.1em; }
 .status.ok { color: var(--good); }
@@ -174,8 +210,11 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
         <div class="swaps" id="swaps"></div>
       </div>
       <div id="stillWrap">
-        <img id="still" alt="camera still"/>
-        <div id="dots"></div>
+        <div id="stillViewport">
+          <img id="still" alt="camera still"/>
+          <div id="dots"></div>
+        </div>
+        <span class="still-zoom-hint" id="stillZoomHint">Scroll zoom · Space+drag pan · dbl-click reset</span>
       </div>
       <div class="steps" id="steps"></div>
       <div class="bar">
@@ -188,6 +227,27 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
         <summary>Change landmark set</summary>
         <label for="order">Starting landmark set</label>
         <select id="order"></select>
+      </details>
+      <details class="adv defish-panel" id="defishPanel" hidden>
+        <summary>Defish tune (P7–P10)</summary>
+        <p class="defish-hint" id="defishHint">
+          Residual barrel bends yellow overlay vs white lines. Tune k1/α, then Apply — clicks migrate with defish.
+          Full fisheye UI: <a href="/match3-fisheye" style="color:var(--accent)">match3-fisheye</a>.
+        </p>
+        <div class="defish-row">
+          <label for="defishK1">k1</label>
+          <input type="range" id="defishK1" min="-48" max="-18" value="-30"/>
+          <span class="val" id="defishK1v">-0.30</span>
+        </div>
+        <div class="defish-row">
+          <label for="defishAlpha">α</label>
+          <input type="range" id="defishAlpha" min="50" max="95" value="80"/>
+          <span class="val" id="defishAlphav">0.80</span>
+        </div>
+        <div class="bar">
+          <button class="act" type="button" id="defishEstimate">Auto-estimate k1</button>
+          <button class="act" type="button" id="defishApply">Apply defish + refresh still</button>
+        </div>
       </details>
       <p class="status" id="status"></p>
     </section>
@@ -787,7 +847,7 @@ function markLandmarks(svg, pts, labels) {
   });
   pts.forEach(({ i, p, lm }) => {
     const [x, y] = p;
-    const r = i === active ? 22 : 15;
+    const r = i === active ? 14 : 11;
     const c = document.createElementNS(ns, "circle");
     c.setAttribute("cx", x); c.setAttribute("cy", y);
     c.setAttribute("r", r);
@@ -795,20 +855,32 @@ function markLandmarks(svg, pts, labels) {
     c.setAttribute("data-name", lm.name);
     c.setAttribute("data-active", i === active ? "1" : "0");
     c.classList.add("lm-dot");
-    c.setAttribute("fill", clicks[i] ? "#6dbf7a" : "#e8c547");
-    c.setAttribute("stroke", i === active ? "#fff" : "#111");
-    c.setAttribute("stroke-width", i === active ? 4 : 2);
+    const done = clicks[i];
+    c.setAttribute("fill", done ? "rgba(109, 191, 122, 0.22)" : "rgba(232, 197, 47, 0.22)");
+    c.setAttribute("stroke", done ? "#6dbf7a" : "#e8c547");
+    c.setAttribute("stroke-width", i === active ? 2.5 : 1.5);
     c.setAttribute("vector-effect", "non-scaling-stroke");
     c.style.cursor = "pointer";
     c.addEventListener("click", () => { active = i; refresh(); });
     svg.appendChild(c);
+    const pin = document.createElementNS(ns, "circle");
+    pin.setAttribute("cx", x); pin.setAttribute("cy", y); pin.setAttribute("r", 2.5);
+    pin.setAttribute("fill", "#e53935");
+    pin.setAttribute("stroke", "#fff");
+    pin.setAttribute("stroke-width", "1");
+    pin.setAttribute("vector-effect", "non-scaling-stroke");
+    pin.style.pointerEvents = "none";
+    svg.appendChild(pin);
     const num = document.createElementNS(ns, "text");
     num.setAttribute("x", x);
-    num.setAttribute("y", y + 5);
+    num.setAttribute("y", y - r - 6);
     num.setAttribute("text-anchor", "middle");
-    num.setAttribute("font-size", "15");
+    num.setAttribute("font-size", i === active ? "28" : "24");
     num.setAttribute("font-weight", "800");
-    num.setAttribute("fill", "#111");
+    num.setAttribute("fill", "#f7f4e8");
+    num.setAttribute("stroke", "#0a0e0a");
+    num.setAttribute("stroke-width", "1.2");
+    num.setAttribute("paint-order", "stroke fill");
     num.textContent = String(i + 1);
     num.style.pointerEvents = "none";
     svg.appendChild(num);
@@ -853,18 +925,30 @@ function renderNames() {
 function renderDots() {
   const box = document.getElementById("dots");
   const img = document.getElementById("still");
+  const wrap = document.getElementById("stillWrap");
   box.innerHTML = "";
-  if (!img.naturalWidth) return;
-  const sx = img.clientWidth / img.naturalWidth;
-  const sy = img.clientHeight / img.naturalHeight;
+  if (!img.naturalWidth || !wrap) return;
+  const layoutW = wrap.clientWidth;
+  const layoutH = img.clientHeight || (layoutW * img.naturalHeight / img.naturalWidth);
+  const sx = layoutW / img.naturalWidth;
+  const sy = layoutH / img.naturalHeight;
   clicks.forEach((pt, i) => {
     if (!pt) return;
     const d = document.createElement("div");
     d.className = "dot" + (i === active ? " active" : "");
-    d.textContent = String(i + 1);
     d.title = prettyName(currentOrder()[i]);
     d.style.left = (pt[0] * sx) + "px";
     d.style.top = (pt[1] * sy) + "px";
+    const ring = document.createElement("span");
+    ring.className = "dot-ring";
+    const pin = document.createElement("span");
+    pin.className = "dot-pin";
+    const num = document.createElement("span");
+    num.className = "dot-num";
+    num.textContent = String(i + 1);
+    d.appendChild(ring);
+    d.appendChild(pin);
+    d.appendChild(num);
     d.addEventListener("click", (ev) => {
       ev.stopPropagation();
       active = i;
@@ -1005,6 +1089,9 @@ function selectCam(id) {
   const spec = data.cams.find(c => c.id === cam);
   document.getElementById("order").value = spec.order;
   setLiveFromOrder();
+  syncDefishPanel(spec);
+  defishPreviewOn = false;
+  resetStillZoom();
   clicks = currentOrder().map(() => null);
   active = 0;
   [...document.querySelectorAll(".cams button")].forEach(b => {
@@ -1075,14 +1162,235 @@ function selectCam(id) {
 }
 
 function onStillClick(ev) {
-  const img = document.getElementById("still");
-  const r = img.getBoundingClientRect();
-  const x = (ev.clientX - r.left) * (img.naturalWidth / r.width);
-  const y = (ev.clientY - r.top) * (img.naturalHeight / r.height);
+  if (stillDidPan) {
+    stillDidPan = false;
+    return;
+  }
+  const { x, y } = stillImageCoords(ev.clientX, ev.clientY);
   clicks[active] = [x, y];
   const nxt = clicks.findIndex(p => !p);
   if (nxt !== -1) active = nxt;
   refresh();
+}
+
+const STILL_ZOOM_MIN = 1;
+const STILL_ZOOM_MAX = 10;
+let stillZoom = 1;
+let stillPanX = 0;
+let stillPanY = 0;
+let stillPanActive = false;
+let stillPanStartX = 0;
+let stillPanStartY = 0;
+let stillPanStartPX = 0;
+let stillPanStartPY = 0;
+let stillDidPan = false;
+let stillSpaceDown = false;
+
+function stillWrapEl() {
+  return document.getElementById("stillWrap");
+}
+
+function stillCanPan(ev) {
+  if (stillZoom <= 1.02) return false;
+  if (ev.button === 1 || ev.button === 2) return true;
+  return ev.button === 0 && stillSpaceDown;
+}
+
+function onStillPointerDown(ev) {
+  if (!stillCanPan(ev)) return;
+  stillPanActive = true;
+  stillDidPan = false;
+  stillPanStartX = ev.clientX;
+  stillPanStartY = ev.clientY;
+  stillPanStartPX = stillPanX;
+  stillPanStartPY = stillPanY;
+  const wrap = stillWrapEl();
+  wrap.classList.add("panning");
+  wrap.setPointerCapture(ev.pointerId);
+  ev.preventDefault();
+}
+
+function onStillPointerMove(ev) {
+  if (!stillPanActive) return;
+  const dx = ev.clientX - stillPanStartX;
+  const dy = ev.clientY - stillPanStartY;
+  if (Math.abs(dx) > 2 || Math.abs(dy) > 2) stillDidPan = true;
+  stillPanX = stillPanStartPX + dx;
+  stillPanY = stillPanStartPY + dy;
+  applyStillTransform();
+  ev.preventDefault();
+}
+
+function onStillPointerUp(ev) {
+  if (!stillPanActive) return;
+  stillPanActive = false;
+  stillWrapEl().classList.remove("panning");
+  try {
+    stillWrapEl().releasePointerCapture(ev.pointerId);
+  } catch (_) {}
+}
+
+function applyStillTransform() {
+  const vp = document.getElementById("stillViewport");
+  const hint = document.getElementById("stillZoomHint");
+  if (!vp) return;
+  vp.style.transform = `translate(${stillPanX}px, ${stillPanY}px) scale(${stillZoom})`;
+  if (hint) {
+    hint.textContent = stillZoom > 1.02
+      ? `Zoom ${stillZoom.toFixed(1)}× · scroll · Space+drag pan · dbl-click reset`
+      : "Scroll zoom · Space+drag pan · dbl-click reset";
+  }
+}
+
+function resetStillZoom() {
+  stillZoom = 1;
+  stillPanX = 0;
+  stillPanY = 0;
+  applyStillTransform();
+}
+
+function onStillWheel(ev) {
+  const wrap = document.getElementById("stillWrap");
+  if (!wrap || !wrap.contains(ev.target)) return;
+  ev.preventDefault();
+  const rect = wrap.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+  const oldZoom = stillZoom;
+  const factor = Math.exp(-ev.deltaY * 0.002);
+  const newZoom = Math.min(STILL_ZOOM_MAX, Math.max(STILL_ZOOM_MIN, oldZoom * factor));
+  if (Math.abs(newZoom - oldZoom) < 1e-6) return;
+  const vx = (mx - stillPanX) / oldZoom;
+  const vy = (my - stillPanY) / oldZoom;
+  stillZoom = newZoom;
+  stillPanX = mx - vx * newZoom;
+  stillPanY = my - vy * newZoom;
+  applyStillTransform();
+}
+
+function stillImageCoords(clientX, clientY) {
+  const img = document.getElementById("still");
+  const wrap = document.getElementById("stillWrap");
+  const rect = wrap.getBoundingClientRect();
+  const mx = clientX - rect.left;
+  const my = clientY - rect.top;
+  const vx = (mx - stillPanX) / stillZoom;
+  const vy = (my - stillPanY) / stillZoom;
+  const layoutW = wrap.clientWidth;
+  const layoutH = img.clientHeight || (layoutW * img.naturalHeight / img.naturalWidth);
+  return {
+    x: vx * (img.naturalWidth / layoutW),
+    y: vy * (img.naturalHeight / layoutH),
+  };
+}
+
+let defishTuneTimer = null;
+let defishPreviewOn = false;
+
+function currentLandmarkNames() {
+  return liveOrder.map(lm => lm.name);
+}
+
+function defishSliderVals() {
+  const k1 = Number(document.getElementById("defishK1").value) / 100;
+  const alpha = Number(document.getElementById("defishAlpha").value) / 100;
+  document.getElementById("defishK1v").textContent = k1.toFixed(2);
+  document.getElementById("defishAlphav").textContent = alpha.toFixed(2);
+  return { k1, alpha };
+}
+
+function defishPreviewUrl(k1, alpha) {
+  const spec = data.cams.find(c => c.id === cam);
+  const u = spec && spec.undistort || {};
+  const q = new URLSearchParams({
+    cam,
+    k1: String(k1),
+    k2: String(u.k2 || 0),
+    p1: String(u.p1 || 0),
+    p2: String(u.p2 || 0),
+    alpha: String(alpha),
+    t: String(Date.now()),
+  });
+  return `/match3_landmark_defish_preview?${q}`;
+}
+
+function syncDefishPanel(spec) {
+  const panel = document.getElementById("defishPanel");
+  if (!spec || !spec.undistort) {
+    panel.hidden = true;
+    defishPreviewOn = false;
+    return;
+  }
+  panel.hidden = false;
+  const k1 = Number(spec.undistort.k1 || -0.3);
+  const alpha = Number(spec.undistort.alpha || 0.8);
+  document.getElementById("defishK1").value = String(Math.round(k1 * 100));
+  document.getElementById("defishAlpha").value = String(Math.round(alpha * 100));
+  defishSliderVals();
+}
+
+async function tuneDefish(opts = {}) {
+  const { k1, alpha } = defishSliderVals();
+  const body = {
+    camera: cam,
+    k1,
+    alpha,
+    image_points: clicks,
+    landmarks: currentLandmarkNames(),
+    estimate: !!opts.estimate,
+    apply: !!opts.apply,
+  };
+  const r = await fetch("/match3_landmark_defish_tune", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "defish tune failed");
+  if (j.estimate) {
+    document.getElementById("defishK1").value = String(Math.round(j.estimate.k1 * 100));
+    defishSliderVals();
+    document.getElementById("defishHint").textContent =
+      `Auto k1 ${j.estimate.k1} (RT ${j.estimate.rt_max_m} m, was ${j.estimate.base_k1}). Previewing…`;
+    queueDefishPreview(true);
+    return j;
+  }
+  if (j.image_points) {
+    clicks = j.image_points.map(p => (p ? [p[0], p[1]] : null));
+    while (clicks.length < liveOrder.length) clicks.push(null);
+  }
+  const hint = document.getElementById("defishHint");
+  hint.textContent = `k1=${j.k1} α=${j.alpha} · landmark RT ${j.rt_max_m} m` +
+    (j.applied ? " · still + tags.json updated — Save map to write H." : " · preview only");
+  if (opts.apply) {
+    defishPreviewOn = false;
+    const spec = data.cams.find(c => c.id === cam);
+    if (spec) {
+      spec.undistort = {
+        k1: j.k1, k2: 0, p1: 0, p2: 0, alpha: j.alpha,
+      };
+    }
+    const img = document.getElementById("still");
+    img.src = spec.still + "?t=" + Date.now();
+  }
+  refresh();
+  return j;
+}
+
+function queueDefishPreview(migrate = true) {
+  clearTimeout(defishTuneTimer);
+  defishTuneTimer = setTimeout(async () => {
+    const { k1, alpha } = defishSliderVals();
+    const img = document.getElementById("still");
+    img.src = defishPreviewUrl(k1, alpha);
+    defishPreviewOn = true;
+    if (!migrate || clicks.filter(Boolean).length < 4) return;
+    try {
+      await tuneDefish();
+    } catch (e) {
+      document.getElementById("defishHint").textContent = String(e.message || e);
+    }
+  }, 220);
 }
 
 async function save() {
@@ -1156,6 +1464,34 @@ fetch("cams.json?v=" + Date.now()).then(r => r.json()).then(j => {
     refresh();
   });
   document.getElementById("still").addEventListener("click", onStillClick);
+  const stillWrap = document.getElementById("stillWrap");
+  stillWrap.addEventListener("wheel", onStillWheel, { passive: false });
+  stillWrap.addEventListener("pointerdown", onStillPointerDown);
+  stillWrap.addEventListener("pointermove", onStillPointerMove);
+  stillWrap.addEventListener("pointerup", onStillPointerUp);
+  stillWrap.addEventListener("pointercancel", onStillPointerUp);
+  stillWrap.addEventListener("contextmenu", (ev) => {
+    if (stillZoom > 1.02) ev.preventDefault();
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.code !== "Space" || ev.target.closest("input, select, textarea")) return;
+    if (!stillSpaceDown) {
+      stillSpaceDown = true;
+      stillWrap.classList.add("pan-ready");
+    }
+    ev.preventDefault();
+  });
+  document.addEventListener("keyup", (ev) => {
+    if (ev.code !== "Space") return;
+    stillSpaceDown = false;
+    stillWrap.classList.remove("pan-ready", "panning");
+    stillPanActive = false;
+  });
+  stillWrap.addEventListener("dblclick", (ev) => {
+    ev.preventDefault();
+    resetStillZoom();
+    renderDots();
+  });
   document.getElementById("still").addEventListener("load", () => { renderDots(); refresh(); });
   window.addEventListener("resize", renderDots);
   document.getElementById("undo").addEventListener("click", () => {
@@ -1178,7 +1514,30 @@ fetch("cams.json?v=" + Date.now()).then(r => r.json()).then(j => {
     if (!names.length) return;
     addPoint(names[0]);
   });
+  document.getElementById("defishK1").addEventListener("input", () => {
+    defishSliderVals();
+    queueDefishPreview(true);
+  });
+  document.getElementById("defishAlpha").addEventListener("input", () => {
+    defishSliderVals();
+    queueDefishPreview(true);
+  });
+  document.getElementById("defishEstimate").addEventListener("click", async () => {
+    try {
+      await tuneDefish({ estimate: true });
+    } catch (e) {
+      document.getElementById("defishHint").textContent = String(e.message || e);
+    }
+  });
+  document.getElementById("defishApply").addEventListener("click", async () => {
+    try {
+      await tuneDefish({ apply: true });
+    } catch (e) {
+      document.getElementById("defishHint").textContent = String(e.message || e);
+    }
+  });
   renderNav();
+  applyStillTransform();
   selectCam(data.cams[0].id);
 });
 </script>
