@@ -3,14 +3,16 @@
     {
       "frame_id": 2390,
       "reasons": {
-        "ok": 17
+        "ok": 16,
+        "off_pitch": 1
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 5
         },
         "P9": {
-          "ok": 2
+          "ok": 1,
+          "off_pitch": 1
         },
         "P7": {
           "ok": 9
@@ -19,86 +21,82 @@
           "ok": 1
         }
       },
-      "n_mapped": 17,
+      "n_mapped": 16,
       "n_det_ok": 17
     },
     {
       "frame_id": 2426,
       "reasons": {
-        "ok": 16,
-        "off_pitch": 1
+        "ok": 15,
+        "off_pitch": 2
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 5
         },
         "P9": {
-          "ok": 2
+          "off_pitch": 2
         },
         "P7": {
           "ok": 8
         },
         "P8": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         }
       },
-      "n_mapped": 16,
+      "n_mapped": 15,
       "n_det_ok": 17
     },
     {
       "frame_id": 2466,
       "reasons": {
-        "ok": 16,
-        "off_pitch": 1
+        "ok": 15,
+        "off_pitch": 2
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 5
         },
         "P9": {
-          "ok": 2
+          "off_pitch": 2
         },
         "P7": {
           "ok": 8
         },
         "P8": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         }
       },
-      "n_mapped": 16,
+      "n_mapped": 15,
       "n_det_ok": 17
     },
     {
       "frame_id": 2506,
       "reasons": {
-        "ok": 12,
-        "off_pitch": 2
+        "ok": 13,
+        "off_pitch": 1
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 4
         },
         "P9": {
-          "ok": 1
+          "off_pitch": 1
         },
         "P7": {
           "ok": 6
         },
         "P8": {
-          "ok": 1,
-          "off_pitch": 2
+          "ok": 3
         }
       },
-      "n_mapped": 12,
+      "n_mapped": 13,
       "n_det_ok": 14
     },
     {
       "frame_id": 2586,
       "reasons": {
-        "ok": 16,
-        "off_pitch": 2
+        "ok": 18
       },
       "per_cam_reasons": {
         "P10": {
@@ -109,18 +107,16 @@
           "ok": 7
         },
         "P8": {
-          "ok": 3,
-          "off_pitch": 2
+          "ok": 5
         }
       },
-      "n_mapped": 16,
+      "n_mapped": 18,
       "n_det_ok": 18
     },
     {
       "frame_id": 2666,
       "reasons": {
-        "ok": 14,
-        "off_pitch": 1
+        "ok": 15
       },
       "per_cam_reasons": {
         "P10": {
@@ -131,89 +127,81 @@
           "ok": 6
         },
         "P8": {
+          "ok": 4
+        }
+      },
+      "n_mapped": 15,
+      "n_det_ok": 15
+    },
+    {
+      "frame_id": 2746,
+      "reasons": {
+        "ok": 16
+      },
+      "per_cam_reasons": {
+        "P10": {
+          "ok": 4
+        },
+        "P9": {},
+        "P7": {
+          "ok": 5
+        },
+        "P8": {
+          "ok": 7
+        }
+      },
+      "n_mapped": 16,
+      "n_det_ok": 16
+    },
+    {
+      "frame_id": 2826,
+      "reasons": {
+        "ok": 17,
+        "low_support": 1
+      },
+      "per_cam_reasons": {
+        "P10": {
           "ok": 3,
-          "off_pitch": 1
+          "low_support": 1
+        },
+        "P9": {},
+        "P7": {
+          "ok": 5
+        },
+        "P8": {
+          "ok": 9
+        }
+      },
+      "n_mapped": 17,
+      "n_det_ok": 18
+    },
+    {
+      "frame_id": 2906,
+      "reasons": {
+        "ok": 14,
+        "low_support": 1
+      },
+      "per_cam_reasons": {
+        "P10": {
+          "ok": 2,
+          "low_support": 1
+        },
+        "P9": {},
+        "P7": {
+          "ok": 4
+        },
+        "P8": {
+          "ok": 8
         }
       },
       "n_mapped": 14,
       "n_det_ok": 15
     },
     {
-      "frame_id": 2746,
-      "reasons": {
-        "ok": 14,
-        "off_pitch": 2
-      },
-      "per_cam_reasons": {
-        "P10": {
-          "ok": 4
-        },
-        "P9": {},
-        "P7": {
-          "ok": 5
-        },
-        "P8": {
-          "ok": 5,
-          "off_pitch": 2
-        }
-      },
-      "n_mapped": 14,
-      "n_det_ok": 16
-    },
-    {
-      "frame_id": 2826,
-      "reasons": {
-        "ok": 14,
-        "low_support": 1,
-        "off_pitch": 3
-      },
-      "per_cam_reasons": {
-        "P10": {
-          "ok": 3,
-          "low_support": 1
-        },
-        "P9": {},
-        "P7": {
-          "ok": 5
-        },
-        "P8": {
-          "ok": 6,
-          "off_pitch": 3
-        }
-      },
-      "n_mapped": 14,
-      "n_det_ok": 18
-    },
-    {
-      "frame_id": 2906,
-      "reasons": {
-        "ok": 10,
-        "low_support": 1,
-        "off_pitch": 3
-      },
-      "per_cam_reasons": {
-        "P10": {
-          "ok": 2,
-          "low_support": 1
-        },
-        "P9": {},
-        "P7": {
-          "ok": 4
-        },
-        "P8": {
-          "ok": 4,
-          "off_pitch": 3
-        }
-      },
-      "n_mapped": 10,
-      "n_det_ok": 14
-    },
-    {
       "frame_id": 2986,
       "reasons": {
-        "ok": 10,
-        "low_support": 1,
-        "off_pitch": 3
+        "ok": 13,
+        "low_support": 1
       },
       "per_cam_reasons": {
         "P10": {
@@ -225,40 +213,38 @@
           "ok": 4
         },
         "P8": {
-          "ok": 4,
-          "off_pitch": 3
+          "ok": 7
         }
       },
-      "n_mapped": 10,
+      "n_mapped": 13,
       "n_det_ok": 14
     },
     {
       "frame_id": 3022,
       "reasons": {
-        "ok": 11,
-        "off_pitch": 3
+        "ok": 14
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 2
         },
-        "P9": {},
+        "P9": {
+          "ok": 1
+        },
         "P7": {
           "ok": 3
         },
         "P8": {
-          "off_pitch": 3,
-          "ok": 6
+          "ok": 8
         }
       },
-      "n_mapped": 11,
+      "n_mapped": 14,
       "n_det_ok": 14
     },
     {
       "frame_id": 3078,
       "reasons": {
-        "ok": 12,
-        "off_pitch": 1
+        "ok": 14
       },
       "per_cam_reasons": {
         "P10": {
@@ -271,91 +257,81 @@
           "ok": 3
         },
         "P8": {
-          "ok": 5,
-          "off_pitch": 1
+          "ok": 7
         }
       },
-      "n_mapped": 12,
-      "n_det_ok": 13
+      "n_mapped": 14,
+      "n_det_ok": 14
     },
     {
       "frame_id": 3146,
       "reasons": {
-        "ok": 10,
-        "off_pitch": 4
+        "ok": 14
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 1
         },
         "P9": {
-          "off_pitch": 1,
-          "ok": 1
+          "ok": 2
         },
         "P7": {
           "ok": 3
         },
         "P8": {
-          "ok": 5,
-          "off_pitch": 3
+          "ok": 8
         }
       },
-      "n_mapped": 10,
+      "n_mapped": 14,
       "n_det_ok": 14
     },
     {
       "frame_id": 3226,
       "reasons": {
-        "ok": 10,
-        "off_pitch": 3
+        "ok": 13
       },
       "per_cam_reasons": {
         "P10": {
           "ok": 1
         },
         "P9": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         },
         "P7": {
           "ok": 3
         },
         "P8": {
-          "ok": 5,
-          "off_pitch": 2
+          "ok": 7
         }
       },
-      "n_mapped": 10,
+      "n_mapped": 13,
       "n_det_ok": 13
     },
     {
       "frame_id": 3286,
       "reasons": {
-        "off_pitch": 3,
-        "ok": 10
+        "ok": 13
       },
       "per_cam_reasons": {
         "P10": {},
         "P9": {
-          "off_pitch": 1,
-          "ok": 1
+          "ok": 2
         },
         "P7": {
           "ok": 2
         },
         "P8": {
-          "ok": 7,
-          "off_pitch": 2
+          "ok": 9
         }
       },
-      "n_mapped": 10,
+      "n_mapped": 13,
       "n_det_ok": 13
     }
   ],
   "summary": {
     "pack_reasons": {
-      "ok": 192,
-      "off_pitch": 32,
+      "ok": 220,
+      "off_pitch": 6,
       "low_support": 3
     },
     "per_cam_reasons": {
@@ -364,20 +340,19 @@
         "low_support": 3
       },
       "P9": {
-        "ok": 12,
-        "off_pitch": 3
+        "ok": 10,
+        "off_pitch": 6
       },
       "P7": {
         "ok": 76
       },
       "P8": {
-        "ok": 57,
-        "off_pitch": 29
+        "ok": 87
       }
     },
-    "mapped_frac": 0.8458,
-    "n_ok": 192,
-    "n_map_fail": 35,
+    "mapped_frac": 0.9607,
+    "n_ok": 220,
+    "n_map_fail": 9,
     "residual_majority": "off_pitch",
     "recommend": "L1_reclick"
   },

@@ -15,8 +15,7 @@
       "frame_id": 2426,
       "bands": {
         "top": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         },
         "mid": {},
         "bottom": {}
@@ -27,8 +26,7 @@
       "frame_id": 2466,
       "bands": {
         "top": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         },
         "mid": {},
         "bottom": {}
@@ -39,8 +37,7 @@
       "frame_id": 2506,
       "bands": {
         "top": {
-          "ok": 1,
-          "off_pitch": 2
+          "ok": 3
         },
         "mid": {},
         "bottom": {}
@@ -51,8 +48,7 @@
       "frame_id": 2586,
       "bands": {
         "top": {
-          "ok": 3,
-          "off_pitch": 2
+          "ok": 5
         },
         "mid": {},
         "bottom": {}
@@ -63,8 +59,7 @@
       "frame_id": 2666,
       "bands": {
         "top": {
-          "ok": 2,
-          "off_pitch": 1
+          "ok": 3
         },
         "mid": {
           "ok": 1
@@ -77,8 +72,7 @@
       "frame_id": 2746,
       "bands": {
         "top": {
-          "ok": 4,
-          "off_pitch": 2
+          "ok": 6
         },
         "mid": {
           "ok": 1
@@ -91,14 +85,13 @@
       "frame_id": 2826,
       "bands": {
         "top": {
-          "ok": 4,
-          "off_pitch": 3
+          "ok": 7
         },
         "mid": {
           "ok": 1
         },
         "bottom": {
-          "off_pitch": 1
+          "ok": 1
         }
       },
       "ball_on_H": true
@@ -107,31 +100,28 @@
       "frame_id": 2906,
       "bands": {
         "top": {
-          "ok": 2,
-          "off_pitch": 3
+          "ok": 6
         },
         "mid": {
           "ok": 1
         },
         "bottom": {
-          "off_pitch": 1
+          "ok": 1
         }
       },
-      "ball_on_H": true
+      "ball_on_H": false
     },
     {
       "frame_id": 2986,
       "bands": {
         "top": {
-          "ok": 2,
-          "off_pitch": 2
+          "ok": 4
         },
         "mid": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         },
         "bottom": {
-          "off_pitch": 1
+          "ok": 1
         }
       },
       "ball_on_H": true
@@ -140,15 +130,13 @@
       "frame_id": 3022,
       "bands": {
         "top": {
-          "off_pitch": 2,
-          "ok": 1
+          "ok": 3
         },
         "mid": {
-          "ok": 2,
-          "off_pitch": 2
+          "ok": 4
         },
         "bottom": {
-          "off_pitch": 2
+          "ok": 1
         }
       },
       "ball_on_H": true
@@ -157,14 +145,13 @@
       "frame_id": 3078,
       "bands": {
         "top": {
-          "ok": 1
+          "ok": 2
         },
         "mid": {
-          "ok": 2,
-          "off_pitch": 1
+          "ok": 3
         },
         "bottom": {
-          "off_pitch": 2
+          "ok": 2
         }
       },
       "ball_on_H": true
@@ -173,15 +160,13 @@
       "frame_id": 3146,
       "bands": {
         "top": {
-          "ok": 2,
-          "off_pitch": 1
+          "ok": 3
         },
         "mid": {
-          "ok": 1,
-          "off_pitch": 1
+          "ok": 2
         },
         "bottom": {
-          "off_pitch": 3
+          "ok": 3
         }
       },
       "ball_on_H": true
@@ -190,14 +175,13 @@
       "frame_id": 3226,
       "bands": {
         "top": {
-          "ok": 2,
-          "off_pitch": 1
+          "ok": 3
         },
         "mid": {
-          "off_pitch": 1
+          "ok": 1
         },
         "bottom": {
-          "off_pitch": 3
+          "ok": 3
         }
       },
       "ball_on_H": true
@@ -206,14 +190,13 @@
       "frame_id": 3286,
       "bands": {
         "top": {
-          "ok": 3,
-          "off_pitch": 1
+          "ok": 4
         },
         "mid": {
-          "off_pitch": 1
+          "ok": 1
         },
         "bottom": {
-          "off_pitch": 4
+          "ok": 4
         }
       },
       "ball_on_H": true
@@ -222,24 +205,22 @@
   "summary": {
     "pack_bands_h_player": {
       "top": {
-        "ok": 30,
-        "off_pitch": 22
+        "ok": 54
       },
       "mid": {
-        "ok": 10,
-        "off_pitch": 7
+        "ok": 17
       },
       "bottom": {
-        "off_pitch": 17
+        "ok": 16
       }
     },
-    "bottom_h_player_mapped_frac": 0.0,
-    "bottom_n_ok_h_player": 0,
-    "bottom_n_total": 17,
-    "bottom_off_pitch_h_player": 17,
-    "bottom_mapped_frac": 0.9412,
+    "bottom_h_player_mapped_frac": 1.0,
+    "bottom_n_ok_h_player": 16,
+    "bottom_n_total": 16,
+    "bottom_off_pitch_h_player": 0,
+    "bottom_mapped_frac": 1.0,
     "bottom_n_ok": 16,
-    "bottom_n_total_product": 17
+    "bottom_n_total_product": 16
   },
   "bands_y": {
     "top": "y<350",
