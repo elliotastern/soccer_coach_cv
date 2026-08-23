@@ -60,15 +60,15 @@ git pull
 bash scripts/install_torch_rtx5090.sh
 ```
 
-Or manual:
+Or manual (when nightly dates skew, install torchvision with `--no-deps`):
 
 ```bash
 pip uninstall -y torch torchvision torchaudio
-pip install --pre \
-  torch==2.12.0.dev20260407 \
-  torchvision==0.27.0.dev20260407+cu128 \
-  --index-url https://download.pytorch.org/whl/nightly/cu128 \
-  --no-cache-dir
+pip cache purge
+pip install --pre torch==2.12.0.dev20260408+cu128 \
+  --index-url https://download.pytorch.org/whl/nightly/cu128 --no-cache-dir
+pip install --pre torchvision==0.27.0.dev20260407+cu128 \
+  --index-url https://download.pytorch.org/whl/nightly/cu128 --no-deps --no-cache-dir
 ```
 
 Do **not** re-run `pip install -r requirements.txt` after cu128 (caps `torch<=2.8`). Install other deps with:
