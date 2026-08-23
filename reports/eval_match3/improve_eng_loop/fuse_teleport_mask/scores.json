@@ -1,0 +1,236 @@
+{
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_audit_ball_teleports": 10.0,
+    "03_dribble_tp": 10.0,
+    "04_emit_counts": 10.0,
+    "05_no_emit_on_teleport": 10.0,
+    "06_regression": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "audit": {
+    "ball_teleport_n": 72,
+    "player_near_ball_teleport_n": 6,
+    "ball_teleports": [
+      {
+        "t": 0.0667,
+        "frame_id": 2394,
+        "dist_m": 24.94,
+        "speed_m_s": 374.0
+      },
+      {
+        "t": 0.2,
+        "frame_id": 2402,
+        "dist_m": 24.61,
+        "speed_m_s": 369.0
+      },
+      {
+        "t": 0.2667,
+        "frame_id": 2406,
+        "dist_m": 26.33,
+        "speed_m_s": 394.8
+      },
+      {
+        "t": 0.3333,
+        "frame_id": 2410,
+        "dist_m": 11.95,
+        "speed_m_s": 179.4
+      },
+      {
+        "t": 0.4,
+        "frame_id": 2414,
+        "dist_m": 6.29,
+        "speed_m_s": 94.3
+      },
+      {
+        "t": 0.6667,
+        "frame_id": 2430,
+        "dist_m": 30.9,
+        "speed_m_s": 463.3
+      },
+      {
+        "t": 0.8,
+        "frame_id": 2438,
+        "dist_m": 30.99,
+        "speed_m_s": 464.7
+      },
+      {
+        "t": 0.8667,
+        "frame_id": 2442,
+        "dist_m": 4.57,
+        "speed_m_s": 68.5
+      },
+      {
+        "t": 0.9333,
+        "frame_id": 2446,
+        "dist_m": 27.21,
+        "speed_m_s": 408.6
+      },
+      {
+        "t": 1.0,
+        "frame_id": 2450,
+        "dist_m": 36.42,
+        "speed_m_s": 546.0
+      },
+      {
+        "t": 1.0667,
+        "frame_id": 2454,
+        "dist_m": 15.57,
+        "speed_m_s": 233.4
+      },
+      {
+        "t": 1.1333,
+        "frame_id": 2458,
+        "dist_m": 42.05,
+        "speed_m_s": 631.4
+      },
+      {
+        "t": 1.2,
+        "frame_id": 2462,
+        "dist_m": 22.53,
+        "speed_m_s": 337.8
+      },
+      {
+        "t": 1.2667,
+        "frame_id": 2466,
+        "dist_m": 29.78,
+        "speed_m_s": 446.5
+      },
+      {
+        "t": 1.3333,
+        "frame_id": 2470,
+        "dist_m": 15.04,
+        "speed_m_s": 225.9
+      },
+      {
+        "t": 1.4,
+        "frame_id": 2474,
+        "dist_m": 34.8,
+        "speed_m_s": 521.7
+      },
+      {
+        "t": 1.5333,
+        "frame_id": 2482,
+        "dist_m": 35.0,
+        "speed_m_s": 525.6
+      },
+      {
+        "t": 1.6,
+        "frame_id": 2486,
+        "dist_m": 15.5,
+        "speed_m_s": 232.4
+      },
+      {
+        "t": 1.6667,
+        "frame_id": 2490,
+        "dist_m": 30.71,
+        "speed_m_s": 460.4
+      },
+      {
+        "t": 2.2,
+        "frame_id": 2522,
+        "dist_m": 33.09,
+        "speed_m_s": 496.2
+      }
+    ],
+    "player_teleports": [
+      {
+        "t": 2.5333,
+        "frame_id": 2542,
+        "player_id": 5,
+        "step_m": 6.72
+      },
+      {
+        "t": 3.9333,
+        "frame_id": 2626,
+        "player_id": 5,
+        "step_m": 6.89
+      },
+      {
+        "t": 4.0,
+        "frame_id": 2630,
+        "player_id": 5,
+        "step_m": 6.85
+      },
+      {
+        "t": 4.0,
+        "frame_id": 2630,
+        "player_id": 10,
+        "step_m": 6.09
+      },
+      {
+        "t": 4.0667,
+        "frame_id": 2634,
+        "player_id": 5,
+        "step_m": 7.07
+      },
+      {
+        "t": 4.0667,
+        "frame_id": 2634,
+        "player_id": 10,
+        "step_m": 6.39
+      }
+    ]
+  },
+  "n_pass": 2,
+  "n_dribble": 1,
+  "dribble_tp": 1,
+  "emit_on_teleport": 0,
+  "emits": [
+    {
+      "type": "pass",
+      "frame_end": 2502,
+      "t_start": 1.8,
+      "t_end": 1.8667,
+      "confidence": 0.8259,
+      "players": [
+        10
+      ],
+      "start_xy": [
+        10.3505,
+        -8.9206
+      ],
+      "end_xy": [
+        11.3262,
+        -8.4089
+      ]
+    },
+    {
+      "type": "pass",
+      "frame_end": 2702,
+      "t_start": 5.1333,
+      "t_end": 5.2,
+      "confidence": 0.9299,
+      "players": [
+        11
+      ],
+      "start_xy": [
+        16.0671,
+        -6.8757
+      ],
+      "end_xy": [
+        16.6063,
+        -5.7585
+      ]
+    },
+    {
+      "type": "dribble",
+      "frame_end": 3070,
+      "t_start": 11.2,
+      "t_end": 11.3333,
+      "confidence": 0.9658,
+      "players": [
+        5
+      ],
+      "start_xy": [
+        18.4347,
+        -13.725
+      ],
+      "end_xy": [
+        17.9073,
+        -13.4758
+      ]
+    }
+  ]
+}

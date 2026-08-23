@@ -1,39 +1,59 @@
 {
   "components": {
     "01_prompt_eval": 10.0,
-    "02_heuristic_regression": 10.0,
-    "03_dribble_precision_regression": 10.0,
-    "04_fuse_gold": 10.0,
-    "05_carry_recall": 10.0,
-    "06_fuse_carry_count": 10.0,
-    "07_fuse_p_emit": 10.0,
-    "08_pass_regression": 10.0,
-    "09_batch_cap": 10.0,
-    "10_meta_carry_count": 10.0
+    "02_synth_shot_tp": 10.0,
+    "03_synth_recovery_tp": 10.0,
+    "04_fuse_shot_fp": 10.0,
+    "05_fuse_recovery_zero": 10.0,
+    "06_regression": 10.0
   },
   "failed": {},
   "pass": true,
-  "fuse_score": {
-    "tp": 3,
+  "shot_sc": {
+    "tp": 1,
     "fp": 0,
     "fn": 0,
     "p_emit": 1.0,
     "recall": 1.0,
-    "n_emit": 3,
-    "n_gold": 3,
-    "matched_gold_idx": [
-      0,
-      1,
-      2
+    "n_emit": 1,
+    "id": "synth_shot_goal2",
+    "emits": [
+      {
+        "type": "shot",
+        "frame_end": 1,
+        "t_start": 0.0,
+        "t_end": 0.2,
+        "confidence": 1.0,
+        "players": [
+          1
+        ]
+      }
     ]
   },
-  "n_dribble_fuse": 1,
-  "n_carry_fuse": 1,
-  "carry_tp": 1,
-  "batch_n_dribble": 0,
-  "meta_n_dribble": 1,
-  "meta_n_carry": 1,
-  "emits": [
+  "recovery_sc": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 1,
+    "id": "synth_recovery",
+    "emits": [
+      {
+        "type": "recovery",
+        "frame_end": 1,
+        "t_start": 0.0,
+        "t_end": 1.0,
+        "confidence": 0.85,
+        "players": [
+          1
+        ]
+      }
+    ]
+  },
+  "fuse_shot_fp": 0,
+  "fuse_recovery_n": 0,
+  "fuse_emits": [
     {
       "type": "pass",
       "frame_end": 2502,

@@ -1,0 +1,14 @@
+{
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_suggested_events": 10.0,
+    "03_fixture_coach_events": 10.0,
+    "04_fuse_recall": 10.0,
+    "05_labels_merged": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "n_suggested": 3,
+  "coach_sourced_fixture": 3,
+  "merged_events": 6
+}

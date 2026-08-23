@@ -13,6 +13,8 @@ PITCH1_HALF_LENGTH_M = 53.90 / 2.0
 SHOT_GOAL_BAND_M = 5.0
 # Reject map teleports / cam switches (real Match 3 fuse jumps).
 MAX_BALL_SPEED_M_S = 40.0
+# Fuse stride-4: same stable pid can jump when map glitches near the ball.
+MAX_PLAYER_STEP_M = 6.0
 # Min time between emits (precision-first; kills frame spam).
 MIN_EMIT_GAP_S = 1.0
 
@@ -40,6 +42,7 @@ class EventDetector:
         half_length_m: float = PITCH1_HALF_LENGTH_M,
         shot_goal_band_m: float = SHOT_GOAL_BAND_M,
         max_ball_speed_m_s: float = MAX_BALL_SPEED_M_S,
+        max_player_step_m: float = MAX_PLAYER_STEP_M,
         min_emit_gap_s: float = MIN_EMIT_GAP_S,
         enable_dribble: bool = True,
         enable_movement: bool = True,
@@ -60,6 +63,7 @@ class EventDetector:
         self.half_length_m = half_length_m
         self.shot_goal_band_m = shot_goal_band_m
         self.max_ball_speed_m_s = max_ball_speed_m_s
+        self.max_player_step_m = max_player_step_m
         self.min_emit_gap_s = min_emit_gap_s
         self.enable_dribble = enable_dribble
         self.enable_movement = enable_movement
@@ -129,6 +133,37 @@ class EventDetector:
             Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch),
         )
         return (d / dt) <= self.max_ball_speed_m_s
+
+    def _near_ball_players_stable(
+        self, frame_data: FrameData, prev_frame_data: FrameData
+    ) -> bool:
+        """Reject pairs where the near-ball player cluster teleports (fuse map glitch)."""
+        assert frame_data.ball and prev_frame_data.ball
+        prev_ball = Location(
+            prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch
+        )
+        cur_ball = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
+        prev_near = [
+            Location(player.x_pitch, player.y_pitch)
+            for player in prev_frame_data.players
+            if self._distance(prev_ball, Location(player.x_pitch, player.y_pitch))
+            <= self.movement_proximity
+        ]
+        if not prev_near:
+            return True
+        cur_near = [
+            Location(player.x_pitch, player.y_pitch)
+            for player in frame_data.players
+            if self._distance(cur_ball, Location(player.x_pitch, player.y_pitch))
+            <= self.movement_proximity
+        ]
+        if not cur_near:
+            return True
+        for pl_prev in prev_near:
+            best = min(self._distance(pl_prev, pl_cur) for pl_cur in cur_near)
+            if best > self.max_player_step_m:
+                return False
+        return True
 
     def _in_pitch(self, loc: Location) -> bool:
         return abs(loc.x) <= self.half_length_m + 0.05 and abs(loc.y) <= 17.5
@@ -476,6 +511,11 @@ class EventDetector:
             return []
         assert prev_frame_data is not None
         if not self._ball_speed_ok(frame_data, prev_frame_data):
+            self._stable_streak = 0
+            self._need_extra_stable = True
+            self._dribble_buf = []
+            return []
+        if not self._near_ball_players_stable(frame_data, prev_frame_data):
             self._stable_streak = 0
             self._need_extra_stable = True
             self._dribble_buf = []

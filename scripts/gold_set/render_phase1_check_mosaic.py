@@ -74,10 +74,11 @@ def parse_args():
 
 def _live_to_frame(fr: int, t_s: float, live: dict) -> FrameData:
     players = []
-    for j, p in enumerate(live["players"]):
+    for p in live["players"]:
         x, y = float(p[0]), float(p[1])
         team = int(p[2]) if len(p) > 2 else -1
-        players.append(Player(j + 1, team, x, y, (0, 0, 10, 10), fr, t_s))
+        pid = int(p[3]) if len(p) > 3 else 0
+        players.append(Player(pid, team, x, y, (0, 0, 10, 10), fr, t_s))
     ball = None
     if live.get("ball_xy") is not None:
         bx, by = live["ball_xy"]

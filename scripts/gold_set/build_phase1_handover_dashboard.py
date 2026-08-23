@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -77,6 +78,10 @@ def main() -> int:
             encoding="utf-8",
         )
         print("INIT labels.json", flush=True)
+    sys.path.insert(0, str(ROOT))
+    from scripts.gold_set.merge_handover_fuse_gold import seed_handover_suggestions  # noqa: E402
+
+    seed_handover_suggestions(OUT)
     info = {
         "ts": datetime.now(timezone.utc).isoformat(),
         "video": "coach_mosaic_pitch_min.mp4",

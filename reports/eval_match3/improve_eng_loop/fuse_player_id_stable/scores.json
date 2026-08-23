@@ -1,14 +1,16 @@
 {
   "components": {
     "01_prompt_eval": 10.0,
-    "02_regression": 10.0,
+    "02_regression": 5.0,
     "03_carry_id_swaps": 10.0,
     "04_unique_carrier_ids": 10.0,
     "05_dribble_tp": 10.0,
     "06_swap_reduction": 10.0
   },
-  "failed": {},
-  "pass": true,
+  "failed": {
+    "02_regression": 5.0
+  },
+  "pass": false,
   "before": {
     "swaps": 13,
     "unique_ids": 7,

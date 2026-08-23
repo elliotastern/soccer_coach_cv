@@ -3,16 +3,23 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CLIP = ROOT / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_15s"
+sys.path.insert(0, str(ROOT))
+
+from scripts.gold_set.build_fuse_linked_timeline import build_linked_timeline  # noqa: E402
 
 
 def main() -> int:
     CLIP.mkdir(parents=True, exist_ok=True)
+    build_linked_timeline()
     labels = {
         "source": "reports/eval_match3/improve_eng_loop/player_map/check_15s_s4",
+        "timeline_primary": "timeline_linked.json",
         "start_frame": 2390,
         "stride": 4,
         "match_sec": 15.0,
@@ -33,6 +40,7 @@ def main() -> int:
                 "type": "dribble",
                 "t_start": 10.5,
                 "t_end": 11.5,
+                "expected_carrier_pid": 34,
                 "note": "Visible co-move carry on fuse xy (stride-4 window)",
             },
         ],
@@ -46,6 +54,10 @@ def main() -> int:
         encoding="utf-8",
     )
     print("WROTE", CLIP / "labels.json")
+    subprocess.check_call(
+        [sys.executable, str(ROOT / "scripts/gold_set/merge_handover_fuse_gold.py")],
+        cwd=str(ROOT),
+    )
     return 0
 
 

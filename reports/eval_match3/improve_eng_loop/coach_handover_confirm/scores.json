@@ -1,0 +1,20 @@
+{
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_suggested_events": 10.0,
+    "03_confirm_frames": 10.0,
+    "04_coach_sourced_merge": 10.0,
+    "05_fuse_recall": 10.0,
+    "06_linked_regression": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "n_suggested": 3,
+  "confirm_out": {
+    "confirmed": 3,
+    "suggested": 3
+  },
+  "n_good_frames": 3,
+  "coach_sourced": 3,
+  "merged_events": 6
+}

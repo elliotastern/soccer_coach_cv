@@ -15,11 +15,11 @@
       "frame_id": 2702
     },
     {
-      "type": "movement",
-      "t_end": 11.267,
+      "type": "dribble",
+      "t_end": 11.333,
       "t_start": 11.2,
-      "confidence": 0.857,
-      "frame_id": 3066
+      "confidence": 0.966,
+      "frame_id": 3070
     }
   ]
 }

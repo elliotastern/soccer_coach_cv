@@ -157,6 +157,7 @@
 
       <div class="row">
         <button class="primary" type="button" id="save">Save frame</button>
+        <button class="secondary" type="button" id="confirmAll">Confirm all suggested</button>
         <button class="secondary" type="button" id="export">Download labels.json</button>
       </div>
       <div id="status"></div>
@@ -311,6 +312,43 @@ document.getElementById("save").onclick = async () => {
   document.getElementById("status").textContent = js.ok
     ? `Saved frame ${fid} (${Object.values(labels.frames).filter((f) => f.reviewed).length} reviewed)`
     : `Save failed: ${js.error || res.status}`;
+  paintStats();
+};
+
+document.getElementById("confirmAll").onclick = async () => {
+  const suggested = labels.suggested_events || [];
+  if (!suggested.length) {
+    document.getElementById("status").textContent = "No suggested_events to confirm.";
+    return;
+  }
+  for (const sug of suggested) {
+    const fid = sug.frame_id;
+    if (!fid) continue;
+    const key = frameKey(fid);
+    labels.frames[key] = {
+      ball_visible: "yes",
+      ball_box_ok: "good",
+      pitch_ball_ok: "good",
+      team_ok: "unset",
+      event_ok: "good",
+      flag: false,
+      note: `confirm suggested ${sug.type}`,
+      reviewed: true,
+      reviewed_at: new Date().toISOString(),
+      suggested_type: sug.type,
+    };
+  }
+  labels.updated_at = new Date().toISOString();
+  labels.reviewer = labels.reviewer || "coach";
+  const res = await fetch("/save_phase1_handover_labels", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(labels),
+  });
+  const js = await res.json();
+  document.getElementById("status").textContent = js.ok
+    ? `Confirmed ${suggested.length} suggested events`
+    : `Confirm failed: ${js.error || res.status}`;
   paintStats();
 };
 

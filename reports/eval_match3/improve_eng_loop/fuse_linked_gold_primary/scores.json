@@ -1,22 +1,43 @@
 {
   "components": {
     "01_prompt_eval": 10.0,
-    "02_regression": 5.0,
+    "02_linked_timeline": 10.0,
     "03_linked_dribble_tp": 10.0,
-    "04_carrier_pid": 10.0,
-    "05_raw_dribble_tp": 10.0,
-    "06_batch_cap": 10.0,
-    "07_id_stable": 10.0
+    "04_emit_counts": 10.0,
+    "05_carrier_pid": 10.0,
+    "06_carry_id_stable": 10.0,
+    "07_regression": 10.0
   },
-  "failed": {
-    "02_regression": 5.0
-  },
-  "pass": false,
-  "linked_tp": 1,
-  "raw_tp": 1,
+  "failed": {},
+  "pass": true,
+  "expected_carrier_pid": 34,
   "carrier_ok": true,
-  "batch_n": 0,
-  "linked_emits": [
+  "linked_tp": 1,
+  "n_pass": 2,
+  "n_dribble": 1,
+  "carrier_swaps": {
+    "swaps": 0,
+    "unique_ids": 1,
+    "n_frames": 15,
+    "ids": [
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34
+    ]
+  },
+  "emits": [
     {
       "type": "pass",
       "frame_end": 2502,
@@ -71,27 +92,5 @@
         -13.4758
       ]
     }
-  ],
-  "carrier_swaps": {
-    "swaps": 0,
-    "unique_ids": 1,
-    "n_frames": 15,
-    "ids": [
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34,
-      34
-    ]
-  }
+  ]
 }

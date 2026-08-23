@@ -1,4 +1,15 @@
 {
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_regression": 10.0,
+    "03_dribble_carry": 10.0,
+    "04_no_movement_carry": 10.0,
+    "05_handover": 10.0,
+    "06_emit_count": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "n_emits": 3,
   "emits": [
     {
       "type": "pass",
@@ -14,6 +25,15 @@
       "confidence": 0.93,
       "frame_id": 2702
     },
+    {
+      "type": "dribble",
+      "t_end": 11.333,
+      "t_start": 11.2,
+      "confidence": 0.966,
+      "frame_id": 3070
+    }
+  ],
+  "carry": [
     {
       "type": "dribble",
       "t_end": 11.333,

@@ -28,5 +28,5 @@
   "batch_rate_per_min": 0.0,
   "neg_fp": 0,
   "real_p_emit": 1.0,
-  "n_dribble_15s": 0
+  "n_dribble_15s": 1
 }
