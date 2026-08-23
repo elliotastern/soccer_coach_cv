@@ -27,6 +27,7 @@
 | Tried | Result |
 |-------|--------|
 | 6pt weighted **H_player** + ball-foot anchor | **Rejected** — landmark RT 58 m (anchor vs goal-box landmarks incompatible in one H) |
-| P8 lower-zone fallback (`y≥520`, retry **H**) | **Promoted** — product bottom mapped_frac **0.94** on D3 pack; ball kill switch held |
+| P8 lower-zone fallback (`y≥350`, retry **H**) | **Promoted** — mid+lower when H_player fails; ball H unchanged |
+| Step1 top-FOV hull + cross-cam probe | **14 hull pts**; P8 pack **100%** mapped; H_player RT probe 0.70m — manual midfield still next |
 
 D3 baseline (H_player-only bands): bottom-third mostly `off_pitch`; ball maps on **H** at same y.

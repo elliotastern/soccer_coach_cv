@@ -168,11 +168,11 @@ def main() -> int:
         all(f"{c}__wh" in bag for c in CAMS), 2.0
     )
     notes["03_defish_detect_path"] = "dets after defish + __wh set"
-    # 4 rotate: synthetic mark lock already covered elsewhere — check P10/P9 have dets drawable
+    # 4 rotate: south row P10|P7 flipped 180° so near end sits on south edge
     scores["04_rotate180_ready"] = _score_bool(
-        all(cam in QUAD_ROTATE_180 for cam in ("P10", "P9")), 5.0
+        all(cam in QUAD_ROTATE_180 for cam in ("P10", "P7")), 5.0
     )
-    notes["04_rotate180_ready"] = "P10|P9 flagged for 180°"
+    notes["04_rotate180_ready"] = "P10|P7 flagged for 180°"
     scores["05_nms_dupes"] = 10.0 if dup_pairs == 0 else max(0.0, 10.0 - 3.0 * dup_pairs)
     notes["05_nms_dupes"] = f"iou>=0.55 pairs={dup_pairs}"
     scores["06_tiny_box_reject"] = 10.0 if tiny_fail == 0 else max(0.0, 10.0 - 2.0 * tiny_fail)

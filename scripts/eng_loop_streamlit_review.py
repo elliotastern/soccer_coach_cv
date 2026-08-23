@@ -61,8 +61,8 @@ def main() -> int:
     # 04 mosaic layout
     from src.review.cam_mosaic import QUAD_GRID, QUAD_ROTATE_180
 
-    layout_ok = QUAD_GRID == [["P10", "P9"], ["P7", "P8"]] and QUAD_ROTATE_180 == frozenset(
-        {"P10", "P9"}
+    layout_ok = QUAD_GRID == [["P10", "P8"], ["P7", "P9"]] and QUAD_ROTATE_180 == frozenset(
+        {"P10", "P7"}
     )
     scores["04_mosaic_layout"] = _score(layout_ok)
     notes["04_mosaic_layout"] = str(QUAD_GRID)

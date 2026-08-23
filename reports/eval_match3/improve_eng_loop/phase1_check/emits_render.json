@@ -2,31 +2,10 @@
   "emits": [
     {
       "type": "pass",
-      "t_end": 5.8,
-      "t_start": 5.767,
-      "confidence": 0.984,
-      "frame_id": 2738
-    },
-    {
-      "type": "pass",
-      "t_end": 9.733,
-      "t_start": 9.7,
-      "confidence": 0.96,
-      "frame_id": 2974
-    },
-    {
-      "type": "pass",
-      "t_end": 11.0,
-      "t_start": 10.967,
-      "confidence": 0.833,
-      "frame_id": 3050
-    },
-    {
-      "type": "pass",
-      "t_end": 15.7,
-      "t_start": 15.667,
+      "t_end": 16.25,
+      "t_start": 16.0,
       "confidence": 1.0,
-      "frame_id": 3332
+      "frame_id": 3365
     }
   ]
 }

@@ -37,23 +37,23 @@ Axes: **+x north (P6)**, **−x south (P1)**; **+y left**, **−y right** from P
 
 Diagram compass: **LEFT = P10 · P8**, **RIGHT = P7 · P9** (`reports/eval_match3/landmark_dashboard/`).
 
-## WHOLE PITCH mosaic (coach UI) — locked
+## WHOLE PITCH mosaic (coach UI)
 
-Review mosaic order is **not** free to invent. Locked in `src/review/cam_mosaic.py`:
+Geographic north up — locked in `src/review/cam_mosaic.py`:
 
 | Cell | Camera | Rotate |
 |------|--------|--------|
-| Top left | **P10** | **180°** |
-| Top right | **P9** | **180°** |
-| Bottom left | **P7** | none |
-| Bottom right | **P8** | none |
+| Top left | **P8** | none |
+| Top right | **P9** | none |
+| Bottom left | **P10** | **180°** |
+| Bottom right | **P7** | **180°** |
 
 ```
-Top:    P10 (180°) | P9 (180°)
-Bottom: P7         | P8
+North:  P8 | P9
+South:  P10 (180°) | P7 (180°)
 ```
 
-Reference: `reports/eval_match3/improve_eng_loop/cam_stitch_boxes/coach_layout.jpg`. Cursor rule: `.cursor/rules/match3_camera_layout.mdc`.
+Cursor rule: `.cursor/rules/match3_camera_layout.mdc`.
 
 ## If a FOV looks misplaced
 

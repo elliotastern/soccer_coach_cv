@@ -78,7 +78,8 @@ def _fuse_player_clusters(
     merge_m: float = PLAYER_MERGE_M,
     solo_conf: float = PLAYER_SOLO_CONF,
     ghost_conf: float = PLAYER_GHOST_CONF,
-) -> list[tuple[float, float, int, int]]:
+    include_cam: bool = False,
+) -> list[tuple[float, float, int, int]] | tuple[list, list[str]]:
     """Max-conf xy per cluster; drop weak solos / ghosts far from strong anchors."""
     eligible: list[list[dict]] = []
     for cl in clusters:
@@ -95,6 +96,7 @@ def _fuse_player_clusters(
         if float(max(cl, key=lambda c: c["conf"])["conf"]) >= ghost_conf
     ]
     fused = []
+    fused_cams: list[str] = []
     for i, cl in enumerate(eligible):
         best = max(cl, key=lambda c: c["conf"])
         if len(cl) == 1 and float(best["conf"]) < ghost_conf and strong_xy:
@@ -118,6 +120,10 @@ def _fuse_player_clusters(
         fused.append(
             (float(best["xy"][0]), float(best["xy"][1]), int(team), pid)
         )
+        if include_cam:
+            fused_cams.append(str(best.get("cam", "")))
+    if include_cam:
+        return fused, fused_cams
     return fused
 
 
@@ -283,6 +289,7 @@ def fuse_live_dets_for_pitch(
     merge_m: float = PLAYER_MERGE_M,
     team_session=None,
     player_recall: bool = True,
+    debug_cam: bool = False,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -370,12 +377,26 @@ def fuse_live_dets_for_pitch(
 
     solo = PLAYER_LIVE_SOLO_CONF if player_recall else PLAYER_SOLO_CONF
     ghost = PLAYER_LIVE_GHOST_CONF if player_recall else PLAYER_GHOST_CONF
-    players = _fuse_player_clusters(
-        _cluster_players(player_pts, merge_m=merge_m),
-        merge_m=merge_m,
-        solo_conf=solo,
-        ghost_conf=ghost,
-    ) if player_pts else []
+    player_cams: list[str] = []
+    if player_pts:
+        clusters = _cluster_players(player_pts, merge_m=merge_m)
+        if debug_cam:
+            players, player_cams = _fuse_player_clusters(
+                clusters,
+                merge_m=merge_m,
+                solo_conf=solo,
+                ghost_conf=ghost,
+                include_cam=True,
+            )
+        else:
+            players = _fuse_player_clusters(
+                clusters,
+                merge_m=merge_m,
+                solo_conf=solo,
+                ghost_conf=ghost,
+            )
+    else:
+        players = []
     if team_session is not None and players:
         players = team_session.stabilize_fused(players)
 
@@ -388,10 +409,17 @@ def fuse_live_dets_for_pitch(
             best = max(ball_rows, key=lambda r: r["conf"])
             ball_xy = tuple(best["xy"])
 
-    return {
+    out = {
         "players": players,
         "ball_xy": ball_xy,
         "n_cams": len(used),
         "cams": sorted(used),
         "source": "live",
     }
+    if debug_cam:
+        out["player_cams"] = player_cams
+        out["player_maps_all"] = [
+            (float(p["xy"][0]), float(p["xy"][1]), str(p.get("cam", "")))
+            for p in player_pts
+        ]
+    return out

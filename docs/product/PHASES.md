@@ -4,6 +4,8 @@ Naming note: **Product Phase 1/2/3** here are delivery milestones for the coachi
 
 ## Product Phase 1 — Descriptive pipeline (current focus)
 
+**Scope summary:** Python CV pipeline for tactical dataset generation (technical POC). See [PHASE1_SCOPE.md](PHASE1_SCOPE.md) for the four pillars — vision engine, heuristic events, safety/review, CSV/JSON export — and deliverables (source + Streamlit app).
+
 Offline / batch-first vision and events:
 
 - Detect and track players and ball (RF-DETR + ByteTrack)

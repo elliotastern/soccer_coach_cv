@@ -30,31 +30,32 @@ Compass shorthand on the diagram: **LEFT = P10 · P8**, **RIGHT = P7 · P9**.
 
 Code/docs: `reports/eval_match3/landmark_dashboard/index.html`, `docs/product/MATCH3_CAPTURE.md`.
 
-## WHOLE PITCH mosaic (coach UI) — LOCKED
+## WHOLE PITCH mosaic (coach UI) — compass rotated 90° CW
 
-Do **not** rearrange by “far/near north-up” intuition. User-locked order in `src/review/cam_mosaic.py` (`QUAD_GRID`, `QUAD_ROTATE_180`):
+Locked in `src/review/cam_mosaic.py`. Labels: **Left** top · **Right** bottom · **South** left · **North** right.
 
 ```
-        TOP (180°)              BOTTOM (upright)
-   P10 (TL)  |  P9 (TR)     P7 (BL)  |  P8 (BR)
+        LEFT
+   P10  |  P8
+ SOUTH  |  NORTH
+   P7   |  P9
+        RIGHT
 ```
 
 | Cell | Camera | Rotate |
 |------|--------|--------|
 | Top left | **P10** | **180°** |
-| Top right | **P9** | **180°** |
-| Bottom left | **P7** | none |
-| Bottom right | **P8** | none |
+| Top right | **P8** | none |
+| Bottom left | **P7** | **180°** |
+| Bottom right | **P9** | none |
 
-Reference still that matches: `reports/eval_match3/improve_eng_loop/cam_stitch_boxes/coach_layout.jpg`.
+Pitch panel below uses matching `map_orient=cw90` (goals on short edges, south left / north right).
 
 ### Do / don't
 
-- **Do** keep `QUAD_GRID = [["P10","P9"],["P7","P8"]]` and `QUAD_ROTATE_180 = {P10, P9}`.
-- **Do** update captions/labels to match (Top P10\|P9 180° · Bottom P7\|P8).
+- **Do** keep `QUAD_GRID = [["P10","P8"],["P7","P9"]]` and `QUAD_ROTATE_180 = {P10, P7}`.
 - **Do** keep mosaic **defish ON** for P7–P10 (see `match3_defish`).
-- **Don't** swap to Far P8\|P9 / Near P10\|P7 or flip P7/P10 instead of P9/P10.
-- **Don't** remap video files to different cells because a still “looks” wrong — fix labels/rotation only.
+- **Don't** remap video files to different cells — fix labels/rotation only.
 - **Don't** default review defish to OFF.
 
 P7–P10 fisheye/defish: `match3_defish` rule + `docs/product/MATCH3_DEFISH.md`.

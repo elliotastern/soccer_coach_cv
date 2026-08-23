@@ -10,10 +10,10 @@ Canonical improve loop: [MATCH3_MULTICAM_IMPROVE_PLAN.md](MATCH3_MULTICAM_IMPROV
 |------|-----------------------------:|-------:|
 | **Holdout** (seed 20260821) | **0.884** | — |
 | Tune random | 0.625 | — |
-| Strip P10 | 0.876 | 1.0 |
+| Strip P10 | **0.879** | 1.0 |
 | Strip P8 | 0.801 | 0.966 |
 
-Holdout freeze was **0.556**; map-first (P10 hull + MIN_SUPPORT 0.20) lifted it above **0.80** with strip precision held.
+Holdout freeze was **0.556**; map-first (P10 hull + MIN_SUPPORT 0.20) lifted it above **0.80** with strip precision held. L1 white-line re-click on P8/P9 (RT ≤ 0.15 m, hulls kept) → P10 clear_R **0.876→0.879**; P8 / holdout unchanged; strip P held.
 
 ## What worked
 
@@ -21,6 +21,7 @@ Holdout freeze was **0.556**; map-first (P10 hull + MIN_SUPPORT 0.20) lifted it 
 2. Add P10 `hull_image_points` (lower FOV; H unchanged).
 3. Promote `MIN_SUPPORT` **0.20** (`h1_minsupport_ab.json`).
 4. Other-cam funnel: no silent fuse with other cam ≥0.80 on residual FNs.
+5. L1 honest re-click P8/P9 posts/box (≤18 px on bright line pixels); `test_match3_l1.py` pass; no clip-only hull.
 
 Skipped one-clip det on t552 (map FNs still majority).
 

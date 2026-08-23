@@ -1,18 +1,11 @@
 {
   "emits": [
     {
-      "type": "pass",
-      "t_end": 5.867,
-      "t_start": 5.8,
-      "confidence": 0.861,
-      "frame_id": 2742
-    },
-    {
-      "type": "pass",
-      "t_end": 9.8,
-      "t_start": 9.733,
-      "confidence": 1.0,
-      "frame_id": 2978
+      "type": "movement",
+      "t_end": 0.333,
+      "t_start": 0.267,
+      "confidence": 0.862,
+      "frame_id": 3070
     }
   ]
 }

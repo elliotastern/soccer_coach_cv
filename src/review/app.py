@@ -667,7 +667,7 @@ def render_synced_frame_review(
             options=VIEW_OPTIONS,
             index=0,
             key="cam_stitch_view_v3",
-            help="Locked: Top P10|P9 (180°) · Bottom P7|P8. See match3_camera_layout rule.",
+            help="cw90: Left top · South left · P10|P8 / P7|P9. See match3_camera_layout rule.",
         )
         apply_defish = st.sidebar.checkbox(
             "Defish P7–P10 in camera view",
@@ -988,6 +988,11 @@ def render_synced_frame_review(
         ball_xy_from_rows,
         players_from_rows,
     )
+    from src.review.cam_mosaic import (
+        MOSAIC_SIDE_W,
+        compose_coach_stack,
+        pitch_stack_metrics,
+    )
     from src.review.multicam_fuse import fuse_frame_for_pitch, fuse_live_dets_for_pitch
     from src.review.team_live import TeamSession
 
@@ -1035,17 +1040,29 @@ def render_synced_frame_review(
         mode = f"fuse n_cams={fused['n_cams']} ({','.join(fused['cams'])})"
     else:
         mode = "single-cam export"
-    # Smaller map, sidelines-only crop (no outside margin)
+    # Landscape pitch below mosaic — same width + aligned grid so map connects to cams
+    grid_w = max(64, stage.shape[1] - 2 * MOSAIC_SIDE_W)
+    grid_h = max(64, int(round(grid_w * 270 / 480)))
+    stack = pitch_stack_metrics(grid_w, grid_h, drop_top=True, scale=0.46)
     pitch_panel = draw_pitch1_ball_panel(
-        360,
-        560,
+        stack["panel_w"],
+        stack["panel_h"],
         ball_xy,
         cam=cam,
         mode=mode,
         trail=trail,
         players=players,
+        player_cams=fused.get("player_cams", ()),
+        raw_player_maps=fused.get("player_maps_all", ()),
         tight=True,
+        orient_hints=True,
+        field_w=stack["field_w"],
+        field_h=stack["field_h"],
+        band_w=stack["band_w"],
+        drop_top=True,
+        map_orient=stack["map_orient"],
     )
+    coach_stack = compose_coach_stack(stage, pitch_panel, connect=True)
 
     recent_events = events_up_to_frame(events, frame_id)
     flash = events_here[-1].get("type") if events_here else None
@@ -1053,42 +1070,36 @@ def render_synced_frame_review(
     events_bar = draw_events_bar(bar_w, t_sec, recent_events, flash)
 
     st.caption(
-        "Top **P10|P9** (180°) · Bottom **P7|P8** · right = Pitch 1 (sidelines only). "
+        "Left top · South left · North right · **P10|P8 / P7|P9** · pitch map below (cw90). "
         "Hide sidebar for a bigger video."
     )
-    col_vid, col_pitch = st.columns([2.35, 0.75], gap="small")
-    with col_vid:
-        st.image(
-            cv2.cvtColor(stage, cv2.COLOR_BGR2RGB),
-            use_container_width=True,
-            caption=stage_caption,
+    st.image(
+        cv2.cvtColor(coach_stack, cv2.COLOR_BGR2RGB),
+        use_container_width=True,
+        caption=stage_caption,
+    )
+    pitch_cap = (
+        f"Pitch 1 below cameras · {len(players)} players · ball "
+        f"{'shown' if ball_xy else 'not shown'}"
+        if simple
+        else f"Pitch 1 · {len(players)}p · ball={'yes' if ball_xy else 'no'}"
+    )
+    st.caption(pitch_cap)
+    if simple:
+        st.caption("Blue & red = teams · grey = unsure · yellow = ball")
+    elif fused.get("source") == "live":
+        st.caption(
+            f"Live map {fused['n_cams']} cams · blue/red=team · gray=unsure · yellow=ball"
         )
-        st.image(
-            cv2.cvtColor(events_bar, cv2.COLOR_BGR2RGB),
-            use_container_width=True,
-            caption="Events — Pass · Dribble · Movement · Recovery · Shot",
-        )
-    with col_pitch:
-        pitch_cap = (
-            f"Mini pitch map · {len(players)} players · ball {'shown' if ball_xy else 'not shown'}"
-            if simple
-            else f"Pitch 1 · {len(players)}p · ball={'yes' if ball_xy else 'no'}"
-        )
-        st.image(
-            cv2.cvtColor(pitch_panel, cv2.COLOR_BGR2RGB),
-            use_container_width=True,
-            caption=pitch_cap,
-        )
-        if simple:
-            st.caption("Blue & red = teams · grey = unsure · yellow = ball")
-        elif fused.get("source") == "live":
-            st.caption(
-                f"Live map {fused['n_cams']} cams · blue/red=team · gray=unsure · yellow=ball"
-            )
-        elif fused["n_cams"] > 1:
-            st.caption(f"Fused {fused['n_cams']} cams · blue T0 · red T1")
-        else:
-            st.caption("Single-cam · blue T0 · red T1")
+    elif fused["n_cams"] > 1:
+        st.caption(f"Fused {fused['n_cams']} cams · blue T0 · red T1")
+    else:
+        st.caption("Single-cam · blue T0 · red T1")
+    st.image(
+        cv2.cvtColor(events_bar, cv2.COLOR_BGR2RGB),
+        use_container_width=True,
+        caption="Events — Pass · Dribble · Movement · Recovery · Shot",
+    )
 
     if show_zoom and H_inv is not None:
         with st.expander("Ball zoom", expanded=False):

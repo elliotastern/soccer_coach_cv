@@ -24,7 +24,7 @@
       "L2 P1/P6 center overlap \u22655"
     ],
     "h1_support": [
-      "H1 MIN_SUPPORT=0.25"
+      "H1 MIN_SUPPORT=0.20 (holdout A/B promote)"
     ],
     "c1_fn": [
       "C1 FN audit + hull ok"

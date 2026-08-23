@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-22T10:51:27.763438+00:00",
+  "ts": "2026-08-23T02:38:38.019969+00:00",
   "root": "reports/eval_match3/improve_eng_loop/phase1_proof",
   "clips": [
     {
@@ -35,7 +35,7 @@
       "video": "phase1_proof/mapping/coach_mosaic_pitch_min.mp4",
       "source_dir": "reports/eval_match3/improve_eng_loop/player_map/check_15s_s4",
       "duration_s": 15.0,
-      "ball_frame_frac": 0.956,
+      "ball_frame_frac": 0.933,
       "n_emits": 2,
       "events_bar": true,
       "copied_files": [
@@ -49,9 +49,9 @@
       "video": "phase1_proof/players_team/coach_mosaic_pitch_min.mp4",
       "source_dir": "reports/eval_match3/improve_eng_loop/players_pitch/check_15s_s4",
       "duration_s": 15.0,
-      "ball_frame_frac": 0.88,
-      "n_emits": 0,
-      "events_bar": null,
+      "ball_frame_frac": 0.933,
+      "n_emits": 2,
+      "events_bar": true,
       "copied_files": [
         "reports/eval_match3/improve_eng_loop/phase1_proof/players_team/coach_mosaic_pitch_min.mp4",
         "reports/eval_match3/improve_eng_loop/phase1_proof/players_team/meta.json"

@@ -1,6 +1,12 @@
 {
-  "status": "done",
+  "status": "done_best_train100",
   "kept": 100,
-  "out": "data/processed/gold_sets/match2_large_ball_harvest_batch2",
-  "editor": "http://127.0.0.1:8080/match2-harvest?pack=/data/processed/gold_sets/match2_large_ball_harvest_batch2"
+  "out": "/Volumes/LaCie/Projects/Soccer Coach CV/data/processed/gold_sets/match2_train_label100",
+  "cams": {
+    "Cam5plus": 40,
+    "Cam4plus": 39,
+    "P10": 21
+  },
+  "editor": "http://127.0.0.1:8080/match2-train100",
+  "updated_unix": 1786574091.9557838
 }

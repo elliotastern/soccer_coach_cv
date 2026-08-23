@@ -2,6 +2,25 @@
 
 Current delivery focus for this repository. Broader roadmap: [PHASES.md](PHASES.md). Vision: [VISION.md](VISION.md). Official pitch: [PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md) (Pitch 1 / Field 1, not FIFA 105×68).
 
+**Status snapshot:** [PHASE1_STATUS.md](PHASE1_STATUS.md)
+
+## Scope of work — Phase 1 technical POC
+
+Phase 1 delivers a **Python-based computer vision pipeline** for automated tactical data extraction. It is a robust **technical proof-of-concept** aimed at **dataset generation** (structured events + pitch locations), not live coaching deployment.
+
+| Pillar | Scope |
+|--------|--------|
+| **1. Automated vision engine** | Tracking (players + ball), team ID (A vs B), pixel → pitch `(x, y)` mapping, batch processing of multiple match files |
+| **2. Heuristic event logic** | Physics / rule-based pass, dribble, movement, recovery, shot — tuned for wide-angle broadcast-style views |
+| **3. Safety & review** | Checkpoint saving (incremental disk writes); Streamlit dashboard for low-confidence review; manual corrections persisted to the dataset |
+| **4. Data output** | Phase 2–ready **CSV/JSON**: `Timestamp`, `Team_ID`, `Player_ID`, `Event`, `Location` |
+
+**Deliverables:** full Python source; local desktop app (Streamlit review).
+
+**Implementation note:** scope documents may say “YOLO”; this product uses **RF-DETR** detection and **ByteTrack** tracking (precision-first, commercial-safe stack). Behaviour matches the intent above.
+
+---
+
 ## Constraints
 
 | Constraint | Requirement |
@@ -95,3 +114,19 @@ Client-ok path: combine **P1, P6, P7, P8, P10, P12** for system ball **R ≥ 0.8
 - Predictive pre-event signaling and learned coaching models
 - Kalman / short-horizon trajectory prediction for live cues
 - Wearable command encoding and live haptic deployment
+
+## What needs to be done next (to close Phase 1)
+
+Ordered by acceptance criteria in §5 — not new scope.
+
+| Priority | Work | Why it blocks sign-off |
+|----------|------|-------------------------|
+| **1** | **Batch end-to-end on 2 full matches** — `apps/batch_pipeline.py`, checkpoints, resume, CSV/JSON export | Acceptance §5.1; batch/checkpoints still unproven on full files |
+| **2** | **Heuristic events in batch + review** — pass / shot / recovery proven on exported timeline; add **dribble + movement** (E2) | Events pass eng-loop slices only; not yet closed on a full match in review |
+| **3** | **3rd-match handover run** — client processes one match with guided walkthrough | Acceptance §5.2 |
+| **4** | **Player map polish (secondary)** — quad eng-loop PASS; residual P8 upper `H_player` / P9 edge drops; goal cams mostly OK after P_Goal2 hull | Improves `Location` quality in export; not a substitute for §1–3 |
+| **5** | **Gold100 / PoC stamp** — document P_emit + holdout clear-ball on agreed clips | Ball + clear-ball gates largely met on Match 3 strips; formal benchmark write-up for handover |
+
+**Already in good shape for demo:** Match 3 multi-cam mosaic + Pitch 1 review, ball map (F0 fuse, holdout clear_R ~0.88), team colors, Streamlit coach UI, player boxes → pitch dots on quad cams (+ P_Goal2 hull fix).
+
+**Explicitly not Phase 1:** multi-cam temporal fusion beyond current fuse, learned event models, live RTSP / wearables — see [PHASES.md](PHASES.md).

@@ -26,20 +26,118 @@ from src.mapping.match3_xy import (  # noqa: E402
 from src.review.frame_sync import draw_det_boxes, keep_top1_ball  # noqa: E402
 from src.review.pitch1_panel import PITCH_LEN_M, PITCH_WID_M  # noqa: E402
 
-# Coach mosaic (user-locked pitch order):
-#   Top  (far):  P10 left | P9 right  — both rotated 180°
-#   Bottom (near): P7 left | P8 right — upright
+# Coach mosaic — compass rotated 90° CW from north-up (+y left on pitch):
+#   Top: Left touchline   Bottom: Right touchline
+#   Left side: South      Right side: North
+#   Grid: top P10|P8 (left sideline) · bottom P7|P9 (right sideline)
 QUAD_GRID = [
-    ["P10", "P9"],  # top
-    ["P7", "P8"],   # bottom
+    ["P10", "P8"],
+    ["P7", "P9"],
 ]
-QUAD_ROTATE_180 = frozenset({"P10", "P9"})
+QUAD_ROTATE_180 = frozenset({"P10", "P7"})
+MOSAIC_MAP_ORIENT = "cw90"
+MOSAIC_COMPASS_TOP = "Left"
+MOSAIC_COMPASS_BOTTOM = "Right"
+MOSAIC_COMPASS_WEST = "South"
+MOSAIC_COMPASS_EAST = "North"
+MOSAIC_SIDE_W = 34
+MOSAIC_BAN_H = 26
+MOSAIC_NORTH_H = 16
+MOSAIC_SOUTH_H = 16
+MOSAIC_CAM_H = 14
+MOSAIC_CHROME_BG = (28, 42, 32)
+MOSAIC_GAP_GREEN = (40, 90, 50)
+
+
+def mosaic_grid_size(tile_w: int, tile_h: int, gap: int = 2) -> tuple[int, int]:
+    """Video grid px (w, h) inside mosaic left/right chrome."""
+    return 2 * tile_w + gap, 2 * tile_h + gap
+
+
+def mosaic_total_width(tile_w: int, gap: int = 2) -> int:
+    grid_w, _ = mosaic_grid_size(tile_w, 0, gap)
+    return MOSAIC_SIDE_W + grid_w + MOSAIC_SIDE_W
+
+
+def pitch_stack_metrics(
+    grid_w: int,
+    grid_h: int,
+    *,
+    drop_top: bool = True,
+    scale: float = 0.46,
+    map_orient: str = MOSAIC_MAP_ORIENT,
+) -> dict[str, int]:
+    """Pitch band below mosaic — cw90: south left, north right, left top, right bottom."""
+    from src.review.pitch1_panel import (
+        PITCH_LEN_M,
+        PITCH_WID_M,
+        _TIGHT_NORTH_H,
+        _TIGHT_SOUTH_H,
+        _TIGHT_STAT_H,
+    )
+
+    if map_orient == "cw90":
+        field_w = max(96, int(round(grid_w * scale)))
+        field_h = max(48, int(round(field_w * PITCH_WID_M / PITCH_LEN_M)))
+    else:
+        field_h = max(72, int(round(grid_h * scale)))
+        field_w = max(48, int(round(field_h * PITCH_WID_M / PITCH_LEN_M)))
+    top_h = 0 if drop_top else _TIGHT_NORTH_H
+    panel_h = _TIGHT_STAT_H + top_h + field_h + _TIGHT_SOUTH_H
+    panel_w = MOSAIC_SIDE_W + grid_w + MOSAIC_SIDE_W
+    return {
+        "panel_w": panel_w,
+        "panel_h": panel_h,
+        "field_w": field_w,
+        "field_h": field_h,
+        "band_w": grid_w,
+        "map_orient": map_orient,
+    }
+
+
+def pitch_panel_height_for_stack(grid_w: int, drop_north: bool = True) -> int:
+    """Legacy helper — use pitch_stack_metrics when grid_h is known."""
+    from src.review.pitch1_panel import PITCH_LEN_M, PITCH_WID_M, _TIGHT_SOUTH_H, _TIGHT_STAT_H
+
+    field_h = int(round(grid_w * PITCH_WID_M / PITCH_LEN_M))
+    north_h = 0 if drop_north else MOSAIC_NORTH_H
+    return _TIGHT_STAT_H + north_h + field_h + _TIGHT_SOUTH_H
+
+
+def compose_coach_stack(
+    mosaic: np.ndarray,
+    pitch: np.ndarray,
+    *,
+    connect: bool = True,
+) -> np.ndarray:
+    """Stack mosaic over pitch; trim duplicate N/S chrome and align widths."""
+    if pitch.shape[1] != mosaic.shape[1]:
+        pitch = cv2.resize(
+            pitch,
+            (mosaic.shape[1], int(pitch.shape[0] * mosaic.shape[1] / pitch.shape[1])),
+        )
+    top = mosaic
+    if connect and top.shape[0] > MOSAIC_SOUTH_H:
+        top = top[:-MOSAIC_SOUTH_H, :]
+    parts = [top]
+    if connect:
+        seam = np.zeros((3, mosaic.shape[1], 3), dtype=np.uint8)
+        seam[:] = MOSAIC_GAP_GREEN
+        cv2.line(
+            seam, (MOSAIC_SIDE_W, 1), (mosaic.shape[1] - MOSAIC_SIDE_W, 1),
+            (220, 220, 220), 1, cv2.LINE_AA,
+        )
+        parts.append(seam)
+    parts.append(pitch)
+    return np.vstack(parts)
+
+
 ENDS = ["P1", "P6"]  # south / north
 GOALS = ["P_Goal1", "P_Goal2"]
 ALL_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 
 VIEW_OPTIONS = [
-    "Whole pitch (P10|P9 top 180° · P7|P8 bottom)",
+    "Whole pitch (Left top · South left · P10|P8 / P7|P9)",
     "P1 + P6 (ends)",
     "Goals (Goal1 + Goal2)",
     "Best camera (ball)",
@@ -47,10 +145,10 @@ VIEW_OPTIONS = [
 
 # Corner names a coach understands
 COACH_CORNER = {
-    "P10": "Top · left · P10 (180°)",
-    "P9": "Top · right · P9 (180°)",
-    "P7": "Bottom · left · P7",
-    "P8": "Bottom · right · P8",
+    "P10": "South · left · P10 (180°)",
+    "P8": "North · left · P8",
+    "P7": "South · right · P7 (180°)",
+    "P9": "North · right · P9",
 }
 
 DetectFn = Callable[[str, np.ndarray], list]
@@ -136,17 +234,17 @@ def _scale_dets(dets: list, scale: float, x0: int, y0: int) -> list:
 
 
 def _label_tile(tile: np.ndarray, text: str, missing: bool = False) -> np.ndarray:
-    """Compact corner chip — readable, not a tech banner."""
+    """Error/missing tile only — normal cells use header labels, not on-video overlay."""
     out = tile.copy()
-    color = (0, 165, 255) if missing else (255, 255, 255)
-    (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
-    pad = 8
-    cv2.rectangle(out, (0, 0), (tw + pad * 2, th + pad * 2), (0, 0, 0), -1)
-    cv2.putText(out, text, (pad, th + pad - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
     if missing:
+        color = (0, 165, 255)
         cv2.putText(
-            out, "NO CAMERA", (10, out.shape[0] // 2),
-            cv2.FONT_HERSHEY_SIMPLEX, 1.0, (80, 80, 200), 2,
+            out, text, (10, out.shape[0] // 2),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2,
+        )
+        cv2.putText(
+            out, "NO CAMERA", (10, out.shape[0] // 2 + 28),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.9, (80, 80, 200), 2,
         )
     return out
 
@@ -403,7 +501,74 @@ def _tile(
             coach_simple=True,
             min_ball_conf=0.18,
         )
-    return _label_tile(tile, COACH_CORNER.get(cam, cam))
+    return tile
+
+
+def _mosaic_compass_row(
+    width: int, height: int, text: str, bg: tuple[int, int, int] = (28, 42, 32),
+) -> np.ndarray:
+    strip = np.zeros((height, width, 3), dtype=np.uint8)
+    strip[:] = bg
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fs, thick = 0.46, 1
+    (tw, th), _ = cv2.getTextSize(text, font, fs, thick)
+    cv2.putText(
+        strip, text, ((width - tw) // 2, (height + th) // 2 - 1),
+        font, fs, (210, 210, 210), thick, cv2.LINE_AA,
+    )
+    return strip
+
+
+def _mosaic_side_label(width: int, height: int, text: str) -> np.ndarray:
+    strip = np.zeros((height, width, 3), dtype=np.uint8)
+    strip[:] = (28, 42, 32)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fs, thick = 0.44, 1
+    (tw, th), _ = cv2.getTextSize(text, font, fs, thick)
+    cv2.putText(
+        strip, text, (max(2, (width - tw) // 2), (height + th) // 2),
+        font, fs, (210, 210, 210), thick, cv2.LINE_AA,
+    )
+    return strip
+
+
+def _mosaic_cam_pair_row(
+    width: int,
+    height: int,
+    left_cam: str,
+    right_cam: str,
+    left_tile_w: int,
+    gap: int,
+) -> np.ndarray:
+    """Camera ids centered over each mosaic column (outside the video tiles)."""
+    strip = np.zeros((height, width, 3), dtype=np.uint8)
+    strip[:] = (28, 42, 32)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fs, thick = 0.44, 1
+    split = left_tile_w + gap
+    for cam, cx in ((left_cam, left_tile_w // 2), (right_cam, split + (width - split) // 2)):
+        (tw, th), _ = cv2.getTextSize(cam, font, fs, thick)
+        cv2.putText(
+            strip, cam, (max(0, cx - tw // 2), (height + th) // 2 - 1),
+            font, fs, (170, 220, 255), thick, cv2.LINE_AA,
+        )
+    return strip
+
+
+def _mosaic_banner(col_w: int, ban_h: int = 26) -> np.ndarray:
+    strip = np.zeros((ban_h, col_w, 3), dtype=np.uint8)
+    strip[:] = (28, 42, 32)
+    cv2.putText(
+        strip, "WHOLE PITCH", (12, 18),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 255, 255), 2, cv2.LINE_AA,
+    )
+    cv2.putText(
+        strip,
+        "Green=player  Orange=ball",
+        (168, 18),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.48, (200, 255, 200), 1, cv2.LINE_AA,
+    )
+    return strip
 
 
 def mosaic_grid(tiles: list[list[np.ndarray]], gap: int = 4) -> np.ndarray:
@@ -814,34 +979,40 @@ def mosaic_quads_coach(
             apply_defish=apply_defish,
         )
 
-    grid = [
-        [cell("P10"), cell("P9")],  # top · P10/P9 @ 180°
-        [cell("P7"), cell("P8")],   # bottom · P7/P8 upright
-    ]
-    # Tight pitch-green gap so it reads as one field, not four windows
-    mosaic = mosaic_grid(grid, gap=2)
-    ban_h = 52
-    out = np.zeros((mosaic.shape[0] + ban_h, mosaic.shape[1], 3), dtype=np.uint8)
-    out[:] = (28, 42, 32)
-    out[ban_h:] = mosaic
-    cv2.putText(
-        out,
-        "WHOLE PITCH",
-        (14, 34),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        1.0,
-        (255, 255, 255),
-        2,
+    row_top = [cell(c) for c in QUAD_GRID[0]]
+    row_bot = [cell(c) for c in QUAD_GRID[1]]
+    gap = 2
+    mosaic_body = mosaic_grid([row_top, row_bot], gap=gap)
+    grid_w, grid_h = mosaic_body.shape[1], mosaic_body.shape[0]
+    side_w = MOSAIC_SIDE_W
+    north_h = MOSAIC_NORTH_H
+    south_h = MOSAIC_SOUTH_H
+    cam_h = MOSAIC_CAM_H
+    ban_h = MOSAIC_BAN_H
+    tile_w = row_top[0].shape[1]
+    total_w = side_w + grid_w + side_w
+    total_h = ban_h + north_h + cam_h + grid_h + cam_h + south_h
+    out = np.zeros((total_h, total_w, 3), dtype=np.uint8)
+    out[:] = MOSAIC_CHROME_BG
+    out[0:ban_h, 0:total_w] = _mosaic_banner(total_w, ban_h)
+    y = ban_h
+    out[y : y + north_h, 0:total_w] = _mosaic_compass_row(total_w, north_h, MOSAIC_COMPASS_TOP)
+    y += north_h
+    out[y : y + cam_h, side_w : side_w + grid_w] = _mosaic_cam_pair_row(
+        grid_w, cam_h, QUAD_GRID[0][0], QUAD_GRID[0][1], tile_w, gap,
     )
-    cv2.putText(
-        out,
-        "Top P10|P9 (180)   Bottom P7|P8    Green=player  Orange=ball (1)",
-        (260, 34),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.65,
-        (200, 255, 200),
-        2,
+    y += cam_h
+    out[y : y + grid_h, side_w : side_w + grid_w] = mosaic_body
+    out[y : y + grid_h, 0:side_w] = _mosaic_side_label(side_w, grid_h, MOSAIC_COMPASS_WEST)
+    out[y : y + grid_h, side_w + grid_w : total_w] = _mosaic_side_label(
+        side_w, grid_h, MOSAIC_COMPASS_EAST,
     )
+    y += grid_h
+    out[y : y + cam_h, side_w : side_w + grid_w] = _mosaic_cam_pair_row(
+        grid_w, cam_h, QUAD_GRID[1][0], QUAD_GRID[1][1], tile_w, gap,
+    )
+    y += cam_h
+    out[y : y + south_h, 0:total_w] = _mosaic_compass_row(total_w, south_h, MOSAIC_COMPASS_BOTTOM)
     return out
 
 

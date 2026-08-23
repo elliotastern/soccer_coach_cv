@@ -10,7 +10,7 @@
 |------|------|-------------------:|
 | Tune random | report-only | 0.625 |
 | **Holdout** | **gate** | **0.884** (was 0.556 freeze) |
-| Strips product-F0 | P_emit / clear_R | P10 1.0 / 0.876 · P8 0.966 / 0.801 |
+| Strips product-F0 | P_emit / clear_R | P10 1.0 / **0.879** · P8 0.966 / 0.801 |
 
 ## Map-first pass (compute-safe)
 

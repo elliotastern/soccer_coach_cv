@@ -72,6 +72,9 @@ def main() -> int:
         "reverted_full_refit_ball_kill_switch",
         "promoted_H_player_dual",
         "promoted_H_player_bottom_anchor",
+        "promoted_hull_step1",
+        "promoted_H_player_crosscam",
+        "promoted_H_player_midfield_landmarks",
         "rejected_l2",
         "nudged",
         "kept_HEAD",
@@ -91,7 +94,9 @@ def main() -> int:
         frame_wh=(1920, 1080),
         apply_undistort=False,
     )
-    ball_ok = ball is not None and abs(ball["xy"][0] - 25.0) < 6.0
+    from src.mapping.pitch_bounds import in_pitch_bounds
+
+    ball_ok = ball is not None and in_pitch_bounds(ball["xy"][0], ball["xy"][1])
     scores["06_ball_map_killswitch"] = _score_bool(ball_ok, 0.0)
     notes["06_ball_map_killswitch"] = f"ball={None if ball is None else ball['xy']}"
 

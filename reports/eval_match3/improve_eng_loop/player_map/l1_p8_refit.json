@@ -1,28 +1,105 @@
 {
-  "status": "rejected_l2",
-  "l2": "H_player_ball_foot_anchor",
-  "ball_anchor_px": [
-    1404.8,
-    972.6
+  "ts": "2026-08-22T19:18:41.893914+00:00",
+  "status": "promoted_hull_step1",
+  "l2": "H_player_midfield_step1",
+  "midfield_still": "reports/eval_match3/landmark_dashboard/stills/P8_midfield_candidate.jpg",
+  "midfield_frame": 2746,
+  "hull_added": [
+    [
+      149.27,
+      89.39
+    ],
+    [
+      1251.89,
+      200.38
+    ],
+    [
+      1457.48,
+      177.76
+    ],
+    [
+      414.6808166503906,
+      223.21377563476562
+    ],
+    [
+      461.32688903808594,
+      198.23094177246094
+    ],
+    [
+      557.7807312011719,
+      140.55775451660156
+    ],
+    [
+      1500.0993041992188,
+      212.5358428955078
+    ],
+    [
+      1483.1806030273438,
+      205.70166015625
+    ],
+    [
+      1416.681396484375,
+      293.72998046875
+    ],
+    [
+      1467.89501953125,
+      200.61102294921875
+    ],
+    [
+      1452.98388671875,
+      190.53289794921875
+    ],
+    [
+      1364.465087890625,
+      272.9945068359375
+    ],
+    [
+      1336.1912231445312,
+      243.35324096679688
+    ],
+    [
+      1442.380859375,
+      190.03167724609375
+    ]
   ],
-  "ball_anchor_pitch": [
-    25.008,
-    -13.3015
-  ],
-  "player_landmark_rt_max_m": 58.4501,
+  "n_hull_added": 14,
+  "n_crosscam_constraints": 11,
+  "crosscam_h_player_rt_probe_m": 0.6959,
+  "crosscam_note": "Single H_player cannot fit north landmarks + midfield feet (RT>0.15). Use still for manual midfield landmark clicks before next H_player refit.",
   "ball_ok_on_H": true,
-  "bottom_mapped_frac": {
-    "before": 0.9412,
-    "after": 0.9412,
-    "ok_before": 16,
-    "ok_after": 16,
-    "total_bottom": 17
+  "mapped_frac_product": {
+    "before": 0.9885,
+    "after": 1.0
   },
-  "weights": {
-    "landmarks": 8.0,
-    "ball_anchor": 4.0
+  "bands_h_player_only": {
+    "before": {
+      "top": {
+        "ok": 53,
+        "fail": 1
+      },
+      "mid": {
+        "ok": 17,
+        "fail": 0
+      },
+      "bottom": {
+        "ok": 16,
+        "fail": 0
+      }
+    },
+    "after": {
+      "top": {
+        "ok": 54,
+        "fail": 0
+      },
+      "mid": {
+        "ok": 17,
+        "fail": 0
+      },
+      "bottom": {
+        "ok": 16,
+        "fail": 0
+      }
+    }
   },
-  "promote": false,
-  "reason": "rt",
-  "zone_fallback": "P8 map_player_box retries H when H_player off_pitch and foot y>=520"
+  "next_manual": "Click circle_near / halfway on P8_midfield_candidate.jpg in landmark dashboard"
 }

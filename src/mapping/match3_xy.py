@@ -21,7 +21,8 @@ SUPPORT_PX = 180.0
 MIN_SUPPORT = 0.20
 # Players: softer hull than ball (coach XY recall); ball emit path unchanged.
 PLAYER_MIN_SUPPORT = 0.10
-P8_LOWER_ZONE_Y = 520.0
+# P8: when H_player fails, retry ball H for feet in lower/mid image (north-goal still H_player).
+P8_LOWER_ZONE_Y = 350.0
 # F3: drop weak maps that disagree with the max-conf anchor (ghost prune).
 GHOST_CONF = 0.45
 MATCH3_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]

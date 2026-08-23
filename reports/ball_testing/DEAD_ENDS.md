@@ -22,6 +22,7 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | P10 `hull_image_points` (lower FOV) | Holdout R **0.556 → 0.867**; strip P_emit held |
 | H1 MIN_SUPPORT **0.25 → 0.20** | Holdout R **0.867 → 0.884**; strip P held → **promoted** |
 | Other-cam ≥0.80 on clear FNs | **0/28** — residual is map/det, not fuse drop |
+| L1 white-line re-click P8/P9 (≤18 px; hull preserved) | RT ≤ 0.15; P10 clear_R **0.876→0.879**; P8/holdout flat; strip P held |
 
 ## Residual (not fixed)
 

@@ -240,8 +240,8 @@ def score_live_tile(
 
 
 def score_layout() -> tuple[float, str]:
-    expect = [["P10", "P9"], ["P7", "P8"]]
-    ok = QUAD_GRID == expect and set(QUAD_ROTATE_180) == {"P10", "P9"}
+    expect = [["P10", "P8"], ["P7", "P9"]]
+    ok = QUAD_GRID == expect and set(QUAD_ROTATE_180) == {"P10", "P7"}
     return (10.0 if ok else 0.0), f"layout {'PASS' if ok else 'FAIL'} {QUAD_GRID}"
 
 

@@ -11,7 +11,7 @@
   ],
   "n_frames": 299,
   "n_clear": 243,
-  "n_gold_xy": 217,
+  "n_gold_xy": 248,
   "seed": {
     "accept_conf": 0.55,
     "clear_side": 25,
@@ -2470,10 +2470,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -0.6210268758680276,
+            15.184211167341267
+          ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": null
+          "gold_support": 0.23286336263020835
         },
         "P_Goal1": {
           "prelabel": null
@@ -2531,8 +2534,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -0.720778765180642,
+            14.966825278745334
+          ],
+          "gold_support": 0.38504977756076386,
           "seed_conf": 0.7767473459243774,
           "seed_side": 28.31732177734375
         },
@@ -2574,10 +2580,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -0.8707649285526795,
+            14.934918449130576
+          ],
           "human_conf": 1,
           "seed_side": 42.13166144200625,
-          "gold_support": null
+          "gold_support": 0.4480400933159723
         },
         "P_Goal1": {
           "prelabel": null
@@ -2635,8 +2644,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -0.9807799741226152,
+            14.647016564520246
+          ],
+          "gold_support": 0.6328043619791667,
           "seed_conf": 0.8536096215248108,
           "seed_side": 28.125732421875
         },
@@ -2687,10 +2699,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -1.1397965039906726,
+            14.579609080328067
+          ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": null
+          "gold_support": 0.7126264784071181
         },
         "P_Goal1": {
           "prelabel": null
@@ -2757,8 +2772,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -1.3069004451080788,
+            14.378230919249761
+          ],
+          "gold_support": 0.8595106336805556,
           "seed_conf": 0.8679304718971252,
           "seed_side": 31.106689453125
         },
@@ -2800,10 +2818,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -1.473526810138093,
+            14.308093044038532
+          ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": null
+          "gold_support": 0.938128662109375
         },
         "P_Goal1": {
           "prelabel": null
@@ -2870,8 +2891,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -1.659111791263147,
+            14.074706515046152
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8292953968048096,
           "seed_side": 31.3134765625
         },
@@ -2913,10 +2937,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -1.8484757055691277,
+            14.044901793570215
+          ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -2983,8 +3010,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -2.0275262577603246,
+            13.766462382160741
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8390403389930725,
           "seed_side": 31.87652587890625
         },
@@ -3026,10 +3056,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -2.2338659825125533,
+            13.701227336626484
+          ],
           "human_conf": 1,
           "seed_side": 44.137931034482676,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3087,8 +3120,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -2.4103173788504435,
+            13.382412597703581
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8285618424415588,
           "seed_side": 29.554443359375
         },
@@ -3130,10 +3166,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -2.6394720715234326,
+            13.371305056753654
+          ],
           "human_conf": 1,
           "seed_side": 40.12539184952982,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3191,8 +3230,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -2.792218977369,
+            13.1123519228569
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8918771743774414,
           "seed_side": 34.30023193359375
         },
@@ -3234,10 +3276,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -2.993316876646953,
+            12.994618389666835
+          ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3304,8 +3349,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -3.192016882656972,
+            12.704005596474833
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8908630609512329,
           "seed_side": 31.71630859375
         },
@@ -3347,10 +3395,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -3.3863505239179066,
+            12.666525871386307
+          ],
           "human_conf": 1,
           "seed_side": 42.13166144200625,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3408,8 +3459,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -3.602044309647478,
+            12.397608593115292
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8801066279411316,
           "seed_side": 35.13104248046875
         },
@@ -3451,10 +3505,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -3.7949897675374675,
+            12.322479990561307
+          ],
           "human_conf": 1,
           "seed_side": 48.15047021943576,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3512,8 +3569,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -4.0223672002453235,
+            12.003728112813793
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8401985764503479,
           "seed_side": 31.46099853515625
         },
@@ -3555,10 +3615,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -4.254431055175174,
+            11.945847180394354
+          ],
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3625,8 +3688,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -4.439463714394986,
+            11.598782727791857
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8250898718833923,
           "seed_side": 26.34173583984375
         },
@@ -3668,10 +3734,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -4.68849145455042,
+            11.588735272397209
+          ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3738,8 +3807,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -4.906791503643462,
+            11.28500611950449
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8729461431503296,
           "seed_side": 29.4949951171875
         },
@@ -3781,10 +3853,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -5.135380971052506,
+            11.2751699215674
+          ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3860,8 +3935,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -5.372899348529647,
+            10.964426853616247
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8586711287498474,
           "seed_side": 30.706298828125
         },
@@ -3903,10 +3981,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -5.607582126329431,
+            10.912418244588974
+          ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -3964,8 +4045,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -5.782313833298285,
+            10.601193674591492
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8401104807853699,
           "seed_side": 31.735137939453125
         },
@@ -4007,10 +4091,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -5.986600751993458,
+            10.511971899917178
+          ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4077,8 +4164,11 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
-          "gold_support": null,
+          "gold_xy": [
+            -6.203785946414209,
+            10.194503022292382
+          ],
+          "gold_support": 1.0,
           "seed_conf": 0.8658285140991211,
           "seed_side": 29.142303466796875
         },
@@ -4120,10 +4210,13 @@
           ],
           "empty": false,
           "clear": true,
-          "gold_xy": null,
+          "gold_xy": [
+            -6.400837357011881,
+            10.212358539675174
+          ],
           "human_conf": 1,
           "seed_side": 44.13793103448273,
-          "gold_support": null
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4185,7 +4278,7 @@
             -6.6433343136813825,
             9.885616760367418
           ],
-          "gold_support": 0.3229775829175483,
+          "gold_support": 1.0,
           "seed_conf": 0.8547289371490479,
           "seed_side": 31.157440185546875
         },
@@ -4233,7 +4326,7 @@
           ],
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": 0.3757791993465873
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4295,7 +4388,7 @@
             -7.049460531172055,
             9.51077179516222
           ],
-          "gold_support": 0.4663203628036402,
+          "gold_support": 1.0,
           "seed_conf": 0.8356356024742126,
           "seed_side": 27.681304931640625
         },
@@ -4343,7 +4436,7 @@
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 0.49323993625119456
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4405,7 +4498,7 @@
             -7.469188620091973,
             9.250662833474179
           ],
-          "gold_support": 0.5786981678316858,
+          "gold_support": 1.0,
           "seed_conf": 0.8667632341384888,
           "seed_side": 30.395660400390625
         },
@@ -4453,7 +4546,7 @@
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457679,
-          "gold_support": 0.608170753664363
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4515,7 +4608,7 @@
             -7.885776981224248,
             8.956763707796934
           ],
-          "gold_support": 0.6934989701423696,
+          "gold_support": 1.0,
           "seed_conf": 0.7862601280212402,
           "seed_side": 30.125091552734375
         },
@@ -4563,7 +4656,7 @@
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457679,
-          "gold_support": 0.706167595551608
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4625,7 +4718,7 @@
             -8.270693105696846,
             8.732596052425162
           ],
-          "gold_support": 0.7853971688749457,
+          "gold_support": 1.0,
           "seed_conf": 0.869879961013794,
           "seed_side": 31.7630615234375
         },
@@ -4673,7 +4766,7 @@
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 0.8119378899061718
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4744,7 +4837,7 @@
             -8.71798212958185,
             8.434476147144707
           ],
-          "gold_support": 0.8957878141594423,
+          "gold_support": 1.0,
           "seed_conf": 0.8187240958213806,
           "seed_side": 28.147552490234375
         },
@@ -4801,7 +4894,7 @@
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 0.8977529172881099
+          "gold_support": 1.0
         },
         "P_Goal1": {
           "prelabel": null
@@ -4872,7 +4965,7 @@
             -9.054752011143387,
             8.146162032189519
           ],
-          "gold_support": 0.9883543646711295,
+          "gold_support": 1.0,
           "seed_conf": 0.8497672080993652,
           "seed_side": 26.48944091796875
         },

@@ -14,7 +14,7 @@ Secondary Phase 1 gate: **clear-ball R ≥ 0.80** on product fuse; keep **P_emit
 ## Status
 
 - **Holdout** proxy R **0.884** (gate; freeze was 0.556) after P10 `hull_image_points` + MIN_SUPPORT 0.20.
-- Strips product-F0: P10 P/R 1.0/0.876 · P8 0.966/0.801.
+- Strips product-F0: P10 P/R 1.0/0.879 · P8 0.966/0.801.
 - Tune pack = report-only (0.625).
 - Log failures in `reports/ball_testing/DEAD_ENDS.md`. Details: `docs/product/MATCH3_CLEAR_BALL.md`.
 
