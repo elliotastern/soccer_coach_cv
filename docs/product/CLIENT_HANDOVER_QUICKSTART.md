@@ -52,13 +52,30 @@ pip install -r requirements.txt
 
 ### RTX 5090 — PyTorch cu128 (required)
 
-Stable `cu124` builds **do not** support Blackwell (sm_120). After `requirements.txt`:
+Stable `cu124` does **not** support Blackwell (sm_120). **Pin both** `torch` and `torchvision` — unpinned install backtracks and fails.
 
 ```bash
-pip uninstall torch torchvision torchaudio -y
-pip install --pre torch torchvision \
+cd ~/soccer_coach_cv
+git pull
+bash scripts/install_torch_rtx5090.sh
+```
+
+Or manual:
+
+```bash
+pip uninstall -y torch torchvision torchaudio
+pip install --pre \
+  torch==2.12.0.dev20260407 \
+  torchvision==0.27.0.dev20260407+cu128 \
   --index-url https://download.pytorch.org/whl/nightly/cu128 \
   --no-cache-dir
+```
+
+Do **not** re-run `pip install -r requirements.txt` after cu128 (caps `torch<=2.8`). Install other deps with:
+
+```bash
+grep -vE '^(torch|torchvision)' requirements.txt > /tmp/req-no-torch.txt
+pip install -r /tmp/req-no-torch.txt
 ```
 
 Verify:
