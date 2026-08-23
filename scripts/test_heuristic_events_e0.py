@@ -145,15 +145,22 @@ def test_dribble_needs_prev_proximity():
 
 def test_dribble_emits():
     det = EventDetector(enable_dribble=True)
-    dt = 1.0
-    prev, cur = _pair(
-        [_player(1, 0.0, 0.0, 0, 0.0)],
-        _ball(0.5, 0.0, 0, 0.0),
-        [_player(1, 0.2, 0.0, 1, dt)],
-        _ball(0.9, 0.0, 1, dt),
-        dt=dt,
-    )
-    ev = det.detect_dribble(cur, prev)
+    dt = 0.33
+    steps = [
+        ([_player(1, 0.0, 0.0, 0, 0.0)], _ball(0.0, 0.0, 0, 0.0)),
+        ([_player(1, 0.18, 0.0, 1, dt)], _ball(0.25, 0.0, 1, dt)),
+        ([_player(1, 0.36, 0.0, 2, 2 * dt)], _ball(0.55, 0.0, 2, 2 * dt)),
+        ([_player(1, 0.54, 0.0, 3, 3 * dt)], _ball(0.95, 0.0, 3, 3 * dt)),
+    ]
+    prev = None
+    ev = None
+    for i, (players, ball) in enumerate(steps):
+        cur = FrameData(i, i * dt, players, ball)
+        if prev is not None:
+            evs = det.detect_events(cur, prev)
+            if evs:
+                ev = evs[0]
+        prev = cur
     assert ev is not None and ev.type == EventType.DRIBBLE
     assert ev.confidence >= EMIT_CONF
 

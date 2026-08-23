@@ -148,11 +148,11 @@ def main() -> int:
         )
         t_s = (fr - args.start) / args.src_fps
         players = []
-        for j, p in enumerate(live["players"]):
-            # p = (x, y, team, ?)
+        for p in live["players"]:
             x, y = float(p[0]), float(p[1])
             team = int(p[2]) if len(p) > 2 else -1
-            players.append([j + 1, x, y, team])
+            pid = int(p[3]) if len(p) > 3 else 0
+            players.append([pid, x, y, team])
         ball = live["ball_xy"]
         rows.append(
             {

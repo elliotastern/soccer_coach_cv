@@ -10,6 +10,7 @@ import os
 import json
 import socket
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 PORT = 8080
@@ -502,6 +503,18 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(str(e).encode())
             return
         if self.path.split('?', 1)[0] in (
+            '/phase1-handover',
+            '/phase1-handover/',
+            '/phase1_handover',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/reports/eval_match3/improve_eng_loop/phase1_handover/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/landmark_marker',
             '/landmark_marker/',
             '/match3-landmarks',
@@ -789,6 +802,28 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
             return
+        if self.path == '/save_phase1_handover_labels':
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                path = (
+                    SCRIPT_DIR
+                    / 'reports/eval_match3/improve_eng_loop/phase1_handover/labels.json'
+                )
+                path.parent.mkdir(parents=True, exist_ok=True)
+                data['updated_at'] = datetime.now(timezone.utc).isoformat()
+                path.write_text(json.dumps(data, indent=2), encoding='utf-8')
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': True, 'path': str(path)}).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
         if self.path == '/save_match3_m1_labels':
             try:
                 content_length = int(self.headers.get('Content-Length', 0))
@@ -996,6 +1031,7 @@ def main():
     print(f"  P10 strip:     http://127.0.0.1:{port}/match3-m1-p10")
     print(f"  P8 strip:      http://127.0.0.1:{port}/match3-m1-p8")
     print(f"Match3 fisheye: http://127.0.0.1:{port}/match3-fisheye")
+    print(f"Phase 1 handover: http://127.0.0.1:{port}/phase1-handover")
     print(f"landmark_marker: http://127.0.0.1:{port}/landmark_marker")
     print(f"Match2 pitchmap: http://127.0.0.1:{port}/match2-pitchmap")
     print(f"SAHI hurt test: http://127.0.0.1:{port}/ball_sahi_hurt_test")

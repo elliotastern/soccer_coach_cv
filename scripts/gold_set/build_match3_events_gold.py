@@ -23,6 +23,21 @@ def _write(clip_id: str, timeline: dict, labels: dict, note: str):
     }
 
 
+def _frames_multi(steps: list, dt: float = 0.33):
+    """steps: list of (ball_xy, players_list) per frame."""
+    frames = []
+    for i, (ball, players) in enumerate(steps):
+        frames.append(
+            {
+                "frame_id": i,
+                "t": round(i * dt, 4),
+                "ball": list(ball),
+                "players": players,
+            }
+        )
+    return {"fps": 1.0 / dt, "dt": dt, "frames": frames}
+
+
 def _frames_two(ball0, ball1, players0, players1, dt=1.0):
     return {
         "fps": 1.0 / dt,
@@ -149,23 +164,25 @@ def main() -> int:
         )
     )
 
-    # Dribble: player and ball co-move in midfield
+    # Dribble: player and ball co-move over 3 steps (temporal window)
     clips.append(
         _write(
             "synth_dribble_midfield",
-            _frames_two(
-                (0.5, 0.0),
-                (0.9, 0.0),
-                [[1, 0.0, 0.0]],
-                [[1, 0.2, 0.0]],
-                dt=1.0,
+            _frames_multi(
+                [
+                    ((0.0, 0.0), [[1, 0.0, 0.0]]),
+                    ((0.25, 0.0), [[1, 0.18, 0.0]]),
+                    ((0.55, 0.0), [[1, 0.36, 0.0]]),
+                    ((0.95, 0.0), [[1, 0.54, 0.0]]),
+                ],
+                dt=0.33,
             ),
             {
                 "events": [
-                    {"type": "dribble", "t_start": 0.0, "t_end": 1.0, "frame_end": 1}
+                    {"type": "dribble", "t_start": 0.0, "t_end": 0.99, "frame_end": 3}
                 ]
             },
-            "Synthetic midfield dribble — expect emit dribble",
+            "Synthetic midfield dribble — expect emit dribble after window",
         )
     )
 

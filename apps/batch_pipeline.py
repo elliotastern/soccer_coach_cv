@@ -254,6 +254,9 @@ def process_video(
         movement_proximity=float(ev_cfg.get("movement_proximity", 4.0)),
         co_move_min_player_m=float(ev_cfg.get("co_move_min_player_m", 0.15)),
         co_move_min_cos=float(ev_cfg.get("co_move_min_cos", 0.55)),
+        dribble_window_frames=int(ev_cfg.get("dribble_window_frames", 3)),
+        dribble_min_carry_m=float(ev_cfg.get("dribble_min_carry_m", 0.6)),
+        dribble_co_move_streak=int(ev_cfg.get("dribble_co_move_streak", 2)),
     )
     event_manager = EventManager(
         checkpoint_interval=config["checkpoint"]["interval_frames"],

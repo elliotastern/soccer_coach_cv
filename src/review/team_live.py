@@ -187,6 +187,72 @@ def _dist_xy(a, b) -> float:
     return float(((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5)
 
 
+STABLE_PID_M = 2.8
+
+
+def assign_stable_player_ids(
+    players: list[tuple[float, float, int, int]],
+    prev_tracks: list[dict],
+    next_id: int,
+    sticky_m: float = STABLE_PID_M,
+) -> tuple[list[tuple[float, float, int, int]], list[dict], int]:
+    """Sticky pitch-xy ids for fused players (live fuse has no ByteTrack pid)."""
+    cur = [
+        {
+            "xy": (float(p[0]), float(p[1])),
+            "team": int(p[2]),
+            "pid": int(p[3]),
+            "age": 0,
+            "matched": False,
+        }
+        for p in players
+    ]
+    for c in cur:
+        near = None
+        best_d = float(sticky_m)
+        for q in prev_tracks:
+            d = _dist_xy(c["xy"], q["xy"])
+            if d <= best_d:
+                best_d = d
+                near = q
+        if near is not None:
+            near["matched"] = True
+            c["pid"] = int(near["pid"])
+        else:
+            c["pid"] = int(next_id)
+            next_id += 1
+    out_tracks = []
+    for c in cur:
+        out_tracks.append(
+            {
+                "xy": c["xy"],
+                "team": int(c["team"]),
+                "pid": int(c["pid"]),
+                "age": 0,
+                "matched": True,
+            }
+        )
+    for q in prev_tracks:
+        if q.get("matched"):
+            continue
+        age = int(q.get("age", 0)) + 1
+        if age > HOLD_MAX_GAP:
+            continue
+        out_tracks.append(
+            {
+                "xy": q["xy"],
+                "team": int(q["team"]),
+                "pid": int(q["pid"]),
+                "age": age,
+                "matched": False,
+            }
+        )
+    stable = [
+        (d["xy"][0], d["xy"][1], int(d["team"]), int(d["pid"])) for d in cur
+    ]
+    return stable, out_tracks, next_id
+
+
 def _vote_mode(votes: list[int]) -> int:
     """Majority team if ≥VOTE_MIN agree and beat runner-up; else gray."""
     labeled = [int(v) for v in votes if int(v) >= 0]
@@ -288,12 +354,14 @@ class TeamSession:
         self.radius: float | None = None
         self.prev: list[dict] = []
         self.prev_fused: list[dict] = []
+        self._next_stable_pid: int = 1
 
     def reset(self) -> None:
         self.centroids = None
         self.radius = None
         self.prev = []
         self.prev_fused = []
+        self._next_stable_pid = 1
 
     def _ema(self, feats: list[np.ndarray], labs: list[int]) -> None:
         if self.centroids is None:
@@ -365,23 +433,26 @@ class TeamSession:
                 if d <= best_d:
                     best_d = d
                     near = q
-            if near is None:
-                continue
-            near["matched"] = True
-            prior_votes = list(near.get("votes") or [])
-            obs = int(c["team"])
-            prior = int(near.get("team", -1))
-            # Gray-fill only — never overwrite a clear opposite kit observation
-            if obs < 0 and prior >= 0:
-                obs = prior
-            votes = (prior_votes + [obs])[-VOTE_LEN:]
-            c["votes"] = votes
-            voted = _vote_mode(votes)
-            if voted >= 0:
-                c["team"] = voted
-            elif prior >= 0 and int(c["team"]) < 0:
-                c["team"] = prior
-            # else keep raw obs (allows both kits to appear on first sightings)
+            if near is not None:
+                near["matched"] = True
+                c["pid"] = int(near["pid"])
+                prior_votes = list(near.get("votes") or [])
+                obs = int(c["team"])
+                prior = int(near.get("team", -1))
+                # Gray-fill only — never overwrite a clear opposite kit observation
+                if obs < 0 and prior >= 0:
+                    obs = prior
+                votes = (prior_votes + [obs])[-VOTE_LEN:]
+                c["votes"] = votes
+                voted = _vote_mode(votes)
+                if voted >= 0:
+                    c["team"] = voted
+                elif prior >= 0 and int(c["team"]) < 0:
+                    c["team"] = prior
+                # else keep raw obs (allows both kits to appear on first sightings)
+            else:
+                c["pid"] = self._next_stable_pid
+                self._next_stable_pid += 1
         held = []
         for q in self.prev_fused:
             if q.get("matched"):

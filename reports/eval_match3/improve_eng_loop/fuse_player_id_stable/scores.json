@@ -1,0 +1,113 @@
+{
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_regression": 10.0,
+    "03_carry_id_swaps": 10.0,
+    "04_unique_carrier_ids": 10.0,
+    "05_dribble_tp": 10.0,
+    "06_swap_reduction": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "before": {
+    "swaps": 13,
+    "unique_ids": 7,
+    "n_frames": 15,
+    "ids": [
+      7,
+      9,
+      8,
+      9,
+      9,
+      8,
+      9,
+      10,
+      6,
+      8,
+      6,
+      5,
+      8,
+      3,
+      7
+    ]
+  },
+  "after": {
+    "swaps": 0,
+    "unique_ids": 1,
+    "n_frames": 15,
+    "ids": [
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34,
+      34
+    ]
+  },
+  "dribble_tp": 1,
+  "raw_emits": [
+    {
+      "type": "pass",
+      "frame_end": 2502,
+      "t_start": 1.8,
+      "t_end": 1.8667,
+      "confidence": 0.8259,
+      "players": [
+        10
+      ],
+      "start_xy": [
+        10.3505,
+        -8.9206
+      ],
+      "end_xy": [
+        11.3262,
+        -8.4089
+      ]
+    },
+    {
+      "type": "pass",
+      "frame_end": 2702,
+      "t_start": 5.1333,
+      "t_end": 5.2,
+      "confidence": 0.9299,
+      "players": [
+        11
+      ],
+      "start_xy": [
+        16.0671,
+        -6.8757
+      ],
+      "end_xy": [
+        16.6063,
+        -5.7585
+      ]
+    },
+    {
+      "type": "dribble",
+      "frame_end": 3070,
+      "t_start": 11.2,
+      "t_end": 11.3333,
+      "confidence": 0.9658,
+      "players": [
+        5
+      ],
+      "start_xy": [
+        18.4347,
+        -13.725
+      ],
+      "end_xy": [
+        17.9073,
+        -13.4758
+      ]
+    }
+  ]
+}

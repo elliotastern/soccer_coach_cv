@@ -1,0 +1,77 @@
+{
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_regression": 10.0,
+    "03_dribble_tp": 5.0,
+    "04_dribble_count": 6.0,
+    "05_p_emit": 1.0,
+    "06_batch_cap": 10.0,
+    "07_pass_tp": 10.0
+  },
+  "failed": {
+    "03_dribble_tp": 5.0,
+    "04_dribble_count": 6.0,
+    "05_p_emit": 1.0
+  },
+  "pass": false,
+  "n_dribble": 0,
+  "dribble_tp": 0,
+  "p_emit_dribble": 0.0,
+  "batch_n": 0,
+  "emits": [
+    {
+      "type": "pass",
+      "frame_end": 2502,
+      "t_start": 1.8,
+      "t_end": 1.8667,
+      "confidence": 0.8259,
+      "players": [
+        10
+      ],
+      "start_xy": [
+        10.3505,
+        -8.9206
+      ],
+      "end_xy": [
+        11.3262,
+        -8.4089
+      ]
+    },
+    {
+      "type": "pass",
+      "frame_end": 2702,
+      "t_start": 5.1333,
+      "t_end": 5.2,
+      "confidence": 0.9299,
+      "players": [
+        11
+      ],
+      "start_xy": [
+        16.0671,
+        -6.8757
+      ],
+      "end_xy": [
+        16.6063,
+        -5.7585
+      ]
+    },
+    {
+      "type": "movement",
+      "frame_end": 3066,
+      "t_start": 11.2,
+      "t_end": 11.2667,
+      "confidence": 0.8569,
+      "players": [
+        6
+      ],
+      "start_xy": [
+        18.4347,
+        -13.725
+      ],
+      "end_xy": [
+        18.201,
+        -13.5627
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "components": {
+    "01_prompt": 10.0,
+    "02_synth_regression": 10.0,
+    "03_real_check25_p_emit": 10.0,
+    "04_real_dribble_recall": 10.0,
+    "05_negative_windows": 10.0,
+    "06_batch_dribble_rate": 10.0,
+    "07_batch_p_emit": 10.0,
+    "08_pass_shot_recovery": 10.0,
+    "09_movement_regression": 10.0,
+    "10_config_yaml": 10.0,
+    "11_dead_ends": 10.0,
+    "12_render_proof": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "carry_match": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 1
+  },
+  "batch_n_dribble": 0,
+  "batch_span_s": 47.75,
+  "batch_rate_per_min": 0.0,
+  "neg_fp": 0,
+  "real_p_emit": 1.0,
+  "n_dribble_15s": 0
+}

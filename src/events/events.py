@@ -47,6 +47,9 @@ class EventDetector:
         movement_proximity: float = 4.0,
         co_move_min_player_m: float = 0.15,
         co_move_min_cos: float = 0.55,
+        dribble_window_frames: int = 2,
+        dribble_min_carry_m: float = 0.55,
+        dribble_co_move_streak: int = 1,
     ):
         self.pitch_mapper = pitch_mapper
         self.pass_velocity_threshold = pass_velocity_threshold
@@ -64,11 +67,15 @@ class EventDetector:
         self.movement_proximity = movement_proximity
         self.co_move_min_player_m = co_move_min_player_m
         self.co_move_min_cos = co_move_min_cos
+        self.dribble_window_frames = dribble_window_frames
+        self.dribble_min_carry_m = dribble_min_carry_m
+        self.dribble_co_move_streak = dribble_co_move_streak
         self.player_history: Dict[int, List[Player]] = {}
         self.ball_history: List[Ball] = []
         self._last_emit_t: Optional[float] = None
         self._stable_streak: int = 0
         self._need_extra_stable: bool = False
+        self._dribble_buf: List[tuple] = []
 
     def _velocity(self, loc1: Location, loc2: Location, dt: float) -> float:
         if dt <= 0:
@@ -145,8 +152,12 @@ class EventDetector:
         cos_sim = (ax * bx + ay * by) / (ball_move * player_move)
         return cos_sim >= self.co_move_min_cos
 
-    def _cooldown_ok(self, t_end: float) -> bool:
+    def _cooldown_ok(
+        self, t_end: float, carry_start_t: Optional[float] = None
+    ) -> bool:
         if self._last_emit_t is None:
+            return True
+        if carry_start_t is not None and carry_start_t < self._last_emit_t:
             return True
         return (t_end - self._last_emit_t) >= self.min_emit_gap_s
 
@@ -184,46 +195,153 @@ class EventDetector:
             )
         )
 
+    def _dribble_partial_carry_m(self) -> float:
+        if not self._dribble_buf:
+            return 0.0
+        first_prev, _, _, _ = self._dribble_buf[0]
+        _, last_cur, _, _ = self._dribble_buf[-1]
+        assert first_prev.ball and last_cur.ball
+        start = Location(first_prev.ball.x_pitch, first_prev.ball.y_pitch)
+        end = Location(last_cur.ball.x_pitch, last_cur.ball.y_pitch)
+        return self._distance(start, end)
+
+    def _dribble_max_speed_m_s(self) -> float:
+        return self.pass_velocity_threshold * 0.92
+
+    def _dribble_proximity_ok(
+        self,
+        prev_ball: Location,
+        ball: Location,
+        prev_pl: Location,
+        cur_pl: Location,
+        dt: float,
+    ) -> bool:
+        """Fuse stride-4: mapped player can lag ball — proximity without strict co-move."""
+        cling_m = self.movement_proximity
+        d_cur = self._distance(ball, cur_pl)
+        d_prev = self._distance(prev_ball, prev_pl)
+        if d_cur > min(cling_m, 3.0) or d_prev > cling_m:
+            return False
+        goal_line = self.half_length_m
+        if abs(ball.x) > goal_line - self.shot_goal_band_m:
+            return False
+        if dt <= 0:
+            return False
+        ball_vel = self._velocity(prev_ball, ball, dt)
+        return ball_vel < self._dribble_max_speed_m_s()
+
+    def _dribble_cling_step(
+        self, frame_data: FrameData, prev_frame_data: FrameData
+    ) -> Optional[tuple[int, bool]]:
+        """Return (player_id, co_move_ok) when ball clings to a co-moving player."""
+        assert frame_data.ball and prev_frame_data.ball
+        ball = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
+        prev_ball = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
+        cling_m = self.movement_proximity
+        dt = frame_data.timestamp - prev_frame_data.timestamp
+        if dt > 0 and self._velocity(prev_ball, ball, dt) >= self._dribble_max_speed_m_s():
+            return None
+        pid = self._closest_player(prev_frame_data.players, prev_ball, cling_m)
+        if pid is None:
+            return None
+        best_pid, best_co = pid, False
+        best_cos = -1.0
+        for player in prev_frame_data.players:
+            pl = Location(player.x_pitch, player.y_pitch)
+            if self._distance(prev_ball, pl) >= cling_m:
+                continue
+            cur_pl = self._player_loc(frame_data.players, player.object_id)
+            if cur_pl is None:
+                continue
+            if not self._co_movement_ok(prev_ball, ball, pl, cur_pl):
+                continue
+            ax, ay = ball.x - prev_ball.x, ball.y - prev_ball.y
+            bx, by = cur_pl.x - pl.x, cur_pl.y - pl.y
+            pm = float(np.hypot(bx, by))
+            bm = float(np.hypot(ax, ay))
+            if pm < 1e-6 or bm < 1e-6:
+                continue
+            cos_sim = (ax * bx + ay * by) / (bm * pm)
+            if cos_sim > best_cos:
+                best_cos = cos_sim
+                best_pid = player.object_id
+                best_co = True
+        if best_cos < self.co_move_min_cos:
+            best_pid, best_d = None, float("inf")
+            for player in frame_data.players:
+                prev_pl = self._player_loc(prev_frame_data.players, player.object_id)
+                if prev_pl is None:
+                    continue
+                cur_pl = Location(player.x_pitch, player.y_pitch)
+                if not self._dribble_proximity_ok(prev_ball, ball, prev_pl, cur_pl, dt):
+                    continue
+                d_cur = self._distance(ball, cur_pl)
+                if d_cur < best_d:
+                    best_d = d_cur
+                    best_pid = player.object_id
+                    best_co = True
+            if best_pid is None:
+                return None
+            return best_pid, best_co
+        return best_pid, best_co
+
     def detect_dribble(
         self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
     ) -> Optional[Event]:
+        """Temporal window dribble — emit once per sustained carry."""
         if not self._ball_ok(frame_data, prev_frame_data):
+            self._dribble_buf = []
             return None
-        assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
-        ball = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
-        prev_ball = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
-        moved = self._distance(prev_ball, ball)
-        dt = frame_data.timestamp - prev_frame_data.timestamp
-        if dt > 0 and self._velocity(prev_ball, ball, dt) >= self.pass_velocity_threshold * 0.9:
+        assert prev_frame_data is not None
+        return self._detect_dribble_window(frame_data, prev_frame_data)
+
+    def _detect_dribble_window(
+        self, frame_data: FrameData, prev_frame_data: FrameData
+    ) -> Optional[Event]:
+        step = self._dribble_cling_step(frame_data, prev_frame_data)
+        if step is None:
+            self._dribble_buf = []
             return None
-        for player in frame_data.players:
-            pl = Location(player.x_pitch, player.y_pitch)
-            if self._distance(ball, pl) >= self.dribble_distance_threshold:
-                continue
-            prev_pl = self._player_loc(prev_frame_data.players, player.object_id)
-            if prev_pl is None:
-                continue
-            if self._distance(prev_ball, prev_pl) >= self.dribble_distance_threshold:
-                continue
-            if not self._co_movement_ok(prev_ball, ball, prev_pl, pl):
-                continue
-            # Require clear carry distance; weak cling stays below emit.
-            conf = 0.85 if moved >= 0.4 else 0.70
-            return self._gate(
-                Event(
-                    id=f"dribble_{frame_data.frame_id}",
-                    type=EventType.DRIBBLE,
-                    start_frame=prev_frame_data.frame_id,
-                    end_frame=frame_data.frame_id,
-                    start_location=prev_ball,
-                    end_location=ball,
-                    involved_players=[player.object_id],
-                    confidence=conf,
-                    timestamp_start=prev_frame_data.timestamp,
-                    timestamp_end=frame_data.timestamp,
-                )
+        pid, co_ok = step
+        self._dribble_buf.append((prev_frame_data, frame_data, pid, co_ok))
+        if len(self._dribble_buf) > self.dribble_window_frames:
+            self._dribble_buf = self._dribble_buf[-self.dribble_window_frames:]
+        if len(self._dribble_buf) < self.dribble_window_frames:
+            return None
+        first_prev, _, _, _ = self._dribble_buf[0]
+        last_prev, last_cur, last_pid, _ = self._dribble_buf[-1]
+        assert first_prev.ball and last_cur.ball
+        start = Location(first_prev.ball.x_pitch, first_prev.ball.y_pitch)
+        end = Location(last_cur.ball.x_pitch, last_cur.ball.y_pitch)
+        if not (self._in_pitch(start) and self._in_pitch(end)):
+            return None
+        carry = self._distance(start, end)
+        if carry + 1e-9 < self.dribble_min_carry_m:
+            self._dribble_buf = []
+            return None
+        co_streak = sum(1 for _, _, _, ok in self._dribble_buf if ok)
+        if co_streak < self.dribble_co_move_streak:
+            self._dribble_buf = []
+            return None
+        conf = min(1.0, 0.82 + carry / 4.0)
+        ev = self._gate(
+            Event(
+                id=f"dribble_{last_cur.frame_id}",
+                type=EventType.DRIBBLE,
+                start_frame=first_prev.frame_id,
+                end_frame=last_cur.frame_id,
+                start_location=start,
+                end_location=end,
+                involved_players=[last_pid],
+                confidence=conf,
+                timestamp_start=first_prev.timestamp,
+                timestamp_end=last_cur.timestamp,
             )
-        return None
+        )
+        if ev is None:
+            return None
+        self._dribble_buf = []
+        return ev
 
     def detect_shot(
         self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
@@ -354,33 +472,56 @@ class EventDetector:
         """Emit at most one event per frame (shot > pass > recovery > dribble > movement)."""
         if not self._ball_ok(frame_data, prev_frame_data):
             self._stable_streak = 0
+            self._dribble_buf = []
             return []
         assert prev_frame_data is not None
         if not self._ball_speed_ok(frame_data, prev_frame_data):
             self._stable_streak = 0
             self._need_extra_stable = True
+            self._dribble_buf = []
             return []
         self._stable_streak += 1
         # After a teleport, require one extra continuous step before emit.
         if self._need_extra_stable and self._stable_streak < 2:
+            self._dribble_buf = []
             return []
         self._need_extra_stable = False
-        if not self._cooldown_ok(frame_data.timestamp):
+        carry_start_t = (
+            self._dribble_buf[0][0].timestamp if self._dribble_buf else None
+        )
+        if not self._cooldown_ok(frame_data.timestamp, carry_start_t):
+            if self.enable_dribble and len(self._dribble_buf) >= self.dribble_window_frames:
+                ev = self._detect_dribble_window(frame_data, prev_frame_data)
+                if ev is not None:
+                    self._last_emit_t = ev.timestamp_end
+                    return [ev]
+            self._dribble_buf = []
             return []
-        detectors = {
-            EventType.SHOT: self.detect_shot,
-            EventType.PASS: self.detect_pass,
-            EventType.RECOVERY: self.detect_recovery,
-        }
+        for et in (EventType.SHOT, EventType.PASS, EventType.RECOVERY):
+            ev = {
+                EventType.SHOT: self.detect_shot,
+                EventType.PASS: self.detect_pass,
+                EventType.RECOVERY: self.detect_recovery,
+            }[et](frame_data, prev_frame_data)
+            if ev is not None:
+                self._dribble_buf = []
+                self._last_emit_t = ev.timestamp_end
+                return [ev]
         if self.enable_dribble:
-            detectors[EventType.DRIBBLE] = self.detect_dribble
-        if self.enable_movement:
-            detectors[EventType.MOVEMENT] = self.detect_movement
-        for et in _EVENT_PRIORITY:
-            if et not in detectors:
-                continue
-            ev = detectors[et](frame_data, prev_frame_data)
+            ev = self._detect_dribble_window(frame_data, prev_frame_data)
             if ev is not None:
                 self._last_emit_t = ev.timestamp_end
                 return [ev]
+        if self.enable_movement:
+            one_from_dribble = (
+                len(self._dribble_buf) == self.dribble_window_frames - 1
+                and self._dribble_partial_carry_m() + 1e-9 < self.dribble_min_carry_m
+            )
+            if not one_from_dribble:
+                ev = self.detect_movement(frame_data, prev_frame_data)
+                if ev is not None:
+                    if len(self._dribble_buf) >= self.dribble_window_frames:
+                        self._dribble_buf = []
+                    self._last_emit_t = ev.timestamp_end
+                    return [ev]
         return []

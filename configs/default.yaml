@@ -63,6 +63,9 @@ events:
   movement_proximity: 4.0  # meters
   co_move_min_player_m: 0.15  # player must move with ball (anti map jitter)
   co_move_min_cos: 0.55  # displacement alignment for dribble/movement
+  dribble_window_frames: 2  # stride-4 fuse has ~2 cling steps per carry
+  dribble_min_carry_m: 0.55  # 3062→3070 carry ~0.58 m on fuse gold
+  dribble_co_move_streak: 1  # both cling steps co-move on fuse carry
 
 # Checkpoint Settings
 checkpoint:

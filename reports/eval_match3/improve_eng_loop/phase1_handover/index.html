@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Phase 1 handover — coach review</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111827;
+      --line: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #0f172a;
+    }
+    h1 { margin: 0 0 6px; font-size: 1.35rem; }
+    .sub { color: var(--muted); font-size: 0.92rem; }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 20px 32px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    video {
+      width: 100%;
+      border-radius: 8px;
+      background: #000;
+    }
+    .pill {
+      display: inline-block;
+      background: #1f2937;
+      border-radius: 999px;
+      padding: 4px 10px;
+      margin: 2px 6px 2px 0;
+      font-size: 0.82rem;
+    }
+    .pill.ok { background: #14532d; color: #86efac; }
+    .pill.flag { background: #7f1d1d; color: #fecaca; }
+    label.group { display: block; margin: 10px 0 4px; font-weight: 600; font-size: 0.88rem; }
+    .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  button.opt {
+      border: 1px solid var(--line);
+      background: #1f2937;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    button.opt.active { background: #2563eb; border-color: #3b82f6; }
+    button.opt.bad.active { background: var(--bad); border-color: #f87171; }
+    button.opt.good.active { background: #166534; border-color: var(--accent); }
+    textarea {
+      width: 100%;
+      min-height: 64px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #0b1220;
+      color: var(--text);
+      padding: 8px;
+    }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    button.primary {
+      background: var(--accent);
+      color: #052e16;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #1f2937;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    #status { margin-top: 8px; color: var(--muted); font-size: 0.88rem; }
+    a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Phase 1 handover — mosaic + pitch</h1>
+  <div class="sub">
+    15 s check clip · stride 4 · P10|P9 / P7|P8 · mark what you see, then save.
+    Live scrub: <a href="http://127.0.0.1:8501" target="_blank" rel="noopener">Streamlit review</a>
+  </div>
+</header>
+<main>
+  <div class="grid">
+    <div class="card">
+      <video id="vid" controls playsinline preload="metadata" src="coach_mosaic_pitch_min.mp4"></video>
+      <div class="row" style="margin-top:10px">
+        <button class="secondary" type="button" id="prev">← Prev frame</button>
+        <button class="secondary" type="button" id="next">Next frame →</button>
+        <span class="pill" id="timePill">t+0.0s</span>
+        <span class="pill" id="frPill">src fr —</span>
+        <span class="pill" id="idxPill">clip frame —</span>
+      </div>
+      <p id="eventsHere" class="sub" style="margin-top:10px"></p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:1.05rem">Mark this moment</h2>
+      <p class="sub">Pause on a moment, answer below, click <strong>Save frame</strong>.</p>
+      <div id="stats" class="sub" style="margin-bottom:8px"></div>
+
+      <label class="group">Can you see the ball?</label>
+      <div class="opts" data-field="ball_visible" data-values="yes,no,unclear"></div>
+
+      <label class="group">Orange box on the ball?</label>
+      <div class="opts" data-field="ball_box_ok" data-values="good,bad,na"></div>
+
+      <label class="group">Yellow dot on map correct?</label>
+      <div class="opts" data-field="pitch_ball_ok" data-values="good,bad,na"></div>
+
+      <label class="group">Team colours on map OK?</label>
+      <div class="opts" data-field="team_ok" data-values="good,bad,na"></div>
+
+      <label class="group">Events bar sensible?</label>
+      <div class="opts" data-field="event_ok" data-values="good,bad,na"></div>
+
+      <label class="group">Flag for follow-up</label>
+      <div class="opts" data-field="flag" data-values="false,true"></div>
+
+      <label class="group">Note</label>
+      <textarea id="note" placeholder="Optional note for engineer…"></textarea>
+
+      <div class="row">
+        <button class="primary" type="button" id="save">Save frame</button>
+        <button class="secondary" type="button" id="export">Download labels.json</button>
+      </div>
+      <div id="status"></div>
+    </div>
+  </div>
+</main>
+<script>
+const QA_LABELS = { good: "Good", bad: "Bad", na: "Not sure", unset: "—" };
+const VIS_LABELS = { yes: "Yes", no: "No", unclear: "Not sure" };
+let meta = null;
+let emits = [];
+let labels = { reviewer: "", frames: {} };
+let clipIdx = 0;
+
+function frameKey(fid) { return String(fid); }
+
+function defaultFrame() {
+  return {
+    ball_visible: "unclear",
+    ball_box_ok: "unset",
+    pitch_ball_ok: "unset",
+    team_ok: "unset",
+    event_ok: "unset",
+    flag: false,
+    note: "",
+    reviewed: false,
+  };
+}
+
+function nearestIdx(t) {
+  if (!meta || !meta.frames_src) return 0;
+  const fps = meta.out_fps || 15;
+  let i = Math.round(t * fps);
+  i = Math.max(0, Math.min(i, meta.frames_src.length - 1));
+  return i;
+}
+
+function currentSrcFrame() {
+  if (!meta || !meta.frames_src) return null;
+  return meta.frames_src[clipIdx];
+}
+
+function loadCur() {
+  const fid = currentSrcFrame();
+  if (fid == null) return defaultFrame();
+  const raw = labels.frames[frameKey(fid)] || {};
+  return { ...defaultFrame(), ...raw };
+}
+
+function paintOpts() {
+  const cur = loadCur();
+  document.querySelectorAll(".opts[data-field]").forEach((wrap) => {
+    const field = wrap.dataset.field;
+    const vals = wrap.dataset.values.split(",");
+    wrap.innerHTML = "";
+    vals.forEach((v) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      if (field === "flag") {
+        b.textContent = v === "true" ? "Flag" : "OK";
+        if (String(cur.flag) === v) b.classList.add(v === "true" ? "bad" : "good");
+      } else if (field === "ball_visible") {
+        b.textContent = VIS_LABELS[v] || v;
+        if (cur.ball_visible === v) b.classList.add("active");
+      } else {
+        b.textContent = QA_LABELS[v] || v;
+        if (cur[field] === v) b.classList.add(v === "good" ? "good" : v === "bad" ? "bad" : "active");
+      }
+      b.onclick = () => {
+        const fid = currentSrcFrame();
+        if (fid == null) return;
+        const rec = loadCur();
+        if (field === "flag") rec.flag = v === "true";
+        else rec[field] = v;
+        labels.frames[frameKey(fid)] = rec;
+        paintOpts();
+      };
+      wrap.appendChild(b);
+    });
+  });
+  document.getElementById("note").value = cur.note || "";
+}
+
+function paintStats() {
+  const n = Object.values(labels.frames).filter((f) => f.reviewed).length;
+  const flagged = Object.values(labels.frames).filter((f) => f.flag).length;
+  document.getElementById("stats").textContent =
+    `Reviewed ${n} / ${meta?.frames_src?.length || "?"} · flagged ${flagged}`;
+}
+
+function paintTime() {
+  const vid = document.getElementById("vid");
+  clipIdx = nearestIdx(vid.currentTime);
+  const fid = currentSrcFrame();
+  document.getElementById("timePill").textContent = `t+${vid.currentTime.toFixed(2)}s`;
+  document.getElementById("frPill").textContent = fid != null ? `src fr ${fid}` : "src fr —";
+  document.getElementById("idxPill").textContent = `clip #${clipIdx + 1}`;
+  const here = emits.filter((e) => e.frame_id === fid);
+  document.getElementById("eventsHere").textContent = here.length
+    ? "Events here: " + here.map((e) => `${e.type} (${e.confidence})`).join(" · ")
+    : "No heuristic event flash at this source frame.";
+  paintOpts();
+  paintStats();
+}
+
+async function loadAll() {
+  const ts = Date.now();
+  meta = await fetch(`meta.json?v=${ts}`).then((r) => r.json());
+  const er = await fetch(`emits_render.json?v=${ts}`).then((r) => r.json());
+  emits = er.emits || [];
+  try {
+    labels = await fetch(`labels.json?v=${ts}`).then((r) => r.json());
+    labels.frames = labels.frames || {};
+  } catch (_) {
+    labels = { reviewer: "", frames: {} };
+  }
+  paintTime();
+}
+
+document.getElementById("vid").addEventListener("timeupdate", paintTime);
+document.getElementById("vid").addEventListener("seeked", paintTime);
+
+document.getElementById("prev").onclick = () => {
+  clipIdx = Math.max(0, clipIdx - 1);
+  const vid = document.getElementById("vid");
+  vid.currentTime = clipIdx / (meta.out_fps || 15);
+  paintTime();
+};
+document.getElementById("next").onclick = () => {
+  clipIdx = Math.min((meta.frames_src?.length || 1) - 1, clipIdx + 1);
+  const vid = document.getElementById("vid");
+  vid.currentTime = clipIdx / (meta.out_fps || 15);
+  paintTime();
+};
+
+document.getElementById("save").onclick = async () => {
+  const fid = currentSrcFrame();
+  if (fid == null) return;
+  const rec = loadCur();
+  rec.note = document.getElementById("note").value.trim();
+  rec.reviewed = true;
+  rec.reviewed_at = new Date().toISOString();
+  labels.frames[frameKey(fid)] = rec;
+  labels.updated_at = new Date().toISOString();
+  const res = await fetch("/save_phase1_handover_labels", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(labels),
+  });
+  const js = await res.json();
+  document.getElementById("status").textContent = js.ok
+    ? `Saved frame ${fid} (${Object.values(labels.frames).filter((f) => f.reviewed).length} reviewed)`
+    : `Save failed: ${js.error || res.status}`;
+  paintStats();
+};
+
+document.getElementById("export").onclick = () => {
+  const blob = new Blob([JSON.stringify(labels, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "phase1_handover_labels.json";
+  a.click();
+};
+
+loadAll();
+</script>
+</body>
+</html>

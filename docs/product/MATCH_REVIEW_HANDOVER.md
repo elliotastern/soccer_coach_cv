@@ -111,6 +111,21 @@ bash scripts/start_review_dashboard.sh start-bg
 
 Use Safari or Chrome — not only an IDE embedded preview. First frame load can take **20–40 s** (4-cam RF-DETR); keep the tab open while it loads.
 
+### Phase 1 proof clip (pre-rendered mosaic + pitch)
+
+For the locked **15 s** check clip (oriented mosaic + pitch panel, stride 4), use the handover page instead of live scrub:
+
+1. Start the static viewer: `python3 serve_viewer.py --port 8080`
+2. Open [http://127.0.0.1:8080/phase1-handover](http://127.0.0.1:8080/phase1-handover)
+3. Pause on a moment → mark ball / box / map / teams / events → **Save frame**
+4. Labels persist to `reports/eval_match3/improve_eng_loop/phase1_handover/labels.json`
+
+Refresh clip assets after rerender:
+
+```bash
+python3 scripts/gold_set/build_phase1_handover_dashboard.py
+```
+
 ---
 
 ## Step 4 — Coach session (UI)

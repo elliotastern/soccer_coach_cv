@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-21T20:26:39.401425+00:00",
+  "ts": "2026-08-23T09:53:18.439672+00:00",
   "frames": [
     2300,
     2350,
@@ -11,37 +11,37 @@
   "series": [
     {
       "fr": 2300,
-      "n0": 3,
+      "n0": 4,
       "n1": 3,
-      "gray": 3,
-      "n": 9
+      "gray": 6,
+      "n": 13
     },
     {
       "fr": 2350,
-      "n0": 8,
-      "n1": 4,
+      "n0": 11,
+      "n1": 3,
       "gray": 0,
-      "n": 12
+      "n": 14
     },
     {
       "fr": 2400,
-      "n0": 6,
+      "n0": 9,
       "n1": 5,
       "gray": 0,
-      "n": 11
+      "n": 14
     },
     {
       "fr": 2450,
       "n0": 7,
-      "n1": 6,
+      "n1": 7,
       "gray": 1,
-      "n": 14
+      "n": 15
     },
     {
       "fr": 2500,
       "n0": 8,
-      "n1": 4,
-      "gray": 0,
+      "n1": 3,
+      "gray": 1,
       "n": 12
     }
   ],
@@ -74,16 +74,16 @@
     "03_kit_lock": "blue_dom_all=True n=5",
     "04_no_identity_swap": "blue_dom_all=True n=5",
     "05_hard_kit_rules": "flip_conf=0.78 sticky_m=4.0",
-    "06_unsure_gray": "[(2300, 3), (2350, 0), (2400, 0), (2450, 1), (2500, 0)]",
+    "06_unsure_gray": "[(2300, 6), (2350, 0), (2400, 0), (2450, 1), (2500, 1)]",
     "07_ema_no_reorder": "hold_gap=2",
-    "08_track_sticky": "keep_rate=0.939 n=444",
-    "09_sticky_vote": "keep_rate=0.939 n=444",
+    "08_track_sticky": "keep_rate=0.968 n=507",
+    "09_sticky_vote": "keep_rate=0.968 n=507",
     "10_multicam_vote": "fuse majority/tie\u2192gray",
-    "11_best_ball": "n=11 n0=5 n1=4",
-    "12_count_flicker": "share_swaps=0 dense_swaps=0 shares=[0.5, 0.6666666666666666, 0.5454545454545454, 0.5384615384615384, 0.6666666666666666]",
+    "11_best_ball": "n=13 n0=7 n1=3",
+    "12_count_flicker": "share_swaps=0 dense_swaps=0 shares=[0.5714285714285714, 0.7857142857142857, 0.6428571428571429, 0.5, 0.7272727272727273]",
     "13_no_swap_gate": "blue_dom_all=True n=5",
     "14_both_kits": "both_ok=5/5",
-    "15_gray_not_explode": "mean_gray_frac=0.08",
+    "15_gray_not_explode": "mean_gray_frac=0.12",
     "16_live_fuse": "prev_fused=12",
     "17_review_hook": "app.py st.session_state.team_session",
     "18_unit_no_swap": "ok\n",
