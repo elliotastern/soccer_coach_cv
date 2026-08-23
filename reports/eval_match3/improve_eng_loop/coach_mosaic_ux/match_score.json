@@ -1,0 +1,35 @@
+{
+  "score": 10.0,
+  "pass": true,
+  "gate": 9.0,
+  "parts": {
+    "layout_contract": {
+      "score": 10.0,
+      "notes": []
+    },
+    "built_mosaic": {
+      "score": 10.0,
+      "notes": [],
+      "path": "/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/coach_mosaic_ux/match_locked_mosaic.jpg"
+    }
+  },
+  "expected": {
+    "grid": [
+      [
+        "P10",
+        "P9"
+      ],
+      [
+        "P7",
+        "P8"
+      ]
+    ],
+    "rotate_180": [
+      "P7",
+      "P10"
+    ],
+    "compass": "cw90: Left top \u00b7 Right bottom \u00b7 South left \u00b7 North right",
+    "why": "Pitch 1 cw90: left touchline top (P10|P9), right bottom (P7|P8), +x north on the right. South cams flipped 180\u00b0."
+  },
+  "ts": "2026-08-22T23:42:17"
+}

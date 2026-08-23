@@ -4,35 +4,35 @@
   "pass": true,
   "H": [
     [
-      0.0021394085017249573,
-      0.004039481276794277,
-      7.516690719660553
+      0.0029625883168185358,
+      0.006098059219913833,
+      6.662424684324397
     ],
     [
-      -0.005996931408879318,
-      0.016025591633770528,
-      5.768199438271526
+      0.007038291663769248,
+      -0.017740504961360475,
+      -7.857935883006265
     ],
     [
-      -0.000444818437591098,
-      0.0004326717956420903,
+      -0.00043761086473509175,
+      0.0005231050996366864,
       1.0
     ]
   ],
   "homography": [
     [
-      0.0021394085017249573,
-      0.004039481276794277,
-      7.516690719660553
+      0.0029625883168185358,
+      0.006098059219913833,
+      6.662424684324397
     ],
     [
-      -0.005996931408879318,
-      0.016025591633770528,
-      5.768199438271526
+      0.007038291663769248,
+      -0.017740504961360475,
+      -7.857935883006265
     ],
     [
-      -0.000444818437591098,
-      0.0004326717956420903,
+      -0.00043761086473509175,
+      0.0005231050996366864,
       1.0
     ]
   ],
@@ -73,15 +73,11 @@
     ],
     [
       26.95,
-      3.535
+      -5.415
     ],
     [
       21.0,
-      3.535
-    ],
-    [
-      26.95,
-      1.385
+      -5.415
     ],
     [
       26.95,
@@ -89,21 +85,25 @@
     ],
     [
       26.95,
-      17.405
+      1.385
     ],
     [
       26.95,
-      -5.415
+      -17.405
+    ],
+    [
+      26.95,
+      3.535
     ]
   ],
   "landmark_names": [
     "right_box_18_mid",
-    "right_box_goal_near",
-    "right_box_18_near",
-    "right_post_near",
+    "right_box_goal_far",
+    "right_box_18_far",
     "right_post_far",
-    "right_near_corner",
-    "right_box_goal_far"
+    "right_post_near",
+    "right_far_corner",
+    "right_box_goal_near"
   ],
   "order": "goal_right",
   "source_image": "reports/eval_match3/landmark_dashboard/stills/P8.jpg",
@@ -124,28 +124,28 @@
   "undistort_fingerprint": "k1=-0.300,k2=0.000,p1=0.000,p2=0.000,a=0.800",
   "H_player": [
     [
-      0.00548211200149067,
-      0.0036426252193659703,
-      4.616649478967264
+      0.00594305138801849,
+      0.006658811243431758,
+      3.905210529350518
     ],
     [
-      -0.0066144068778111525,
-      0.019008514328333174,
-      6.022226829124174
+      0.007535678758661037,
+      -0.020808417956475412,
+      -8.046396476090832
     ],
     [
-      -0.00039640292896016185,
-      0.00045565827080388865,
+      -0.0003989088643668247,
+      0.0005798679182998145,
       1.0
     ]
   ],
   "player_landmark_names": [
     "right_box_18_mid",
-    "right_box_goal_near",
-    "right_box_18_near",
-    "right_post_near",
+    "right_box_goal_far",
+    "right_box_18_far",
     "right_post_far",
-    "right_near_corner"
+    "right_post_near",
+    "right_far_corner"
   ],
   "player_image_points": [
     [
@@ -173,8 +173,8 @@
       977.2034097866529
     ]
   ],
-  "player_h_note": "H_player refit from ball landmark clicks incl right_box_18_mid; ball keeps H",
-  "player_roundtrip_max_m": 0.3553,
+  "player_h_note": "H_player refit after P8/P9 touchline mirror; ball keeps H",
+  "player_roundtrip_max_m": 0.3223,
   "hull_image_points": [
     [
       1915.194493690687,
@@ -285,5 +285,6 @@
       190.03167724609375
     ]
   ],
-  "hull_note": "Landmark H unchanged; hull expanded toward midfield clear balls (C1 FN audit P8 strip) | player-map H_p add low_support feet | step1 top-FOV hull feet"
+  "hull_note": "Landmark H unchanged; hull expanded toward midfield clear balls (C1 FN audit P8 strip) | player-map H_p add low_support feet | step1 top-FOV hull feet",
+  "p8_p9_touchline_mirror_applied": true
 }

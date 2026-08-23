@@ -1,0 +1,48 @@
+{
+  "steps": [
+    {
+      "name": "mirror",
+      "ok": true,
+      "score": null,
+      "exit": 0,
+      "tail": "P8: already touchline-mirrored \u2014 skip\nP9: already touchline-mirrored \u2014 skip"
+    },
+    {
+      "name": "congruence",
+      "ok": true,
+      "score": null,
+      "exit": 0,
+      "tail": " \"diagram CAM_XY swapped (or updated)\"\n      ]\n    },\n    \"04_map_sides_fr3050\": {\n      \"score\": 6.0,\n      \"notes\": [\n        \"P9 y not mostly left (+y): [0.32541514479518924, -1.658146745808153]\"\n      ]\n    }\n  },\n  \"baseline_commit\": \"749eaae\",\n  \"prompt\": \"/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/p8_p9_congruence/PROMPT.md\",\n  \"ts\": \"2026-08-22T23:42:14\"\n}"
+    },
+    {
+      "name": "mosaic_match",
+      "ok": true,
+      "score": null,
+      "exit": 0,
+      "tail": "\"P10\",\n        \"P9\"\n      ],\n      [\n        \"P7\",\n        \"P8\"\n      ]\n    ],\n    \"rotate_180\": [\n      \"P7\",\n      \"P10\"\n    ],\n    \"compass\": \"cw90: Left top \\u00b7 Right bottom \\u00b7 South left \\u00b7 North right\",\n    \"why\": \"Pitch 1 cw90: left touchline top (P10|P9), right bottom (P7|P8), +x north on the right. South cams flipped 180\\u00b0.\"\n  },\n  \"ts\": \"2026-08-22T23:42:17\"\n}\nPASS 10.0/10"
+    },
+    {
+      "name": "ball_boxes",
+      "ok": true,
+      "score": 9.5,
+      "exit": 0,
+      "tail": "7px\",\n    \"P9 f4102: no ball det (ok if none visible)\",\n    \"P7 f4102: box visible, blob ambiguous\",\n    \"P8 f4102: dist=9.4px side=37 conf=0.42 PASS\"\n  ],\n  \"prompt\": \"/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/ball_boxes/PROMPT.md\",\n  \"defish\": true,\n  \"layout\": [\n    [\n      \"P10\",\n      \"P9\"\n    ],\n    [\n      \"P7\",\n      \"P8\"\n    ]\n  ]\n}\nBALL_BOX_SCORE 9.5/10"
+    },
+    {
+      "name": "player_map",
+      "ok": true,
+      "score": null,
+      "exit": 0,
+      "tail": "000 gate=0.38 H_player=True\",\n    \"10_collapse_flags\": \"n_crush_flags=0\",\n    \"11_defish_calib\": \"undistort_on_all_quad=True\",\n    \"12_docs_ledger\": \"plan=True dead=True prompt=True\",\n    \"13_product_map_ready\": \"mean_hard=10.0\",\n    \"14_p8_bottom_mapped\": \"bottom_mapped_frac=1.0\"\n  },\n  \"failed\": {},\n  \"pass\": true,\n  \"constants\": {\n    \"MIN_SUPPORT\": 0.2,\n    \"PLAYER_MIN_SUPPORT\": 0.1\n  }\n}\nPASS"
+    },
+    {
+      "name": "streamlit_review",
+      "ok": true,
+      "score": 9.97,
+      "exit": 0,
+      "tail": "'re not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.\nLoading pretrain weights\n\u2705 People model loaded\nLoading ball RF-DETR from: /Volumes/LaCie/Projects/Soccer Coach CV/models/v12_hard_snaps/post_train/checkpoint.pth\nLoading pretrain weights\n\u2705 Ball model loaded\n{\n  \"mean\": 9.97,\n  \"pass\": true,\n  \"low\": {}\n}\nSTREAMLIT_REVIEW_SCORE 9.97/10 gate=PASS"
+    }
+  ],
+  "gate": 9.0,
+  "pass": true
+}

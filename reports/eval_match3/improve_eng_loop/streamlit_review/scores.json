@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-22T11:09:04.618169+00:00",
+  "updated_at": "2026-08-23T06:42:56.638598+00:00",
   "gate": 9.0,
   "mean": 9.97,
   "pass": true,
@@ -33,8 +33,8 @@
     "05_defish_default_on": "coach mode defish ON",
     "06_rfdetr_default_on": "boxes ON in coach mode",
     "07_ball_box_lock": "mean=9.5 [P10=9.5, P9=9.5, P7=9.5, P8=9.5] PASS",
-    "08_pitch_ball_dot": "ball_xy=(15.4, 14.3) n_dets=1",
-    "09_team_colors": "n0=7 n1=3 gray=4",
+    "08_pitch_ball_dot": "ball_xy=(16.4, -14.7) n_dets=1",
+    "09_team_colors": "n0=7 n1=3 gray=3",
     "10_events_table": "/Volumes/LaCie/Projects/Soccer Coach CV/data/output/full_match_2min_partial/P10-002/events.json",
     "11_persist_corrections": "events + labels.json + coach save",
     "12_checkpoint_pick": "expert sidebar",

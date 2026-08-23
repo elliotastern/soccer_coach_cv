@@ -1,0 +1,33 @@
+{
+  "score": 9.5,
+  "pass": true,
+  "gate": 9.0,
+  "rubric": {
+    "plain_language_primary_ui": {
+      "score": 9.0,
+      "notes": "Match review + coach legend; Advanced collapses engineer controls; metrics say Players/Ball in view"
+    },
+    "corner_labels": {
+      "score": 10.0,
+      "notes": "Far/Near \u00b7 left/right \u2014 no defish/180\u00b0 jargon on tiles"
+    },
+    "legend_boxes": {
+      "score": 9.5,
+      "notes": "Green player boxes + orange BALL; PLAYER text removed to cut clutter"
+    },
+    "whole_pitch_layout": {
+      "score": 9.5,
+      "notes": "2\u00d72 cameras + pitch map side-by-side under See the whole pitch"
+    },
+    "upright_labels_after_180": {
+      "score": 10.0,
+      "notes": "Rotate then draw \u2014 BALL/PLAYER text upright on far cams"
+    },
+    "coach_can_follow_play": {
+      "score": 9.0,
+      "notes": "Video + tactics map together; residual fisheye curvature remains but straightened toggle on"
+    }
+  },
+  "screenshot": "reports/eval_match3/improve_eng_loop/coach_mosaic_ux/coach_pw_v5_final.png",
+  "ts": "2026-08-20T13:18:52"
+}

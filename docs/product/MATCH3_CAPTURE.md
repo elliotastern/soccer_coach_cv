@@ -31,26 +31,31 @@ Axes: **+x north (P6)**, **−x south (P1)**; **+y left**, **−y right** from P
 | P6 | North end |
 | P10 | South–left |
 | P7 | South–right |
-| P8 | North–left |
-| P9 | North–right |
+| P8 | North–right |
+| P9 | North–left |
 | P_Goal1 / P_Goal2 | At their goals |
 
-Diagram compass: **LEFT = P10 · P8**, **RIGHT = P7 · P9** (`reports/eval_match3/landmark_dashboard/`).
+Diagram compass: **LEFT = P10 · P9**, **RIGHT = P7 · P8** (`reports/eval_match3/landmark_dashboard/`).
+
+North-end mount verification (2026-03): `p8-005.mp4` (P8) sits **north-right**; `P9-004.mp4` (P9) **north-left**. Landmark L/R clicks were mirrored to match.
 
 ## WHOLE PITCH mosaic (coach UI)
 
-Geographic north up — locked in `src/review/cam_mosaic.py`:
+Compass rotated 90° CW — locked in `src/review/cam_mosaic.py` (`map_orient=cw90`):
 
 | Cell | Camera | Rotate |
 |------|--------|--------|
-| Top left | **P8** | none |
-| Top right | **P9** | none |
-| Bottom left | **P10** | **180°** |
-| Bottom right | **P7** | **180°** |
+| Top left | **P10** | **180°** |
+| Top right | **P9** | **180°** |
+| Bottom left | **P7** | none |
+| Bottom right | **P8** | none |
 
 ```
-North:  P8 | P9
-South:  P10 (180°) | P7 (180°)
+        LEFT
+   P10  |  P9
+ SOUTH  |  NORTH
+   P7   |  P8
+        RIGHT
 ```
 
 Cursor rule: `.cursor/rules/match3_camera_layout.mdc`.

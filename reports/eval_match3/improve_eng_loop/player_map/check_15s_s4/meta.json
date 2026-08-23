@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-23T06:08:56.797979+00:00",
+  "ts": "2026-08-23T07:05:34.987605+00:00",
   "path": "reports/eval_match3/improve_eng_loop/player_map/check_15s_s4/coach_mosaic_pitch_11-12s.mp4",
   "note": "Product map: defish tiles, apply_undistort=not apply_defish, map_player_box (P8 lower-zone H fallback), P_Goal2 hull, F0 fuse; events bar = heuristic pass/shot/recovery on fused xy",
   "debug_cam": true,
@@ -8,10 +8,10 @@
   "emits": [
     {
       "type": "movement",
-      "t_end": 0.333,
-      "t_start": 0.267,
-      "confidence": 0.862,
-      "frame_id": 3070
+      "t_end": 0.267,
+      "t_start": 0.2,
+      "confidence": 0.857,
+      "frame_id": 3066
     }
   ],
   "apply_defish": true,
@@ -69,8 +69,8 @@
     },
     {
       "fr": 3062,
-      "n": 12,
-      "n0": 7,
+      "n": 11,
+      "n0": 6,
       "n1": 3,
       "gray": 2,
       "ball": true,
@@ -83,7 +83,7 @@
       "n1": 3,
       "gray": 2,
       "ball": true,
-      "event_flash": null
+      "event_flash": "movement"
     },
     {
       "fr": 3070,
@@ -92,7 +92,7 @@
       "n1": 3,
       "gray": 0,
       "ball": true,
-      "event_flash": "movement"
+      "event_flash": null
     },
     {
       "fr": 3074,

@@ -21,12 +21,12 @@ Around Pitch 1 (landmark dashboard / `CAM_XY`):
 | **P6** | North end | End-line / Goal 2 |
 | **P10** | South–**left** | Quad, +y |
 | **P7** | South–**right** | Quad, −y |
-| **P8** | North–**left** | Quad, +y |
-| **P9** | North–**right** | Quad, −y |
+| **P8** | North–**right** | Quad, −y (mount verified 2026-03) |
+| **P9** | North–**left** | Quad, +y (mount verified 2026-03) |
 | **P_Goal1** | Near Goal 1 | |
 | **P_Goal2** | Near Goal 2 | |
 
-Compass shorthand on the diagram: **LEFT = P10 · P8**, **RIGHT = P7 · P9**.
+Compass shorthand on the diagram: **LEFT = P10 · P9**, **RIGHT = P7 · P8**.
 
 Code/docs: `reports/eval_match3/landmark_dashboard/index.html`, `docs/product/MATCH3_CAPTURE.md`.
 
@@ -36,24 +36,24 @@ Locked in `src/review/cam_mosaic.py`. Labels: **Left** top · **Right** bottom �
 
 ```
         LEFT
-   P10  |  P8
+   P10  |  P9
  SOUTH  |  NORTH
-   P7   |  P9
+   P7   |  P8
         RIGHT
 ```
 
 | Cell | Camera | Rotate |
 |------|--------|--------|
 | Top left | **P10** | **180°** |
-| Top right | **P8** | none |
-| Bottom left | **P7** | **180°** |
-| Bottom right | **P9** | none |
+| Top right | **P9** | **180°** |
+| Bottom left | **P7** | none |
+| Bottom right | **P8** | none |
 
 Pitch panel below uses matching `map_orient=cw90` (goals on short edges, south left / north right).
 
 ### Do / don't
 
-- **Do** keep `QUAD_GRID = [["P10","P8"],["P7","P9"]]` and `QUAD_ROTATE_180 = {P10, P7}`.
+- **Do** keep `QUAD_GRID = [["P10","P9"],["P7","P8"]]` and `QUAD_ROTATE_180 = {P10, P9}`.
 - **Do** keep mosaic **defish ON** for P7–P10 (see `match3_defish`).
 - **Don't** remap video files to different cells — fix labels/rotation only.
 - **Don't** default review defish to OFF.

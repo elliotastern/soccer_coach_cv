@@ -2,10 +2,10 @@
   "emits": [
     {
       "type": "movement",
-      "t_end": 0.333,
-      "t_start": 0.267,
-      "confidence": 0.862,
-      "frame_id": 3070
+      "t_end": 0.267,
+      "t_start": 0.2,
+      "confidence": 0.857,
+      "frame_id": 3066
     }
   ]
 }

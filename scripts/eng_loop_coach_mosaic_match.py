@@ -33,11 +33,11 @@ def clamp(x: float) -> float:
 def score_layout_contract() -> tuple[float, list[str]]:
     notes = []
     score = 10.0
-    want_grid = [["P10", "P8"], ["P7", "P9"]]
+    want_grid = [["P10", "P9"], ["P7", "P8"]]
     if QUAD_GRID != want_grid:
         score -= 5.0
         notes.append(f"QUAD_GRID {QUAD_GRID} want {want_grid}")
-    want_rot = {"P10", "P7"}
+    want_rot = {"P10", "P9"}
     if set(QUAD_ROTATE_180) != want_rot:
         score -= 4.0
         notes.append(f"ROT180 {set(QUAD_ROTATE_180)} want {want_rot}")
@@ -47,7 +47,7 @@ def score_layout_contract() -> tuple[float, list[str]]:
             score -= 1.0
             notes.append(f"label missing cam id: {cam} -> {lab}")
     # Near = south row, Far = north row
-    if "North" not in COACH_CORNER["P8"] or "South" not in COACH_CORNER["P10"]:
+    if "North" not in COACH_CORNER["P9"] or "South" not in COACH_CORNER["P10"]:
         score -= 2.0
         notes.append("North/South wording wrong vs diagram")
     return clamp(score), notes
@@ -88,11 +88,11 @@ def main():
             "built_mosaic": {"score": b, "notes": bn, "path": str(path)},
         },
         "expected": {
-            "grid": [["P10", "P8"], ["P7", "P9"]],
-            "rotate_180": ["P7", "P10"],
+            "grid": [["P10", "P9"], ["P7", "P8"]],
+            "rotate_180": ["P9", "P10"],
             "compass": "cw90: Left top · Right bottom · South left · North right",
             "why": (
-                "Pitch 1 cw90: left touchline top (P10|P8), right bottom (P7|P9), "
+                "Pitch 1 cw90: left touchline top (P10|P9), right bottom (P7|P8), "
                 "+x north on the right. South cams flipped 180°."
             ),
         },

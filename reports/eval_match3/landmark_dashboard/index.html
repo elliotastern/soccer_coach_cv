@@ -289,9 +289,10 @@ const CAM_XY = {
   P6: [72, 0],
   P10: [-34, 50],
   P7: [-34, -50],
-  // P9 = north-right (corner/goal FOV). Chip mid-right so goal-box labels stay clear.
-  P9: [34, -58],
-  P8: [28, 50],
+  // P8 = north-right (mount verified). Chip mid-right so goal-box labels stay clear.
+  P8: [34, -58],
+  // P9 = north-left (mount verified).
+  P9: [28, 50],
   P_Goal1: [-78, 36],
   P_Goal2: [78, -36],
 };
@@ -1444,8 +1445,8 @@ fetch("cams.json?v=" + Date.now()).then(r => r.json()).then(j => {
   CAM_XY.P6 = [hx + 8, 0];
   CAM_XY.P10 = [-hx * 0.45, hy + 8];
   CAM_XY.P7 = [-hx * 0.45, -hy - 8];
-  CAM_XY.P8 = [hx * 0.4, hy + 8];
-  CAM_XY.P9 = [hx * 0.45, -hy - 10];
+  CAM_XY.P8 = [hx * 0.45, -hy - 10];
+  CAM_XY.P9 = [hx * 0.4, hy + 8];
   CAM_XY.P_Goal1 = [-hx - 12, hy * 0.55];
   CAM_XY.P_Goal2 = [hx + 12, -hy * 0.55];
   const m = j.pitch_marks || {};

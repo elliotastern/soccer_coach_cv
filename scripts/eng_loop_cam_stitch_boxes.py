@@ -103,7 +103,7 @@ def score_orientation() -> tuple[float, list[str]]:
         notes.append("no Match 3 videos")
         return clamp(score), notes
     # Use calib image points: for P8 (NW), mean image→pitch should land north-left
-    for cam, want in [("P8", "NL"), ("P9", "NR"), ("P10", "SL"), ("P7", "SR")]:
+    for cam, want in [("P8", "NR"), ("P9", "NL"), ("P10", "SL"), ("P7", "SR")]:
         calib = load_calib(cam)
         if calib is None:
             score -= 1.0

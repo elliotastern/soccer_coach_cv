@@ -29,12 +29,12 @@ from src.review.pitch1_panel import PITCH_LEN_M, PITCH_WID_M  # noqa: E402
 # Coach mosaic — compass rotated 90° CW from north-up (+y left on pitch):
 #   Top: Left touchline   Bottom: Right touchline
 #   Left side: South      Right side: North
-#   Grid: top P10|P8 (left sideline) · bottom P7|P9 (right sideline)
+#   Grid: top P10|P9 (left sideline) · bottom P7|P8 (right sideline)
 QUAD_GRID = [
-    ["P10", "P8"],
-    ["P7", "P9"],
+    ["P10", "P9"],
+    ["P7", "P8"],
 ]
-QUAD_ROTATE_180 = frozenset({"P10", "P7"})
+QUAD_ROTATE_180 = frozenset({"P10", "P9"})
 MOSAIC_MAP_ORIENT = "cw90"
 MOSAIC_COMPASS_TOP = "Left"
 MOSAIC_COMPASS_BOTTOM = "Right"
@@ -137,7 +137,7 @@ GOALS = ["P_Goal1", "P_Goal2"]
 ALL_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 
 VIEW_OPTIONS = [
-    "Whole pitch (Left top · South left · P10|P8 / P7|P9)",
+    "Whole pitch (Left top · South left · P10|P9 / P7|P8)",
     "P1 + P6 (ends)",
     "Goals (Goal1 + Goal2)",
     "Best camera (ball)",
@@ -146,9 +146,9 @@ VIEW_OPTIONS = [
 # Corner names a coach understands
 COACH_CORNER = {
     "P10": "South · left · P10 (180°)",
-    "P8": "North · left · P8",
-    "P7": "South · right · P7 (180°)",
-    "P9": "North · right · P9",
+    "P9": "North · left · P9 (180°)",
+    "P7": "South · right · P7",
+    "P8": "North · right · P8",
 }
 
 DetectFn = Callable[[str, np.ndarray], list]

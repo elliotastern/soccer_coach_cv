@@ -27,8 +27,8 @@ PASS = 9.0
 STILL_DIR = ROOT / "reports/eval_match3/landmark_dashboard/stills"
 # Diagram pitch y: +y left, -y right (from P1 looking north).
 DIAGRAM_SIDE = {
-    "P10": "left", "P8": "left",
-    "P7": "right", "P9": "right",
+    "P10": "left", "P9": "left",
+    "P7": "right", "P8": "right",
     "P1": "end", "P6": "end", "P_Goal1": "end", "P_Goal2": "end",
 }
 
@@ -473,7 +473,7 @@ def score_naming(cam: str, info: dict) -> tuple[float, list[str]]:
         notes.append("orient missing P1-north")
     have = {c["id"]: c for c in info.get("cams", [])}
     want_side = {
-        "P10": "left", "P8": "left", "P7": "right", "P9": "right",
+        "P10": "left", "P9": "left", "P7": "right", "P8": "right",
         "P1": "end", "P6": "end",
     }
     want_end = {
@@ -553,9 +553,9 @@ def score_video_match(cam: str, info: dict) -> tuple[float, list[str]]:
     if not p9:
         score -= 4
         notes.append("P9 chip missing")
-    elif p9.get("diagramSide") != "right":
+    elif p9.get("diagramSide") != "left":
         score -= 2
-        notes.append(f"P9 diagramSide={p9.get('diagramSide')} want right")
+        notes.append(f"P9 diagramSide={p9.get('diagramSide')} want left")
     # Active cam: still FOV side must match diagram chip side for sideline cams.
     # P9 is a corner/goal FOV (goal on image-left) — skip green-band left/right gate.
     want = DIAGRAM_SIDE.get(cam, "end")
@@ -569,12 +569,9 @@ def score_video_match(cam: str, info: dict) -> tuple[float, list[str]]:
             score -= 3
             notes.append(f"{cam} still={got} diagram={want}")
     if cam == "P8":
-        if chip.get("diagramSide") != "left":
+        if chip.get("diagramSide") != "right":
             score -= 3
-            notes.append("P8 must be diagram LEFT")
-        if still_side("P8") == "right":
-            score -= 2
-            notes.append("P8 still looks right-sided")
+            notes.append("P8 must be diagram RIGHT")
     return clamp(score), notes
 
 def score_cameras(cam: str, info: dict) -> tuple[float, list[str]]:

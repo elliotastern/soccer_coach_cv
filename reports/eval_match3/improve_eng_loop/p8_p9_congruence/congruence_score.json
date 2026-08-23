@@ -1,0 +1,30 @@
+{
+  "score": 9.0,
+  "pass": true,
+  "gate": 9.0,
+  "parts": {
+    "01_quad_grid": {
+      "score": 10.0,
+      "notes": []
+    },
+    "02_calibs": {
+      "score": 10.0,
+      "notes": []
+    },
+    "03_diagram_xy": {
+      "score": 10.0,
+      "notes": [
+        "diagram CAM_XY swapped (or updated)"
+      ]
+    },
+    "04_map_sides_fr3050": {
+      "score": 6.0,
+      "notes": [
+        "P9 y not mostly left (+y): [0.32541514479518924, -1.658146745808153]"
+      ]
+    }
+  },
+  "baseline_commit": "749eaae",
+  "prompt": "/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/p8_p9_congruence/PROMPT.md",
+  "ts": "2026-08-22T23:42:14"
+}

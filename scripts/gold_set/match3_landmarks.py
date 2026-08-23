@@ -156,8 +156,8 @@ def nearby_unused(name: str, used: set[str], n: int = 5) -> list[str]:
 CAMS = [
     {"id": "P10", "label": "P10 — South left, both sidelines", "order": "both_sides_south"},
     {"id": "P7", "label": "P7 — South right, both sidelines", "order": "both_sides_south"},
-    {"id": "P8", "label": "P8 — North left goal / corner", "order": "goal_right"},
-    {"id": "P9", "label": "P9 — North right corner / goal", "order": "both_sides_north"},
+    {"id": "P8", "label": "P8 — North right goal / corner", "order": "goal_right"},
+    {"id": "P9", "label": "P9 — North left corner / goal", "order": "both_sides_north"},
     {"id": "P1", "label": "P1 — South, lengthwise toward goal", "order": "both_sides_south"},
     {"id": "P6", "label": "P6 — North", "order": "goal_right"},
     {"id": "P_Goal1", "label": "P_Goal1 — Goal", "order": "goal_right"},

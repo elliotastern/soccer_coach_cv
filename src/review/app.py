@@ -667,7 +667,7 @@ def render_synced_frame_review(
             options=VIEW_OPTIONS,
             index=0,
             key="cam_stitch_view_v3",
-            help="cw90: Left top · South left · P10|P8 / P7|P9. See match3_camera_layout rule.",
+            help="cw90: Left top · South left · P10|P9 / P7|P8. See match3_camera_layout rule.",
         )
         apply_defish = st.sidebar.checkbox(
             "Defish P7–P10 in camera view",
@@ -1070,7 +1070,7 @@ def render_synced_frame_review(
     events_bar = draw_events_bar(bar_w, t_sec, recent_events, flash)
 
     st.caption(
-        "Left top · South left · North right · **P10|P8 / P7|P9** · pitch map below (cw90). "
+        "Left top · South left · North right · **P10|P9 / P7|P8** · pitch map below (cw90). "
         "Hide sidebar for a bigger video."
     )
     st.image(
