@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-24T09:44:48.897713+00:00",
+  "ts": "2026-08-24T23:51:12.957787+00:00",
   "path": "reports/eval_match3/improve_eng_loop/player_map/check_15s_s4/coach_mosaic_pitch_min.mp4",
   "note": "Product map: defish tiles, apply_undistort=not apply_defish, map_player_box (P8 lower-zone H fallback), P_Goal2 hull, F0 fuse; events bar = heuristic pass/shot/recovery on fused xy",
   "debug_cam": true,
