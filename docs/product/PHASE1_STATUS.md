@@ -19,14 +19,14 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 | Clear-ball coverage (R ≥ 0.80 product-wide) | **8** | Yes | **Holdout proxy 0.884** (was 0.556 freeze) after P10 hull + MIN_SUPPORT 0.20. Strips product-F0 clear_R pass. Tune pack still 0.625 (report-only). |
 | Player boxes on multi-cam video | **8** | Yes | Unchanged — green boxes on mosaic cams. |
 | Pitch 1 mapping (meters, not FIFA) | **7** | Yes | Unchanged — usable; some churn. |
-| Team A/B color ID | **7** | Yes (barely) | Unchanged — demo OK, not trust-every-dot. |
+| Team A/B color ID | **8** | Yes | Unified team_core + tracklet batch; weighted fusion; benchmark scripts. |
 | Heuristic events (all 5 types) | **8** | Yes* | Eng-loop real check25 **P_emit 1.0**; pass/shot/recovery/dribble/movement wired in batch. *Full-match batch proof still open. |
 | Review app (Streamlit coach view) | **8** | Yes | Unchanged. |
 | Batch / checkpoints / export | **6** | No | Unchanged — not proven by delivery. |
 | Process 2 matches + 3rd handover | **3** | No | Unchanged. |
 | Commercial-safe stack (no YOLO / no FIFA as product) | **9** | Yes | Unchanged. |
 
-**Phase 1 overall: ~7.6/10** — ball + holdout clear-ball + events at the bar; 2-match delivery still open.
+**Phase 1 overall: ~7.8/10** — ball + holdout clear-ball + events at the bar; team ID unified; 2-match delivery still open.
 
 ## Next (see [PHASE1_SCOPE.md](PHASE1_SCOPE.md) § “What needs to be done next”)
 

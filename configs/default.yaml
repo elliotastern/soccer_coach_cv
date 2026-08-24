@@ -38,8 +38,11 @@ tracker:
 
 # Team Assignment
 team_assignment:
-  kmeans_clusters: 2
-  color_space: "RGB"
+  golden_batch_frames: 600
+  min_tracklets: 15
+  assign_conf: 0.55
+  kmeans_clusters: 2  # legacy compat
+  color_space: "RGB"  # legacy compat
 
 # Coordinate Mapping
 mapping:

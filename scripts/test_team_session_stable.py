@@ -10,17 +10,21 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.review.team_live import (  # noqa: E402
+from src.perception.team_core import (  # noqa: E402
     FEAT_BASE,
     HUE_BINS,
     TEAM_MIN_CROPS,
-    TeamSession,
-    _adaptive_non_green,
-    apply_goal_box_prior,
     fit_team_centroids,
     jersey_feature,
     which_goal_box,
 )
+from src.review.team_live import (  # noqa: E402
+    TeamSession,
+    apply_goal_box_prior,
+)
+from src.perception import team_core as _tc  # noqa: E402
+
+_adaptive_non_green = _tc._adaptive_non_green
 
 
 def _paint(bgr, h=60, w=40):

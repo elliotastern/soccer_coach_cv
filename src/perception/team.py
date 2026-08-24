@@ -187,16 +187,8 @@ def assign_teams(tracked_objects: List[TrackedObject], frame: np.ndarray,
                  n_clusters: int = 2) -> List[TrackedObject]:
     """
     Assign team IDs using K-Means clustering on jersey colors (legacy method).
-    
-    This is kept for backward compatibility but TeamClusterer should be used instead.
-    
-    Args:
-        tracked_objects: List of tracked objects
-        frame: Current frame
-        n_clusters: Number of teams (default 2)
-    
-    Returns:
-        List of tracked objects with team_id assigned
+
+    .. deprecated:: Use batch tracklet path (team_tracklet.TrackletTeamModel) instead.
     """
     if len(tracked_objects) < n_clusters:
         return tracked_objects

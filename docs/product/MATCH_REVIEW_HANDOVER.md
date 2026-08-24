@@ -165,6 +165,7 @@ Toggle **Expert mode** (top) for output paths, checkpoints, and debug overlays.
 | Mosaic tiles (P10, P9, P7, P8) | Raw MP4s in `data/raw/Match 3/` at the same `frame_id` |
 | Orange boxes + yellow ball (when on) | RF-DETR on mosaic tiles (first load can take 20–40 s) |
 | Pitch map (preferred) | Live detections fused across quads |
+| Team colors (blue / red / gray) | [`team_core`](../../src/perception/team_core.py) kit features + weighted multi-cam vote + [`TeamSession`](../../src/review/team_live.py) (live review); tracklet Golden Batch in [`batch_pipeline.py`](../../apps/batch_pipeline.py) (export) |
 | Pitch map (fallback) | Merged `frame_data.csv` from sibling folders under the same output root |
 | Events table + bar | `events.json` from the **one** run selected in the sidebar (Pass / Dribble / Movement / Recovery / Shot) |
 

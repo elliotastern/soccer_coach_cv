@@ -34,7 +34,7 @@ from src.mapping.match3_xy import (
 from src.mapping.pitch_bounds import in_pitch_bounds
 from src.perception.camera import detect_scene_cut, is_gameplay_view
 from src.perception.rfdetr_local import build_detector
-from src.perception.team import assign_teams
+from src.perception.team_tracklet import TrackletAccumulator, TrackletTeamModel
 from src.perception.track_ball import create_ball_tracker_wrapper
 from src.perception.tracker import Tracker
 from src.state.types import Ball, FrameData, Location, Player
@@ -137,6 +137,79 @@ def apply_match3_ball_hold(
     return frame_data, emit, 0
 
 
+def _cam_id_from_video(video_path: str) -> str | None:
+    try:
+        _gs = _ROOT / "scripts" / "gold_set"
+        if str(_gs) not in sys.path:
+            sys.path.insert(0, str(_gs))
+        from raw_cam_id import cam_id_from_raw_name  # noqa: WPS433
+
+        return cam_id_from_raw_name(Path(video_path).name)
+    except Exception:
+        return None
+
+
+def golden_batch_pass(
+    cap,
+    detector,
+    tracker: Tracker,
+    pitch_mapper: PitchMapper,
+    config: dict,
+    calib,
+    cam_id: str | None,
+    golden_frames: int,
+    start_frame: int,
+    fps: float,
+) -> TrackletTeamModel:
+    """Pass 1: accumulate tracklet jersey features, fit match centroids."""
+    acc = TrackletAccumulator()
+    model = TrackletTeamModel()
+    player_id = config["detection"]["player_class_id"]
+    prev_frame = None
+    frame_id = start_frame
+    end_frame = start_frame + golden_frames
+    collected = 0
+
+    while frame_id < end_frame:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        camera_cfg = config.get("camera") or {}
+        if not is_gameplay_view(frame, green_threshold=float(camera_cfg.get("green_threshold", 0.5))):
+            prev_frame = frame.copy()
+            frame_id += 1
+            continue
+        if detect_scene_cut(frame, prev_frame, threshold=float(camera_cfg.get("scene_cut_threshold", 0.7))):
+            tracker.reset()
+        detections = detector.detect(frame)
+        if detections:
+            tracked = tracker.update(detections, frame)
+            frame_wh = (frame.shape[1], frame.shape[0])
+            for obj in tracked:
+                det = obj.detection
+                if int(det.class_id) != int(player_id):
+                    continue
+                loc = map_player_box(pitch_mapper, calib, det.bbox, frame_wh)
+                acc.add(
+                    obj.object_id,
+                    frame,
+                    det.bbox,
+                    pitch_xy=(loc.x, loc.y),
+                    cam=cam_id,
+                    frame_wh=frame_wh,
+                )
+                collected += 1
+        prev_frame = frame.copy()
+        frame_id += 1
+
+    min_tr = int(config.get("team_assignment", {}).get("min_tracklets", 15))
+    if model.fit_from_accumulator(acc, min_tracklets=min_tr):
+        print(f"Golden Batch: {len(acc.tracklet_medians())} tracklets, {collected} crops")
+    else:
+        print(f"Golden Batch fit failed ({collected} crops) — teams will be gray")
+    return model
+
+
 def process_frame(
     frame: np.ndarray,
     frame_id: int,
@@ -147,6 +220,8 @@ def process_frame(
     prev_frame: Optional[np.ndarray],
     config: dict,
     calib=None,
+    team_model: TrackletTeamModel | None = None,
+    cam_id: str | None = None,
 ) -> Optional[FrameData]:
     camera_cfg = config.get("camera") or {}
     if not is_gameplay_view(frame, green_threshold=float(camera_cfg.get("green_threshold", 0.5))):
@@ -163,14 +238,25 @@ def process_frame(
     if not tracked_objects:
         return None
 
-    tracked_objects = assign_teams(
-        tracked_objects,
-        frame,
-        n_clusters=config["team_assignment"]["kmeans_clusters"],
-    )
-
     frame_wh = (frame.shape[1], frame.shape[0])
     player_id = config["detection"]["player_class_id"]
+    pitch_positions: dict[int, tuple[float, float]] = {}
+    for obj in tracked_objects:
+        det = obj.detection
+        if int(det.class_id) == int(player_id):
+            loc = map_player_box(pitch_mapper, calib, det.bbox, frame_wh)
+            pitch_positions[int(obj.object_id)] = (loc.x, loc.y)
+
+    if team_model is not None and team_model.centroids is not None:
+        tracked_objects = team_model.apply_to_tracked(
+            tracked_objects,
+            frame,
+            player_class_id=player_id,
+            pitch_positions=pitch_positions,
+            cam=cam_id,
+            frame_wh=frame_wh,
+        )
+
     ball_id = config["detection"]["ball_class_id"]
     players = []
     ball = None
@@ -273,19 +359,47 @@ def process_video(
     frames_to_run = remaining if max_frames is None else min(remaining, max_frames)
 
     tracker_cfg = config.get("tracker", {})
-    base_tracker = Tracker(
-        track_thresh=tracker_cfg.get("track_thresh", 0.10),
-        high_thresh=tracker_cfg.get("high_thresh", 0.35),
-        track_buffer=tracker_cfg.get("track_buffer", 30),
-        match_thresh=tracker_cfg.get("match_thresh", 0.8),
-        frame_rate=int(round(fps)) if fps > 1 else tracker_cfg.get("frame_rate", 30),
-        emit_thresh=tracker_cfg.get("emit_thresh", EMIT_CONF),
-        ema_alpha=tracker_cfg.get("ema_alpha", 0.3),
-        apply_emit_gate=tracker_cfg.get("apply_emit_gate", True),
+    team_cfg = config.get("team_assignment") or {}
+    golden_frames = int(team_cfg.get("golden_batch_frames", 600))
+    cam_id = _cam_id_from_video(video_path)
+
+    def _make_tracker():
+        base = Tracker(
+            track_thresh=tracker_cfg.get("track_thresh", 0.10),
+            high_thresh=tracker_cfg.get("high_thresh", 0.35),
+            track_buffer=tracker_cfg.get("track_buffer", 30),
+            match_thresh=tracker_cfg.get("match_thresh", 0.8),
+            frame_rate=int(round(fps)) if fps > 1 else tracker_cfg.get("frame_rate", 30),
+            emit_thresh=tracker_cfg.get("emit_thresh", EMIT_CONF),
+            ema_alpha=tracker_cfg.get("ema_alpha", 0.3),
+            apply_emit_gate=tracker_cfg.get("apply_emit_gate", True),
+        )
+        return create_ball_tracker_wrapper(base, min_track_length=5, fit_threshold=0.15)
+
+    gb_tracker = _make_tracker()
+    cap_gb = open_video_file(video_path)
+    if start_frame > 0:
+        cap_gb.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+    gb_len = min(golden_frames, frames_to_run)
+    team_model = golden_batch_pass(
+        cap_gb,
+        detector,
+        gb_tracker,
+        pitch_mapper,
+        config,
+        calib,
+        cam_id,
+        gb_len,
+        start_frame,
+        fps,
     )
-    tracker = create_ball_tracker_wrapper(
-        base_tracker, min_track_length=5, fit_threshold=0.15
-    )
+    cap_gb.release()
+    centroids_path = run_dir / "team_centroids.json"
+    team_model.save(centroids_path)
+    if team_model.centroids is not None:
+        print(f"Team centroids → {centroids_path}")
+
+    tracker = _make_tracker()
     print(
         f"Processing {match_id}: {frames_to_run} frames "
         f"(start={start_frame}, total={frame_count}) @ {fps} fps → {run_dir}"
@@ -317,6 +431,8 @@ def process_video(
             prev_frame,
             config,
             calib=calib,
+            team_model=team_model,
+            cam_id=cam_id,
         )
         if frame_data:
             if calib is not None:

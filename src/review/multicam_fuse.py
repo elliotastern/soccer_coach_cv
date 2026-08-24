@@ -72,6 +72,34 @@ def _cluster_players(
     return clusters
 
 
+def _weighted_team_vote(cl: list[dict]) -> int:
+    """Weighted consensus; tie or low weight → gray (-1)."""
+    from src.perception.team_core import team_vote_weight
+
+    w0, w1 = 0.0, 0.0
+    for c in cl:
+        tid = int(c.get("team", -1))
+        if tid < 0:
+            continue
+        cam = c.get("cam")
+        bbox = c.get("bbox")
+        xy = c.get("xy")
+        wh = c.get("frame_wh")
+        valid = bool(c.get("crop_valid", tid >= 0))
+        w = float(c.get("team_weight") or 0.0)
+        if w <= 0.0 and xy is not None:
+            w = team_vote_weight(cam, bbox, wh, (float(xy[0]), float(xy[1])), valid)
+        if tid == 0:
+            w0 += w
+        elif tid == 1:
+            w1 += w
+    if w0 <= 0.0 and w1 <= 0.0:
+        return -1
+    if abs(w0 - w1) < 0.05 * max(w0, w1, 1e-6):
+        return -1
+    return 0 if w0 > w1 else 1
+
+
 def _fuse_player_clusters(
     clusters: list[list[dict]],
     *,
@@ -105,17 +133,8 @@ def _fuse_player_clusters(
             )
             if min(_dist(best["xy"], s) for s in strong_xy) > lim:
                 continue
-        # Team vote: only count confident team labels; conflict → gray
-        team_votes = [int(c.get("team", -1)) for c in cl if int(c.get("team", -1)) >= 0]
-        if not team_votes:
-            team = -1
-        elif len(set(team_votes)) == 1:
-            team = team_votes[0]
-        else:
-            # majority; tie → gray
-            c0 = team_votes.count(0)
-            c1 = team_votes.count(1)
-            team = 0 if c0 > c1 else (1 if c1 > c0 else -1)
+        # Team vote: weighted consensus; conflict → gray
+        team = _weighted_team_vote(cl)
         pid = int(best["pid"]) if len(cl) == 1 and int(best.get("pid", -1)) >= 0 else 20_000 + i
         fused.append(
             (float(best["xy"][0]), float(best["xy"][1]), int(team), pid)
@@ -367,6 +386,7 @@ def fuse_live_dets_for_pitch(
                     "conf": float(mapped["conf"]),
                     "cam": cam,
                     "bbox": tuple(float(v) for v in d.bbox),
+                    "frame_wh": wh,
                 }
             )
         if mapped_any:

@@ -15,6 +15,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.perception.rfdetr_local import LocalRFDETRDetector  # noqa: E402
+from src.perception.team_core import (  # noqa: E402
+    FEAT_BASE,
+    HUE_BINS,
+    TEAM_MIN_CROPS,
+    assign_from_feature,
+    fit_team_centroids,
+    jersey_feature,
+    torso_crop,
+)
 from src.review.cam_mosaic import (  # noqa: E402
     _ensure_cam_dets,
     _is_ball_det,
@@ -24,13 +33,6 @@ from src.review.cam_mosaic import (  # noqa: E402
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
-from src.review.team_live import (  # noqa: E402
-    TEAM_MIN_CROPS,
-    FEAT_BASE,
-    HUE_BINS,
-    jersey_feature,
-    torso_crop,
-)
 
 OUT = ROOT / "reports/eval_match3/improve_eng_loop/team_label"
 FRAME = 2400
@@ -152,7 +154,7 @@ def main() -> int:
     notes["13_both_teams"] = f"n0={n0} n1={n1}"
 
     # Vision crop strip: torso crops + BGR separation of assigned teams
-    from src.review.team_live import assign_from_feature, fit_team_centroids
+    # uses assign_from_feature, fit_team_centroids from team_core (top-level import)
 
     crops, feats = [], []
     for cam in CAMS:

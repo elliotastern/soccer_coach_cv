@@ -2,17 +2,24 @@
   "emits": [
     {
       "type": "pass",
-      "t_end": 7.567,
-      "t_start": 7.55,
-      "confidence": 1.0,
-      "frame_id": 2844
+      "t_end": 1.867,
+      "t_start": 1.8,
+      "confidence": 0.826,
+      "frame_id": 2502
     },
     {
       "type": "pass",
-      "t_end": 16.017,
-      "t_start": 16.0,
-      "confidence": 0.965,
-      "frame_id": 3351
+      "t_end": 5.2,
+      "t_start": 5.133,
+      "confidence": 0.93,
+      "frame_id": 2702
+    },
+    {
+      "type": "dribble",
+      "t_end": 11.333,
+      "t_start": 11.2,
+      "confidence": 0.966,
+      "frame_id": 3070
     }
   ]
 }

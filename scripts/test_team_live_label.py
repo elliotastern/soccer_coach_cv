@@ -10,14 +10,14 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.review.team_live import (  # noqa: E402
+from src.perception.team_core import (  # noqa: E402
     TEAM_MIN_CROPS,
     assign_from_feature,
     fit_team_centroids,
     jersey_feature,
-    label_player_pts,
     torso_crop,
 )
+from src.review.team_live import label_player_pts  # noqa: E402
 
 
 def _paint(bgr, h=60, w=40):
