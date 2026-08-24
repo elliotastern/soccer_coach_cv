@@ -45,7 +45,22 @@ soccer_coach_cv/
 
 ---
 
-## Step 2 — Run batch once per camera (build output)
+## Step 2 — Run batch (build output)
+
+### Preferred testing workflow (locked)
+
+For **integration testing and handover**, use **short chunked batch** + **live dashboard review** — not full-match batch.
+
+| Match | Script | Output | Review |
+|-------|--------|--------|--------|
+| Match 4 (5090) | `bash scripts/run_batch_match4_5min.sh` | `data/output/match_4_5min/` | Expert mode → same root; refresh after each chunk |
+| Match 3 smoke | `bash scripts/run_phase1_2min_sample.sh` | `data/output/full_match_2min/` | Same pattern |
+
+Defaults: **5 min @ 60 fps** per cam, **quad cams** (P10/P9/P7/P8), **1800-frame chunks**, cumulative merge after every chunk. Full spec: [PHASE1_BATCH_TESTING.md](PHASE1_BATCH_TESTING.md).
+
+**Do not** use `run_batch_match4.sh` (full 8 cams × full MP4) for testing unless explicitly requested for delivery.
+
+### Manual batch (one cam at a time)
 
 Run the batch pipeline **once per camera file**, all into the **same output root** for that match:
 

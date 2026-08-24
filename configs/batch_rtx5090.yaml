@@ -1,0 +1,11 @@
+# RTX 5090 batch overlay — throughput-first; Phase 1 emit gate unchanged.
+detection:
+  enhance_ball: false
+  use_sahi: false
+  use_kalman: false
+
+checkpoint:
+  interval_frames: 600
+
+team_assignment:
+  golden_batch_frames: 600

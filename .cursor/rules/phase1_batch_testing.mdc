@@ -1,0 +1,32 @@
+---
+description: Default Phase 1 batch testing — 5 min chunked + live Streamlit review
+alwaysApply: true
+---
+
+# Phase 1 batch testing (locked)
+
+Default **integration / handover testing** is **not** full-match batch. Use **chunked short runs** with **live Streamlit review** while output is being built.
+
+Full spec: [PHASE1_BATCH_TESTING.md](docs/product/PHASE1_BATCH_TESTING.md) · Catch: [CATCH_MACHINE_CURSOR_CONTEXT.md](docs/product/CATCH_MACHINE_CURSOR_CONTEXT.md)
+
+## Default workflow (Match 4)
+
+| Setting | Value |
+|---------|-------|
+| Script | `scripts/run_batch_match4_5min.sh` |
+| Config | `configs/batch_rtx5090.yaml` (5090/Catch) or `configs/batch_mac_stable.yaml` (Mac) |
+| Duration | **5 min @ 60 fps** (`18000` frames) per cam |
+| Cams | **Quad only** (P10, P9, P7, P8) — mosaic handover |
+| Chunks | **1800 frames** (~30 s video); merge + promote CSV/JSON **after every chunk** |
+| Output | `data/output/match_4_5min/` |
+| Review | Streamlit **Expert mode** → same output root; refresh after each chunk |
+
+Match 3 smoke: `scripts/run_phase1_2min_sample.sh` → `data/output/full_match_2min/` (same chunk/promote pattern).
+
+## Do / don't
+
+- **Do** run on Catch in **tmux** (`tmux new -s match4_5min`).
+- **Do** use `CAMS=P10-match4 bash scripts/run_batch_match4_5min.sh` for fastest single-cam smoke.
+- **Do** keep dashboard on http://127.0.0.1:8501 while batch runs.
+- **Don't** default to `run_batch_match4.sh` (full 8 cams × full MP4 ≈ 26+ h) for testing or handover.
+- **Don't** start unlimited full-match batch unless the user **explicitly** asks for delivery / full match.

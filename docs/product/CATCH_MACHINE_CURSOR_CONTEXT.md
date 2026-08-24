@@ -32,9 +32,11 @@ Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) �
 | Review dashboard | ✅ Done | `bootstrap_phase1_client.sh` → http://127.0.0.1:8501 |
 | Smoke video path | ✅ Done | `ln -sf P10-match4.mp4 P10-002.mp4` in raw folder (or auto via `guess_video_for_run` after `git pull`) |
 | `tmux` | ✅ Done | `sudo apt install -y tmux` (3.4) — use for **next** batch detach |
-| Match 4 full batch | 🔄 Running | `bash scripts/run_batch_match4.sh` → `data/output/match_4/` (8 cams sequential) |
+| Match 4 full batch | ⏸ Skip | Use **5-min chunked** script instead (see below) |
 
 **Do not redo:** venv, torch cu128, HF model download, smoke symlinks, or `hf auth login` unless token revoked.
+
+**Testing default:** 5-min chunked batch + live review — [PHASE1_BATCH_TESTING.md](PHASE1_BATCH_TESTING.md) · rule `phase1_batch_testing.mdc`.
 
 ---
 
@@ -67,7 +69,8 @@ Repo layout on Catch:
 
 Services:
   Streamlit review: bash scripts/start_review_dashboard.sh → :8501
-  Batch Match 4: bash scripts/run_batch_match4.sh → data/output/match_4
+  Batch Match 4 (5 min, live review): bash scripts/run_batch_match4_5min.sh → data/output/match_4_5min
+  Batch Match 4 (full — slow): bash scripts/run_batch_match4.sh → data/output/match_4
 
 Security:
   Developer GitHub credentials NEVER on this PC
@@ -76,7 +79,54 @@ Security:
 
 ---
 
-## Match 4 batch — how long?
+---
+
+## Match 4 batch — recommended: 5 min + review while running
+
+Full-match batch (`run_batch_match4.sh`) processes **all 8 cams × full MP4 length** (~26+ hours on Catch). For Phase 1 handover, use the **5-minute chunked** script instead:
+
+```bash
+# Stop a long full batch if still running
+pkill -f batch_pipeline || true
+
+# Detached run (survives AnyDesk disconnect)
+tmux new -s match4_5min
+source ~/.venvs/soccer-rfdetr312/bin/activate
+cd ~/soccer_coach_cv && git pull
+bash scripts/run_batch_match4_5min.sh
+# Ctrl+B then D to detach
+```
+
+**What it does**
+
+| Setting | Value |
+|---------|-------|
+| Duration | **5 min** per cam @ 60 fps (`18000` frames) |
+| Cams | **Quad only** (P10, P9, P7, P8) — coach mosaic |
+| Config | `configs/batch_rtx5090.yaml` — no enhance_ball/kalman, 600-frame checkpoints |
+| Chunks | **1800 frames** (~30 s video) — cumulative merge after each chunk |
+| Output | `data/output/match_4_5min/` |
+
+**Review while batch runs:** keep Streamlit on http://127.0.0.1:8501 → **Expert mode** → output root `data/output/match_4_5min`. Refresh after each chunk (~4 min wall on P10-class footage); frame count grows in sidebar.
+
+**Faster single-cam smoke:**
+
+```bash
+CAMS=P10-match4 bash scripts/run_batch_match4_5min.sh
+```
+
+**Watch progress:**
+
+```bash
+tail -f reports/eval_match3/improve_eng_loop/batch_match4_5min_*.log
+watch -n 30 'wc -l data/output/match_4_5min/*/frame_data.csv 2>/dev/null'
+```
+
+**Rough ETA (5090, quad 5 min):** ~45–90 min total (4 cams × ~12–22 min each at ~8 fps).
+
+---
+
+## Match 4 batch — full run (optional, slow)
 
 `run_batch_match4.sh` runs **full** `batch_pipeline.py` on **8 cameras one after another** (no `--max-frames`). Time ≈ **sum of each MP4 length** × RF-DETR cost per frame.
 
@@ -180,12 +230,12 @@ python3 -c "from scripts.gold_set.raw_cam_id import load_match_raw; print(load_m
 
 ---
 
-## Next steps (after batch finishes)
+## Next steps (after 5-min batch)
 
-1. Confirm output: `ls data/output/match_4/*/frame_data.csv`
-2. Review: Expert mode → output root `data/output/match_4`
+1. Confirm output: `ls data/output/match_4_5min/*/frame_data.csv`
+2. Review: Expert mode → output root `data/output/match_4_5min`
 3. Delivery check: `python3 scripts/gold_set/build_phase1_delivery_manifest.py`
-4. Optional: rerun single cam if one failed (see per-cam log in `reports/eval_match3/improve_eng_loop/batch_*_P10-match4_*.log`)
+4. Optional full match later: `bash scripts/run_batch_match4.sh` (overnight, all 8 cams)
 
 **One-shot setup (only if starting fresh on a new machine):**
 
@@ -194,8 +244,10 @@ source ~/.venvs/soccer-rfdetr312/bin/activate
 cd ~/soccer_coach_cv && git pull
 bash scripts/setup_catch_phase1_continue.sh   # models + deps + raw map check
 bash scripts/bootstrap_phase1_client.sh       # dashboard smoke
-# overnight in tmux:
-bash scripts/run_batch_match4.sh              # → data/output/match_4
+# in tmux (recommended):
+bash scripts/run_batch_match4_5min.sh        # → data/output/match_4_5min (quad, 5 min, live review)
+# full match overnight (optional):
+# bash scripts/run_batch_match4.sh          # → data/output/match_4
 ```
 
 ### 1. Confirm model weights
@@ -248,17 +300,19 @@ bash scripts/run_review_dashboard_foreground.sh
 # Ctrl+B, D to detach
 ```
 
-### 4. Batch Match 4
+### 4. Batch Match 4 (5 min — recommended)
 
 ```bash
 source ~/.venvs/soccer-rfdetr312/bin/activate
-cd ~/soccer_coach_cv
-tmux new -s match4
-bash scripts/run_batch_match4.sh    # all 8 P*-match4 symlinks → data/output/match_4
+cd ~/soccer_coach_cv && git pull
+tmux new -s match4_5min
+bash scripts/run_batch_match4_5min.sh   # quad 5 min → data/output/match_4_5min
 # Ctrl+B, D to detach
 ```
 
-Review in dashboard: **Expert mode** → output root `data/output/match_4`.
+Review while running: **Expert mode** → output root `data/output/match_4_5min`.
+
+Single-cam fastest: `CAMS=P10-match4 bash scripts/run_batch_match4_5min.sh`
 
 ---
 

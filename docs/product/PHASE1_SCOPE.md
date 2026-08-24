@@ -38,7 +38,7 @@ Phase 1 delivery is **batch-first** (process match video files via `apps/batch_p
 - **Object tracking:** RF-DETR detection for players and ball; ByteTrack for multi-object tracking (not YOLO).
 - **Team assignment:** classify Team A / B using color clustering.
 - **Coordinate mapping:** pixel locations → Pitch 1 / Field 1 meters ([PITCH1_DIMENSIONS.md](PITCH1_DIMENSIONS.md): **53.90 × ~34.8 m**, not FIFA 105×68). Single center/master camera is expected to capture ~85% of action; multi-camera occlusion fixes are Phase 2.
-- **Batch processing:** sequential processing of multiple match videos with operational reliability (checkpoints, incremental saves).
+- **Batch processing:** sequential processing of multiple match videos with operational reliability (checkpoints, incremental saves). **Default testing:** 5-minute chunked runs with live Streamlit review — see [PHASE1_BATCH_TESTING.md](PHASE1_BATCH_TESTING.md) (`run_batch_match4_5min.sh`); full-match batch only when explicitly requested.
 
 ### PoC accuracy definition (~80%)
 

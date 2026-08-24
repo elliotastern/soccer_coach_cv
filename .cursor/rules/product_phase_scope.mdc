@@ -11,6 +11,7 @@ Delivery focus is **Product Phase 1**: batch/offline vision, team assignment, pi
 
 Entrypoints: `apps/batch_pipeline.py`, `apps/review_dashboard.py`  
 Details: `docs/product/PHASE1_SCOPE.md`  
+Testing default: `docs/product/PHASE1_BATCH_TESTING.md` (5-min chunked + live review)  
 Roadmap: `docs/product/PHASES.md`  
 Vision: `docs/product/VISION.md`  
 Layout: `docs/architecture/LAYOUT.md`  
