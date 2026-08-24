@@ -17,8 +17,9 @@ QA_LABELS = {
 }
 
 GUIDE_STEPS = [
-    "Use **Previous** / **Next** (or Play) to move through the match.",
-    "Check the **video** (left) and **mini pitch map** (right): orange box on the ball, yellow dot on the map.",
+    "Use **Previous** / **Next**, **Play** (smooth), or **Slow** (step through) to move through the match.",
+    "Play uses saved batch data — pause for live detection boxes (first load can take 20–40s).",
+    "Check the **video** (left) and **mini pitch map** (right): ball box when paused, yellow dot on the map.",
     "Watch the **events bar** under the video — Pass, Dribble, Movement, Recovery, Shot.",
     "Answer the quick questions below, then click **Save this frame**.",
 ]

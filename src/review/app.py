@@ -729,8 +729,8 @@ def render_synced_frame_review(
         only_ball = st.sidebar.checkbox("Only frames with exported ball", value=True, key="only_ball")
         det_thr = st.sidebar.slider("Detect thr", 0.05, 0.5, 0.15, 0.05, key="det_thr")
         play_fps = st.sidebar.slider(
-            "Play speed (UI fps)", 0.5, 8.0, 2.0, 0.5, key="play_fps",
-            help="Play runs RF-DETR each frame (boxes). Keep speed low or raise stride.",
+            "Play speed (UI fps)", 0.5, 8.0, 4.0, 0.5, key="play_fps",
+            help="While playing: export-only (no live RF-DETR). Pause for detection boxes.",
         )
         play_stride = st.sidebar.slider(
             "Play stride (frames in list)", 1, 10, 1, 1, key="play_stride",
@@ -741,13 +741,16 @@ def render_synced_frame_review(
         st.session_state.verify_nav_i = len(nav) // 2
     if "verify_playing" not in st.session_state:
         st.session_state.verify_playing = False
+    if "verify_play_slow" not in st.session_state:
+        st.session_state.verify_play_slow = False
     st.session_state.verify_nav_i = int(
         np.clip(st.session_state.verify_nav_i, 0, max(0, len(nav) - 1))
     )
 
     playing = bool(st.session_state.verify_playing)
-    # Never force RF-DETR during play — dual ckpt + 4-cam USB reads cause LaCie EIO
-    dets_enabled = bool(show_dets)
+    play_slow = bool(st.session_state.verify_play_slow)
+    # Live RF-DETR on 4 cams takes seconds/frame — smooth play uses batch export only.
+    dets_enabled = bool(show_dets) and not playing
     # Never show MAP-BALL during play; paused only if debug checkbox on
     map_ball_on = (not playing) and bool(show_map_ball)
     map_players_on = (not playing) and bool(show_map_players)
@@ -755,13 +758,34 @@ def render_synced_frame_review(
     if "hide_sidebar" not in st.session_state:
         st.session_state.hide_sidebar = False
 
-    cplay, cprev, cind, cnext = st.columns([1, 1, 2, 1])
+    def _stop_play():
+        st.session_state.verify_playing = False
+        st.session_state.verify_play_slow = False
+
+    cplay, cslow, cprev, cnext, cind = st.columns([1, 1, 1, 1, 2])
     with cplay:
-        play_lbl = "Pause" if playing else "Play"
+        play_lbl = "Pause" if playing and not play_slow else "Play"
         if not simple:
-            play_lbl = "⏸ Pause" if playing else "▶ Play"
+            play_lbl = "⏸ Pause" if playing and not play_slow else "▶ Play"
         if st.button(play_lbl, use_container_width=True, type="primary"):
-            st.session_state.verify_playing = not playing
+            if playing and not play_slow:
+                _stop_play()
+            elif playing and play_slow:
+                _stop_play()
+            else:
+                st.session_state.verify_playing = True
+                st.session_state.verify_play_slow = False
+            st.rerun()
+    with cslow:
+        slow_lbl = "Pause" if playing and play_slow else "Slow"
+        if not simple:
+            slow_lbl = "⏸ Pause" if playing and play_slow else "🐢 Slow"
+        if st.button(slow_lbl, use_container_width=True):
+            if playing and play_slow:
+                _stop_play()
+            else:
+                st.session_state.verify_playing = True
+                st.session_state.verify_play_slow = True
             st.rerun()
     with cprev:
         prev_lbl = "Previous" if simple else "◀ Prev"
@@ -774,7 +798,8 @@ def render_synced_frame_review(
     frame_id = int(nav[st.session_state.verify_nav_i])
     with cind:
         if playing:
-            st.caption(f"Playing… frame **{frame_id}**")
+            mode = "slow" if play_slow else "smooth"
+            st.caption(f"Playing ({mode})… frame **{frame_id}**")
         else:
             frame_id = st.slider(
                 "Frame",
@@ -787,12 +812,30 @@ def render_synced_frame_review(
             frame_id = min(nav, key=lambda f: abs(f - int(frame_id)))
             st.session_state.verify_nav_i = nav.index(frame_id)
 
+    if playing:
+        if play_slow:
+            play_fps_eff, play_stride_eff = 0.75, 1
+        elif simple:
+            play_fps_eff, play_stride_eff = 4.0, 1
+        else:
+            play_fps_eff = float(play_fps)
+            play_stride_eff = int(play_stride)
+    else:
+        play_fps_eff, play_stride_eff = float(play_fps), int(play_stride)
+
     st.caption(
         f"Nav {st.session_state.verify_nav_i + 1}/{len(nav)} · "
         f"{'ball-export' if only_ball and ball_frames else 'all-export'}"
         + (" · **PLAYING**" if playing else "")
+        + (" · slow" if play_slow else "")
+        + (" · export playback" if playing else "")
         + (" · boxes on" if dets_enabled else "")
     )
+    if playing:
+        st.caption(
+            "Smooth play shows video + batch pitch map (no live AI). "
+            "**Pause** to load detection boxes — first frame can take 20–40s."
+        )
 
     from src.review.events_bar import draw_events_bar, events_at_frame, events_up_to_frame
 
@@ -807,7 +850,7 @@ def render_synced_frame_review(
     except Exception as exc:
         _log_review_exc("read_video_frame", exc)
         if is_transient_io(exc):
-            st.session_state.verify_playing = False
+            _stop_play()
             st.error(f"Video I/O blip ({exc}) — paused. Retry ▶ / Next.")
         else:
             st.error(f"Video read failed: {exc}")
@@ -844,6 +887,7 @@ def render_synced_frame_review(
             dets = []
             if is_transient_io(exc):
                 st.session_state.verify_playing = False
+                st.session_state.verify_play_slow = False
 
     if map_ball_on or map_players_on:
         if H_inv is None:
@@ -940,7 +984,7 @@ def render_synced_frame_review(
     except Exception as exc:
         _log_review_exc("build_cam_view", exc)
         if is_transient_io(exc):
-            st.session_state.verify_playing = False
+            _stop_play()
         if wants_quad:
             # Never collapse Whole pitch / Best-ball to a single primary cam.
             st.warning(f"Boxes failed on mosaic ({exc}) — showing 4 cams without boxes.")
@@ -1167,14 +1211,14 @@ def render_synced_frame_review(
 
     # Auto-advance like video while Play is on
     if st.session_state.verify_playing:
-        nxt = st.session_state.verify_nav_i + int(play_stride)
+        nxt = st.session_state.verify_nav_i + int(play_stride_eff)
         if nxt >= len(nav):
-            st.session_state.verify_playing = False
+            _stop_play()
             st.toast("Playback finished")
             st.rerun()
         else:
             st.session_state.verify_nav_i = nxt
-            time.sleep(1.0 / max(float(play_fps), 0.5))
+            time.sleep(1.0 / max(float(play_fps_eff), 0.25))
             st.rerun()
 
 
@@ -1275,6 +1319,7 @@ def main():
                 log = _log_review_exc("render_synced_frame_review", exc)
                 if is_transient_io(exc):
                     st.session_state.verify_playing = False
+                    st.session_state.verify_play_slow = False
                     st.error(
                         f"Video read hiccup ({exc}). Playback paused — try **Next** or refresh."
                         if simple

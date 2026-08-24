@@ -152,7 +152,7 @@ python3 scripts/gold_set/build_phase1_handover_dashboard.py
    - **Left:** four-camera whole-pitch mosaic (Top P10|P9 · Bottom P7|P8).
    - **Right:** mini Pitch 1 map (yellow ball, blue/red teams).
    - **Events bar** under the video — **Pass**, **Dribble**, **Movement**, **Recovery**, **Shot** (from batch `events.json`).
-   - **Previous / Next / Play** — moves along `frame_id` on the selected run’s `frame_data.csv`.
+   - **Previous / Next / Play / Slow** — Play = smooth export playback (~4 fps); Slow = step through (~0.75 fps). Pause to load live detection boxes (20–40s first frame).
 3. Answer the quick questions → **Save this frame** (writes `labels.json`).
 4. **Fix events** tab — edit type (all five event kinds), drop bad rows → **Save changes** (updates `events.json`).
 
