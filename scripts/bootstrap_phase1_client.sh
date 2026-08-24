@@ -5,14 +5,22 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PY="${REVIEW_PYTHON:-$HOME/.venvs/soccer-rfdetr312/bin/python3}"
 PLAYER="$ROOT/models/people_after_100_epochs.pth"
 BALL="$ROOT/models/v12_hard_snaps/post_train/checkpoint.pth"
-SMOKE="$ROOT/data/output/full_match_2min/P10-002/frame_data.csv"
+SMOKE_OUT="$ROOT/data/output/full_match_2min/P10-002/frame_data.csv"
+SMOKE_PROC="$ROOT/data/processed/full_match_2min/P10-002/frame_data.csv"
 
 fail() { echo "ERROR: $*" >&2; exit 1; }
 
 [[ -x "$PY" ]] || fail "venv not found: $PY — see docs/product/CLIENT_HANDOVER_QUICKSTART.md"
 [[ -f "$PLAYER" ]] || fail "missing $PLAYER — see models/README.md"
 [[ -f "$BALL" ]] || fail "missing $BALL — see models/README.md"
-[[ -f "$SMOKE" ]] || fail "missing smoke output — git pull or run batch"
+
+# Bundled smoke lives in git under data/processed/; dashboard expects data/output/.
+if [[ ! -f "$SMOKE_OUT" ]] && [[ -f "$SMOKE_PROC" ]]; then
+  mkdir -p "$ROOT/data/output"
+  ln -sfn ../processed/full_match_2min "$ROOT/data/output/full_match_2min"
+  echo "Linked data/output/full_match_2min → data/processed/full_match_2min"
+fi
+[[ -f "$SMOKE_OUT" ]] || fail "missing smoke output — git pull (need data/processed/full_match_2min)"
 
 cd "$ROOT"
 export PYTHONPATH=.
