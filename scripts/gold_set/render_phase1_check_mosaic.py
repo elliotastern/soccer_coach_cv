@@ -122,12 +122,12 @@ def draw_events_bar(width: int, t_s: float, recent: list[dict], flash: str | Non
     return bar
 
 
-def h264_encode(src: Path) -> None:
-    """QuickTime/Cursor preview need yuv420p H.264; OpenCV mp4v often green-screens."""
+def h264_encode(src: Path, fps: float) -> None:
+    """QuickTime/Cursor preview need yuv420p H.264; preserve fps for smooth scrub."""
     tmp = src.with_suffix(".h264.mp4")
     cmd = [
         "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
-        "-i", str(src), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+        "-i", str(src), "-r", f"{fps:.3f}", "-c:v", "libx264", "-pix_fmt", "yuv420p",
         "-movflags", "+faststart", str(tmp),
     ]
     subprocess.run(cmd, check=True)
@@ -280,7 +280,7 @@ def main() -> int:
         if (i + 1) % 10 == 0 or i == 0:
             print(f"{i + 1}/{len(frames)} fr={fr}", flush=True)
     writer.release()
-    h264_encode(mp4)
+    h264_encode(mp4, args.out_fps)
     dur_s = len(frames) / args.out_fps
     ball_frac = sum(1 for s in stats if s["ball"]) / max(len(stats), 1)
     meta = {

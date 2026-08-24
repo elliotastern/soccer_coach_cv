@@ -1,0 +1,15 @@
+{
+  "components": {
+    "01_prompt_eval": 10.0,
+    "02_dashboard_build": 10.0,
+    "03_start_healthy": 10.0,
+    "04_stable_15s": 10.0,
+    "05_events_panel": 10.0,
+    "06_status_cmd": 10.0
+  },
+  "failed": {},
+  "pass": true,
+  "handover_url": "http://127.0.0.1:8080/phase1-handover",
+  "start_stdout": "hase1_handover/index.html\nWROTE /Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/phase1_handover/handover_info.json\nhealthy after 2s \u2192 http://127.0.0.1:8080/phase1-handover",
+  "status_stdout": "healthy \u2192 http://127.0.0.1:8080/phase1-handover  listener_pid=49509"
+}

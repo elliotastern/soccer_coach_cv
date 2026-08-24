@@ -82,6 +82,10 @@ def main() -> int:
     from scripts.gold_set.merge_handover_fuse_gold import seed_handover_suggestions  # noqa: E402
 
     seed_handover_suggestions(OUT)
+    from scripts.gold_set.handover_dashboard_html import write_index  # noqa: E402
+
+    html_path = write_index(OUT)
+    print("WROTE", html_path, flush=True)
     info = {
         "ts": datetime.now(timezone.utc).isoformat(),
         "video": "coach_mosaic_pitch_min.mp4",

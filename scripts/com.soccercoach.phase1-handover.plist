@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.soccercoach.phase1-handover</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>HANDOVER_PYTHON</string>
+    <string>HANDOVER_SERVER_PY</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>HANDOVER_ROOT</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>HANDOVER_LOGDIR/server_stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>HANDOVER_LOGDIR/server_stderr.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HANDOVER_PORT</key>
+    <string>8080</string>
+  </dict>
+</dict>
+</plist>

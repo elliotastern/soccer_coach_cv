@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+"""Generate Phase 1 handover coach validation dashboard HTML."""
+from __future__ import annotations
+
+from pathlib import Path
+
+HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -344,3 +349,11 @@ loadAll();
 </script>
 </body>
 </html>
+"""
+
+
+def write_index(out_dir: Path) -> Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "index.html"
+    path.write_text(HTML, encoding="utf-8")
+    return path

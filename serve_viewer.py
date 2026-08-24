@@ -824,6 +824,40 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
             return
+        if self.path == '/merge_phase1_handover_gold':
+            try:
+                import subprocess
+                proc = subprocess.run(
+                    [sys.executable, 'scripts/gold_set/merge_handover_fuse_gold.py'],
+                    cwd=str(SCRIPT_DIR),
+                    capture_output=True,
+                    text=True,
+                )
+                if proc.returncode != 0:
+                    raise RuntimeError(proc.stderr or proc.stdout or 'merge failed')
+                clip = (
+                    SCRIPT_DIR
+                    / 'data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_15s'
+                    / 'labels.json'
+                )
+                coach_n = 0
+                if clip.is_file():
+                    data = json.loads(clip.read_text(encoding='utf-8'))
+                    coach_n = sum(
+                        1 for e in data.get('events') or [] if e.get('source') == 'handover'
+                    )
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(
+                    json.dumps({'ok': True, 'coach_events': coach_n}).encode()
+                )
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+            return
         if self.path == '/save_match3_m1_labels':
             try:
                 content_length = int(self.headers.get('Content-Length', 0))

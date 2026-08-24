@@ -13,6 +13,9 @@ DASHBOARD="${OPEN_URL:-http://127.0.0.1:${PORT}/4quad}"
 
 is_healthy() {
   local p="$1"
+  local h
+  h="$(curl -s -m 3 -o /dev/null -w '%{http_code}' "http://127.0.0.1:${p}/phase1-handover" || true)"
+  [[ "$h" == "302" ]] || return 1
   curl -fsS -m 3 -o /dev/null \
     "http://127.0.0.1:${p}/data/processed/gold_sets/match1_1_100/review/frames/000.jpg" || return 1
   local code

@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-23T10:44:01.104950+00:00",
+  "ts": "2026-08-24T02:44:19.003994+00:00",
   "video": "coach_mosaic_pitch_min.mp4",
   "url": "/phase1-handover",
   "source": "reports/eval_match3/improve_eng_loop/player_map/check_15s_s4",
-  "duration_s": 15.0,
-  "stride": 4,
-  "n_frames": 225
+  "duration_s": 20.0,
+  "stride": 1,
+  "n_frames": 1200
 }
