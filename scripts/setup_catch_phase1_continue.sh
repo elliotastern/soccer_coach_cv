@@ -34,7 +34,7 @@ grep -vE '^(torch|torchvision)' "$ROOT/requirements.txt" > /tmp/req-no-torch.txt
 echo "=== 4/4 Match 4 raw map ==="
 cd "$ROOT"
 export PYTHONPATH=.
-"$PY" -c "from scripts.gold_set.raw_cam_id import load_match_raw; print(load_match_raw('data/raw/Match 3'))"
+"$PY" -c "from pathlib import Path; from scripts.gold_set.raw_cam_id import load_match_raw; print(load_match_raw(Path('data/raw/Match 3')))"
 
 echo ""
 echo "OK — run: bash scripts/bootstrap_phase1_client.sh"

@@ -24,7 +24,8 @@ def cam_id_from_raw_name(name: str) -> str:
     return f"P{int(found[-1])}"
 
 
-def load_match_raw(match_dir: Path) -> dict[str, Path]:
+def load_match_raw(match_dir: Path | str) -> dict[str, Path]:
+    match_dir = Path(match_dir)
     out: dict[str, Path] = {}
     if not match_dir.is_dir():
         raise FileNotFoundError(match_dir)
