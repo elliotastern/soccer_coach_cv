@@ -5,3 +5,4 @@ Product/agent rules also live under `.cursor/rules/*.mdc`. This folder holds **h
 | File | Purpose |
 |------|---------|
 | [match4_camera_ids.mdc](match4_camera_ids.mdc) | Match 4 physical camera → P-code (catch Ubuntu handover) |
+| [catch_client_credentials.mdc](catch_client_credentials.mdc) | Never put developer GitHub on Catch; HF OK for weights only |

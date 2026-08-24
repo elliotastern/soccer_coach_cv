@@ -2,6 +2,8 @@
 
 **Repo (public, no login needed):** https://github.com/elliotastern/soccer_coach_cv
 
+**Continuing on catch's PC in Cursor?** Read [CATCH_MACHINE_CURSOR_CONTEXT.md](CATCH_MACHINE_CURSOR_CONTEXT.md) first — session status, verified torch versions, Match 4 mapping, next commands.
+
 This guide gets **Match Review** running for Phase 1 acceptance. Full contract map: [PHASE1_CLIENT_HANDOVER.md](PHASE1_CLIENT_HANDOVER.md).
 
 ---
@@ -146,9 +148,23 @@ Proof videos (no batch): [phase1_proof/manifest.json](../../reports/eval_match3/
 ## Remote setup via AnyDesk
 
 1. Client shares AnyDesk ID; you connect.
-2. Run steps 1–5 on **his** machine (do **not** log into your GitHub on his PC).
-3. **File transfer** only the two model `.pth` files (~500 MB).
+2. Run steps 1–5 on **his** machine.
+3. **File transfer** only the two model `.pth` files (~500 MB), or HF download with a scoped read token (see below).
 4. Open `http://127.0.0.1:8501` in **his** browser.
+
+### Credentials on Catch’s PC (locked)
+
+Developer **GitHub** has other important projects — **never** put developer GitHub auth on Catch:
+
+- Public `git clone` / `git pull` only — no `gh auth login`, no developer PAT/SSH, no github.com as the developer.
+- Code changes on the **developer Mac** → `git push`; Catch only `git pull`.
+- Do not sign Cursor / IDE into the developer account on Catch’s PC.
+
+**Hugging Face** is fine for Phase 1 weights (not other critical projects). Prefer AnyDesk `.pth` transfer. If using HF on Catch, use a **read-only** token for that model repo only, then `unset HF_TOKEN` before leaving. Never paste write tokens into chat or shared logs.
+
+Before leaving Catch’s desk: clear HF token / logouts; disconnect AnyDesk; tmux jobs may keep running without accounts.
+
+Full context: [CATCH_MACHINE_CURSOR_CONTEXT.md](CATCH_MACHINE_CURSOR_CONTEXT.md) · Cursor rule: `.cursor/rules/catch_client_credentials.mdc`.
 
 Keep dashboard alive after disconnect:
 

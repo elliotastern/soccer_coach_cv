@@ -193,12 +193,23 @@ Review in dashboard: **Expert mode** → output root `data/output/match_4`.
 
 ---
 
-## Security / ops notes
+## Security / ops notes (credentials)
 
-- Public repo clone only — no developer GitHub login on client PC.
-- Model weights (~500 MB) transferred separately via AnyDesk.
+**Protect developer GitHub** — it has other important projects. Catch’s PC must never hold developer GitHub auth.
+
+| Do on Catch | Don’t on Catch |
+|-------------|----------------|
+| Public `git clone` / `git pull` only (no login) | `gh auth login`, developer PAT, SSH keys, or github.com as developer |
+| Code on **developer Mac** → push; Catch only pull | Cursor / IDE signed in as the developer on Catch’s PC |
+| Streamlit / batch in tmux | Leave developer accounts logged in when walking away |
+
+**Hugging Face** — OK for this project (weights only; not other critical work). Prefer AnyDesk copy of the two `.pth` files so Catch needs no HF login. If using HF: upload from Mac; on Catch use a **read-only** token for that model repo only, then `unset HF_TOKEN` before leaving. Never paste write tokens into chat or docs; revoke any token that appeared in a terminal log.
+
+**Also:**
+- Model weights (~500 MB) via AnyDesk or scoped HF download — not in git.
 - Dashboard URL is **localhost on client machine**, not remote IDE preview.
 - First mosaic frame with live detection: **20–40 s** on GPU (normal).
+- Cursor rule: `.cursor/rules/catch_client_credentials.mdc` (always apply).
 
 ---
 
