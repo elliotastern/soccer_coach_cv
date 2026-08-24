@@ -22,13 +22,90 @@ Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) �
 | GPU visible (`nvidia-smi`) | ✅ Done | RTX 5090 |
 | Match 4 → repo raw link | ✅ Done | `data/raw/Match 3` → `/home/catch/Documents/Matches/Match 4` |
 | P-code symlinks in Match 4 folder | ✅ Done | `P1-match4.mp4` … `P_Goal2-match4.mp4` → `cam-*` files |
-| `load_match_raw` parser test | ✅ Passed | After commit `d9e1db0` (skips bare `cam-N_*.mp4` when P-code symlinks exist) |
-| Python venv | ✅ Created | `~/.venvs/soccer-rfdetr312` |
-| `pip install -r requirements.txt` | ⚠️ Partial | Ran once; **must not** re-run full file after cu128 torch (caps `torch<=2.8`) |
-| PyTorch cu128 nightly (RTX 5090) | ✅ **Verified working** | See versions below |
-| Model weights transfer | ❓ Unknown | Check `models/*.pth` — not in git (~500 MB, AnyDesk from developer) |
-| `pip install` other deps (no torch) | ❓ Likely next | See commands below |
-| Dashboard / batch on Match 4 | ❓ Not confirmed | Depends on models + deps |
+| `load_match_raw` parser test | ✅ Passed | After commit `d9e1db0` |
+| Python venv | ✅ Done | `~/.venvs/soccer-rfdetr312` |
+| PyTorch cu128 | ✅ Done | e.g. `torch 2.10.0+cu128` or nightly `2.12.0.dev…+cu128` — verify with `python3 -c "import torch; …"` |
+| pip deps (no torch) | ✅ Done | `grep -vE torch requirements.txt` → pip install |
+| Model weights | ✅ Done | HF private repo `eeeeeeeeeeeeee3/soccer-coach-phase1-weights` or `pull_phase1_weights_hf.sh` |
+| HF auth on Catch | ✅ Done | `hf auth login` → `~/.cache/huggingface/token` (token name `eeeee`, write) |
+| Smoke batch for dashboard | ✅ Done | `ln -sfn ../processed/full_match_2min data/output/full_match_2min` |
+| Review dashboard | ✅ Done | `bootstrap_phase1_client.sh` → http://127.0.0.1:8501 |
+| Smoke video path | ✅ Done | `ln -sf P10-match4.mp4 P10-002.mp4` in raw folder (or auto via `guess_video_for_run` after `git pull`) |
+| `tmux` | ✅ Done | `sudo apt install -y tmux` (3.4) — use for **next** batch detach |
+| Match 4 full batch | 🔄 Running | `bash scripts/run_batch_match4.sh` → `data/output/match_4/` (8 cams sequential) |
+
+**Do not redo:** venv, torch cu128, HF model download, smoke symlinks, or `hf auth login` unless token revoked.
+
+---
+
+## Installed on Catch (AnyDesk session log — 2026-08-24)
+
+Paste this block into a new Cursor chat on Catch so setup is not repeated.
+
+```text
+Machine: catch@catch-System-Product-Name · Ubuntu 24.04.3 · RTX 5090 · driver 595.84
+Repo: ~/soccer_coach_cv (public git pull only — NO developer GitHub login)
+Venv: ~/.venvs/soccer-rfdetr312 (Python 3.12)
+
+System (apt):
+  tmux 3.4-1ubuntu0.1
+  # plus tmux deps: libevent-core, libutempter0
+
+Python (venv — do NOT pip install -r requirements.txt after torch):
+  torch+cu128, torchvision, rfdetr, streamlit, huggingface_hub<1, … (see setup_catch_phase1_continue.sh)
+
+HF:
+  hf auth login saved (~/.cache/huggingface/token)
+  Weights repo: eeeeeeeeeeeeee3/soccer-coach-phase1-weights (private)
+  Scripts: scripts/push_phase1_weights_hf.sh (Mac) · scripts/pull_phase1_weights_hf.sh (Catch)
+
+Repo layout on Catch:
+  data/raw/Match 3 → symlink to /home/catch/Documents/Matches/Match 4
+  P*-match4.mp4 symlinks in Match 4 folder (locked cam map — see match4_camera_ids.mdc)
+  data/output/full_match_2min → symlink to data/processed/full_match_2min (smoke demo)
+  Optional: P10-002.mp4 → P10-match4.mp4 for smoke run name
+
+Services:
+  Streamlit review: bash scripts/start_review_dashboard.sh → :8501
+  Batch Match 4: bash scripts/run_batch_match4.sh → data/output/match_4
+
+Security:
+  Developer GitHub credentials NEVER on this PC
+  HF write token OK (soccer weights only); saved via hf auth login
+```
+
+---
+
+## Match 4 batch — how long?
+
+`run_batch_match4.sh` runs **full** `batch_pipeline.py` on **8 cameras one after another** (no `--max-frames`). Time ≈ **sum of each MP4 length** × RF-DETR cost per frame.
+
+**Rough RTX 5090 rule:** ~**5–15 processed frames/sec** (4K, player + ball models). Example:
+
+| Video length (per cam) | ~Time per cam | 8 cams total |
+|------------------------|---------------|--------------|
+| 10 min @ 60 fps | ~1–3 hours | ~8–24 hours |
+| 30 min @ 60 fps | ~3–9 hours | ~1–3 days |
+| 60 min @ 60 fps | ~6–18 hours | ~2–6 days |
+
+**Check actual file length on Catch:**
+
+```bash
+for f in P10-match4 P9-match4 P7-match4 P8-match4; do
+  ffprobe -v error -show_entries format=duration -of csv=p=0 \
+    "data/raw/Match 3/${f}.mp4" 2>/dev/null | awk -v f="$f" '{printf "%s %.1f min\n", f, $1/60}'
+done
+```
+
+**Watch progress:**
+
+```bash
+tail -f reports/eval_match3/improve_eng_loop/batch_match4_*.log
+ls -la data/output/match_4/
+watch -n 60 'wc -l data/output/match_4/*/frame_data.csv 2>/dev/null'
+```
+
+**After disconnect:** use `tmux` for the **next** run (`tmux new -s match4` … Ctrl+B D). Current run must keep its terminal open unless restarted (checkpoints may resume per cam).
 
 ---
 
@@ -103,9 +180,14 @@ python3 -c "from scripts.gold_set.raw_cam_id import load_match_raw; print(load_m
 
 ---
 
-## Next steps (in order)
+## Next steps (after batch finishes)
 
-**One-shot (after `git pull`):**
+1. Confirm output: `ls data/output/match_4/*/frame_data.csv`
+2. Review: Expert mode → output root `data/output/match_4`
+3. Delivery check: `python3 scripts/gold_set/build_phase1_delivery_manifest.py`
+4. Optional: rerun single cam if one failed (see per-cam log in `reports/eval_match3/improve_eng_loop/batch_*_P10-match4_*.log`)
+
+**One-shot setup (only if starting fresh on a new machine):**
 
 ```bash
 source ~/.venvs/soccer-rfdetr312/bin/activate
