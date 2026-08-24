@@ -14,6 +14,32 @@ HALF_L = 53.9 / 2.0
 HALF_W = 34.84 / 2.0
 
 
+def _cam_from_run_name(run_name: str) -> Optional[str]:
+    """Map batch folder (e.g. P10-002) → mosaic P-code (P10)."""
+    low = run_name.lower().replace(" ", "")
+    if "goal1" in low:
+        return "P_Goal1"
+    if "goal2" in low:
+        return "P_Goal2"
+    if run_name.startswith("P10") or low.startswith("p10"):
+        return "P10"
+    if run_name.startswith("P1-") or low.startswith("p1-") or run_name == "P1":
+        return "P1"
+    if run_name.startswith("P6") or low.startswith("p6"):
+        return "P6"
+    if run_name.startswith("P7") or low.startswith("p7"):
+        return "P7"
+    if run_name.startswith("P8") or low.startswith("p8"):
+        return "P8"
+    if run_name.startswith("P9") or low.startswith("p9"):
+        return "P9"
+    try:
+        from scripts.gold_set.raw_cam_id import cam_id_from_raw_name
+        return cam_id_from_raw_name(run_name + ".mp4")
+    except (ValueError, ImportError):
+        return None
+
+
 def guess_video_for_run(run_name: str, repo_root: Path) -> Optional[Path]:
     """Map run folder name → raw Match video when possible."""
     candidates = [
@@ -23,11 +49,25 @@ def guess_video_for_run(run_name: str, repo_root: Path) -> Optional[Path]:
     # common stems
     if run_name.startswith("P10"):
         candidates.insert(0, repo_root / "data/raw/Match 3/P10-002.mp4")
+        candidates.insert(1, repo_root / "data/raw/Match 3/P10-match4.mp4")
     if run_name.startswith("P1") and "P10" not in run_name:
         candidates.insert(0, repo_root / "data/raw/Match 3/P1-006.mp4")
+        candidates.insert(1, repo_root / "data/raw/Match 3/P1-match4.mp4")
     for p in candidates:
         if p.is_file():
             return p
+    # Match 4 symlinks keyed by P-code (P10-match4.mp4 → cam P10)
+    raw_m3 = repo_root / "data/raw/Match 3"
+    if raw_m3.is_dir():
+        try:
+            from scripts.gold_set.raw_cam_id import load_match_raw
+            cam = _cam_from_run_name(run_name)
+            if cam:
+                mapping = load_match_raw(raw_m3)
+                if cam in mapping and mapping[cam].is_file():
+                    return mapping[cam]
+        except (ValueError, FileNotFoundError, ImportError):
+            pass
     # search Match 2/3 by stem
     for folder in (repo_root / "data/raw/Match 3", repo_root / "data/raw/Match 2"):
         if not folder.is_dir():
