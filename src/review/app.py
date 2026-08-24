@@ -31,6 +31,9 @@ HALF_W = PITCH_WID / 2.0
 def _inject_scroll_fix() -> None:
     """CSS-only layout + optional sidebar hide (no components.html — avoids temp I/O)."""
     hide = bool(st.session_state.get("hide_sidebar", False))
+    zoom = float(st.session_state.get("coach_view_zoom", 1.2))
+    zoom = max(0.5, min(2.0, zoom))
+    max_h_vh = min(96.0, 78.0 * zoom)
     hide_css = ""
     if hide:
         hide_css = """
@@ -60,7 +63,7 @@ def _inject_scroll_fix() -> None:
         }}
         div[data-testid="stImage"] img {{
             width: 100% !important;
-            max-height: 78vh !important;
+            max-height: {max_h_vh}vh !important;
             object-fit: contain !important;
         }}
         {hide_css}
@@ -660,6 +663,15 @@ def render_synced_frame_review(
         cam_view = whole_pitch
         apply_defish = True
         st.sidebar.caption("Camera view: whole pitch (locked in coach mode)")
+        st.sidebar.slider(
+            "Video zoom",
+            min_value=0.7,
+            max_value=1.5,
+            value=float(st.session_state.coach_view_zoom),
+            step=0.05,
+            key="coach_view_zoom",
+            help="Larger mosaic + pitch stack (default 1.2 = 20% bigger).",
+        )
     else:
         st.sidebar.subheader("Camera stitch / filter")
         cam_view = st.sidebar.selectbox(
@@ -909,6 +921,9 @@ def render_synced_frame_review(
         or cam_view.startswith("4 quads")
         or cam_view.startswith("Best camera")
     )
+    view_zoom = float(st.session_state.get("coach_view_zoom", 1.2)) if simple else 1.0
+    tile_w = max(480, int(round(640 * view_zoom)))
+    tile_h = max(270, int(round(360 * view_zoom)))
     try:
         mosaic, used_cams = build_cam_view(
             repo,
@@ -916,6 +931,8 @@ def render_synced_frame_review(
             frame_id,
             output_root_view,
             primary_cam=primary_cam,
+            tile_w=tile_w,
+            tile_h=tile_h,
             dets_by_cam=dets_by_cam if dets_enabled else None,
             detect_fn=detect_fn,
             apply_defish=bool(apply_defish),
@@ -1043,7 +1060,8 @@ def render_synced_frame_review(
     # Landscape pitch below mosaic — same width + aligned grid so map connects to cams
     grid_w = max(64, stage.shape[1] - 2 * MOSAIC_SIDE_W)
     grid_h = max(64, int(round(grid_w * 270 / 480)))
-    stack = pitch_stack_metrics(grid_w, grid_h, drop_top=True, scale=0.46)
+    pitch_scale = 0.46 * view_zoom if simple else 0.46
+    stack = pitch_stack_metrics(grid_w, grid_h, drop_top=True, scale=pitch_scale)
     pitch_panel = draw_pitch1_ball_panel(
         stack["panel_w"],
         stack["panel_h"],
@@ -1168,6 +1186,8 @@ def main():
         st.session_state[SIMPLE_MODE_KEY] = True
     if "hide_sidebar" not in st.session_state:
         st.session_state.hide_sidebar = False
+    if "coach_view_zoom" not in st.session_state:
+        st.session_state.coach_view_zoom = 1.2
     simple = is_simple_mode(st.session_state)
     _inject_scroll_fix()
     head_l, head_m, head_r = st.columns([4, 1, 1])
