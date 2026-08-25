@@ -139,7 +139,7 @@ def acceptance_status(runs: list[dict]) -> dict:
 
 def main() -> int:
     args = parse_args()
-    roots = args.root or DEFAULT_ROOTS
+    roots = [r if r.is_absolute() else (ROOT / r) for r in (args.root or DEFAULT_ROOTS)]
     runs = scan_roots(roots)
     manifest = {
         "ts": datetime.now(timezone.utc).isoformat(),
