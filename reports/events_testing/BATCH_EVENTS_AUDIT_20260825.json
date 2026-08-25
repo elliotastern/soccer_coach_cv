@@ -1,0 +1,209 @@
+{
+  "ts": "2026-08-25T01:09:16.399878+00:00",
+  "emit_conf_gate": 0.8,
+  "packs": [
+    {
+      "path": "data/output/match_4_5min/P10-match4",
+      "match_id": "P10-match4",
+      "n_total": 16,
+      "n_emit_conf": 16,
+      "span_s": 77.37,
+      "per_min_total": 12.41,
+      "per_min_emit": 12.41,
+      "by_type": {
+        "pass": 16
+      },
+      "emit_by_type": {
+        "pass": 16
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P10-match4_cumulative",
+      "match_id": "P10-match4",
+      "n_total": 16,
+      "n_emit_conf": 16,
+      "span_s": 77.37,
+      "per_min_total": 12.41,
+      "per_min_emit": 12.41,
+      "by_type": {
+        "pass": 16
+      },
+      "emit_by_type": {
+        "pass": 16
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P7-match4",
+      "match_id": "P7-match4",
+      "n_total": 1,
+      "n_emit_conf": 1,
+      "span_s": 0.0,
+      "per_min_total": 1000000.0,
+      "per_min_emit": 1000000.0,
+      "by_type": {
+        "pass": 1
+      },
+      "emit_by_type": {
+        "pass": 1
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P7-match4_cumulative",
+      "match_id": "P7-match4",
+      "n_total": 1,
+      "n_emit_conf": 1,
+      "span_s": 0.0,
+      "per_min_total": 1000000.0,
+      "per_min_emit": 1000000.0,
+      "by_type": {
+        "pass": 1
+      },
+      "emit_by_type": {
+        "pass": 1
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P8-match4",
+      "match_id": "P8-match4",
+      "n_total": 18,
+      "n_emit_conf": 18,
+      "span_s": 124.53,
+      "per_min_total": 8.67,
+      "per_min_emit": 8.67,
+      "by_type": {
+        "pass": 18
+      },
+      "emit_by_type": {
+        "pass": 18
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P8-match4_cumulative",
+      "match_id": "P8-match4",
+      "n_total": 18,
+      "n_emit_conf": 18,
+      "span_s": 124.53,
+      "per_min_total": 8.67,
+      "per_min_emit": 8.67,
+      "by_type": {
+        "pass": 18
+      },
+      "emit_by_type": {
+        "pass": 18
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P9-match4",
+      "n_total": 0,
+      "n_emit_conf": 0,
+      "span_s": 0.0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_5min/P9-match4_cumulative",
+      "n_total": 0,
+      "n_emit_conf": 0,
+      "span_s": 0.0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/full_match_2min/P1-006",
+      "n_total": 0,
+      "n_emit_conf": 0,
+      "span_s": 0.0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/full_match_2min/P10-002",
+      "match_id": "P10-002",
+      "n_total": 330,
+      "n_emit_conf": 28,
+      "span_s": 46.32,
+      "per_min_total": 427.5,
+      "per_min_emit": 36.27,
+      "by_type": {
+        "pass": 47,
+        "dribble": 283
+      },
+      "emit_by_type": {
+        "pass": 28
+      },
+      "n_dribble": 283,
+      "dribble_ok": false
+    },
+    {
+      "path": "data/output/full_match_2min/P10-002_cumulative",
+      "match_id": "P10-002",
+      "n_total": 330,
+      "n_emit_conf": 28,
+      "span_s": 46.32,
+      "per_min_total": 427.5,
+      "per_min_emit": 36.27,
+      "by_type": {
+        "pass": 47,
+        "dribble": 283
+      },
+      "emit_by_type": {
+        "pass": 28
+      },
+      "n_dribble": 283,
+      "dribble_ok": false
+    }
+  ],
+  "match4_quad_emit": 70,
+  "all_dribble_ok": false,
+  "fuse_clip_scores": [
+    {
+      "clip": "real_fuse_15s",
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 3,
+      "n_gold": 3,
+      "matched_gold_idx": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "clip": "real_fuse_eval_20s",
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "p_emit": 0.0,
+      "recall": 0.0,
+      "n_emit": 1,
+      "n_gold": 1,
+      "matched_gold_idx": [],
+      "path": "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_eval_20s/timeline.json"
+    },
+    {
+      "clip": "real_fuse_holdout_pass",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 1,
+      "n_gold": 1,
+      "matched_gold_idx": [
+        0
+      ]
+    }
+  ]
+}

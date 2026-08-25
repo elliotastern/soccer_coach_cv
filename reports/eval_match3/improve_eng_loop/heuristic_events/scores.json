@@ -29,6 +29,16 @@
       0
     ]
   },
+  "eval_score": {
+    "tp": 0,
+    "fp": 1,
+    "fn": 1,
+    "p_emit": 0.0,
+    "recall": 0.0,
+    "n_emit": 1,
+    "n_gold": 1,
+    "matched_gold_idx": []
+  },
   "check25_stride15_score": {
     "tp": 0,
     "fp": 1,

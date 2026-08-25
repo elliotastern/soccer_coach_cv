@@ -184,6 +184,11 @@ def main() -> int:
         / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_holdout_pass"
     )
     holdout_score = _score_fuse_clip(holdout_dir)
+    eval_dir = (
+        ROOT
+        / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_eval_20s"
+    )
+    eval_score = _score_fuse_clip(eval_dir)
 
     check25_dir = ROOT / "data/processed/gold_sets/match3_events_v1/clips/check25_human"
     check25_score = _score_fuse_clip(check25_dir)
@@ -278,6 +283,7 @@ def main() -> int:
         "recall_real": round(real_r, 4),
         "real_score": real_score,
         "holdout_score": holdout_score,
+        "eval_score": eval_score,
         "check25_stride15_score": check25_score,
         "tp": tot_tp,
         "fp": tot_fp,

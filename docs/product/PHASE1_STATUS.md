@@ -50,6 +50,8 @@ Report: [`EVENT_ACCURACY_RERATE_2026-08-24.json`](../reports/events_testing/EVEN
 
 check25_human at stride 15 remains **report-only** (coarse sample). Holdout `real_fuse_holdout_pass` scores pass outside handover window.
 
+**Batch audit (2026-08-25):** [`BATCH_EVENTS_AUDIT_20260825.json`](../reports/events_testing/BATCH_EVENTS_AUDIT_20260825.json) — Match 4 quad 5‑min: **0 dribble**, pass-only single-cam emits; fuse eval @20s shows movement vs single-cam pass cluster (report-only).
+
 ## Evidence (ball)
 
 | Metric | Value |
