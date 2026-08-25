@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-25T01:09:16.399878+00:00",
+  "ts": "2026-08-25T01:11:38.877232+00:00",
   "emit_conf_gate": 0.8,
   "packs": [
     {
@@ -41,9 +41,9 @@
       "match_id": "P7-match4",
       "n_total": 1,
       "n_emit_conf": 1,
-      "span_s": 0.0,
-      "per_min_total": 1000000.0,
-      "per_min_emit": 1000000.0,
+      "span_s": 1.0,
+      "per_min_total": 60.0,
+      "per_min_emit": 60.0,
       "by_type": {
         "pass": 1
       },
@@ -58,9 +58,9 @@
       "match_id": "P7-match4",
       "n_total": 1,
       "n_emit_conf": 1,
-      "span_s": 0.0,
-      "per_min_total": 1000000.0,
-      "per_min_emit": 1000000.0,
+      "span_s": 1.0,
+      "per_min_total": 60.0,
+      "per_min_emit": 60.0,
       "by_type": {
         "pass": 1
       },
@@ -182,15 +182,16 @@
     },
     {
       "clip": "real_fuse_eval_20s",
-      "tp": 0,
-      "fp": 1,
-      "fn": 1,
-      "p_emit": 0.0,
-      "recall": 0.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
       "n_emit": 1,
       "n_gold": 1,
-      "matched_gold_idx": [],
-      "path": "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_eval_20s/timeline.json"
+      "matched_gold_idx": [
+        0
+      ]
     },
     {
       "clip": "real_fuse_holdout_pass",

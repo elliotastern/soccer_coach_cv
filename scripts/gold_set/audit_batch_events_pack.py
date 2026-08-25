@@ -28,7 +28,9 @@ def audit_pack(path: Path) -> dict | None:
             "dribble_ok": True,
         }
     ts = [float(e.get("timestamp_end", e.get("timestamp_start", 0))) for e in events]
-    span_s = max(ts) - min(ts) if ts else 0.0
+    span_s = max(ts) - min(ts) if len(ts) > 1 else 0.0
+    if span_s == 0.0 and ts:
+        span_s = 1.0  # single-timestamp cluster
     by_type = Counter(e.get("type", "?") for e in events)
     hi = [e for e in events if float(e.get("confidence", 0)) >= EMIT_CONF]
     hi_type = Counter(e.get("type", "?") for e in hi)

@@ -107,6 +107,7 @@ def scan_roots(roots: list[Path]) -> list[dict]:
     runs = []
     seen = set()
     for root in roots:
+        root = root if root.is_absolute() else (ROOT / root)
         if not root.is_dir():
             continue
         for p in sorted(root.iterdir()):
