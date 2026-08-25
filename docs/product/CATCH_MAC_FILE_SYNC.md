@@ -11,7 +11,7 @@ Exchange folders on Catch:
 | `~/soccer_exchange/from_catch/` | Catch → Mac (videos, CSV, renders) |
 | `~/soccer_exchange/to_catch/` | Mac → Catch (weights, patches) |
 
-Related: [CATCH_MACHINE_CURSOR_CONTEXT.md](CATCH_MACHINE_CURSOR_CONTEXT.md) · [catch_client_credentials.mdc](../cursorrules/catch_client_credentials.mdc)
+Related: [CATCH_REMOTE_COMPUTE.md](CATCH_REMOTE_COMPUTE.md) · [CATCH_MACHINE_CURSOR_CONTEXT.md](CATCH_MACHINE_CURSOR_CONTEXT.md) · [catch_client_credentials.mdc](../cursorrules/catch_client_credentials.mdc)
 
 ---
 

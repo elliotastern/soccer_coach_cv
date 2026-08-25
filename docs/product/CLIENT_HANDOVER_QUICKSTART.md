@@ -168,6 +168,8 @@ Before leaving Catch’s desk: clear HF token / logouts; disconnect AnyDesk; tmu
 
 Catch stages: `~/soccer_exchange/from_catch/` · Mac pulls: `bash scripts/pull_from_catch.sh` → `~/Downloads/soccer_catch_sync/`. No `catch` Linux password if SSH public key pasted via AnyDesk. Details: [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md).
 
+**Developer Mac:** run long batch/mosaic on **Catch’s 5090** via SSH (not on the Mac) — [CATCH_REMOTE_COMPUTE.md](CATCH_REMOTE_COMPUTE.md).
+
 Keep dashboard alive after disconnect:
 
 ```bash

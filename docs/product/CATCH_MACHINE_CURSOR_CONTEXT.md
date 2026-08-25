@@ -1,6 +1,8 @@
 # Catch client machine — Cursor agent context
 
 **Use this doc** when continuing setup on the client PC in a new Cursor chat.  
+**Mac developers:** run long GPU jobs **on Catch** via SSH — [CATCH_REMOTE_COMPUTE.md](CATCH_REMOTE_COMPUTE.md) · rule `catch_remote_compute.mdc`.
+
 Paste or `@`-reference: `docs/product/CATCH_MACHINE_CURSOR_CONTEXT.md`
 
 **Client:** catch · **Machine:** Ubuntu 24.04.3 LTS · **GPU:** NVIDIA GeForce RTX 5090 (Blackwell sm_120) · **Driver:** 595.84 · **CUDA (driver):** 13.2  
@@ -10,7 +12,7 @@ Paste or `@`-reference: `docs/product/CATCH_MACHINE_CURSOR_CONTEXT.md`
 **Match videos:** `/home/catch/Documents/Matches/Match 4`  
 **Raw symlink in repo:** `data/raw/Match 3` → Match 4 folder (legacy folder name; footage is Match 4)
 
-Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) · [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md) · [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md) · [match4_camera_ids.mdc](../cursorrules/match4_camera_ids.mdc)
+Related guides: [CATCH_REMOTE_COMPUTE.md](CATCH_REMOTE_COMPUTE.md) · [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) · [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md) · [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md) · [match4_camera_ids.mdc](../cursorrules/match4_camera_ids.mdc)
 
 ---
 
@@ -36,7 +38,7 @@ Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) �
 | Mosaic render 5 min | ✅ Done | `reports/eval_match3/improve_eng_loop/match4_5min/coach_mosaic_pitch_5min.mp4` |
 | Tailscale | ✅ Done | catch `100.113.134.41` · Mac `100.112.17.93` (example IPs) |
 | Mac↔Catch file sync | ✅ Done | SSH key `id_ed25519_soccer_catch` · `~/soccer_exchange/` · see [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md) |
-| Match 4 full batch | ⏸ Skip | Use **5-min chunked** script instead (see below) |
+| Match 4 full batch | ⏳ Optional | `run_batch_match4_full_chunked.sh` in tmux `match4_full` (delivery) |
 
 **Do not redo:** venv, torch cu128, HF model download, smoke symlinks, or `hf auth login` unless token revoked.
 

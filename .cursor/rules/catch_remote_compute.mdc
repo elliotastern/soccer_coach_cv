@@ -1,0 +1,45 @@
+---
+description: Use Catch RTX 5090 via SSH for heavy GPU work — don't burn the Mac on long jobs
+alwaysApply: true
+---
+
+# Catch remote compute (locked)
+
+**Catch’s PC** (Ubuntu, **RTX 5090**) is the **default GPU machine** for this project. The developer Mac runs Cursor and git; **long RF-DETR / batch / mosaic jobs should run on Catch** when it is reachable.
+
+Human spec: [CATCH_REMOTE_COMPUTE.md](docs/product/CATCH_REMOTE_COMPUTE.md) · SSH/sync: [CATCH_MAC_FILE_SYNC.md](docs/product/CATCH_MAC_FILE_SYNC.md) · Catch setup: [CATCH_MACHINE_CURSOR_CONTEXT.md](docs/product/CATCH_MACHINE_CURSOR_CONTEXT.md)
+
+## Use Catch for (hours-scale)
+
+| Work | Catch command / session |
+|------|-------------------------|
+| Match 4 batch (5 min or full) | `tmux` → `run_batch_match4_5min.sh` or `run_batch_match4_full_chunked.sh` |
+| Mosaic render (15 s–5 min) | `render_phase1_check_mosaic.py` in `tmux mosaic5` |
+| Fuse timeline rebuild (RF-DETR) | `build_fuse_15s_timeline.py`, `build_check25_event_timeline.py` |
+| Full-match delivery batch | `run_batch_match4_full_chunked.sh` on Catch |
+
+**Venv on Catch:** `source ~/.venvs/soccer-rfdetr312/bin/activate` before any Python GPU job.
+
+## Use Mac for
+
+- Cursor, `git push`, eng-loops on **existing** JSON/CSV (no RF-DETR)
+- Small scripts, docs, unit tests
+- Pulling results: `bash scripts/pull_from_catch.sh`
+
+## Agent workflow (Mac developer)
+
+1. **Push** code from Mac (`git push`).
+2. **SSH** Catch: `ssh -i ~/.ssh/id_ed25519_soccer_catch catch@100.113.134.41` (or `Host catch-soccer` in `~/.ssh/config`).
+3. On Catch: `cd ~/soccer_coach_cv && git pull && source ~/.venvs/soccer-rfdetr312/bin/activate`.
+4. Start job in **tmux** (detach survives disconnect).
+5. **Pull** artifacts: `bash scripts/pull_from_catch.sh` or rsync from `~/soccer_exchange/from_catch/`.
+
+Match 4 **raw MP4s** live on Catch (`data/raw/Match 3` → Match 4 folder). Prefer running batch/mosaic **there** — avoids multi-hour Mac MPS runs.
+
+## Do / don't
+
+- **Do** SSH + tmux on Catch for anything estimated **>15 min** RF-DETR or batch.
+- **Do** monitor with `tmux capture-pane -t <session> -p | tail -5`.
+- **Do** stage deliverables on Catch: `cp …mp4 ~/soccer_exchange/from_catch/`.
+- **Don't** run full-match batch or 5-min mosaic render on Mac if Catch is available.
+- **Don't** log developer GitHub on Catch (public `git pull` only) — see `catch_client_credentials`.

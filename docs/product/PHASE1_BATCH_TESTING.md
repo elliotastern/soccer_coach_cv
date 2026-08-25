@@ -15,6 +15,8 @@ Cursor rule: `.cursor/rules/phase1_batch_testing.mdc`
 
 Chunked runs merge cumulative `frame_data.csv` / `events.json` into the run dir after each chunk so the dashboard shows growing coverage mid-run.
 
+**Mac developer:** Do not run long batch/mosaic locally if Catch is online — SSH + tmux on the 5090 ([CATCH_REMOTE_COMPUTE.md](CATCH_REMOTE_COMPUTE.md)).
+
 ---
 
 ## Match 4 (Catch / RTX 5090)
