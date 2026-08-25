@@ -22,7 +22,7 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 | Team A/B color ID | **8** | Yes | Unified team_core + tracklet batch; weighted fusion; benchmark scripts. |
 | Heuristic events (all 5 types) | **8** | Yes* | Eng-loops **PASS**: fuse 15s **P_emit 1.0** + holdout pass window; synth **P=1.0** all types; carrier pid gold **42**. *Full-match batch proof still open.* |
 | Review app (Streamlit coach view) | **8** | Yes | Unchanged. |
-| Batch / checkpoints / export | **6** | No | Unchanged — not proven by delivery. |
+| Batch / checkpoints / export | **6** | No | Match 4 5‑min quad **done** on Catch; **full** P10+P1 batch running in tmux `match4_full`. Manifest: `delivery_manifest.json` (smoke passes; full-match export still in progress). |
 | Process 2 matches + 3rd handover | **3** | No | Unchanged. |
 | Commercial-safe stack (no YOLO / no FIFA as product) | **9** | Yes | Unchanged. |
 
