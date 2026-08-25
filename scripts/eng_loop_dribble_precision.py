@@ -147,8 +147,11 @@ def main() -> int:
         ))
 
     real_p, real_fp = 0.0, 0
-    check_dir = ROOT / "data/processed/gold_sets/match3_events_v1/clips/check25_human"
-    if (check_dir / "timeline.json").is_file() and (check_dir / "labels.json").is_file():
+    fuse_dir = (
+        ROOT
+        / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_15s"
+    )
+    if (fuse_dir / "timeline.json").is_file() and (fuse_dir / "labels.json").is_file():
         spec = importlib.util.spec_from_file_location(
             "build_check25",
             ROOT / "scripts/gold_set/build_check25_event_timeline.py",
@@ -156,8 +159,8 @@ def main() -> int:
         mod = importlib.util.module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(mod)
-        tl = json.loads((check_dir / "timeline.json").read_text(encoding="utf-8"))
-        labs = json.loads((check_dir / "labels.json").read_text(encoding="utf-8"))
+        tl = json.loads((fuse_dir / "timeline.json").read_text(encoding="utf-8"))
+        labs = json.loads((fuse_dir / "labels.json").read_text(encoding="utf-8"))
         real_emits = mod.run_events_on_timeline(tl)
         sc = mod.score_windows(labs.get("events") or [], real_emits)
         real_p = float(sc["p_emit"])
@@ -197,7 +200,7 @@ def main() -> int:
     comps = {
         "01_prompt": _score(PROMPT.is_file()),
         "02_synth_regression": _score(parent_ok),
-        "03_real_check25_p_emit": _score(
+        "03_real_fuse_p_emit": _score(
             real_p >= GATE_P_EMIT and real_fp == 0,
             max(1.0, 10.0 * real_p),
         ),

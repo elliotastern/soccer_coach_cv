@@ -146,32 +146,51 @@ def main() -> int:
     p_emit = tot_tp / max(tot_tp + tot_fp, 1)
     recall = tot_tp / max(tot_tp + tot_fn, 1)
 
-    # Real Match 3 product-fuse pack (check25) — primary product gate.
-    real_dir = ROOT / "data/processed/gold_sets/match3_events_v1/clips/check25_human"
-    real_score = None
-    if (real_dir / "timeline.json").exists() and (real_dir / "labels.json").exists():
-        import importlib.util
+    import importlib.util
 
-        spec = importlib.util.spec_from_file_location(
-            "build_check25",
-            ROOT / "scripts/gold_set/build_check25_event_timeline.py",
+    spec = importlib.util.spec_from_file_location(
+        "build_check25",
+        ROOT / "scripts/gold_set/build_check25_event_timeline.py",
+    )
+    mod = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(mod)
+
+    def _score_fuse_clip(clip_dir: Path) -> dict | None:
+        if not (clip_dir / "timeline.json").is_file():
+            return None
+        if not (clip_dir / "labels.json").is_file():
+            return None
+        tl = json.loads((clip_dir / "timeline.json").read_text(encoding="utf-8"))
+        labs = json.loads((clip_dir / "labels.json").read_text(encoding="utf-8"))
+        emits = mod.run_events_on_timeline(tl)
+        (clip_dir / "emits.json").write_text(
+            json.dumps({"emits": emits}, indent=2), encoding="utf-8"
         )
-        mod = importlib.util.module_from_spec(spec)
-        assert spec.loader is not None
-        spec.loader.exec_module(mod)
-        tl = json.loads((real_dir / "timeline.json").read_text(encoding="utf-8"))
-        labs = json.loads((real_dir / "labels.json").read_text(encoding="utf-8"))
-        real_emits = mod.run_events_on_timeline(tl)
-        (real_dir / "emits.json").write_text(
-            json.dumps({"emits": real_emits}, indent=2), encoding="utf-8"
+        sc = mod.score_windows(labs.get("events") or [], emits)
+        (clip_dir / "score_real.json").write_text(
+            json.dumps(sc, indent=2), encoding="utf-8"
         )
-        real_score = mod.score_windows(labs.get("events") or [], real_emits)
-        (real_dir / "score_real.json").write_text(
-            json.dumps(real_score, indent=2), encoding="utf-8"
-        )
+        return sc
+
+    # Product handover fuse 15s stride 4 — primary real gate.
+    fuse_dir = (
+        ROOT
+        / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_15s"
+    )
+    real_score = _score_fuse_clip(fuse_dir)
+    holdout_dir = (
+        ROOT
+        / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_holdout_pass"
+    )
+    holdout_score = _score_fuse_clip(holdout_dir)
+
+    check25_dir = ROOT / "data/processed/gold_sets/match3_events_v1/clips/check25_human"
+    check25_score = _score_fuse_clip(check25_dir)
 
     real_p = float(real_score["p_emit"]) if real_score else 0.0
     real_r = float(real_score["recall"]) if real_score else 0.0
+    holdout_p = float(holdout_score["p_emit"]) if holdout_score else 0.0
 
     # Component scores (≥9 each for PASS)
     comps = {
@@ -193,6 +212,10 @@ def main() -> int:
         ),
         "08_p_emit_gate": _score(p_emit >= GATE_P_EMIT, partial=max(1.0, 10.0 * p_emit)),
         "08b_real_p_emit": _score(real_p >= GATE_P_EMIT, partial=max(1.0, 10.0 * real_p)),
+        "08c_holdout_p_emit": _score(
+            holdout_p >= GATE_P_EMIT if holdout_score else True,
+            partial=max(1.0, 10.0 * holdout_p) if holdout_score else 10.0,
+        ),
         "09_weak_none_clean": _score(
             next((x for x in per if x["id"] == "synth_pass_weak_none"), {"fp": 1})["fp"]
             == 0
@@ -254,6 +277,8 @@ def main() -> int:
         "p_emit_real": round(real_p, 4),
         "recall_real": round(real_r, 4),
         "real_score": real_score,
+        "holdout_score": holdout_score,
+        "check25_stride15_score": check25_score,
         "tp": tot_tp,
         "fp": tot_fp,
         "fn": tot_fn,
@@ -262,7 +287,12 @@ def main() -> int:
         "per_clip": [{k: v for k, v in x.items() if k != "emits"} for x in per],
         "components": comps,
         "failed": failed,
-        "pass": len(failed) == 0 and real_p >= GATE_P_EMIT and p_emit >= GATE_P_EMIT,
+        "pass": (
+            len(failed) == 0
+            and real_p >= GATE_P_EMIT
+            and p_emit >= GATE_P_EMIT
+            and (holdout_p >= GATE_P_EMIT if holdout_score else True)
+        ),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "scores.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")

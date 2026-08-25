@@ -1,0 +1,54 @@
+{
+  "ts": "2026-08-24T23:55:00Z",
+  "stack": "team_core + TeamSession fuse_live_dets_for_pitch (post ab68b36)",
+  "method": "Window match on t_end inside gold [t_start, t_end] ±0.25 s; P_emit = TP/(TP+FP)",
+  "product_clip": {
+    "id": "check_15s_s4 / real_fuse_15s",
+    "stride": 4,
+    "match_sec": 15,
+    "timeline": "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_15s/timeline.json",
+    "overall": { "tp": 3, "fp": 0, "fn": 0, "p_emit": 1.0, "recall": 1.0 },
+    "per_type": {
+      "pass": { "gold": 2, "emit": 2, "tp": 2, "fp": 0, "fn": 0, "p_emit": 1.0, "recall": 1.0 },
+      "dribble": { "gold": 1, "emit": 1, "tp": 1, "fp": 0, "fn": 0, "p_emit": 1.0, "recall": 1.0 },
+      "shot": { "gold": 0, "emit": 0, "note": "no gold window in clip; 0 FP" },
+      "recovery": { "gold": 0, "emit": 0, "note": "no gold window in clip; 0 FP" },
+      "movement": { "gold": 0, "emit": 0, "note": "no gold window in clip; 0 FP" }
+    },
+    "carrier_pid_emit": 42,
+    "carrier_pid_gold": 34,
+    "carrier_match": false
+  },
+  "synth_gold": {
+    "overall": { "tp": 6, "fp": 0, "fn": 0, "p_emit": 1.0, "recall": 1.0 },
+    "per_type": {
+      "pass": { "gold": 2, "emit": 2, "tp": 2, "p_emit": 1.0, "recall": 1.0 },
+      "dribble": { "gold": 1, "emit": 1, "tp": 1, "p_emit": 1.0, "recall": 1.0 },
+      "shot": { "gold": 1, "emit": 1, "tp": 1, "p_emit": 1.0, "recall": 1.0 },
+      "recovery": { "gold": 1, "emit": 1, "tp": 1, "p_emit": 1.0, "recall": 1.0 },
+      "movement": { "gold": 1, "emit": 1, "tp": 1, "p_emit": 1.0, "recall": 1.0 }
+    }
+  },
+  "check25_stride15": {
+    "note": "Eng-loop check25_human at stride 15 — coarse sampling; not product handover stride",
+    "overall": { "tp": 0, "fp": 1, "fn": 3, "p_emit": 0.0, "recall": 0.0 },
+    "per_type": {
+      "pass": { "gold": 3, "emit": 1, "tp": 0, "fp": 1, "fn": 3, "p_emit": 0.0, "recall": 0.0 }
+    }
+  },
+  "shot_recovery_negatives_fuse15s": {
+    "shot_fp": 0,
+    "recovery_emit": 0,
+    "synth_shot_tp": 1,
+    "synth_recovery_tp": 1
+  },
+  "eng_loops": {
+    "heuristic_events": "FAIL (check25 stride15 gate)",
+    "fuse_event_recall": "FAIL (parent regression only; fuse_score p_emit 1.0)",
+    "dribble_precision": "FAIL (check25 gate)",
+    "fuse_shot_recovery": "FAIL (parent regression only)",
+    "fuse_linked_gold_primary": "FAIL (carrier pid 42 vs gold 34)"
+  },
+  "phase1_events_score": 8,
+  "phase1_events_pass_ge7": true
+}

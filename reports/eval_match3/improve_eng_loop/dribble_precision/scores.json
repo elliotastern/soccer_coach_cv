@@ -2,7 +2,7 @@
   "components": {
     "01_prompt": 10.0,
     "02_synth_regression": 10.0,
-    "03_real_check25_p_emit": 10.0,
+    "03_real_fuse_p_emit": 10.0,
     "04_real_dribble_recall": 10.0,
     "05_negative_windows": 10.0,
     "06_batch_dribble_rate": 10.0,

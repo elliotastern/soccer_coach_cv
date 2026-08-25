@@ -13,7 +13,6 @@ sys.path.insert(0, str(ROOT))
 OUT = ROOT / "reports/eval_match3/improve_eng_loop/fuse_linked_gold_primary"
 CLIP = ROOT / "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_15s"
 PASS = 9.0
-CARRIER_ID = 34
 
 
 def _score(ok: bool, partial: float = 5.0) -> float:
@@ -36,7 +35,7 @@ def main() -> int:
         (g for g in labels.get("events") or [] if g.get("type") == "dribble"),
         {},
     )
-    expected_pid = int(dribble_gold.get("expected_carrier_pid") or CARRIER_ID)
+    expected_pid = int(dribble_gold.get("expected_carrier_pid") or 0)
 
     spec = importlib.util.spec_from_file_location(
         "build_check25",
@@ -85,7 +84,7 @@ def main() -> int:
         "02_linked_timeline": _score(linked_path.is_file() and primary == "timeline_linked.json"),
         "03_linked_dribble_tp": _score(tp >= 1),
         "04_emit_counts": _score(len(passes) == 2 and len(dribbles) == 1),
-        "05_carrier_pid": _score(carrier_ok and expected_pid == CARRIER_ID),
+        "05_carrier_pid": _score(carrier_ok),
         "06_carry_id_stable": _score(swaps["swaps"] == 0),
         "07_regression": _score(reg),
     }

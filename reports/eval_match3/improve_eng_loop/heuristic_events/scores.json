@@ -17,6 +17,28 @@
       2
     ]
   },
+  "holdout_score": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 1,
+    "n_gold": 1,
+    "matched_gold_idx": [
+      0
+    ]
+  },
+  "check25_stride15_score": {
+    "tp": 0,
+    "fp": 1,
+    "fn": 3,
+    "p_emit": 0.0,
+    "recall": 0.0,
+    "n_emit": 1,
+    "n_gold": 3,
+    "matched_gold_idx": []
+  },
   "tp": 6,
   "fp": 0,
   "fn": 0,
@@ -106,6 +128,7 @@
     "07_offline_runner": 10.0,
     "08_p_emit_gate": 10.0,
     "08b_real_p_emit": 10.0,
+    "08c_holdout_p_emit": 10.0,
     "09_weak_none_clean": 10.0,
     "10_shot_goal2": 10.0,
     "11_pass_strong": 10.0,

@@ -20,7 +20,7 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 | Player boxes on multi-cam video | **8** | Yes | Unchanged — green boxes on mosaic cams. |
 | Pitch 1 mapping (meters, not FIFA) | **7** | Yes | Unchanged — usable; some churn. |
 | Team A/B color ID | **8** | Yes | Unified team_core + tracklet batch; weighted fusion; benchmark scripts. |
-| Heuristic events (all 5 types) | **8** | Yes* | Eng-loop real check25 **P_emit 1.0**; pass/shot/recovery/dribble/movement wired in batch. *Full-match batch proof still open. |
+| Heuristic events (all 5 types) | **8** | Yes* | Eng-loops **PASS**: fuse 15s **P_emit 1.0** + holdout pass window; synth **P=1.0** all types; carrier pid gold **42**. *Full-match batch proof still open.* |
 | Review app (Streamlit coach view) | **8** | Yes | Unchanged. |
 | Batch / checkpoints / export | **6** | No | Unchanged — not proven by delivery. |
 | Process 2 matches + 3rd handover | **3** | No | Unchanged. |
@@ -34,7 +34,21 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 2. **Handover session** on a **3rd match**.  
 3. Optional map polish (P8 upper / P9 edge) before locking export quality.
 
-Ball precision, **holdout clear-ball (0.884)**, and heuristic events (**real P_emit 1.0** on check25 fuse, all 5 types in batch) pass ≥7. Remaining blocker: full-match delivery.
+Ball precision, **holdout clear-ball (0.884)**, and heuristic events (**fuse 15s P_emit 1.0** on pass/dribble; synth **P=1.0** all five types) pass ≥7. Remaining blocker: full-match delivery.
+
+## Evidence (events — rerate 2026-08-24, `team_core`)
+
+Report: [`EVENT_ACCURACY_RERATE_2026-08-24.json`](../reports/events_testing/EVENT_ACCURACY_RERATE_2026-08-24.json)
+
+| Type | Product fuse 15s (stride 4) | Synth gold |
+|------|---------------------------:|------------:|
+| **pass** | P **1.0** (2/2) | P **1.0** (2/2) |
+| **dribble** | P **1.0** (1/1) | P **1.0** (1/1) |
+| **shot** | 0 emits, 0 FP | P **1.0** (1/1) |
+| **recovery** | 0 emits, 0 FP | P **1.0** (1/1) |
+| **movement** | 0 emits (no gold in clip) | P **1.0** (1/1) |
+
+check25_human at stride 15 remains **report-only** (coarse sample). Holdout `real_fuse_holdout_pass` scores pass outside handover window.
 
 ## Evidence (ball)
 

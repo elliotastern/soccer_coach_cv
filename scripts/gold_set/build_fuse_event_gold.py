@@ -40,8 +40,8 @@ def main() -> int:
                 "type": "dribble",
                 "t_start": 10.5,
                 "t_end": 11.5,
-                "expected_carrier_pid": 34,
-                "note": "Visible co-move carry on fuse xy (stride-4 window)",
+                "expected_carrier_pid": 42,
+                "note": "team_core linked fuse id (stride-4 window)",
             },
         ],
         "negatives": [

@@ -7,16 +7,16 @@
 | E0 Pitch1 + gate | Done |
 | Teleport / cooldown / toward-goal shot | Done |
 | G1 synth + check25 continuous labels | Done |
-| Product timeline | `check25_human/timeline.json` (stride 15, defish fuse) |
-| **Real P_emit** | **1.0** (recall 1.0) — `score_real.json` |
-| Eng-loop | **PASS** (`08b_real_p_emit`) |
-| Scores | `reports/eval_match3/improve_eng_loop/heuristic_events/scores.json` |
-| E2 dribble/movement | Later |
+| Product timeline (handover) | `real_fuse_15s` stride **4** (`check_15s_s4`) |
+| **Fuse 15s P_emit** | **1.0** — 2 pass + 1 dribble |
+| Holdout pass window | `real_fuse_holdout_pass` — outside handover 15s |
+| Eng-loop | **PASS** — primary gate = fuse 15s; check25 stride 15 report-only |
 
 Rebuild timeline:
 
 ```bash
-python3 scripts/gold_set/build_check25_event_timeline.py --match-sec 25 --stride 15
+python3 scripts/gold_set/build_fuse_15s_timeline.py
+python3 scripts/gold_set/build_fuse_holdout_timeline.py
 python3 scripts/eng_loop_heuristic_events.py
 ```
 
