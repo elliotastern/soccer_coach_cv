@@ -1,0 +1,65 @@
+{
+  "rows": [
+    {
+      "clip": "real_fuse_eval_20s",
+      "abs_start_s": 20.0,
+      "n_mosaic_emits": 2,
+      "mosaic_types": [
+        "dribble",
+        "pass"
+      ],
+      "tp": 0,
+      "fp": 2,
+      "fn": 1,
+      "p_emit": 0.0,
+      "recall": 0.0,
+      "n_emit": 2,
+      "n_gold": 1,
+      "matched_gold_idx": []
+    },
+    {
+      "clip": "real_fuse_eval_49s",
+      "abs_start_s": 49.0,
+      "n_mosaic_emits": 5,
+      "mosaic_types": [
+        "movement",
+        "dribble",
+        "movement",
+        "pass",
+        "pass"
+      ],
+      "tp": 1,
+      "fp": 4,
+      "fn": 1,
+      "p_emit": 0.2,
+      "recall": 0.5,
+      "n_emit": 5,
+      "n_gold": 2,
+      "matched_gold_idx": [
+        0
+      ]
+    },
+    {
+      "clip": "real_fuse_eval_69s",
+      "abs_start_s": 70.43333333333334,
+      "n_mosaic_emits": 3,
+      "mosaic_types": [
+        "pass",
+        "movement",
+        "dribble"
+      ],
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "p_emit": 1.0,
+      "recall": 1.0,
+      "n_emit": 3,
+      "n_gold": 3,
+      "matched_gold_idx": [
+        0,
+        1,
+        2
+      ]
+    }
+  ]
+}

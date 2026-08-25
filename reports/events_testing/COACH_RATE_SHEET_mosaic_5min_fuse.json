@@ -1,0 +1,382 @@
+{
+  "emits": [
+    {
+      "type": "shot",
+      "t_end": 1.5,
+      "t_start": 1.25,
+      "confidence": 1.0,
+      "frame_id": 90
+    },
+    {
+      "type": "movement",
+      "t_end": 6.5,
+      "t_start": 6.25,
+      "confidence": 1.0,
+      "frame_id": 390
+    },
+    {
+      "type": "movement",
+      "t_end": 7.75,
+      "t_start": 7.5,
+      "confidence": 0.993,
+      "frame_id": 465
+    },
+    {
+      "type": "recovery",
+      "t_end": 10.0,
+      "t_start": 9.75,
+      "confidence": 0.85,
+      "frame_id": 600
+    },
+    {
+      "type": "movement",
+      "t_end": 14.0,
+      "t_start": 13.75,
+      "confidence": 0.91,
+      "frame_id": 840
+    },
+    {
+      "type": "dribble",
+      "t_end": 22.5,
+      "t_start": 22.0,
+      "confidence": 1.0,
+      "frame_id": 1350
+    },
+    {
+      "type": "pass",
+      "t_end": 24.75,
+      "t_start": 24.5,
+      "confidence": 1.0,
+      "frame_id": 1485
+    },
+    {
+      "type": "dribble",
+      "t_end": 36.5,
+      "t_start": 36.0,
+      "confidence": 1.0,
+      "frame_id": 2190
+    },
+    {
+      "type": "pass",
+      "t_end": 41.0,
+      "t_start": 40.75,
+      "confidence": 0.802,
+      "frame_id": 2460
+    },
+    {
+      "type": "movement",
+      "t_end": 50.5,
+      "t_start": 50.25,
+      "confidence": 0.945,
+      "frame_id": 3030
+    },
+    {
+      "type": "dribble",
+      "t_end": 50.75,
+      "t_start": 50.25,
+      "confidence": 1.0,
+      "frame_id": 3045
+    },
+    {
+      "type": "movement",
+      "t_end": 54.0,
+      "t_start": 53.75,
+      "confidence": 0.883,
+      "frame_id": 3240
+    },
+    {
+      "type": "pass",
+      "t_end": 57.75,
+      "t_start": 57.5,
+      "confidence": 1.0,
+      "frame_id": 3465
+    },
+    {
+      "type": "pass",
+      "t_end": 59.5,
+      "t_start": 59.25,
+      "confidence": 1.0,
+      "frame_id": 3570
+    },
+    {
+      "type": "pass",
+      "t_end": 66.5,
+      "t_start": 66.25,
+      "confidence": 0.999,
+      "frame_id": 3990
+    },
+    {
+      "type": "pass",
+      "t_end": 68.25,
+      "t_start": 68.0,
+      "confidence": 0.96,
+      "frame_id": 4095
+    },
+    {
+      "type": "pass",
+      "t_end": 74.25,
+      "t_start": 74.0,
+      "confidence": 0.91,
+      "frame_id": 4455
+    },
+    {
+      "type": "movement",
+      "t_end": 76.75,
+      "t_start": 76.5,
+      "confidence": 1.0,
+      "frame_id": 4605
+    },
+    {
+      "type": "dribble",
+      "t_end": 77.0,
+      "t_start": 76.5,
+      "confidence": 1.0,
+      "frame_id": 4620
+    },
+    {
+      "type": "dribble",
+      "t_end": 88.75,
+      "t_start": 88.25,
+      "confidence": 1.0,
+      "frame_id": 5325
+    },
+    {
+      "type": "movement",
+      "t_end": 105.5,
+      "t_start": 105.25,
+      "confidence": 1.0,
+      "frame_id": 6330
+    },
+    {
+      "type": "recovery",
+      "t_end": 143.5,
+      "t_start": 143.25,
+      "confidence": 0.85,
+      "frame_id": 8610
+    },
+    {
+      "type": "recovery",
+      "t_end": 147.75,
+      "t_start": 147.5,
+      "confidence": 0.85,
+      "frame_id": 8865
+    },
+    {
+      "type": "movement",
+      "t_end": 161.0,
+      "t_start": 160.75,
+      "confidence": 0.921,
+      "frame_id": 9660
+    },
+    {
+      "type": "pass",
+      "t_end": 162.25,
+      "t_start": 162.0,
+      "confidence": 0.99,
+      "frame_id": 9735
+    },
+    {
+      "type": "dribble",
+      "t_end": 168.25,
+      "t_start": 167.75,
+      "confidence": 1.0,
+      "frame_id": 10095
+    },
+    {
+      "type": "movement",
+      "t_end": 173.25,
+      "t_start": 173.0,
+      "confidence": 0.927,
+      "frame_id": 10395
+    },
+    {
+      "type": "dribble",
+      "t_end": 173.5,
+      "t_start": 173.0,
+      "confidence": 1.0,
+      "frame_id": 10410
+    },
+    {
+      "type": "movement",
+      "t_end": 174.75,
+      "t_start": 174.5,
+      "confidence": 0.974,
+      "frame_id": 10485
+    },
+    {
+      "type": "dribble",
+      "t_end": 176.0,
+      "t_start": 175.5,
+      "confidence": 1.0,
+      "frame_id": 10560
+    },
+    {
+      "type": "recovery",
+      "t_end": 179.75,
+      "t_start": 179.5,
+      "confidence": 0.85,
+      "frame_id": 10785
+    },
+    {
+      "type": "dribble",
+      "t_end": 182.0,
+      "t_start": 181.5,
+      "confidence": 1.0,
+      "frame_id": 10920
+    },
+    {
+      "type": "movement",
+      "t_end": 183.0,
+      "t_start": 182.75,
+      "confidence": 0.911,
+      "frame_id": 10980
+    },
+    {
+      "type": "pass",
+      "t_end": 186.5,
+      "t_start": 186.25,
+      "confidence": 0.852,
+      "frame_id": 11190
+    },
+    {
+      "type": "movement",
+      "t_end": 189.5,
+      "t_start": 189.25,
+      "confidence": 0.914,
+      "frame_id": 11370
+    },
+    {
+      "type": "dribble",
+      "t_end": 201.0,
+      "t_start": 200.5,
+      "confidence": 1.0,
+      "frame_id": 12060
+    },
+    {
+      "type": "pass",
+      "t_end": 202.25,
+      "t_start": 202.0,
+      "confidence": 0.83,
+      "frame_id": 12135
+    },
+    {
+      "type": "pass",
+      "t_end": 205.5,
+      "t_start": 205.25,
+      "confidence": 0.929,
+      "frame_id": 12330
+    },
+    {
+      "type": "movement",
+      "t_end": 206.5,
+      "t_start": 206.25,
+      "confidence": 0.971,
+      "frame_id": 12390
+    },
+    {
+      "type": "dribble",
+      "t_end": 214.75,
+      "t_start": 214.25,
+      "confidence": 0.963,
+      "frame_id": 12885
+    },
+    {
+      "type": "movement",
+      "t_end": 215.75,
+      "t_start": 215.5,
+      "confidence": 0.982,
+      "frame_id": 12945
+    },
+    {
+      "type": "dribble",
+      "t_end": 216.0,
+      "t_start": 215.5,
+      "confidence": 1.0,
+      "frame_id": 12960
+    },
+    {
+      "type": "movement",
+      "t_end": 217.0,
+      "t_start": 216.75,
+      "confidence": 1.0,
+      "frame_id": 13020
+    },
+    {
+      "type": "dribble",
+      "t_end": 235.75,
+      "t_start": 235.25,
+      "confidence": 1.0,
+      "frame_id": 14145
+    },
+    {
+      "type": "movement",
+      "t_end": 236.75,
+      "t_start": 236.5,
+      "confidence": 0.94,
+      "frame_id": 14205
+    },
+    {
+      "type": "movement",
+      "t_end": 237.75,
+      "t_start": 237.5,
+      "confidence": 1.0,
+      "frame_id": 14265
+    },
+    {
+      "type": "pass",
+      "t_end": 238.75,
+      "t_start": 238.5,
+      "confidence": 1.0,
+      "frame_id": 14325
+    },
+    {
+      "type": "recovery",
+      "t_end": 246.25,
+      "t_start": 246.0,
+      "confidence": 0.85,
+      "frame_id": 14775
+    },
+    {
+      "type": "movement",
+      "t_end": 247.25,
+      "t_start": 247.0,
+      "confidence": 1.0,
+      "frame_id": 14835
+    },
+    {
+      "type": "recovery",
+      "t_end": 280.5,
+      "t_start": 280.25,
+      "confidence": 0.85,
+      "frame_id": 16830
+    },
+    {
+      "type": "shot",
+      "t_end": 282.25,
+      "t_start": 282.0,
+      "confidence": 1.0,
+      "frame_id": 16935
+    },
+    {
+      "type": "dribble",
+      "t_end": 284.25,
+      "t_start": 283.75,
+      "confidence": 1.0,
+      "frame_id": 17055
+    },
+    {
+      "type": "recovery",
+      "t_end": 289.5,
+      "t_start": 289.25,
+      "confidence": 0.85,
+      "frame_id": 17370
+    },
+    {
+      "type": "movement",
+      "t_end": 291.0,
+      "t_start": 290.75,
+      "confidence": 1.0,
+      "frame_id": 17460
+    }
+  ]
+}

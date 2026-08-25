@@ -59,7 +59,6 @@ def main() -> int:
     labels["match_sec"] = args.match_sec
     (out / "labels.json").write_text(json.dumps(labels, indent=2), encoding="utf-8")
 
-    manifest = json.loads(V2_MANIFEST.read_text(encoding="utf-8"))
     entry = {
         "id": args.clip_id,
         "timeline": str((out / "timeline.json").relative_to(ROOT)),
@@ -67,10 +66,14 @@ def main() -> int:
         "note": f"Eval fuse window start={args.start}s span={args.match_sec}",
         "holdout": True,
     }
-    clips = [c for c in manifest.get("clips") or [] if c.get("id") != args.clip_id]
-    clips.append(entry)
-    manifest["clips"] = clips
-    V2_MANIFEST.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    if V2_MANIFEST.is_file():
+        manifest = json.loads(V2_MANIFEST.read_text(encoding="utf-8"))
+        clips = [c for c in manifest.get("clips") or [] if c.get("id") != args.clip_id]
+        clips.append(entry)
+        manifest["clips"] = clips
+        V2_MANIFEST.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    else:
+        print("SKIP manifest update (missing", V2_MANIFEST, ")", flush=True)
     print("WROTE", out / "labels.json")
     return 0
 

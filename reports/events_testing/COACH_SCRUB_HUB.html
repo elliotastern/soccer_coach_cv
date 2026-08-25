@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Events coach scrub — Match 4</title>
+  <style>
+    :root { --bg: #0f1419; --fg: #e7ecf1; --muted: #8b9aab; --accent: #3d9cf0; --ok: #3ecf8e; --bad: #f07178; }
+    body { font-family: "IBM Plex Sans", system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 1.5rem; max-width: 900px; margin-inline: auto; }
+    h1 { font-size: 1.35rem; font-weight: 600; }
+    h2 { font-size: 1.05rem; color: var(--accent); margin-top: 1.75rem; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { border-bottom: 1px solid #243040; padding: 0.4rem 0.5rem; text-align: left; }
+    th { color: var(--muted); font-weight: 500; }
+    .warn { background: #2a2210; border: 1px solid #6b5420; padding: 0.85rem 1rem; border-radius: 8px; margin: 1rem 0; }
+    code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85em; }
+    a { color: var(--accent); }
+    .pill { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; background: #1a2838; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>Match 4 events — coach scrub hub</h1>
+  <p class="muted">Primary gates PASS (fuse 15s P_emit 1.0). Improve via fuse truth, not thresholds.</p>
+
+  <div class="warn">
+    <strong>Mosaic DONE.</strong> Watch
+    <code>reports/eval_match3/improve_eng_loop/match4_5min/coach_mosaic_pitch_5min.mp4</code>
+    (300s, 54 fuse emits). Rate sheet:
+    <a href="COACH_RATE_SHEET_mosaic_5min_fuse.md">COACH_RATE_SHEET_mosaic_5min_fuse.md</a>.
+    Holdout extracts: 44–64s and 69–84s under <code>real_fuse_eval_*</code>.
+  </div>
+
+  <h2>Do now</h2>
+  <ol>
+    <li><strong>Priority scrub (27 emits):</strong> <a href="COACH_SCRUB_PRIORITY.md">COACH_SCRUB_PRIORITY.md</a>
+      + clip <code>match4_5min/coach_mosaic_first_90s.mp4</code></li>
+    <li>Full sheet: <a href="COACH_RATE_SHEET_mosaic_5min_fuse.md">54 fuse emits</a></li>
+    <li>Streamlit <code>:8501</code> Expert → <code>data/output/match_4_5min</code> → P10 (optional parallel)</li>
+    <li>When ready: stride-4 @49s MP4 (auto-pulling) — decide late movement keep/drop</li>
+  </ol>
+
+  <h2>Holdouts</h2>
+  <table>
+    <tr><th>Clip</th><th>Batch</th><th>Fuse (known)</th><th>Action</th></tr>
+    <tr><td><code>real_fuse_eval_20s</code></td><td>pass cluster</td><td>movement</td><td>reference</td></tr>
+    <tr><td><code>real_fuse_eval_49s</code></td><td>3 pass</td><td>move + dribble + move</td><td>coach lock</td></tr>
+    <tr><td><code>real_fuse_eval_69s</code></td><td>pass cluster</td><td>pending build</td><td>verify fuse</td></tr>
+  </table>
+
+  <h2>Catch status commands</h2>
+  <p><code>bash scripts/catch_status.sh</code> · <code>bash scripts/catch_wait_mosaic_pull.sh</code></p>
+  <p class="muted">Checklist: <a href="COACH_SCRUB_CHECKLIST.md">COACH_SCRUB_CHECKLIST.md</a></p>
+</body>
+</html>

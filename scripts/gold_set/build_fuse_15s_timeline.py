@@ -20,7 +20,7 @@ def main() -> int:
         "--match-sec",
         "15",
         "--stride",
-        "4",
+        "1",
         "--out-dir",
         str(OUT),
     ]
