@@ -1,0 +1,36 @@
+---
+description: Catch ↔ Mac file transfer — Tailscale + SSH key (verified); no GitHub on Catch
+alwaysApply: true
+---
+
+# Catch ↔ Mac file sync (locked)
+
+**Default** for videos, renders, weights between developer Mac and Catch RTX 5090 — not AnyDesk file picker.
+
+Full guide: [CATCH_MAC_FILE_SYNC.md](docs/product/CATCH_MAC_FILE_SYNC.md)
+
+## Stack (verified 2026-08)
+
+1. **Tailscale** — same account on Mac + Catch (`tailscale status` shows both)
+2. **openssh-server** on Catch (`sudo systemctl enable --now ssh`)
+3. **SSH key on Mac only:** `~/.ssh/id_ed25519_soccer_catch` — public key in Catch `~/.ssh/authorized_keys`
+4. **Exchange dirs:** `~/soccer_exchange/from_catch/` (Catch→Mac) · `~/soccer_exchange/to_catch/` (Mac→Catch)
+
+## Mac daily commands
+
+```bash
+# ~/.ssh/config Host catch-soccer → Tailscale IP (see docs)
+bash scripts/pull_from_catch.sh    # → ~/Downloads/soccer_catch_sync/
+bash scripts/push_to_catch.sh <file>
+```
+
+## No Linux password?
+
+If `catch` login password unknown: paste Mac `id_ed25519_soccer_catch.pub` into Catch `~/.ssh/authorized_keys` via AnyDesk terminal (no `ssh-copy-id`).
+
+## Do / don't
+
+- **Do** stage deliverables: `cp …mp4 ~/soccer_exchange/from_catch/`
+- **Do** keep private key on Mac only
+- **Don't** put developer GitHub / Mac secrets on Catch
+- **Don't** default to AnyDesk for large files once SSH works

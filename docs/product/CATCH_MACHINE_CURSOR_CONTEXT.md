@@ -10,7 +10,7 @@ Paste or `@`-reference: `docs/product/CATCH_MACHINE_CURSOR_CONTEXT.md`
 **Match videos:** `/home/catch/Documents/Matches/Match 4`  
 **Raw symlink in repo:** `data/raw/Match 3` → Match 4 folder (legacy folder name; footage is Match 4)
 
-Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) · [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md) · [match4_camera_ids.mdc](../cursorrules/match4_camera_ids.mdc)
+Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) · [MATCH_REVIEW_HANDOVER.md](MATCH_REVIEW_HANDOVER.md) · [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md) · [match4_camera_ids.mdc](../cursorrules/match4_camera_ids.mdc)
 
 ---
 
@@ -32,6 +32,10 @@ Related guides: [CLIENT_HANDOVER_QUICKSTART.md](CLIENT_HANDOVER_QUICKSTART.md) �
 | Review dashboard | ✅ Done | `bootstrap_phase1_client.sh` → http://127.0.0.1:8501 |
 | Smoke video path | ✅ Done | `ln -sf P10-match4.mp4 P10-002.mp4` in raw folder (or auto via `guess_video_for_run` after `git pull`) |
 | `tmux` | ✅ Done | `sudo apt install -y tmux` (3.4) — use for **next** batch detach |
+| Match 4 5-min batch | ✅ Done | `data/output/match_4_5min/` (quad, 18000 fr/cam) |
+| Mosaic render 5 min | ✅ Done | `reports/eval_match3/improve_eng_loop/match4_5min/coach_mosaic_pitch_5min.mp4` |
+| Tailscale | ✅ Done | catch `100.113.134.41` · Mac `100.112.17.93` (example IPs) |
+| Mac↔Catch file sync | ✅ Done | SSH key `id_ed25519_soccer_catch` · `~/soccer_exchange/` · see [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md) |
 | Match 4 full batch | ⏸ Skip | Use **5-min chunked** script instead (see below) |
 
 **Do not redo:** venv, torch cu128, HF model download, smoke symlinks, or `hf auth login` unless token revoked.
@@ -75,6 +79,13 @@ Services:
 Security:
   Developer GitHub credentials NEVER on this PC
   HF write token OK (soccer weights only); saved via hf auth login
+
+File sync (Mac ↔ Catch, verified):
+  Tailscale + SSH key only (~/.ssh/id_ed25519_soccer_catch on Mac)
+  Catch: ~/soccer_exchange/from_catch/ (stage) · ~/soccer_exchange/to_catch/ (receive)
+  Mac: bash scripts/pull_from_catch.sh → ~/Downloads/soccer_catch_sync/
+  No catch Linux password needed if pub key in ~/.ssh/authorized_keys (paste via AnyDesk)
+  Doc: docs/product/CATCH_MAC_FILE_SYNC.md
 ```
 
 ---

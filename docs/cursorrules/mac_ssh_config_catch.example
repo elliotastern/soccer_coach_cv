@@ -1,0 +1,6 @@
+# Paste into Mac ~/.ssh/config (replace IP with Catch tailscale ip -4)
+Host catch-soccer
+    HostName 100.113.134.41
+    User catch
+    IdentityFile ~/.ssh/id_ed25519_soccer_catch
+    IdentitiesOnly yes

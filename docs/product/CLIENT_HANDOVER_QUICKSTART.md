@@ -149,7 +149,7 @@ Proof videos (no batch): [phase1_proof/manifest.json](../../reports/eval_match3/
 
 1. Client shares AnyDesk ID; you connect.
 2. Run steps 1–5 on **his** machine.
-3. **File transfer** only the two model `.pth` files (~500 MB), or HF download with a scoped read token (see below).
+3. **Models:** HF pull or AnyDesk `.pth` (~500 MB). **Deliverables (videos/CSV):** set up [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md) once (Tailscale + SSH key).
 4. Open `http://127.0.0.1:8501` in **his** browser.
 
 ### Credentials on Catch’s PC (locked)
@@ -164,7 +164,9 @@ Developer **GitHub** has other important projects — **never** put developer Gi
 
 Before leaving Catch’s desk: clear HF token / logouts; disconnect AnyDesk; tmux jobs may keep running without accounts.
 
-Full context: [CATCH_MACHINE_CURSOR_CONTEXT.md](CATCH_MACHINE_CURSOR_CONTEXT.md) · Cursor rule: `.cursor/rules/catch_client_credentials.mdc`.
+### Mac ↔ Catch file sync (after one-time setup)
+
+Catch stages: `~/soccer_exchange/from_catch/` · Mac pulls: `bash scripts/pull_from_catch.sh` → `~/Downloads/soccer_catch_sync/`. No `catch` Linux password if SSH public key pasted via AnyDesk. Details: [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md).
 
 Keep dashboard alive after disconnect:
 
