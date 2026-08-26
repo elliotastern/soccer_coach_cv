@@ -58,6 +58,8 @@ events:
   dribble_window_frames: 2
   dribble_min_carry_m: 0.55
   dribble_co_move_streak: 1
+  movement_window_frames: 2
+  movement_min_carry_m: 0.35
 checkpoint:
   interval_frames: 300
   output_dir: data/output/checkpoints

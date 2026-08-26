@@ -232,17 +232,22 @@ def test_dribble_emits():
 
 
 def test_movement_emits():
-    det = EventDetector(enable_movement=True)
-    dt = 1.0
-    prev, cur = _pair(
-        [_player(1, 0.0, 0.0, 0, 5.0)],
-        _ball(0.0, 0.0, 0, 5.0),
-        [_player(1, 0.5, 0.0, 1, 5.0 + dt)],
-        _ball(2.5, 0.0, 1, 5.0 + dt),
-        t0=5.0,
-        dt=dt,
-    )
-    ev = det.detect_movement(cur, prev)
+    det = EventDetector(enable_movement=True, enable_dribble=False)
+    dt = 0.25
+    steps = [
+        ([_player(1, 0.0, 0.0, 0, 0.0)], _ball(0.0, 0.0, 0, 0.0)),
+        ([_player(1, 0.16, 0.0, 1, dt)], _ball(0.28, 0.0, 1, dt)),
+        ([_player(1, 0.32, 0.0, 2, 2 * dt)], _ball(0.54, 0.0, 2, 2 * dt)),
+    ]
+    prev = None
+    ev = None
+    for i, (players, ball) in enumerate(steps):
+        cur = FrameData(i, i * dt, players, ball)
+        if prev is not None:
+            evs = det.detect_events(cur, prev)
+            if evs:
+                ev = evs[0]
+        prev = cur
     assert ev is not None and ev.type == EventType.MOVEMENT
     assert ev.confidence >= EMIT_CONF
 

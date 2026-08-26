@@ -15,6 +15,7 @@ Log failed A/Bs here. Numbers live in JSON; this file is the anti-rerun list.
 | Goal-band hard exclusion for dribble/movement | Blocks real goal-mouth carries; tuned to one clip | Use ball–player co-movement gate |
 | Dribble/movement on static player + jittery ball | FP spam on fuse xy (check25) | `co_move_min_player_m` + `co_move_min_cos` |
 | Single-frame dribble on batch P10 2min | 283 dribble emits | Temporal window + `dribble_min_carry_m` 0.6 (D3 loop) |
+| Movement kickoff on t&lt;3 s | FN on eval49 @1.8 s + synth movement | Kickoff **shot-only**; movement uses temporal window |
 
 ## Worked
 
@@ -26,6 +27,7 @@ Log failed A/Bs here. Numbers live in JSON; this file is the anti-rerun list.
 | Eng-loop kill switch on real | `08b_real_p_emit` in `scores.json` |
 | Ball–player co-movement gate | check25 E2 FP 6→0; real P_emit 1.0 without zone exclusion | `co_move_min_player_m` / `co_move_min_cos` |
 | Temporal dribble window (3 steps, 0.6 m carry) | Batch P10 dribble 283→≤30; synth + carry gold pass | `dribble_window_frames` / `dribble_min_carry_m` |
+| Shot-only kickoff + movement window | eval49 P_emit 1.0; synth movement TP; late jitter FP gone | `movement_window_frames` / `movement_min_carry_m` |
 
 ## Residual
 

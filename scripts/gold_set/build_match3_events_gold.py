@@ -195,23 +195,24 @@ def main() -> int:
         )
     )
 
-    # Movement: slow co-moving carry
+    # Movement: slow co-moving carry (3-step window; carry < dribble min)
     clips.append(
         _write(
             "synth_movement_midfield",
-            _frames_two(
-                (0.0, 0.0),
-                (2.5, 0.0),
-                [[1, 0.0, 0.0]],
-                [[1, 0.5, 0.0]],
-                dt=1.0,
+            _frames_multi(
+                [
+                    ((0.0, 0.0), [[1, 0.0, 0.0]]),
+                    ((0.28, 0.0), [[1, 0.16, 0.0]]),
+                    ((0.54, 0.0), [[1, 0.32, 0.0]]),
+                ],
+                dt=0.25,
             ),
             {
                 "events": [
-                    {"type": "movement", "t_start": 0.0, "t_end": 1.0, "frame_end": 1}
+                    {"type": "movement", "t_start": 0.0, "t_end": 0.5, "frame_end": 2}
                 ]
             },
-            "Synthetic slow co-move — expect emit movement",
+            "Synthetic slow co-move — movement window only (not dribble carry)",
         )
     )
 

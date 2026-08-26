@@ -61,6 +61,8 @@ class EventDetector:
         dribble_window_frames: int = 2,
         dribble_min_carry_m: float = 0.55,
         dribble_co_move_streak: int = 1,
+        movement_window_frames: int = 2,
+        movement_min_carry_m: float = 0.35,
     ):
         self.pitch_mapper = pitch_mapper
         self.pass_velocity_threshold = pass_velocity_threshold
@@ -82,12 +84,15 @@ class EventDetector:
         self.dribble_window_frames = dribble_window_frames
         self.dribble_min_carry_m = dribble_min_carry_m
         self.dribble_co_move_streak = dribble_co_move_streak
+        self.movement_window_frames = movement_window_frames
+        self.movement_min_carry_m = movement_min_carry_m
         self.player_history: Dict[int, List[Player]] = {}
         self.ball_history: List[Ball] = []
         self._last_emit_t: Optional[float] = None
         self._stable_streak: int = 0
         self._need_extra_stable: bool = False
         self._dribble_buf: List[tuple] = []
+        self._movement_buf: List[tuple] = []
         self._goalward_streak: int = 0
 
     def _kickoff_blocked(self, t: float) -> bool:
@@ -512,14 +517,11 @@ class EventDetector:
             )
         return None
 
-    def detect_movement(
-        self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
-    ) -> Optional[Event]:
-        if not self._ball_ok(frame_data, prev_frame_data):
-            return None
-        assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
-        if self._kickoff_blocked(frame_data.timestamp):
-            return None
+    def _movement_co_move_step(
+        self, frame_data: FrameData, prev_frame_data: FrameData
+    ) -> Optional[int]:
+        """One co-moving sub-pass step — no emit (temporal window)."""
+        assert frame_data.ball and prev_frame_data.ball
         dt = frame_data.timestamp - prev_frame_data.timestamp
         start = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
         end = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
@@ -542,23 +544,70 @@ class EventDetector:
         cur_pl = self._player_loc(frame_data.players, pid)
         if prev_pl is None or cur_pl is None:
             return None
-        if not self._co_movement_ok(start, end, prev_pl, cur_pl):
+        if self._co_movement_ok(start, end, prev_pl, cur_pl):
+            return pid
+        # Fuse stride-4: mapped player lags ball — same cling fallback as dribble.
+        cling = self._dribble_cling_step(frame_data, prev_frame_data)
+        if cling is None:
             return None
-        conf = min(1.0, 0.80 + moved / 5.0)
-        return self._gate(
+        return cling[0]
+
+    def detect_movement(
+        self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
+    ) -> Optional[Event]:
+        if not self._ball_ok(frame_data, prev_frame_data):
+            self._movement_buf = []
+            return None
+        assert prev_frame_data is not None
+        return self._detect_movement_window(frame_data, prev_frame_data)
+
+    def _detect_movement_window(
+        self, frame_data: FrameData, prev_frame_data: FrameData
+    ) -> Optional[Event]:
+        pid = self._movement_co_move_step(frame_data, prev_frame_data)
+        if pid is None:
+            if self._movement_buf:
+                _, last_fr, _ = self._movement_buf[-1]
+                gap = frame_data.timestamp - last_fr.timestamp
+                if gap > 0.40:
+                    self._movement_buf = []
+            return None
+        self._movement_buf.append((prev_frame_data, frame_data, pid))
+        if len(self._movement_buf) > self.movement_window_frames:
+            self._movement_buf = self._movement_buf[-self.movement_window_frames :]
+        if len(self._movement_buf) < self.movement_window_frames:
+            return None
+        first_prev, _, first_pid = self._movement_buf[0]
+        _, last_cur, last_pid = self._movement_buf[-1]
+        if first_pid != last_pid:
+            self._movement_buf = self._movement_buf[-1:]
+            return None
+        assert first_prev.ball and last_cur.ball
+        start = Location(first_prev.ball.x_pitch, first_prev.ball.y_pitch)
+        end = Location(last_cur.ball.x_pitch, last_cur.ball.y_pitch)
+        carry = self._distance(start, end)
+        if carry + 1e-9 < self.movement_min_carry_m:
+            self._movement_buf = []
+            return None
+        conf = min(1.0, 0.80 + carry / 5.0)
+        ev = self._gate(
             Event(
-                id=f"movement_{frame_data.frame_id}",
+                id=f"movement_{last_cur.frame_id}",
                 type=EventType.MOVEMENT,
-                start_frame=prev_frame_data.frame_id,
-                end_frame=frame_data.frame_id,
+                start_frame=first_prev.frame_id,
+                end_frame=last_cur.frame_id,
                 start_location=start,
                 end_location=end,
-                involved_players=[pid],
+                involved_players=[last_pid],
                 confidence=conf,
-                timestamp_start=prev_frame_data.timestamp,
-                timestamp_end=frame_data.timestamp,
+                timestamp_start=first_prev.timestamp,
+                timestamp_end=last_cur.timestamp,
             )
         )
+        if ev is None:
+            return None
+        self._movement_buf = []
+        return ev
 
     def detect_events(
         self, frame_data: FrameData, prev_frame_data: Optional[FrameData]
@@ -568,6 +617,7 @@ class EventDetector:
             self._stable_streak = 0
             self._goalward_streak = 0
             self._dribble_buf = []
+            self._movement_buf = []
             return []
         assert prev_frame_data is not None
         if not self._ball_speed_ok(frame_data, prev_frame_data):
@@ -575,18 +625,21 @@ class EventDetector:
             self._need_extra_stable = True
             self._goalward_streak = 0
             self._dribble_buf = []
+            self._movement_buf = []
             return []
         if not self._near_ball_players_stable(frame_data, prev_frame_data):
             self._stable_streak = 0
             self._need_extra_stable = True
             self._goalward_streak = 0
             self._dribble_buf = []
+            self._movement_buf = []
             return []
         self._update_goalward_streak(frame_data, prev_frame_data)
         self._stable_streak += 1
         # After a teleport, require one extra continuous step before emit.
         if self._need_extra_stable and self._stable_streak < 2:
             self._dribble_buf = []
+            self._movement_buf = []
             return []
         self._need_extra_stable = False
         carry_start_t = (
@@ -599,6 +652,7 @@ class EventDetector:
                     self._last_emit_t = ev.timestamp_end
                     return [ev]
             self._dribble_buf = []
+            self._movement_buf = []
             return []
         for et in (EventType.SHOT, EventType.PASS, EventType.RECOVERY):
             ev = {
@@ -608,23 +662,25 @@ class EventDetector:
             }[et](frame_data, prev_frame_data)
             if ev is not None:
                 self._dribble_buf = []
+                self._movement_buf = []
                 self._last_emit_t = ev.timestamp_end
                 return [ev]
         if self.enable_dribble:
             ev = self._detect_dribble_window(frame_data, prev_frame_data)
             if ev is not None:
+                self._movement_buf = []
                 self._last_emit_t = ev.timestamp_end
                 return [ev]
         if self.enable_movement:
-            one_from_dribble = (
-                len(self._dribble_buf) == self.dribble_window_frames - 1
-                and self._dribble_partial_carry_m() + 1e-9 < self.dribble_min_carry_m
+            dribble_almost = (
+                len(self._dribble_buf) >= self.dribble_window_frames - 1
+                and self._dribble_partial_carry_m() + 1e-9
+                >= self.dribble_min_carry_m * 0.90
             )
-            if not one_from_dribble:
-                ev = self.detect_movement(frame_data, prev_frame_data)
+            if not dribble_almost:
+                ev = self._detect_movement_window(frame_data, prev_frame_data)
                 if ev is not None:
-                    if len(self._dribble_buf) >= self.dribble_window_frames:
-                        self._dribble_buf = []
+                    self._dribble_buf = []
                     self._last_emit_t = ev.timestamp_end
                     return [ev]
         return []

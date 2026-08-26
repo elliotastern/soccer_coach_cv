@@ -1,0 +1,77 @@
+{
+  "eval49_score": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 2,
+    "n_gold": 2,
+    "matched_gold_idx": [
+      0,
+      1
+    ]
+  },
+  "fuse15_score": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 3,
+    "n_gold": 3,
+    "matched_gold_idx": [
+      0,
+      1,
+      2
+    ]
+  },
+  "holdout_score": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 1,
+    "n_gold": 1,
+    "matched_gold_idx": [
+      0
+    ]
+  },
+  "synth_movement": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
+    "n_emit": 1,
+    "id": "synth_movement_midfield",
+    "emits": [
+      {
+        "type": "movement",
+        "frame_end": 2,
+        "t_start": 0.0,
+        "t_end": 0.5,
+        "confidence": 0.908,
+        "players": [
+          1
+        ]
+      }
+    ]
+  },
+  "eval49_fp_outside_gold": 0,
+  "components": {
+    "01_prompt": 10.0,
+    "02_unit_e0": 10.0,
+    "03_parent_heuristic": 10.0,
+    "04_synth_movement_tp": 10.0,
+    "05_eval49_p_emit": 10.0,
+    "06_eval49_no_extra_fp": 10.0,
+    "07_fuse15_no_regress": 10.0,
+    "08_holdout_no_regress": 10.0,
+    "09_dribble_precision": 10.0,
+    "10_config_movement_knobs": 10.0
+  },
+  "failed": {},
+  "pass": true
+}

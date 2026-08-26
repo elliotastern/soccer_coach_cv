@@ -1,0 +1,17 @@
+{
+  "steps": [
+    {
+      "name": "unit_e0",
+      "ok": true,
+      "exit": 0,
+      "tail": "ok test_no_fifa_52_5\nok test_shot_pitch1_goal_band\nok test_shot_rejects_midfield\nok test_weak_pass_below_emit\nok test_strong_pass_emits\nok test_priority_shot_over_pass\nok test_kickoff_shot_rejected\nok test_shot_rejects_wide_of_goal_mouth\nok test_weak_dribble_suppressed\nok test_dribble_needs_prev_proximity\nok test_dribble_emits\nok test_movement_emits\nok test_goal_jitter_no_dribble_or_movement\nok test_movement_below_pass_threshold\nall_unit_ok\n"
+    },
+    {
+      "name": "eval49_recall",
+      "ok": true,
+      "exit": 0,
+      "tail": "{\n  \"pass\": true,\n  \"failed\": {},\n  \"eval49_tp\": 2,\n  \"eval49_n\": 2,\n  \"eval49_p\": 1.0,\n  \"eval49_r\": 1.0\n}\nWROTE /Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/eval49_movement_recall/scores.json\nall eval49_movement_recall >= 9/10\n"
+    }
+  ],
+  "pass": true
+}

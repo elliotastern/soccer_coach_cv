@@ -23,11 +23,14 @@ sys.path.insert(0, str(ROOT))
 from src.events.events import EventDetector  # noqa: E402
 from src.perception.rfdetr_local import LocalRFDETRDetector  # noqa: E402
 from src.review.cam_mosaic import (
+    QUAD_ROTATE_180,
     compose_coach_stack,
     mosaic_grid_size,
     mosaic_quads_coach,
     pitch_stack_metrics,
     match3_videos,
+    _tile,
+    _is_ball_det,
 )  # noqa: E402
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
@@ -74,6 +77,12 @@ def parse_args():
         "--events-only",
         action="store_true",
         help="Re-run fuse+heuristic emits only (no mosaic MP4); updates emits_render.json",
+    )
+    p.add_argument(
+        "--layout",
+        choices=("mosaic", "best_ball"),
+        default="mosaic",
+        help="mosaic = quad + pitch; best_ball = single best-ball cam + pitch",
     )
     return p.parse_args()
 
@@ -126,6 +135,71 @@ def draw_events_bar(width: int, t_s: float, recent: list[dict], flash: str | Non
             2,
         )
     return bar
+
+
+def pick_best_ball_cam(bag: dict) -> str:
+    for cam in ("P10", "P9", "P7", "P8"):
+        if any(_is_ball_det(d) for d in (bag.get(cam) or [])):
+            return cam
+    return "P10"
+
+
+def render_cam_panel(
+    layout: str,
+    vids,
+    fr: int,
+    bag: dict,
+    detect_fn,
+    apply_defish: bool,
+    tile_w: int,
+    tile_h: int,
+    grid_w: int,
+    grid_h: int,
+) -> np.ndarray:
+    if layout == "mosaic":
+        return mosaic_quads_coach(
+            vids,
+            fr,
+            tile_w=tile_w,
+            tile_h=tile_h,
+            dets_by_cam=bag,
+            detect_fn=detect_fn,
+            apply_defish=apply_defish,
+        )
+    mosaic_quads_coach(
+        vids,
+        fr,
+        tile_w=tile_w,
+        tile_h=tile_h,
+        dets_by_cam=bag,
+        detect_fn=detect_fn,
+        apply_defish=apply_defish,
+    )
+    best = pick_best_ball_cam(bag)
+    rotate = best in QUAD_ROTATE_180
+    tile = _tile(
+        vids,
+        best,
+        fr,
+        tile_w * 2,
+        tile_h * 2,
+        dets_by_cam=bag,
+        detect_fn=detect_fn,
+        rotate_180=rotate,
+        apply_defish=apply_defish,
+    )
+    panel = cv2.resize(tile, (grid_w, grid_h), interpolation=cv2.INTER_AREA)
+    cv2.rectangle(panel, (0, 0), (panel.shape[1] - 1, panel.shape[0] - 1), (0, 200, 255), 2)
+    cv2.putText(
+        panel,
+        f"BEST BALL · {best}",
+        (12, 28),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.75,
+        (0, 220, 255),
+        2,
+    )
+    return panel
 
 
 def h264_encode(src: Path, fps: float) -> None:
@@ -205,14 +279,17 @@ def main() -> int:
                 apply_defish=apply_defish,
             )
         else:
-            mosaic = mosaic_quads_coach(
+            mosaic = render_cam_panel(
+                args.layout,
                 vids,
                 fr,
-                tile_w=tile_w,
-                tile_h=tile_h,
-                dets_by_cam=bag,
-                detect_fn=detect_fn,
-                apply_defish=apply_defish,
+                bag,
+                detect_fn,
+                apply_defish,
+                tile_w,
+                tile_h,
+                grid_w,
+                grid_h,
             )
         live = fuse_live_dets_for_pitch(
             bag,
@@ -324,6 +401,7 @@ def main() -> int:
                 "map_player_box (P8 lower-zone H fallback), P_Goal2 hull, F0 fuse; "
                 "events bar = heuristic pass/shot/recovery on fused xy"
             ),
+            "layout": args.layout,
             "debug_cam": bool(args.debug_cam),
             "events_bar": bool(args.events_bar),
             "n_emits": len(all_emits),
