@@ -1,0 +1,19 @@
+{
+  "ts": "2026-08-25T22:20:00+00:00",
+  "clip": "coach_mosaic_first_90s.mp4",
+  "baseline": "team_match4_baseline.json",
+  "before": {
+    "mean_blue_share": 0.907,
+    "collapse_frac": 0.578,
+    "both3_frac": 0.148,
+    "mean_players": 15.66
+  },
+  "after": {
+    "mean_blue_share": 0.685,
+    "collapse_frac": 0.069,
+    "both3_frac": 0.761,
+    "mean_players": 14.60
+  },
+  "eng_loop_pass": true,
+  "product_ready": 9.86
+}

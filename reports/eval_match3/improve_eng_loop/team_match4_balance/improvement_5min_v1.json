@@ -1,0 +1,13 @@
+{
+  "ts": "2026-08-25T23:26:00+00:00",
+  "clip": "coach_mosaic_pitch_5min.mp4",
+  "eng_loop_pass": false,
+  "note": "v1 after kit_mode=auto; failed only mean_blue_share (8.85)",
+  "metrics": {
+    "mean_blue_share": 0.735,
+    "collapse_frac": 0.163,
+    "both3_frac": 0.62,
+    "mean_players": 13.95
+  },
+  "product_ready": 9.67
+}

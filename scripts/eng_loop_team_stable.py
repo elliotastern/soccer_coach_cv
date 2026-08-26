@@ -22,6 +22,7 @@ from src.review.cam_mosaic import (  # noqa: E402
 )
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
+from src.perception.team_core import KIT_MODE_MATCH3  # noqa: E402
 from src.review.team_live import HOLD_MAX_GAP, STICKY_FLIP_CONF, STICKY_M, TeamSession  # noqa: E402
 
 OUT = ROOT / "reports/eval_match3/improve_eng_loop/team_stable"
@@ -84,7 +85,7 @@ def main() -> int:
     def detect_fn(cam: str, frame_bgr):
         return keep_top1_ball(det.detect(frame_bgr))
 
-    sess = TeamSession()
+    sess = TeamSession(kit_mode=KIT_MODE_MATCH3)
     series = []
     dense_rows = []
     blue_dom = []
@@ -157,7 +158,7 @@ def main() -> int:
     notes["10_multicam_vote"] = "fuse majority/tie→gray"
 
     bag_bb: dict = {}
-    sess2 = TeamSession()
+    sess2 = TeamSession(kit_mode=KIT_MODE_MATCH3)
     bag_w: dict = {}
     for cam in CAMS:
         _ensure_cam_dets(vids, cam, 2400, bag_w, detect_fn, True)

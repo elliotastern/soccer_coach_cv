@@ -1055,15 +1055,21 @@ def render_synced_frame_review(
         pitch_stack_metrics,
     )
     from src.review.multicam_fuse import fuse_frame_for_pitch, fuse_live_dets_for_pitch
-    from src.review.team_live import TeamSession
+    from src.perception.team_strategy import session_from_config  # noqa: E402
 
+    cfg = {}
+    cfg_path = Path(__file__).resolve().parents[2] / "configs/default.yaml"
+    if cfg_path.is_file():
+        import yaml
+
+        cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     # Prefer live mosaic boxes → Pitch 1 (matches what coach sees). Export CSV is fallback.
     output_root = Path(run_dir).parent
     # Session-locked kits so blue/red do not swap while scrubbing
     sess_key = f"team_session::{Path(run_dir).name}"
     if st.session_state.get("_team_session_key") != sess_key:
         st.session_state._team_session_key = sess_key
-        st.session_state.team_session = TeamSession()
+        st.session_state.team_session = session_from_config(cfg)
     team_session = st.session_state.team_session
     fused = None
     if dets_enabled and dets_by_cam:
@@ -1251,9 +1257,9 @@ def main():
             st.rerun()
 
     st.sidebar.header("Choose match" if simple else "Data Selection")
-    default_root = "data/output/full_match_2min"
+    default_root = os.environ.get("SOCCER_OUTPUT_ROOT", "data/output/full_match_2min")
     if not Path(default_root).is_dir():
-        default_root = "data/output/full_match_2min_partial"
+        default_root = "data/output/full_match_2min"
     if not Path(default_root).is_dir():
         default_root = "data/output"
     if simple:

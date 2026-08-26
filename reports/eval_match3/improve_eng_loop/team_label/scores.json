@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-21T19:05:43.736136+00:00",
+  "ts": "2026-08-26T08:06:01.235858+00:00",
   "frame": 2400,
   "gate": 9.0,
   "scores": {
@@ -30,25 +30,25 @@
     "03_green_suppress": "grass_feat=False red_feat=True",
     "04_feature_vector": "feat_len=15 kit=[0.0, 0.0, 0.0]",
     "05_min_samples_frames": "bgr_cams=4 min_crops_const=5",
-    "06_k2_fit_ran": "fused=10",
-    "07_assign_01": "n0=6 n1=3 gray=1",
-    "08_unsure_gray": "assigned+gray=10 fused=10",
+    "06_k2_fit_ran": "fused=13",
+    "07_assign_01": "n0=4 n1=4 gray=5",
+    "08_unsure_gray": "assigned+gray=13 fused=13",
     "09_pitch1_not_fifa": "no FIFA pitch constants in team_live",
     "10_ref_not_forced": "feat_frac=1.00 (bad crops\u2192no feature\u2192gray)",
     "11_multicam_vote": "team_set=[-1, 0, 1]",
-    "12_label_lock": "run1 n0/n1=6/3 run2=6/3",
-    "13_both_teams": "n0=6 n1=3 bgr_sep=46.2 feat_frac=1.00",
+    "12_label_lock": "run1 n0/n1=4/4 run2=4/4",
+    "13_both_teams": "n0=4 n1=4 bgr_sep=32.2 feat_frac=1.00",
     "14_pitch_panel": "wrote pitch_teams jpg",
-    "15_live_fuse": "source=live assigned=9",
-    "16_best_ball": "players=10 n0=6 n1=3",
+    "15_live_fuse": "source=live assigned=8",
+    "16_best_ball": "players=13 n0=4 n1=4",
     "17_no_ball_team": "fuse skips ball dets for player_pts",
-    "18_count_sanity": "ass=9 gray=1 fused=10",
+    "18_count_sanity": "ass=8 gray=5 fused=13",
     "19_unit_tests": "ok\n",
     "20_product_ready": "mean_hard=10.0"
   },
   "failed": {},
   "pass": true,
-  "n0": 6,
-  "n1": 3,
-  "n_gray": 1
+  "n0": 4,
+  "n1": 4,
+  "n_gray": 5
 }

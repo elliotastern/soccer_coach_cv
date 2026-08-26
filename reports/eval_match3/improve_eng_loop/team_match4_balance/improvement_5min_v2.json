@@ -1,0 +1,13 @@
+{
+  "ts": "2026-08-26T00:45:00+00:00",
+  "clip": "coach_mosaic_pitch_5min.mp4",
+  "eng_loop_pass": true,
+  "fix": "auto EMA symmetric + session rebalance",
+  "metrics": {
+    "mean_blue_share": 0.506,
+    "collapse_frac": 0.077,
+    "both3_frac": 0.62,
+    "mean_players": 13.95
+  },
+  "product_ready": 10.0
+}

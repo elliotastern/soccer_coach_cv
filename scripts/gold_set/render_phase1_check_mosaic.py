@@ -13,6 +13,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 import sys
@@ -31,7 +32,7 @@ from src.review.cam_mosaic import (
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
-from src.review.team_live import TeamSession  # noqa: E402
+from src.perception.team_strategy import session_from_config  # noqa: E402
 from src.state.types import Ball, FrameData, Player  # noqa: E402
 
 EVENT_BAR_H = 56
@@ -68,6 +69,11 @@ def parse_args():
         type=str,
         default="coach_mosaic_pitch_min.mp4",
         help="Output mp4 name inside --out-dir",
+    )
+    p.add_argument(
+        "--events-only",
+        action="store_true",
+        help="Re-run fuse+heuristic emits only (no mosaic MP4); updates emits_render.json",
     )
     return p.parse_args()
 
@@ -157,7 +163,11 @@ def main() -> int:
     def detect_fn(cam, frame_bgr):
         return keep_top1_ball(det.detect(frame_bgr))
 
-    sess = TeamSession()
+    cfg_path = ROOT / "configs/default.yaml"
+    cfg = {}
+    if cfg_path.is_file():
+        cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+    sess = session_from_config(cfg)
     event_det = EventDetector() if args.events_bar else None
     prev_fd = None
     recent_emits: list[dict] = []
@@ -166,9 +176,10 @@ def main() -> int:
     writer = None
     mp4 = out / args.out_file
     stats = []
+    events_only = bool(args.events_only)
     print(
-        f"rendering n={len(frames)} out_fps={args.out_fps} "
-        f"dur≈{len(frames) / args.out_fps:.1f}s match={args.match_sec}s",
+        f"{'events-only' if events_only else 'rendering'} n={len(frames)} "
+        f"out_fps={args.out_fps} dur≈{len(frames) / args.out_fps:.1f}s match={args.match_sec}s",
         flush=True,
     )
     apply_defish = True
@@ -183,15 +194,26 @@ def main() -> int:
     stack = pitch_stack_metrics(grid_w, grid_h, drop_top=True, scale=0.46)
     for i, fr in enumerate(frames):
         bag = {}
-        mosaic = mosaic_quads_coach(
-            vids,
-            fr,
-            tile_w=tile_w,
-            tile_h=tile_h,
-            dets_by_cam=bag,
-            detect_fn=detect_fn,
-            apply_defish=apply_defish,
-        )
+        if events_only:
+            mosaic_quads_coach(
+                vids,
+                fr,
+                tile_w=tile_w,
+                tile_h=tile_h,
+                dets_by_cam=bag,
+                detect_fn=detect_fn,
+                apply_defish=apply_defish,
+            )
+        else:
+            mosaic = mosaic_quads_coach(
+                vids,
+                fr,
+                tile_w=tile_w,
+                tile_h=tile_h,
+                dets_by_cam=bag,
+                detect_fn=detect_fn,
+                apply_defish=apply_defish,
+            )
         live = fuse_live_dets_for_pitch(
             bag,
             apply_undistort=apply_undistort,
@@ -206,25 +228,6 @@ def main() -> int:
         teams = [int(p[2]) for p in players]
         n0, n1 = teams.count(0), teams.count(1)
         ng = sum(1 for t in teams if t < 0)
-        pitch = draw_pitch1_ball_panel(
-            stack["panel_w"],
-            stack["panel_h"],
-            ball_xy=ball,
-            cam="live",
-            mode=f"N blue={n0} red={n1} gray={ng}",
-            trail=trail,
-            players=players,
-            player_cams=live.get("player_cams", ()),
-            raw_player_maps=live.get("player_maps_all", ()),
-            tight=True,
-            orient_hints=True,
-            field_w=stack["field_w"],
-            field_h=stack["field_h"],
-            band_w=stack["band_w"],
-            drop_top=True,
-            map_orient=stack["map_orient"],
-        )
-        combo = compose_coach_stack(mosaic, pitch, connect=True)
         t_s = (fr - args.start) / args.src_fps
         flash = None
         if event_det is not None:
@@ -242,30 +245,50 @@ def main() -> int:
                     all_emits.append(row)
                     flash = ev.type.value
             prev_fd = fd
-        cv2.putText(
-            combo,
-            f"fr {fr}  t+{t_s:.1f}s  players={len(players)}  ball={'Y' if ball else 'N'}",
-            (12, combo.shape[0] - 12),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            (255, 255, 255),
-            2,
-        )
-        if args.events_bar:
-            bar = draw_events_bar(combo.shape[1], t_s, recent_emits, flash)
-            combo = np.vstack([combo, bar])
-        if writer is None:
-            h, w = combo.shape[:2]
-            writer = cv2.VideoWriter(
-                str(mp4), cv2.VideoWriter_fourcc(*"mp4v"), args.out_fps, (w, h)
+        if not events_only:
+            pitch = draw_pitch1_ball_panel(
+                stack["panel_w"],
+                stack["panel_h"],
+                ball_xy=ball,
+                cam="live",
+                mode=f"N blue={n0} red={n1} gray={ng}",
+                trail=trail,
+                players=players,
+                player_cams=live.get("player_cams", ()),
+                raw_player_maps=live.get("player_maps_all", ()),
+                tight=True,
+                orient_hints=True,
+                field_w=stack["field_w"],
+                field_h=stack["field_h"],
+                band_w=stack["band_w"],
+                drop_top=True,
+                map_orient=stack["map_orient"],
             )
-        writer.write(combo)
-        if i == 0:
-            cv2.imwrite(str(out / "still_first.jpg"), combo)
-        if i == len(frames) // 2:
-            cv2.imwrite(str(out / "still_mid.jpg"), combo)
-        if i == len(frames) - 1:
-            cv2.imwrite(str(out / "still_last.jpg"), combo)
+            combo = compose_coach_stack(mosaic, pitch, connect=True)
+            cv2.putText(
+                combo,
+                f"fr {fr}  t+{t_s:.1f}s  players={len(players)}  ball={'Y' if ball else 'N'}",
+                (12, combo.shape[0] - 12),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.55,
+                (255, 255, 255),
+                2,
+            )
+            if args.events_bar:
+                bar = draw_events_bar(combo.shape[1], t_s, recent_emits, flash)
+                combo = np.vstack([combo, bar])
+            if writer is None:
+                h, w = combo.shape[:2]
+                writer = cv2.VideoWriter(
+                    str(mp4), cv2.VideoWriter_fourcc(*"mp4v"), args.out_fps, (w, h)
+                )
+            writer.write(combo)
+            if i == 0:
+                cv2.imwrite(str(out / "still_first.jpg"), combo)
+            if i == len(frames) // 2:
+                cv2.imwrite(str(out / "still_mid.jpg"), combo)
+            if i == len(frames) - 1:
+                cv2.imwrite(str(out / "still_last.jpg"), combo)
         stats.append(
             {
                 "fr": fr,
@@ -278,40 +301,60 @@ def main() -> int:
             }
         )
         if (i + 1) % 10 == 0 or i == 0:
-            print(f"{i + 1}/{len(frames)} fr={fr}", flush=True)
-    writer.release()
-    h264_encode(mp4, args.out_fps)
+            print(f"{i + 1}/{len(frames)} fr={fr} emits={len(all_emits)}", flush=True)
+    if writer is not None:
+        writer.release()
+        h264_encode(mp4, args.out_fps)
     dur_s = len(frames) / args.out_fps
     ball_frac = sum(1 for s in stats if s["ball"]) / max(len(stats), 1)
-    meta = {
-        "ts": datetime.now(timezone.utc).isoformat(),
-        "path": str(mp4.relative_to(ROOT)),
-        "note": (
-            "Product map: defish tiles, apply_undistort=not apply_defish, "
-            "map_player_box (P8 lower-zone H fallback), P_Goal2 hull, F0 fuse; "
-            "events bar = heuristic pass/shot/recovery on fused xy"
-        ),
-        "debug_cam": bool(args.debug_cam),
-        "events_bar": bool(args.events_bar),
-        "n_emits": len(all_emits),
-        "emits": all_emits,
-        "apply_defish": True,
-        "apply_undistort": False,
-        "frames_src": frames,
-        "n_out_frames": len(frames),
-        "out_fps": args.out_fps,
-        "duration_s": round(dur_s, 2),
-        "match_span_s": round(n_match / args.src_fps, 2),
-        "stride": args.stride,
-        "ball_frame_frac": round(ball_frac, 3),
-        "stats": stats,
-    }
-    (out / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    meta_path = out / "meta.json"
+    if events_only and meta_path.is_file():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta["emits"] = all_emits
+        meta["n_emits"] = len(all_emits)
+        meta["ts"] = datetime.now(timezone.utc).isoformat()
+        note = str(meta.get("note", ""))
+        meta["note"] = note + "; emits rebuilt (shot gates v2)"
+    else:
+        meta = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "path": str(mp4.relative_to(ROOT)),
+            "note": (
+                "Product map: defish tiles, apply_undistort=not apply_defish, "
+                "map_player_box (P8 lower-zone H fallback), P_Goal2 hull, F0 fuse; "
+                "events bar = heuristic pass/shot/recovery on fused xy"
+            ),
+            "debug_cam": bool(args.debug_cam),
+            "events_bar": bool(args.events_bar),
+            "n_emits": len(all_emits),
+            "emits": all_emits,
+            "apply_defish": True,
+            "apply_undistort": False,
+            "frames_src": frames,
+            "n_out_frames": len(frames),
+            "out_fps": args.out_fps,
+            "duration_s": round(dur_s, 2),
+            "match_span_s": round(n_match / args.src_fps, 2),
+            "stride": args.stride,
+            "ball_frame_frac": round(ball_frac, 3),
+            "stats": stats,
+        }
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     if all_emits:
         (out / "emits_render.json").write_text(
             json.dumps({"emits": all_emits}, indent=2), encoding="utf-8"
         )
-    print("WROTE", mp4, f"dur={dur_s:.1f}s ball_frac={ball_frac:.2f} emits={len(all_emits)}", flush=True)
+    if events_only:
+        print(
+            "WROTE emits_render.json",
+            f"n={len(all_emits)} (events-only; MP4 unchanged)",
+            flush=True,
+        )
+    else:
+        print(
+            "WROTE", mp4, f"dur={dur_s:.1f}s ball_frac={ball_frac:.2f} emits={len(all_emits)}",
+            flush=True,
+        )
     return 0
 
 

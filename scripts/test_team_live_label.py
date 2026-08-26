@@ -11,13 +11,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.perception.team_core import (  # noqa: E402
+    KIT_MODE_MATCH3,
     TEAM_MIN_CROPS,
     assign_from_feature,
     fit_team_centroids,
     jersey_feature,
     torso_crop,
 )
-from src.review.team_live import label_player_pts  # noqa: E402
+from src.review.team_live import TeamSession, label_player_pts  # noqa: E402
 
 
 def _paint(bgr, h=60, w=40):
@@ -85,7 +86,11 @@ def test_label_player_pts() -> None:
                 "bbox": (100.0, 20.0, 40.0, 100.0),
             }
         )
-    label_player_pts(pts, {"P10": fr_a, "P7": fr_b})
+    label_player_pts(
+        pts,
+        {"P10": fr_a, "P7": fr_b},
+        team_session=TeamSession(kit_mode=KIT_MODE_MATCH3),
+    )
     teams = [p["team"] for p in pts]
     assert 0 in teams and 1 in teams
 

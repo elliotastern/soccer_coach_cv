@@ -1,0 +1,12 @@
+{
+  "ts": "2026-08-25T18:45:49.268947+00:00",
+  "note": "Pre kit_mode=auto baseline (Match 4 collapse)",
+  "metrics": {
+    "n_frames": 1200,
+    "mean_blue_share": 0.9066660402112222,
+    "collapse_frac": 0.5783333333333334,
+    "both3_frac": 0.1475,
+    "balanced_frac": 0.028333333333333332,
+    "mean_players": 15.660833333333333
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-23T10:25:56.169923+00:00",
+  "ts": "2026-08-26T08:07:26.038221+00:00",
   "frames": [
     2300,
     2350,
@@ -11,36 +11,36 @@
   "series": [
     {
       "fr": 2300,
-      "n0": 4,
-      "n1": 3,
-      "gray": 6,
+      "n0": 2,
+      "n1": 6,
+      "gray": 5,
       "n": 13
     },
     {
       "fr": 2350,
-      "n0": 11,
-      "n1": 3,
-      "gray": 0,
+      "n0": 8,
+      "n1": 2,
+      "gray": 4,
       "n": 14
     },
     {
       "fr": 2400,
-      "n0": 9,
-      "n1": 5,
-      "gray": 0,
+      "n0": 6,
+      "n1": 4,
+      "gray": 4,
       "n": 14
     },
     {
       "fr": 2450,
-      "n0": 7,
-      "n1": 7,
-      "gray": 1,
-      "n": 15
+      "n0": 5,
+      "n1": 5,
+      "gray": 2,
+      "n": 12
     },
     {
       "fr": 2500,
-      "n0": 8,
-      "n1": 3,
+      "n0": 7,
+      "n1": 4,
       "gray": 1,
       "n": 12
     }
@@ -58,7 +58,7 @@
     "09_sticky_vote": 10.0,
     "10_multicam_vote": 10.0,
     "11_best_ball": 10.0,
-    "12_count_flicker": 10.0,
+    "12_count_flicker": 4.0,
     "13_no_swap_gate": 10.0,
     "14_both_kits": 10.0,
     "15_gray_not_explode": 10.0,
@@ -66,7 +66,7 @@
     "17_review_hook": 10.0,
     "18_unit_no_swap": 10.0,
     "19_unit_sticky": 10.0,
-    "20_product_ready": 10.0
+    "20_product_ready": 9.25
   },
   "notes": {
     "01_import_wire": "TeamSession + stabilize_fused",
@@ -74,22 +74,24 @@
     "03_kit_lock": "blue_dom_all=True n=5",
     "04_no_identity_swap": "blue_dom_all=True n=5",
     "05_hard_kit_rules": "flip_conf=0.78 sticky_m=4.0",
-    "06_unsure_gray": "[(2300, 6), (2350, 0), (2400, 0), (2450, 1), (2500, 1)]",
+    "06_unsure_gray": "[(2300, 5), (2350, 4), (2400, 4), (2450, 2), (2500, 1)]",
     "07_ema_no_reorder": "hold_gap=2",
-    "08_track_sticky": "keep_rate=0.968 n=507",
-    "09_sticky_vote": "keep_rate=0.968 n=507",
+    "08_track_sticky": "keep_rate=0.936 n=392",
+    "09_sticky_vote": "keep_rate=0.936 n=392",
     "10_multicam_vote": "fuse majority/tie\u2192gray",
-    "11_best_ball": "n=13 n0=7 n1=3",
-    "12_count_flicker": "share_swaps=0 dense_swaps=0 shares=[0.5714285714285714, 0.7857142857142857, 0.6428571428571429, 0.5, 0.7272727272727273]",
+    "11_best_ball": "n=13 n0=4 n1=4",
+    "12_count_flicker": "share_swaps=1 dense_swaps=1 shares=[0.25, 0.8, 0.6, 0.5, 0.6363636363636364]",
     "13_no_swap_gate": "blue_dom_all=True n=5",
     "14_both_kits": "both_ok=5/5",
-    "15_gray_not_explode": "mean_gray_frac=0.12",
+    "15_gray_not_explode": "mean_gray_frac=0.24",
     "16_live_fuse": "prev_fused=12",
     "17_review_hook": "app.py st.session_state.team_session",
     "18_unit_no_swap": "ok\n",
     "19_unit_sticky": "ok\n",
-    "20_product_ready": "mean_hard=10.0"
+    "20_product_ready": "mean_hard=9.2"
   },
-  "failed": {},
-  "pass": true
+  "failed": {
+    "12_count_flicker": 4.0
+  },
+  "pass": false
 }

@@ -18,6 +18,7 @@ from src.perception.rfdetr_local import LocalRFDETRDetector  # noqa: E402
 from src.perception.team_core import (  # noqa: E402
     FEAT_BASE,
     HUE_BINS,
+    KIT_MODE_MATCH3,
     TEAM_MIN_CROPS,
     assign_from_feature,
     fit_team_centroids,
@@ -33,6 +34,7 @@ from src.review.cam_mosaic import (  # noqa: E402
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
+from src.review.team_live import TeamSession  # noqa: E402
 
 OUT = ROOT / "reports/eval_match3/improve_eng_loop/team_label"
 FRAME = 2400
@@ -112,7 +114,8 @@ def main() -> int:
     scores["05_min_samples_frames"] = _score_bool(n_bgr >= 3)
     notes["05_min_samples_frames"] = f"bgr_cams={n_bgr} min_crops_const={TEAM_MIN_CROPS}"
 
-    live = fuse_live_dets_for_pitch(bag, apply_undistort=False)
+    m3_sess = TeamSession(kit_mode=KIT_MODE_MATCH3)
+    live = fuse_live_dets_for_pitch(bag, apply_undistort=False, team_session=m3_sess)
     players = live["players"]
     teams = [int(p[2]) for p in players]
     n0 = sum(1 for t in teams if t == 0)
@@ -142,7 +145,9 @@ def main() -> int:
     notes["11_multicam_vote"] = f"team_set={sorted(set(teams))}"
 
     # 12 label lock — warmer hue = lower index; re-run fuse twice same
-    live2 = fuse_live_dets_for_pitch(bag, apply_undistort=False)
+    live2 = fuse_live_dets_for_pitch(
+        bag, apply_undistort=False, team_session=TeamSession(kit_mode=KIT_MODE_MATCH3)
+    )
     t2 = [int(p[2]) for p in live2["players"]]
     # Same counts of 0/1 (order of people may shuffle ids)
     scores["12_label_lock"] = _score_bool(
@@ -213,7 +218,9 @@ def main() -> int:
     bag_bb: dict = {}
     _ensure_cam_dets(vids, "P10", FRAME, bag_bb, detect_fn, True)
     fill_quad_dets_for_pitch(vids, FRAME, bag_bb, detect_fn, True, single_ball=True)
-    live_bb = fuse_live_dets_for_pitch(bag_bb, apply_undistort=False)
+    live_bb = fuse_live_dets_for_pitch(
+        bag_bb, apply_undistort=False, team_session=TeamSession(kit_mode=KIT_MODE_MATCH3)
+    )
     tb = [int(p[2]) for p in live_bb["players"]]
     scores["16_best_ball"] = _score_bool(
         len(live_bb["players"]) >= 4 and (tb.count(0) + tb.count(1)) >= 2

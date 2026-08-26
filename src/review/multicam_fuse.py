@@ -10,6 +10,9 @@ from src.mapping.match3_xy import fuse_balls
 
 # Pitch-space merge radius for same person seen by two cams (meters)
 PLAYER_MERGE_M = 1.8
+PLAYER_MERGE_M_LIVE = 2.2
+FUSE_MAX_PLAYERS = 14
+SOLO_TEAM_CONF = 0.55
 # End-line H error is larger — wider merge inside Pitch 1 goal boxes
 PLAYER_MERGE_M_BOX = 3.2
 # Coach / live map: precision-first player gates (bodies look ok; map was noisy)
@@ -100,6 +103,31 @@ def _weighted_team_vote(cl: list[dict]) -> int:
     return 0 if w0 > w1 else 1
 
 
+def _cluster_consensus_stats(clusters: list[list[dict]], eligible: list[list[dict]]) -> dict:
+    """Multi-cam agreement stats for one fused frame."""
+    n_multi = sum(1 for cl in eligible if len(cl) >= 2)
+    n_agree = n_labeled = 0
+    n_conflict_gray = 0
+    for cl in eligible:
+        if len(cl) < 2:
+            continue
+        teams = [int(c.get("team", -1)) for c in cl if int(c.get("team", -1)) >= 0]
+        if len(teams) < 2:
+            continue
+        n_labeled += 1
+        if len(set(teams)) == 1:
+            n_agree += 1
+        elif _weighted_team_vote(cl) < 0:
+            n_conflict_gray += 1
+    return {
+        "n_clusters": len(eligible),
+        "n_multi_cam": n_multi,
+        "n_agree": n_agree,
+        "n_labeled_multi": n_labeled,
+        "n_conflict_gray": n_conflict_gray,
+    }
+
+
 def _fuse_player_clusters(
     clusters: list[list[dict]],
     *,
@@ -107,7 +135,10 @@ def _fuse_player_clusters(
     solo_conf: float = PLAYER_SOLO_CONF,
     ghost_conf: float = PLAYER_GHOST_CONF,
     include_cam: bool = False,
-) -> list[tuple[float, float, int, int]] | tuple[list, list[str]]:
+    max_players: int = 0,
+    solo_team_conf: float = 0.0,
+    return_stats: bool = False,
+) -> list[tuple[float, float, int, int]] | tuple[list, list[str]] | tuple[list, list[str], dict]:
     """Max-conf xy per cluster; drop weak solos / ghosts far from strong anchors."""
     eligible: list[list[dict]] = []
     for cl in clusters:
@@ -117,7 +148,19 @@ def _fuse_player_clusters(
         elif float(best["conf"]) >= solo_conf:
             eligible.append(cl)
     if not eligible:
+        empty = {
+            "n_clusters": 0,
+            "n_multi_cam": 0,
+            "n_agree": 0,
+            "n_labeled_multi": 0,
+            "n_conflict_gray": 0,
+        }
+        if return_stats:
+            return [], [], empty
         return []
+    eligible.sort(key=lambda cl: max(c["conf"] for c in cl), reverse=True)
+    if max_players > 0:
+        eligible = eligible[:max_players]
     strong_xy = [
         max(cl, key=lambda c: c["conf"])["xy"]
         for cl in eligible
@@ -134,15 +177,23 @@ def _fuse_player_clusters(
             if min(_dist(best["xy"], s) for s in strong_xy) > lim:
                 continue
         # Team vote: weighted consensus; conflict → gray
-        team = _weighted_team_vote(cl)
+        if len(cl) == 1 and solo_team_conf > 0 and float(best["conf"]) < solo_team_conf:
+            team = -1
+        else:
+            team = _weighted_team_vote(cl)
         pid = int(best["pid"]) if len(cl) == 1 and int(best.get("pid", -1)) >= 0 else 20_000 + i
         fused.append(
             (float(best["xy"][0]), float(best["xy"][1]), int(team), pid)
         )
         if include_cam:
             fused_cams.append(str(best.get("cam", "")))
+    stats = _cluster_consensus_stats(clusters, eligible)
+    if include_cam and return_stats:
+        return fused, fused_cams, stats
     if include_cam:
         return fused, fused_cams
+    if return_stats:
+        return fused, stats
     return fused
 
 
@@ -305,10 +356,11 @@ def fuse_live_dets_for_pitch(
     dets_by_cam: dict,
     *,
     apply_undistort: bool = True,
-    merge_m: float = PLAYER_MERGE_M,
+    merge_m: float = PLAYER_MERGE_M_LIVE,
     team_session=None,
     player_recall: bool = True,
     debug_cam: bool = False,
+    fuse_stats: bool = False,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -398,15 +450,35 @@ def fuse_live_dets_for_pitch(
     solo = PLAYER_LIVE_SOLO_CONF if player_recall else PLAYER_SOLO_CONF
     ghost = PLAYER_LIVE_GHOST_CONF if player_recall else PLAYER_GHOST_CONF
     player_cams: list[str] = []
+    consensus_stats = {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0,
+    }
     if player_pts:
         clusters = _cluster_players(player_pts, merge_m=merge_m)
         if debug_cam:
-            players, player_cams = _fuse_player_clusters(
+            players, player_cams, consensus_stats = _fuse_player_clusters(
                 clusters,
                 merge_m=merge_m,
                 solo_conf=solo,
                 ghost_conf=ghost,
                 include_cam=True,
+                max_players=FUSE_MAX_PLAYERS,
+                solo_team_conf=SOLO_TEAM_CONF,
+                return_stats=True,
+            )
+        elif fuse_stats:
+            players, consensus_stats = _fuse_player_clusters(
+                clusters,
+                merge_m=merge_m,
+                solo_conf=solo,
+                ghost_conf=ghost,
+                max_players=FUSE_MAX_PLAYERS,
+                solo_team_conf=SOLO_TEAM_CONF,
+                return_stats=True,
             )
         else:
             players = _fuse_player_clusters(
@@ -414,6 +486,8 @@ def fuse_live_dets_for_pitch(
                 merge_m=merge_m,
                 solo_conf=solo,
                 ghost_conf=ghost,
+                max_players=FUSE_MAX_PLAYERS,
+                solo_team_conf=SOLO_TEAM_CONF,
             )
     else:
         players = []
@@ -435,6 +509,7 @@ def fuse_live_dets_for_pitch(
         "n_cams": len(used),
         "cams": sorted(used),
         "source": "live",
+        "consensus": consensus_stats,
     }
     if debug_cam:
         out["player_cams"] = player_cams

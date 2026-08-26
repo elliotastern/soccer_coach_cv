@@ -1,0 +1,725 @@
+{
+  "ts": "2026-08-26T01:55:39.415581+00:00",
+  "results": [
+    {
+      "strategy_id": "S09",
+      "strategy_name": "auto_pixel_cluster_agree",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.5688399696776725,
+        "collapse_frac": 0.05,
+        "both3_frac": 0.8055555555555556,
+        "balanced_frac": 0.875,
+        "mean_players": 14.472222222222221,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.7591973244147158,
+        "conflict_gray_frac": 0.06521739130434782
+      },
+      "scores": {
+        "consensus": 6.86,
+        "balanced": 10.0,
+        "flickering": 9.78,
+        "composite": 8.98,
+        "sticky_keep": 0.971,
+        "swing_rate": 0.014
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 5,
+        "n1": 4,
+        "gray": 5,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 1,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S09",
+      "strategy_name": "auto_pixel_cluster_agree",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.5688399696776725,
+        "collapse_frac": 0.05,
+        "both3_frac": 0.8055555555555556,
+        "balanced_frac": 0.875,
+        "mean_players": 14.472222222222221,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.7591973244147158,
+        "conflict_gray_frac": 0.06521739130434782
+      },
+      "scores": {
+        "consensus": 6.86,
+        "balanced": 10.0,
+        "flickering": 9.78,
+        "composite": 8.98,
+        "sticky_keep": 0.971,
+        "swing_rate": 0.014
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 5,
+        "n1": 4,
+        "gray": 5,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 1,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S05",
+      "strategy_name": "auto_v2_rebalance",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.5129114993095822,
+        "collapse_frac": 0.07222222222222222,
+        "both3_frac": 0.7694444444444445,
+        "balanced_frac": 0.675,
+        "mean_players": 14.597222222222221,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6775147928994083,
+        "conflict_gray_frac": 0.10650887573964497
+      },
+      "scores": {
+        "consensus": 6.35,
+        "balanced": 10.0,
+        "flickering": 9.72,
+        "composite": 8.81,
+        "sticky_keep": 0.964,
+        "swing_rate": 0.019
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 1,
+        "n1": 11,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 2,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S05",
+      "strategy_name": "auto_v2_rebalance",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.5129114993095822,
+        "collapse_frac": 0.07222222222222222,
+        "both3_frac": 0.7694444444444445,
+        "balanced_frac": 0.675,
+        "mean_players": 14.597222222222221,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6775147928994083,
+        "conflict_gray_frac": 0.10650887573964497
+      },
+      "scores": {
+        "consensus": 6.35,
+        "balanced": 10.0,
+        "flickering": 9.72,
+        "composite": 8.81,
+        "sticky_keep": 0.964,
+        "swing_rate": 0.019
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 1,
+        "n1": 11,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 2,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S01",
+      "strategy_name": "legacy_rgb_top10",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.5590190211023545,
+        "collapse_frac": 0.016666666666666666,
+        "both3_frac": 0.8944444444444445,
+        "balanced_frac": 0.9138888888888889,
+        "mean_players": 13.53888888888889,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6318758815232722,
+        "conflict_gray_frac": 0.06770098730606489
+      },
+      "scores": {
+        "consensus": 6.22,
+        "balanced": 10.0,
+        "flickering": 8.87,
+        "composite": 8.47,
+        "sticky_keep": 0.846,
+        "swing_rate": 0.072
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 6,
+        "n1": 5,
+        "gray": 2,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S01",
+      "strategy_name": "legacy_rgb_top10",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.5590190211023545,
+        "collapse_frac": 0.016666666666666666,
+        "both3_frac": 0.8944444444444445,
+        "balanced_frac": 0.9138888888888889,
+        "mean_players": 13.53888888888889,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6318758815232722,
+        "conflict_gray_frac": 0.06770098730606489
+      },
+      "scores": {
+        "consensus": 6.22,
+        "balanced": 10.0,
+        "flickering": 8.87,
+        "composite": 8.47,
+        "sticky_keep": 0.846,
+        "swing_rate": 0.072
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 6,
+        "n1": 5,
+        "gray": 2,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S04",
+      "strategy_name": "auto_cluster_only",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7047657239714425,
+        "collapse_frac": 0.07222222222222222,
+        "both3_frac": 0.7694444444444445,
+        "balanced_frac": 0.675,
+        "mean_players": 14.597222222222221,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6775147928994083,
+        "conflict_gray_frac": 0.10650887573964497
+      },
+      "scores": {
+        "consensus": 6.35,
+        "balanced": 8.57,
+        "flickering": 9.89,
+        "composite": 8.36,
+        "sticky_keep": 0.98,
+        "swing_rate": 0.003
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 11,
+        "n1": 1,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 2,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S04",
+      "strategy_name": "auto_cluster_only",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7047657239714425,
+        "collapse_frac": 0.07222222222222222,
+        "both3_frac": 0.7694444444444445,
+        "balanced_frac": 0.675,
+        "mean_players": 14.597222222222221,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6775147928994083,
+        "conflict_gray_frac": 0.10650887573964497
+      },
+      "scores": {
+        "consensus": 6.35,
+        "balanced": 8.57,
+        "flickering": 9.89,
+        "composite": 8.36,
+        "sticky_keep": 0.98,
+        "swing_rate": 0.003
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 11,
+        "n1": 1,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 2,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S07",
+      "strategy_name": "auto_v3_skew_cap",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7789594342519134,
+        "collapse_frac": 0.18333333333333332,
+        "both3_frac": 0.25555555555555554,
+        "balanced_frac": 0.43333333333333335,
+        "mean_players": 14.283333333333333,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.8514851485148515,
+        "conflict_gray_frac": 0.05233380480905234
+      },
+      "scores": {
+        "consensus": 7.35,
+        "balanced": 6.44,
+        "flickering": 9.52,
+        "composite": 7.79,
+        "sticky_keep": 0.932,
+        "swing_rate": 0.028
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 8,
+        "n1": 2,
+        "gray": 3,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S08",
+      "strategy_name": "auto_pixels_tuned",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7788356335710097,
+        "collapse_frac": 0.18333333333333332,
+        "both3_frac": 0.25555555555555554,
+        "balanced_frac": 0.43333333333333335,
+        "mean_players": 14.283333333333333,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.8514851485148515,
+        "conflict_gray_frac": 0.05233380480905234
+      },
+      "scores": {
+        "consensus": 7.35,
+        "balanced": 6.44,
+        "flickering": 9.52,
+        "composite": 7.79,
+        "sticky_keep": 0.932,
+        "swing_rate": 0.028
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 8,
+        "n1": 2,
+        "gray": 3,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S07",
+      "strategy_name": "auto_v3_skew_cap",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7789594342519134,
+        "collapse_frac": 0.18333333333333332,
+        "both3_frac": 0.25555555555555554,
+        "balanced_frac": 0.43333333333333335,
+        "mean_players": 14.283333333333333,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.8514851485148515,
+        "conflict_gray_frac": 0.05233380480905234
+      },
+      "scores": {
+        "consensus": 7.35,
+        "balanced": 6.44,
+        "flickering": 9.52,
+        "composite": 7.79,
+        "sticky_keep": 0.932,
+        "swing_rate": 0.028
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 8,
+        "n1": 2,
+        "gray": 3,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S08",
+      "strategy_name": "auto_pixels_tuned",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7788356335710097,
+        "collapse_frac": 0.18333333333333332,
+        "both3_frac": 0.25555555555555554,
+        "balanced_frac": 0.43333333333333335,
+        "mean_players": 14.283333333333333,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.8514851485148515,
+        "conflict_gray_frac": 0.05233380480905234
+      },
+      "scores": {
+        "consensus": 7.35,
+        "balanced": 6.44,
+        "flickering": 9.52,
+        "composite": 7.79,
+        "sticky_keep": 0.932,
+        "swing_rate": 0.028
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 8,
+        "n1": 2,
+        "gray": 3,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S06",
+      "strategy_name": "auto_v3_pixels",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.81296377853399,
+        "collapse_frac": 0.40555555555555556,
+        "both3_frac": 0.32222222222222224,
+        "balanced_frac": 0.15833333333333333,
+        "mean_players": 14.71111111111111,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.8514851485148515,
+        "conflict_gray_frac": 0.05233380480905234
+      },
+      "scores": {
+        "consensus": 7.35,
+        "balanced": 5.69,
+        "flickering": 9.49,
+        "composite": 7.52,
+        "sticky_keep": 0.939,
+        "swing_rate": 0.042
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 10,
+        "n1": 2,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S06",
+      "strategy_name": "auto_v3_pixels",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.81296377853399,
+        "collapse_frac": 0.40555555555555556,
+        "both3_frac": 0.32222222222222224,
+        "balanced_frac": 0.15833333333333333,
+        "mean_players": 14.71111111111111,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.8514851485148515,
+        "conflict_gray_frac": 0.05233380480905234
+      },
+      "scores": {
+        "consensus": 7.35,
+        "balanced": 5.69,
+        "flickering": 9.49,
+        "composite": 7.52,
+        "sticky_keep": 0.939,
+        "swing_rate": 0.042
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 10,
+        "n1": 2,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S02",
+      "strategy_name": "core_per_frame",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7393003447170114,
+        "collapse_frac": 0.3055555555555556,
+        "both3_frac": 0.34444444444444444,
+        "balanced_frac": 0.5805555555555556,
+        "mean_players": 13.53888888888889,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6046511627906976,
+        "conflict_gray_frac": 0.11627906976744186
+      },
+      "scores": {
+        "consensus": 5.96,
+        "balanced": 6.75,
+        "flickering": 9.05,
+        "composite": 7.32,
+        "sticky_keep": 0.907,
+        "swing_rate": 0.097
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 6,
+        "n1": 4,
+        "gray": 3,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 0,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S02",
+      "strategy_name": "core_per_frame",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.7393003447170114,
+        "collapse_frac": 0.3055555555555556,
+        "both3_frac": 0.34444444444444444,
+        "balanced_frac": 0.5805555555555556,
+        "mean_players": 13.53888888888889,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.6046511627906976,
+        "conflict_gray_frac": 0.11627906976744186
+      },
+      "scores": {
+        "consensus": 5.96,
+        "balanced": 6.75,
+        "flickering": 9.05,
+        "composite": 7.32,
+        "sticky_keep": 0.907,
+        "swing_rate": 0.097
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 6,
+        "n1": 4,
+        "gray": 3,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 0,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S10",
+      "strategy_name": "tracklet_golden",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.9428243978243979,
+        "collapse_frac": 0.29444444444444445,
+        "both3_frac": 0.0,
+        "balanced_frac": 0.002777777777777778,
+        "mean_players": 13.53888888888889,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.9529411764705882,
+        "conflict_gray_frac": 0.0
+      },
+      "scores": {
+        "consensus": 7.99,
+        "balanced": 3.31,
+        "flickering": 9.87,
+        "composite": 7.01,
+        "sticky_keep": 0.977,
+        "swing_rate": 0.003
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 0,
+        "n1": 0,
+        "gray": 13,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S10",
+      "strategy_name": "tracklet_golden",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.9428243978243979,
+        "collapse_frac": 0.29444444444444445,
+        "both3_frac": 0.0,
+        "balanced_frac": 0.002777777777777778,
+        "mean_players": 13.53888888888889,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.9529411764705882,
+        "conflict_gray_frac": 0.0
+      },
+      "scores": {
+        "consensus": 7.99,
+        "balanced": 3.31,
+        "flickering": 9.87,
+        "composite": 7.01,
+        "sticky_keep": 0.977,
+        "swing_rate": 0.003
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 0,
+        "n1": 0,
+        "gray": 13,
+        "n": 13,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S03",
+      "strategy_name": "match3_session",
+      "sahi": "plain",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.8930686320759852,
+        "collapse_frac": 0.5361111111111111,
+        "both3_frac": 0.16944444444444445,
+        "balanced_frac": 0.06111111111111111,
+        "mean_players": 14.716666666666667,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.865819209039548,
+        "conflict_gray_frac": 0.052259887005649715
+      },
+      "scores": {
+        "consensus": 7.43,
+        "balanced": 3.68,
+        "flickering": 9.9,
+        "composite": 6.98,
+        "sticky_keep": 0.981,
+        "swing_rate": 0.0
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 9,
+        "n1": 3,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "strategy_id": "S03",
+      "strategy_name": "match3_session",
+      "sahi": "sahi",
+      "metrics": {
+        "n_frames": 360,
+        "mean_blue_share": 0.8930686320759852,
+        "collapse_frac": 0.5361111111111111,
+        "both3_frac": 0.16944444444444445,
+        "balanced_frac": 0.06111111111111111,
+        "mean_players": 14.716666666666667,
+        "multcam_frac": 0.14546573656134593,
+        "agree_frac": 0.865819209039548,
+        "conflict_gray_frac": 0.052259887005649715
+      },
+      "scores": {
+        "consensus": 7.43,
+        "balanced": 3.68,
+        "flickering": 9.9,
+        "composite": 6.98,
+        "sticky_keep": 0.981,
+        "swing_rate": 0.0
+      },
+      "spot_750": {
+        "fr": 750,
+        "n0": 9,
+        "n1": 3,
+        "gray": 2,
+        "n": 14,
+        "n_clusters": 13,
+        "n_multi_cam": 2,
+        "n_agree": 1,
+        "n_labeled_multi": 2,
+        "n_conflict_gray": 0
+      }
+    }
+  ]
+}

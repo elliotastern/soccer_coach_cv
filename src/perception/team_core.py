@@ -21,8 +21,17 @@ if str(_GS) not in sys.path:
 from pitch1 import load_pitch1, pitch1_landmarks  # noqa: E402
 
 TEAM_MIN_CROPS = 5
+TEAM_MIN_CROPS_AUTO = 20
 TEAM_MIN_TRACKLETS = 15
 TEAM_ASSIGN_CONF = 0.55
+KIT_MODE_MATCH3 = "match3"
+KIT_MODE_AUTO = "auto"
+STICKY_FLIP_CONF_AUTO = 0.65
+AUTO_BLUE_FRAC = 0.20
+AUTO_WHITE_FRAC = 0.22
+PIXEL_NUDGE_MARGIN = 0.12
+PIXEL_NUDGE_MIN_CONF = 0.68
+AUTO_LIGHT_FRAC = 0.35
 OUTLIER_MEDIAN_MULT = 2.4
 MIN_JERSEY_FRAC = 0.08
 MIN_CROP_STD = 4.0
@@ -227,14 +236,29 @@ def jersey_feature(crop: np.ndarray) -> Optional[np.ndarray]:
 
 
 def _lock_labels(centroids: np.ndarray) -> np.ndarray:
+    """Match 3: Team 0 = bluer kit, Team 1 = whiter/yellower."""
     score = centroids[:, 0] - centroids[:, 1] - 0.5 * centroids[:, 2]
     order = np.argsort(-score)
     return centroids[order]
 
 
+def _lock_labels_auto(centroids: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    """Auto: blue kit = T0 when hue separates; else larger cluster = T0."""
+    blue_sep = abs(float(centroids[0, 0]) - float(centroids[1, 0]))
+    white_sep = abs(float(centroids[0, 1]) - float(centroids[1, 1]))
+    if blue_sep + white_sep >= 0.10:
+        return _lock_labels(centroids)
+    n0 = int((labels == 0).sum())
+    n1 = int((labels == 1).sum())
+    if n1 > n0:
+        return centroids[[1, 0]]
+    return centroids
+
+
 def fit_match_centroids(
     features: list[np.ndarray],
     min_crops: int = TEAM_MIN_CROPS,
+    kit_mode: str = KIT_MODE_MATCH3,
 ) -> tuple[np.ndarray, float] | None:
     """K=2 fit with label lock. Alias: fit_team_centroids."""
     if len(features) < min_crops:
@@ -259,7 +283,10 @@ def fit_match_centroids(
             continue
         c0 = x[lab == 0].mean(axis=0)
         c1 = x[lab == 1].mean(axis=0)
-    cents = _lock_labels(np.stack([c0, c1], axis=0))
+    if kit_mode == KIT_MODE_AUTO:
+        cents = _lock_labels_auto(np.stack([c0, c1], axis=0), lab)
+    else:
+        cents = _lock_labels(np.stack([c0, c1], axis=0))
     dmin = np.array(
         [min(feature_distance(f, cents[0]), feature_distance(f, cents[1])) for f in x]
     )
@@ -286,37 +313,101 @@ def is_photometric_outlier(feat: np.ndarray, cents: np.ndarray, radius: float) -
     return md > radius * 1.35
 
 
+def _pixel_team(
+    feature: np.ndarray,
+    kit_mode: str,
+    *,
+    use_pixels: bool,
+    blue_frac: float,
+    white_frac: float,
+) -> tuple[int, float] | None:
+    if not use_pixels and kit_mode != KIT_MODE_MATCH3:
+        return None
+    blue, white, yellow = float(feature[0]), float(feature[1]), float(feature[2])
+    light = white + yellow
+    if kit_mode == KIT_MODE_MATCH3:
+        if blue >= 0.38 and blue >= light + 0.12:
+            return 0, min(0.95, 0.55 + blue)
+        if light >= 0.38 and light >= blue + 0.12:
+            return 1, min(0.95, 0.55 + light)
+        return None
+    if blue >= blue_frac and blue >= light + 0.05:
+        return 0, min(0.95, 0.50 + blue)
+    if white >= white_frac and white >= blue + 0.05:
+        return 1, min(0.95, 0.50 + white)
+    if light >= AUTO_LIGHT_FRAC and blue <= 0.18 and light >= blue + 0.10:
+        return 1, min(0.95, 0.50 + light)
+    return None
+
+
 def assign_feature(
     feature: np.ndarray,
     centroids: np.ndarray,
     radius: float,
     position_xy: tuple[float, float] | None = None,
+    kit_mode: str = KIT_MODE_MATCH3,
+    strategy=None,
 ) -> tuple[int, float]:
     """Return (team_id, confidence). -1 = gray."""
+    mode = kit_mode
+    use_px = mode in (KIT_MODE_AUTO, KIT_MODE_MATCH3)
+    blue_f, white_f = AUTO_BLUE_FRAC, AUTO_WHITE_FRAC
+    pixel_agree = False
+    no_gray = False
+    soft_nudge = False
+    if strategy is not None:
+        mode = strategy.kit_mode
+        use_px = strategy.use_jersey_pixels or mode == KIT_MODE_MATCH3
+        blue_f = strategy.auto_blue_frac
+        white_f = strategy.auto_white_frac
+        pixel_agree = strategy.pixel_cluster_agree
+        no_gray = bool(strategy.no_gray)
+        soft_nudge = bool(strategy.soft_pixel_nudge)
+    pixel = _pixel_team(
+        feature, mode, use_pixels=use_px, blue_frac=blue_f, white_frac=white_f,
+    )
     blue, white, yellow = float(feature[0]), float(feature[1]), float(feature[2])
     light = white + yellow
-    if blue >= 0.38 and blue >= light + 0.12:
-        return 0, min(0.95, 0.55 + blue)
-    if light >= 0.38 and light >= blue + 0.12:
-        return 1, min(0.95, 0.55 + light)
+    if pixel is not None and not pixel_agree and not no_gray:
+        return pixel
+    dists = np.array([feature_distance(feature, c) for c in centroids])
+    tid = int(np.argmin(dists))
+    md = float(dists[tid])
+    other = float(dists[1 - tid])
+    margin = other - md
+    conf = float(
+        np.clip(0.45 * (1.0 - md / (radius + 1e-3)) + 0.55 * (margin / (other + 1e-3)), 0.0, 1.0)
+    )
+    if no_gray:
+        out_tid, out_conf = int(tid), max(conf, 0.45)
+        if (soft_nudge or use_px) and pixel is not None and not pixel_agree:
+            ptid, pconf = int(pixel[0]), float(pixel[1])
+            strong_white = white >= white_f and white >= blue + 0.06
+            strong_blue = blue >= blue_f and blue >= light + 0.06
+            can_nudge = margin < PIXEL_NUDGE_MARGIN and pconf >= PIXEL_NUDGE_MIN_CONF
+            white_rescue = ptid == 1 and strong_white and margin < 0.22
+            if ptid != out_tid and (can_nudge or white_rescue):
+                if ptid == 1 and strong_white:
+                    out_tid, out_conf = ptid, max(pconf, out_conf * 0.9)
+                elif ptid == 0 and strong_blue and can_nudge:
+                    out_tid, out_conf = ptid, max(pconf, out_conf * 0.9)
+            elif ptid == out_tid:
+                out_conf = max(out_conf, pconf)
+        return out_tid, out_conf
     if float(feature[4]) < 70.0 and blue < 0.25 and light < 0.25:
         return -1, 0.0
     if is_photometric_outlier(feature, centroids, radius):
         if position_xy and which_goal_box(position_xy) is not None:
             return -1, 0.0
         return -1, 0.0
-    dists = np.array([feature_distance(feature, c) for c in centroids])
-    tid = int(np.argmin(dists))
-    md = float(dists[tid])
     if md > radius:
         return -1, 0.0
-    other = float(dists[1 - tid])
-    margin = other - md
-    conf = float(
-        np.clip(0.45 * (1.0 - md / (radius + 1e-3)) + 0.55 * (margin / (other + 1e-3)), 0.0, 1.0)
-    )
     if conf < TEAM_ASSIGN_CONF:
         return -1, conf
+    if pixel_agree:
+        if pixel is None or int(pixel[0]) != int(tid):
+            return -1, min(conf, 0.4)
+        return int(tid), max(conf, float(pixel[1]))
     return tid, conf
 
 
