@@ -1,0 +1,40 @@
+---
+description: Keep coach emit label dashboard alive on port 8502 (keepalive, verify, restart)
+alwaysApply: true
+---
+
+# Coach emit dashboard keepalive (8502)
+
+Human spec: [coach_emit_dashboard_keepalive.mdc](../../docs/cursorrules/coach_emit_dashboard_keepalive.mdc)
+
+**App:** `apps/coach_emit_label_dashboard.py` · **URL:** http://127.0.0.1:8502
+
+## Start / restart (default)
+
+```bash
+cd "/Volumes/LaCie/Projects/Soccer Coach CV"
+nohup bash scripts/run_coach_emit_keepalive.sh >>/tmp/coach_emit_8502.setsid.out 2>&1 &
+curl -sf http://127.0.0.1:8502/_stcore/health && echo OK
+```
+
+Use **`scripts/run_coach_emit_keepalive.sh`** — not bare `streamlit run`. Both `--server.port` and `--browser.serverPort` must be **8502** (`.streamlit/config.toml` ports stay unset).
+
+## When user reports “Connection Failed” or page not loading
+
+1. `curl -sf http://127.0.0.1:8502/_stcore/health` — if not 200, keepalive/Streamlit is down.
+2. `pkill -f chrome-headless-shell` · kill stale `:8502` listeners · restart keepalive (commands in docs spec).
+3. Verify: `PYTHONPATH=. python3 scripts/eng_loop_coach_dashboard_up_pw.py` (≥9/10) · then `pkill -f chrome-headless-shell`.
+
+## Mac constraints
+
+- **OOM** on 16 GB Mac kills Streamlit and often the keepalive monitor — free RAM before restart.
+- **No LaunchAgent on LaCie repo path** — macOS blocks it; use `nohup` keepalive or copy script to `~/bin/`.
+
+## Do / don't
+
+- **Do** check health before blaming websocket/config.
+- **Do** kill Playwright orphans after eng-loops.
+- **Don't** run long Playwright suites while dashboard is starved for RAM.
+- **Don't** hardcode `browser.serverPort=8501` in config while server uses 8502.
+
+Logs: `/tmp/coach_emit_8502.log` · `/tmp/coach_emit_8502.log.keepalive`

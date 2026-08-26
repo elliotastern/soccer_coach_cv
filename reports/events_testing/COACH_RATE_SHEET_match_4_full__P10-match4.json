@@ -1,0 +1,220 @@
+{
+  "source": "data/output/match_4_full/P10-match4/events.json",
+  "match_id": "P10-match4",
+  "emit_conf": 0.8,
+  "n_emit": 16,
+  "by_type": {
+    "pass": 16
+  },
+  "rows": [
+    {
+      "i": 1,
+      "type": "pass",
+      "t_start": 5.78,
+      "t_end": 5.8,
+      "frame": 347,
+      "conf": 1.0,
+      "players": [
+        19
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 2,
+      "type": "pass",
+      "t_start": 6.93,
+      "t_end": 6.95,
+      "frame": 416,
+      "conf": 1.0,
+      "players": [
+        19
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 3,
+      "type": "pass",
+      "t_start": 8.63,
+      "t_end": 8.65,
+      "frame": 518,
+      "conf": 1.0,
+      "players": [
+        3
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 4,
+      "type": "pass",
+      "t_start": 9.83,
+      "t_end": 9.85,
+      "frame": 590,
+      "conf": 1.0,
+      "players": [
+        66
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 5,
+      "type": "pass",
+      "t_start": 15.82,
+      "t_end": 15.83,
+      "frame": 949,
+      "conf": 0.833,
+      "players": [
+        100
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 6,
+      "type": "pass",
+      "t_start": 49.0,
+      "t_end": 49.02,
+      "frame": 2940,
+      "conf": 1.0,
+      "players": [
+        62
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 7,
+      "type": "pass",
+      "t_start": 50.33,
+      "t_end": 50.35,
+      "frame": 3020,
+      "conf": 1.0,
+      "players": [
+        62
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 8,
+      "type": "pass",
+      "t_start": 51.37,
+      "t_end": 51.38,
+      "frame": 3082,
+      "conf": 1.0,
+      "players": [
+        91
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 9,
+      "type": "pass",
+      "t_start": 54.05,
+      "t_end": 54.07,
+      "frame": 3243,
+      "conf": 0.842,
+      "players": [
+        120
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 10,
+      "type": "pass",
+      "t_start": 55.15,
+      "t_end": 55.17,
+      "frame": 3309,
+      "conf": 0.811,
+      "players": [
+        108
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 11,
+      "type": "pass",
+      "t_start": 56.5,
+      "t_end": 56.52,
+      "frame": 3390,
+      "conf": 1.0,
+      "players": [
+        108
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 12,
+      "type": "pass",
+      "t_start": 68.68,
+      "t_end": 68.7,
+      "frame": 4121,
+      "conf": 0.99,
+      "players": [
+        3
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 13,
+      "type": "pass",
+      "t_start": 70.43,
+      "t_end": 70.45,
+      "frame": 4226,
+      "conf": 1.0,
+      "players": [
+        3
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 14,
+      "type": "pass",
+      "t_start": 71.48,
+      "t_end": 71.5,
+      "frame": 4289,
+      "conf": 1.0,
+      "players": [
+        7
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 15,
+      "type": "pass",
+      "t_start": 72.58,
+      "t_end": 72.6,
+      "frame": 4355,
+      "conf": 1.0,
+      "players": [
+        42
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 16,
+      "type": "pass",
+      "t_start": 83.15,
+      "t_end": 83.17,
+      "frame": 4989,
+      "conf": 0.939,
+      "players": [
+        84
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    }
+  ],
+  "ts": "2026-08-25T02:03:20.490358+00:00"
+}

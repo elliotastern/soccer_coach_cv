@@ -6,6 +6,7 @@ Product/agent rules also live under `.cursor/rules/*.mdc`. This folder holds **h
 |------|---------|
 | [match4_camera_ids.mdc](match4_camera_ids.mdc) | Match 4 physical camera → P-code (catch Ubuntu handover) |
 | [catch_client_credentials.mdc](catch_client_credentials.mdc) | Never put developer GitHub on Catch; HF OK for weights only |
+| [coach_emit_dashboard_keepalive.mdc](coach_emit_dashboard_keepalive.mdc) | Coach emit label UI @ :8502 — keepalive, verify, restart |
 | [mac_ssh_config_catch.example](mac_ssh_config_catch.example) | Mac `~/.ssh/config` snippet for `catch-soccer` |
 
 Product-wide rules: `.cursor/rules/` — `catch_remote_compute.mdc`, `catch_mac_file_sync.mdc`, `phase1_batch_testing.mdc`, `catch_client_credentials.mdc`.  

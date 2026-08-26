@@ -17,6 +17,14 @@ MAX_BALL_SPEED_M_S = 40.0
 MAX_PLAYER_STEP_M = 6.0
 # Min time between emits (precision-first; kills frame spam).
 MIN_EMIT_GAP_S = 1.0
+# Suppress shot/movement FPs right after clip start (kickoff / map settle).
+KICKOFF_FLOOR_S = 3.0
+PITCH1_GOAL_WIDTH_M = 4.65
+SHOT_GOAL_Y_MARGIN_M = 1.5
+# Max fused-ball step (m) credited for shot — kills single-step teleport shots.
+SHOT_MAX_STEP_M = 3.0
+SHOT_GOALWARD_STREAK_MIN = 2
+RECOVERY_MAX_BALL_STEP_M = 4.0
 
 # Mutual exclusion: first match wins.
 _EVENT_PRIORITY = (
@@ -80,6 +88,46 @@ class EventDetector:
         self._stable_streak: int = 0
         self._need_extra_stable: bool = False
         self._dribble_buf: List[tuple] = []
+        self._goalward_streak: int = 0
+
+    def _kickoff_blocked(self, t: float) -> bool:
+        return t < KICKOFF_FLOOR_S
+
+    def _goal_mouth_ok(self, end: Location) -> bool:
+        half_w = PITCH1_GOAL_WIDTH_M / 2.0 + SHOT_GOAL_Y_MARGIN_M
+        return abs(end.y) <= half_w
+
+    def _goalward_toward_line(self, start: Location, end: Location) -> bool:
+        if abs(end.x) <= abs(start.x) + 0.3:
+            return False
+        if start.x >= 0 and end.x > start.x:
+            return True
+        if start.x <= 0 and end.x < start.x:
+            return True
+        return False
+
+    def _update_goalward_streak(
+        self, frame_data: FrameData, prev_frame_data: FrameData
+    ) -> None:
+        if not self._ball_ok(frame_data, prev_frame_data):
+            self._goalward_streak = 0
+            return
+        assert frame_data.ball and prev_frame_data.ball
+        start = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
+        end = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
+        dt = frame_data.timestamp - prev_frame_data.timestamp
+        step = self._distance(start, end)
+        if step > SHOT_MAX_STEP_M:
+            self._goalward_streak = 0
+            return
+        ball_vel = self._velocity(start, end, dt)
+        if ball_vel < self.shot_velocity_threshold * 0.85:
+            self._goalward_streak = 0
+            return
+        if not self._goalward_toward_line(start, end):
+            self._goalward_streak = 0
+            return
+        self._goalward_streak += 1
 
     def _velocity(self, loc1: Location, loc2: Location, dt: float) -> float:
         if dt <= 0:
@@ -384,20 +432,27 @@ class EventDetector:
         if not self._ball_ok(frame_data, prev_frame_data):
             return None
         assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
+        if self._kickoff_blocked(frame_data.timestamp):
+            return None
+        if self._goalward_streak < SHOT_GOALWARD_STREAK_MIN:
+            return None
         dt = frame_data.timestamp - prev_frame_data.timestamp
         start = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
         end = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
         if not (self._in_pitch(start) and self._in_pitch(end)):
             return None
+        step = self._distance(start, end)
+        if step > SHOT_MAX_STEP_M:
+            return None
         ball_vel = self._velocity(start, end, dt)
         if ball_vel < self.shot_velocity_threshold:
             return None
-        # Pitch 1: near Goal1 (south −x) or Goal2 (north +x).
         goal_line = self.half_length_m
         if abs(end.x) <= goal_line - self.shot_goal_band_m:
             return None
-        # Must move toward the nearer goal line (not lateral wiggle / clearance out).
-        if abs(end.x) <= abs(start.x) + 0.3:
+        if not self._goalward_toward_line(start, end):
+            return None
+        if not self._goal_mouth_ok(end):
             return None
         pid = self._closest_player(prev_frame_data.players, start, 4.0)
         if pid is None:
@@ -428,6 +483,8 @@ class EventDetector:
         prev_ball = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
         moved = self._distance(prev_ball, ball)
         if moved < 0.8:
+            return None
+        if moved > RECOVERY_MAX_BALL_STEP_M:
             return None
         for player in frame_data.players:
             pl = Location(player.x_pitch, player.y_pitch)
@@ -461,6 +518,8 @@ class EventDetector:
         if not self._ball_ok(frame_data, prev_frame_data):
             return None
         assert prev_frame_data is not None and frame_data.ball and prev_frame_data.ball
+        if self._kickoff_blocked(frame_data.timestamp):
+            return None
         dt = frame_data.timestamp - prev_frame_data.timestamp
         start = Location(prev_frame_data.ball.x_pitch, prev_frame_data.ball.y_pitch)
         end = Location(frame_data.ball.x_pitch, frame_data.ball.y_pitch)
@@ -507,19 +566,23 @@ class EventDetector:
         """Emit at most one event per frame (shot > pass > recovery > dribble > movement)."""
         if not self._ball_ok(frame_data, prev_frame_data):
             self._stable_streak = 0
+            self._goalward_streak = 0
             self._dribble_buf = []
             return []
         assert prev_frame_data is not None
         if not self._ball_speed_ok(frame_data, prev_frame_data):
             self._stable_streak = 0
             self._need_extra_stable = True
+            self._goalward_streak = 0
             self._dribble_buf = []
             return []
         if not self._near_ball_players_stable(frame_data, prev_frame_data):
             self._stable_streak = 0
             self._need_extra_stable = True
+            self._goalward_streak = 0
             self._dribble_buf = []
             return []
+        self._update_goalward_streak(frame_data, prev_frame_data)
         self._stable_streak += 1
         # After a teleport, require one extra continuous step before emit.
         if self._need_extra_stable and self._stable_streak < 2:

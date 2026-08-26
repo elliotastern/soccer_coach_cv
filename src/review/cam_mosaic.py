@@ -323,7 +323,7 @@ def _annotate(
     dets: list | None,
     coach_simple: bool = True,
     draw_labels: bool = True,
-    min_ball_side: int = 32,
+    min_ball_side: int = 10,
     min_ball_conf: float = 0.30,
 ) -> np.ndarray:
     if not dets:
@@ -331,7 +331,7 @@ def _annotate(
     dets = keep_top1_ball(list(dets))
     if not coach_simple:
         return draw_det_boxes(frame, dets)
-    # Coach mode: thick boxes; ball gets a visible min-size box centered on the det
+    # Coach mode: thin tight ball box; player boxes keep RF-DETR size, thin stroke only.
     vis = frame.copy()
     for det in dets:
         is_ball = getattr(det, "class_name", "") == "ball" or int(det.class_id) == 1
@@ -340,9 +340,7 @@ def _annotate(
         x, y, w, h = [float(v) for v in det.bbox]
         if is_ball:
             cx, cy = x + w / 2.0, y + h / 2.0
-            side = max(float(min_ball_side), w, h)
-            # Slight pad so the orange ring clearly sits on the ball
-            side = max(side * 1.15, float(min_ball_side))
+            side = max(float(min_ball_side), max(w, h) * 1.0)
             x, y, w, h = cx - side / 2.0, cy - side / 2.0, side, side
         xi, yi = int(round(x)), int(round(y))
         wi, hi = max(1, int(round(w))), max(1, int(round(h)))
@@ -352,14 +350,25 @@ def _annotate(
         wi = max(1, min(wi, vis.shape[1] - xi))
         hi = max(1, min(hi, vis.shape[0] - yi))
         color = (0, 165, 255) if is_ball else (0, 220, 0)
-        thick = 5 if is_ball else 4
+        thick = 2 if is_ball else 1
         cv2.rectangle(vis, (xi, yi), (xi + wi, yi + hi), color, thick)
         if draw_labels and is_ball:
             label = "BALL"
-            ty = max(32, yi - 8)
-            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.85, 2)
-            cv2.rectangle(vis, (xi, ty - th - 6), (xi + tw + 8, ty + 4), (0, 0, 0), -1)
-            cv2.putText(vis, label, (xi + 4, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.85, color, 2)
+            font_scale, font_thick = 0.45, 1
+            ty = max(18, yi - 4)
+            (tw, th), _ = cv2.getTextSize(
+                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick
+            )
+            cv2.rectangle(vis, (xi, ty - th - 4), (xi + tw + 4, ty + 2), (0, 0, 0), -1)
+            cv2.putText(
+                vis,
+                label,
+                (xi + 2, ty),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                font_scale,
+                color,
+                font_thick,
+            )
     return vis
 
 
@@ -738,7 +747,7 @@ def draw_dets_on_pitch_canvas(
             continue
         is_ball = getattr(det, "class_name", "") == "ball" or int(det.class_id) == 1
         color = (0, 165, 255) if is_ball else (0, 220, 0)
-        thick = 4 if is_ball else 3
+        thick = 4 if is_ball else 1
         pts = np.array(poly, dtype=np.int32)
         cv2.polylines(vis, [pts], True, color, thick)
         # AABB label

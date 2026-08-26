@@ -1,5 +1,5 @@
 {
-  "ts": "2026-08-25T01:11:38.877232+00:00",
+  "ts": "2026-08-25T02:16:01.980698+00:00",
   "emit_conf_gate": 0.8,
   "packs": [
     {
@@ -119,6 +119,40 @@
       "dribble_ok": true
     },
     {
+      "path": "data/output/match_4_full/P10-match4",
+      "match_id": "P10-match4",
+      "n_total": 16,
+      "n_emit_conf": 16,
+      "span_s": 77.37,
+      "per_min_total": 12.41,
+      "per_min_emit": 12.41,
+      "by_type": {
+        "pass": 16
+      },
+      "emit_by_type": {
+        "pass": 16
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
+      "path": "data/output/match_4_full/P10-match4_cumulative",
+      "match_id": "P10-match4",
+      "n_total": 16,
+      "n_emit_conf": 16,
+      "span_s": 77.37,
+      "per_min_total": 12.41,
+      "per_min_emit": 12.41,
+      "by_type": {
+        "pass": 16
+      },
+      "emit_by_type": {
+        "pass": 16
+      },
+      "n_dribble": 0,
+      "dribble_ok": true
+    },
+    {
       "path": "data/output/full_match_2min/P1-006",
       "n_total": 0,
       "n_emit_conf": 0,
@@ -163,7 +197,8 @@
     }
   ],
   "match4_quad_emit": 70,
-  "all_dribble_ok": false,
+  "match4_full_emit": 32,
+  "all_dribble_ok": true,
   "fuse_clip_scores": [
     {
       "clip": "real_fuse_15s",
@@ -192,6 +227,18 @@
       "matched_gold_idx": [
         0
       ]
+    },
+    {
+      "clip": "real_fuse_eval_49s",
+      "tp": 0,
+      "fp": 3,
+      "fn": 0,
+      "p_emit": 0.0,
+      "recall": 1.0,
+      "n_emit": 3,
+      "n_gold": 0,
+      "matched_gold_idx": [],
+      "path": "data/processed/gold_sets/match3_events_v2_dribble/clips/real_fuse_eval_49s/timeline.json"
     },
     {
       "clip": "real_fuse_holdout_pass",

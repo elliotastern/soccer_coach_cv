@@ -1,0 +1,20 @@
+{
+  "score": 10.0,
+  "pass": true,
+  "gate": 9.0,
+  "gates": {
+    "kickoff_floor_s": 3.0,
+    "goalward_streak_min": 2,
+    "shot_max_step_m": 3.0
+  },
+  "unit": {
+    "ok": true,
+    "stdout": "_band\nok test_shot_rejects_midfield\nok test_weak_pass_below_emit\nok test_strong_pass_emits\nok test_priority_shot_over_pass\nok test_kickoff_shot_rejected\nok test_shot_rejects_wide_of_goal_mouth\nok test_weak_dribble_suppressed\nok test_dribble_needs_prev_proximity\nok test_dribble_emits\nok test_movement_emits\nok test_goal_jitter_no_dribble_or_movement\nok test_movement_below_pass_threshold\nall_unit_ok\n",
+    "stderr": ""
+  },
+  "early_glitch_shot": {
+    "ok": true,
+    "emits": []
+  },
+  "note": "Re-render mosaic (emits_render.json) to apply on coach MP4."
+}

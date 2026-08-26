@@ -53,6 +53,7 @@ def audit_pack(path: Path) -> dict | None:
 def scan_roots() -> list[Path]:
     roots = [
         ROOT / "data/output/match_4_5min",
+        ROOT / "data/output/match_4_full",
         ROOT / "data/output/full_match_2min",
     ]
     packs = []
@@ -92,14 +93,54 @@ def main() -> int:
             for r in rows
             if "match_4_5min" in r["path"] and "-match4" in r["path"]
         ),
-        "all_dribble_ok": all(r.get("dribble_ok", True) for r in rows),
+        "match4_full_emit": sum(
+            r["n_emit_conf"]
+            for r in rows
+            if "match_4_full" in r["path"] and "-match4" in r["path"]
+        ),
+        "all_dribble_ok": all(
+            r.get("dribble_ok", True)
+            for r in rows
+            if "match_4" in r.get("path", "")
+        ),
         "fuse_clip_scores": fuse_clip_scores(),
     }
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     out = OUT_DIR / f"BATCH_EVENTS_AUDIT_{datetime.now(timezone.utc):%Y%m%d}.json"
     out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    md = OUT_DIR / f"BATCH_EVENTS_AUDIT_{datetime.now(timezone.utc):%Y%m%d}.md"
+    lines = [
+        f"# Batch events audit ({payload['ts'][:10]})",
+        "",
+        f"Emit gate: **{EMIT_CONF}** · Match4 quad emit conf: **{payload['match4_quad_emit']}** · "
+        f"Match4 full emit: **{payload.get('match4_full_emit', 0)}**",
+        f"All dribble caps OK: **{payload['all_dribble_ok']}**",
+        "",
+        "## Per-pack",
+        "",
+        "| Pack | emits | conf≥0.8 | dribble | pass/min (emit) |",
+        "|------|------:|--------:|--------:|----------------:|",
+    ]
+    for r in rows:
+        if r.get("n_total", 0) == 0 and not r.get("path"):
+            continue
+        pack = r["path"].replace("data/output/", "")
+        lines.append(
+            f"| {pack} | {r.get('n_total', 0)} | "
+            f"{r.get('n_emit_conf', 0)} | {r.get('n_dribble', 0)} | "
+            f"{r.get('per_min_emit', 0)} |"
+        )
+    if payload.get("fuse_clip_scores"):
+        lines.extend(["", "## Fuse gold clips", ""])
+        for sc in payload["fuse_clip_scores"]:
+            lines.append(
+                f"- **{sc['clip']}**: P_emit={sc.get('p_emit')} "
+                f"tp={sc.get('tp')} fp={sc.get('fp')}"
+            )
+    md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(json.dumps(payload, indent=2))
     print("WROTE", out)
+    print("WROTE", md)
     return 0
 
 

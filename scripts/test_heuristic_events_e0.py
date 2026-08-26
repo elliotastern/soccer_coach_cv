@@ -35,16 +35,25 @@ def test_no_fifa_52_5():
 
 def test_shot_pitch1_goal_band():
     det = EventDetector()
-    # ~25 m/s into Goal2 band (Pitch 1 half 26.95) — under MAX_BALL_SPEED
-    dt = 0.2
-    prev, cur = _pair(
-        [_player(1, 20.0, 0.0, 0, 0.0)],
-        _ball(20.0, 0.0, 0, 0.0),
-        [_player(1, 20.0, 0.0, 1, dt)],
-        _ball(25.0, 0.0, 1, dt),
-        dt=dt,
+    dt = 0.15
+    prev0 = FrameData(
+        0, 5.0,
+        [_player(1, 18.0, 0.0, 0, 5.0)],
+        _ball(18.0, 0.0, 0, 5.0),
     )
-    evs = det.detect_events(cur, prev)
+    cur0 = FrameData(
+        1, 5.0 + dt,
+        [_player(1, 18.0, 0.0, 1, 5.0 + dt)],
+        _ball(20.0, 0.0, 1, 5.0 + dt),
+    )
+    assert det.detect_events(cur0, prev0) == []
+    prev1 = cur0
+    cur1 = FrameData(
+        2, 5.0 + 2 * dt,
+        [_player(1, 18.0, 0.0, 2, 5.0 + 2 * dt)],
+        _ball(23.0, 0.0, 2, 5.0 + 2 * dt),
+    )
+    evs = det.detect_events(cur1, prev1)
     assert len(evs) == 1 and evs[0].type == EventType.SHOT
     assert evs[0].confidence >= EMIT_CONF
 
@@ -92,16 +101,73 @@ def test_strong_pass_emits():
 
 def test_priority_shot_over_pass():
     det = EventDetector()
-    dt = 0.2
-    prev, cur = _pair(
-        [_player(1, 20.0, 0.0, 0, 0.0)],
-        _ball(20.0, 0.0, 0, 0.0),
-        [_player(1, 20.0, 0.0, 1, dt)],
-        _ball(25.0, 0.0, 1, dt),
-        dt=dt,
+    dt = 0.15
+    prev0 = FrameData(
+        0, 5.0,
+        [_player(1, 18.0, 0.0, 0, 5.0)],
+        _ball(18.0, 0.0, 0, 5.0),
     )
-    evs = det.detect_events(cur, prev)
+    cur0 = FrameData(
+        1, 5.0 + dt,
+        [_player(1, 18.0, 0.0, 1, 5.0 + dt)],
+        _ball(20.0, 0.0, 1, 5.0 + dt),
+    )
+    det.detect_events(cur0, prev0)
+    prev1 = cur0
+    cur1 = FrameData(
+        2, 5.0 + 2 * dt,
+        [_player(1, 18.0, 0.0, 2, 5.0 + 2 * dt)],
+        _ball(23.0, 0.0, 2, 5.0 + 2 * dt),
+    )
+    evs = det.detect_events(cur1, prev1)
     assert len(evs) == 1 and evs[0].type == EventType.SHOT
+
+
+def test_kickoff_shot_rejected():
+    """Early glitch shot (e.g. mosaic @1.5s) blocked by kickoff floor."""
+    det = EventDetector()
+    dt = 0.25
+    prev0 = FrameData(
+        0, 1.0,
+        [_player(1, 5.0, 0.0, 0, 1.0)],
+        _ball(5.0, 0.0, 0, 1.0),
+    )
+    cur0 = FrameData(
+        1, 1.0 + dt,
+        [_player(1, 5.0, 0.0, 1, 1.0 + dt)],
+        _ball(8.0, 0.0, 1, 1.0 + dt),
+    )
+    det.detect_events(cur0, prev0)
+    prev1 = cur0
+    cur1 = FrameData(
+        2, 1.5,
+        [_player(1, 5.0, 0.0, 2, 1.5)],
+        _ball(24.0, 0.0, 2, 1.5),
+    )
+    assert det.detect_events(cur1, prev1) == []
+
+
+def test_shot_rejects_wide_of_goal_mouth():
+    det = EventDetector()
+    dt = 0.2
+    prev0 = FrameData(
+        0, 5.0,
+        [_player(1, 18.0, 8.0, 0, 5.0)],
+        _ball(18.0, 8.0, 0, 5.0),
+    )
+    cur0 = FrameData(
+        1, 5.0 + dt,
+        [_player(1, 18.0, 8.0, 1, 5.0 + dt)],
+        _ball(21.0, 8.0, 1, 5.0 + dt),
+    )
+    det.detect_events(cur0, prev0)
+    prev1 = cur0
+    cur1 = FrameData(
+        2, 5.0 + 2 * dt,
+        [_player(1, 18.0, 8.0, 2, 5.0 + 2 * dt)],
+        _ball(24.0, 8.0, 2, 5.0 + 2 * dt),
+    )
+    assert det.detect_events(cur1, prev1) == []
 
 
 def test_teleport_rejected():
@@ -169,10 +235,11 @@ def test_movement_emits():
     det = EventDetector(enable_movement=True)
     dt = 1.0
     prev, cur = _pair(
-        [_player(1, 0.0, 0.0, 0, 0.0)],
-        _ball(0.0, 0.0, 0, 0.0),
-        [_player(1, 0.5, 0.0, 1, dt)],
-        _ball(2.5, 0.0, 1, dt),
+        [_player(1, 0.0, 0.0, 0, 5.0)],
+        _ball(0.0, 0.0, 0, 5.0),
+        [_player(1, 0.5, 0.0, 1, 5.0 + dt)],
+        _ball(2.5, 0.0, 1, 5.0 + dt),
+        t0=5.0,
         dt=dt,
     )
     ev = det.detect_movement(cur, prev)
@@ -216,6 +283,8 @@ def main() -> int:
         test_weak_pass_below_emit,
         test_strong_pass_emits,
         test_priority_shot_over_pass,
+        test_kickoff_shot_rejected,
+        test_shot_rejects_wide_of_goal_mouth,
         test_weak_dribble_suppressed,
         test_dribble_needs_prev_proximity,
         test_dribble_emits,

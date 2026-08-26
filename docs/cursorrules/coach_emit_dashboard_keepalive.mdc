@@ -1,0 +1,63 @@
+# Coach emit label dashboard — keep alive (8502)
+
+**App:** `apps/coach_emit_label_dashboard.py` · **URL:** http://127.0.0.1:8502
+
+## Always use keepalive (not bare Streamlit)
+
+The supervisor restarts Streamlit when health fails. Without it, OOM or a crash leaves “Connection Failed” until someone manually restarts.
+
+```bash
+cd "/Volumes/LaCie/Projects/Soccer Coach CV"
+nohup bash scripts/run_coach_emit_keepalive.sh >>/tmp/coach_emit_8502.setsid.out 2>&1 &
+```
+
+**Do not** rely on a LaunchAgent pointing at the LaCie repo path — macOS often blocks it (`Operation not permitted`). Prefer the `nohup` keepalive above, or copy `scripts/run_coach_emit_keepalive.sh` to `~/bin/` and point LaunchAgent there.
+
+## Port / websocket (locked)
+
+- Server and browser **must both use 8502** (`--server.port` + `--browser.serverPort`).
+- `.streamlit/config.toml` leaves ports unset — launchers set them. Never hardcode `browser.serverPort=8501` while the server runs on 8502.
+
+## Before start (Mac 16 GB)
+
+1. Kill orphan Playwright: `pkill -f chrome-headless-shell`
+2. Close extra Firefox tabs if RAM is tight
+3. Optional: `vm_stat | head -5` — aim for **>500 MB** free before heavy page loads
+
+## Verify
+
+```bash
+curl -sf http://127.0.0.1:8502/_stcore/health && echo OK
+PYTHONPATH=. python3 scripts/eng_loop_coach_dashboard_up_pw.py
+pkill -f chrome-headless-shell 2>/dev/null || true   # after eng-loop
+```
+
+Gate: Playwright dashboard-up **≥9/10**. Hard refresh browser: `Cmd+Shift+R`.
+
+## Restart (when “Connection Failed” / connection refused)
+
+```bash
+pkill -f 'run_coach_emit_keepalive|coach_emit_label_dashboard|streamlit.*8502' 2>/dev/null
+for p in $(lsof -nP -iTCP:8502 -sTCP:LISTEN 2>/dev/null | awk 'NR>1{print $2}'); do kill "$p" 2>/dev/null; done
+pkill -f chrome-headless-shell 2>/dev/null || true
+cd "/Volumes/LaCie/Projects/Soccer Coach CV"
+nohup bash scripts/run_coach_emit_keepalive.sh >>/tmp/coach_emit_8502.setsid.out 2>&1 &
+curl -sf http://127.0.0.1:8502/_stcore/health && echo OK
+```
+
+## Logs
+
+| Path | Contents |
+|------|----------|
+| `/tmp/coach_emit_8502.log` | Streamlit stdout |
+| `/tmp/coach_emit_8502.log.keepalive` | Supervisor start/restart lines |
+| `/tmp/coach_emit_8502.setsid.out` | `nohup` wrapper |
+
+**Typical failure:** keepalive dead + nothing on `:8502` → macOS OOM-killed Streamlit (and sometimes the monitor). Free RAM, restart keepalive.
+
+## Agent do / don't
+
+- **Do** start or restart via `run_coach_emit_keepalive.sh`, then verify health + Playwright.
+- **Do** kill Playwright orphans after eng-loops.
+- **Don't** leave only a one-shot `streamlit run` with no supervisor.
+- **Don't** debug websocket mismatch before confirming `curl …/_stcore/health` returns 200.

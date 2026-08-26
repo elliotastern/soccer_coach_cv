@@ -187,13 +187,13 @@ def keep_top1_ball(detections: list) -> list:
 
 
 def draw_det_boxes(frame: np.ndarray, detections: list) -> np.ndarray:
-    """Draw RF-DETR boxes for verification (thick, high contrast)."""
+    """Draw RF-DETR boxes for verification (high contrast; thin player stroke)."""
     vis = frame.copy()
     for det in detections:
         x, y, w, h = [int(v) for v in det.bbox]
         is_ball = getattr(det, "class_name", "") == "ball" or int(det.class_id) == 1
         color = (0, 165, 255) if is_ball else (0, 220, 0)
-        thick = 4 if is_ball else 3
+        thick = 2 if is_ball else 1
         cv2.rectangle(vis, (x, y), (x + max(1, w), y + max(1, h)), color, thick)
         label = f"{'BALL' if is_ball else 'P'} {float(det.confidence):.2f}"
         ty = max(28, y - 10)

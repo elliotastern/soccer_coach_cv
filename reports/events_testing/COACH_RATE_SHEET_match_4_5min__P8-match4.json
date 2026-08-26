@@ -1,0 +1,246 @@
+{
+  "source": "data/output/match_4_5min/P8-match4/events.json",
+  "match_id": "P8-match4",
+  "emit_conf": 0.8,
+  "n_emit": 18,
+  "by_type": {
+    "pass": 18
+  },
+  "rows": [
+    {
+      "i": 1,
+      "type": "pass",
+      "t_start": 170.91,
+      "t_end": 170.93,
+      "frame": 10255,
+      "conf": 0.885,
+      "players": [
+        106
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 2,
+      "type": "pass",
+      "t_start": 172.28,
+      "t_end": 172.3,
+      "frame": 10337,
+      "conf": 1.0,
+      "players": [
+        92
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 3,
+      "type": "pass",
+      "t_start": 173.76,
+      "t_end": 173.78,
+      "frame": 10426,
+      "conf": 1.0,
+      "players": [
+        124
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 4,
+      "type": "pass",
+      "t_start": 175.81,
+      "t_end": 175.83,
+      "frame": 10549,
+      "conf": 0.891,
+      "players": [
+        118
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 5,
+      "type": "pass",
+      "t_start": 181.25,
+      "t_end": 181.26,
+      "frame": 10875,
+      "conf": 0.846,
+      "players": [
+        3
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 6,
+      "type": "pass",
+      "t_start": 182.61,
+      "t_end": 182.63,
+      "frame": 10957,
+      "conf": 0.99,
+      "players": [
+        23
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 7,
+      "type": "pass",
+      "t_start": 184.03,
+      "t_end": 184.05,
+      "frame": 11042,
+      "conf": 1.0,
+      "players": [
+        7
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 8,
+      "type": "pass",
+      "t_start": 185.05,
+      "t_end": 185.06,
+      "frame": 11103,
+      "conf": 1.0,
+      "players": [
+        12
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 9,
+      "type": "pass",
+      "t_start": 215.26,
+      "t_end": 215.28,
+      "frame": 12916,
+      "conf": 1.0,
+      "players": [
+        17
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 10,
+      "type": "pass",
+      "t_start": 216.78,
+      "t_end": 216.8,
+      "frame": 13007,
+      "conf": 1.0,
+      "players": [
+        28
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 11,
+      "type": "pass",
+      "t_start": 235.21,
+      "t_end": 235.23,
+      "frame": 14113,
+      "conf": 1.0,
+      "players": [
+        130
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 12,
+      "type": "pass",
+      "t_start": 236.63,
+      "t_end": 236.65,
+      "frame": 14198,
+      "conf": 0.857,
+      "players": [
+        130
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 13,
+      "type": "pass",
+      "t_start": 238.48,
+      "t_end": 238.5,
+      "frame": 14309,
+      "conf": 0.957,
+      "players": [
+        130
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 14,
+      "type": "pass",
+      "t_start": 239.85,
+      "t_end": 239.86,
+      "frame": 14391,
+      "conf": 1.0,
+      "players": [
+        138
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 15,
+      "type": "pass",
+      "t_start": 245.66,
+      "t_end": 245.68,
+      "frame": 14740,
+      "conf": 1.0,
+      "players": [
+        58
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 16,
+      "type": "pass",
+      "t_start": 247.16,
+      "t_end": 247.2,
+      "frame": 14830,
+      "conf": 1.0,
+      "players": [
+        54
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 17,
+      "type": "pass",
+      "t_start": 294.31,
+      "t_end": 294.33,
+      "frame": 17659,
+      "conf": 1.0,
+      "players": [
+        73
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    },
+    {
+      "i": 18,
+      "type": "pass",
+      "t_start": 295.45,
+      "t_end": 295.46,
+      "frame": 17727,
+      "conf": 0.977,
+      "players": [
+        66
+      ],
+      "coach_ok": null,
+      "coach_note": ""
+    }
+  ],
+  "ts": "2026-08-25T02:03:20.422934+00:00"
+}

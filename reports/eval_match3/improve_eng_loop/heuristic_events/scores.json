@@ -1,6 +1,6 @@
 {
   "p_emit_synth": 1.0,
-  "recall_synth": 1.0,
+  "recall_synth": 0.8333,
   "p_emit_real": 1.0,
   "recall_real": 1.0,
   "real_score": {
@@ -30,14 +30,28 @@
     ]
   },
   "eval_score": {
-    "tp": 0,
-    "fp": 1,
-    "fn": 1,
-    "p_emit": 0.0,
-    "recall": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "p_emit": 1.0,
+    "recall": 1.0,
     "n_emit": 1,
     "n_gold": 1,
-    "matched_gold_idx": []
+    "matched_gold_idx": [
+      0
+    ]
+  },
+  "eval49_score": {
+    "tp": 1,
+    "fp": 1,
+    "fn": 1,
+    "p_emit": 0.5,
+    "recall": 0.5,
+    "n_emit": 2,
+    "n_gold": 2,
+    "matched_gold_idx": [
+      1
+    ]
   },
   "check25_stride15_score": {
     "tp": 0,
@@ -49,9 +63,9 @@
     "n_gold": 3,
     "matched_gold_idx": []
   },
-  "tp": 6,
+  "tp": 5,
   "fp": 0,
-  "fn": 0,
+  "fn": 1,
   "gate_p_emit": 0.8,
   "pass_bar": 9.0,
   "per_clip": [
@@ -110,12 +124,12 @@
       "id": "synth_dribble_midfield"
     },
     {
-      "tp": 1,
+      "tp": 0,
       "fp": 0,
-      "fn": 0,
-      "p_emit": 1.0,
-      "recall": 1.0,
-      "n_emit": 1,
+      "fn": 1,
+      "p_emit": 0.0,
+      "recall": 0.0,
+      "n_emit": 0,
       "id": "synth_movement_midfield"
     },
     {

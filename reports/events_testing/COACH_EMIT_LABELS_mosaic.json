@@ -1,0 +1,12 @@
+{
+  "emits": {
+    "1": {
+      "coach_ok": false,
+      "note": "was a pass",
+      "at": "2026-08-26T03:28:17.580202+00:00"
+    }
+  },
+  "updated_at": "2026-08-26T03:28:17.580218+00:00",
+  "video": "reports/eval_match3/improve_eng_loop/match4_5min/coach_mosaic_first_90s.mp4",
+  "emits_source": "reports/eval_match3/improve_eng_loop/match4_5min/emits_render.json"
+}

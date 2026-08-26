@@ -212,7 +212,7 @@ def draw_pitch1_ball_panel(
         p = m_to_px(xm, ym)
         cv2.circle(vis, p, 3 if tight else 4, col, -1)
         cv2.putText(
-            vis, str(cam), (p[0] + 5, p[1] - 3),
+            vis, f"cam:{cam}", (p[0] + 5, p[1] - 3),
             cv2.FONT_HERSHEY_SIMPLEX, 0.28, col, 1, cv2.LINE_AA,
         )
 
@@ -230,7 +230,7 @@ def draw_pitch1_ball_panel(
         cv2.circle(vis, p, 8 if tight else 9, color, -1)
         cv2.circle(vis, p, 10 if tight else 11, (255, 255, 255), 2)
         if player_cams and idx < len(player_cams) and player_cams[idx]:
-            label = str(player_cams[idx])
+            label = f"cam:{player_cams[idx]}"
             lcol = _CAM_COL.get(label, (255, 255, 255))
             cv2.putText(
                 vis, label, (p[0] + 10, p[1] + 4),

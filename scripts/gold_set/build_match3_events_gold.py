@@ -99,23 +99,32 @@ def main() -> int:
         )
     )
 
-    # Shot toward Goal2 (Pitch 1 half 26.95) — realistic ≤40 m/s
+    # Shot toward Goal2 — two goalward steps + goal-mouth (stride-like)
+    shot_steps = [
+        ((18.0, 0.0), [[1, 18.0, 0.0]]),
+        ((20.0, 0.0), [[1, 18.0, 0.0]]),
+        ((23.0, 0.0), [[1, 18.0, 0.0]]),
+    ]
+    shot_dt = 0.15
+    shot_t0 = 5.0
+    shot_tl = _frames_multi(shot_steps, dt=shot_dt)
+    for i, fr in enumerate(shot_tl["frames"]):
+        fr["t"] = round(shot_t0 + i * shot_dt, 4)
     clips.append(
         _write(
             "synth_shot_goal2",
-            _frames_two(
-                (20.0, 0.0),
-                (25.0, 0.0),
-                [[1, 20.0, 0.0]],
-                [[1, 20.0, 0.0]],
-                dt=0.2,
-            ),
+            shot_tl,
             {
                 "events": [
-                    {"type": "shot", "t_start": 0.0, "t_end": 0.2, "frame_end": 1}
+                    {
+                        "type": "shot",
+                        "t_start": shot_t0 + shot_dt,
+                        "t_end": shot_t0 + 2 * shot_dt,
+                        "frame_end": 2,
+                    }
                 ]
             },
-            "Synthetic shot into Goal2 band — expect emit shot",
+            "Synthetic shot into Goal2 band — two-step goalward confirm",
         )
     )
 

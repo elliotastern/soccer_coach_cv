@@ -19,7 +19,8 @@ Updated after map-first pass (P10 hull + MIN_SUPPORT 0.20). **≥7 = pass.**
 | Clear-ball coverage (R ≥ 0.80 product-wide) | **8** | Yes | **Holdout proxy 0.884** (was 0.556 freeze) after P10 hull + MIN_SUPPORT 0.20. Strips product-F0 clear_R pass. Tune pack still 0.625 (report-only). |
 | Player boxes on multi-cam video | **8** | Yes | Unchanged — green boxes on mosaic cams. |
 | Pitch 1 mapping (meters, not FIFA) | **7** | Yes | Unchanged — usable; some churn. |
-| Team A/B color ID | **8** | Yes | Unified team_core + tracklet batch; weighted fusion; benchmark scripts. |
+| Team A/B color ID (Match 3) | **8** | Yes | `kit_mode=match3` eng-loop PASS; blue/white hard rules + hue lock. |
+| Team A/B color ID (Match 4) | **8** | Yes | `kit_mode=auto` + fuse cap; 90s eng-loop **PASS** (collapse 7% vs 58% baseline). |
 | Heuristic events (all 5 types) | **8** | Yes* | Eng-loops **PASS**: fuse 15s **P_emit 1.0** + holdout pass window; synth **P=1.0** all types; carrier pid gold **42**. *Full-match batch proof still open.* |
 | Review app (Streamlit coach view) | **8** | Yes | Unchanged. |
 | Batch / checkpoints / export | **6** | No | Match 4 5‑min quad **done** on Catch; **full** P10+P1 batch running in tmux `match4_full`. Manifest: `delivery_manifest.json` (smoke passes; full-match export still in progress). |

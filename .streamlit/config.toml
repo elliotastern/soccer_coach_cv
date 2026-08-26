@@ -1,18 +1,18 @@
 [server]
 headless = true
 address = "127.0.0.1"
-port = 8501
 enableCORS = false
 enableXsrfProtection = false
 fileWatcherType = "none"
 maxUploadSize = 200
 enableWebsocketCompression = true
-maxMessageSize = 500
+maxMessageSize = 50
+# port left unset — each launcher sets --server.port / --browser.serverPort
 
 [browser]
 gatherUsageStats = false
 serverAddress = "127.0.0.1"
-serverPort = 8501
+# serverPort left unset — must match the launcher port (8501 review, 8502 emit labels)
 
 [runner]
 fastReruns = true
