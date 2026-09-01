@@ -1069,7 +1069,7 @@ def render_synced_frame_review(
     sess_key = f"team_session::{Path(run_dir).name}"
     if st.session_state.get("_team_session_key") != sess_key:
         st.session_state._team_session_key = sess_key
-        st.session_state.team_session = session_from_config(cfg)
+        st.session_state.team_session = session_from_config(cfg, run_dir=run_dir)
     team_session = st.session_state.team_session
     fused = None
     if dets_enabled and dets_by_cam:

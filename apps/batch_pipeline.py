@@ -376,25 +376,29 @@ def process_video(
         )
         return create_ball_tracker_wrapper(base, min_track_length=5, fit_threshold=0.15)
 
-    gb_tracker = _make_tracker()
-    cap_gb = open_video_file(video_path)
-    if start_frame > 0:
-        cap_gb.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-    gb_len = min(golden_frames, frames_to_run)
-    team_model = golden_batch_pass(
-        cap_gb,
-        detector,
-        gb_tracker,
-        pitch_mapper,
-        config,
-        calib,
-        cam_id,
-        gb_len,
-        start_frame,
-        fps,
-    )
-    cap_gb.release()
     centroids_path = run_dir / "team_centroids.json"
+    team_model = TrackletTeamModel()
+    if team_model.load(centroids_path):
+        print(f"Using pre-labeled kit centroids from {centroids_path}")
+    else:
+        gb_tracker = _make_tracker()
+        cap_gb = open_video_file(video_path)
+        if start_frame > 0:
+            cap_gb.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        gb_len = min(golden_frames, frames_to_run)
+        team_model = golden_batch_pass(
+            cap_gb,
+            detector,
+            gb_tracker,
+            pitch_mapper,
+            config,
+            calib,
+            cam_id,
+            gb_len,
+            start_frame,
+            fps,
+        )
+        cap_gb.release()
     team_model.save(centroids_path)
     if team_model.centroids is not None:
         print(f"Team centroids → {centroids_path}")

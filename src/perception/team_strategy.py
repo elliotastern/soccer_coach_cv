@@ -142,16 +142,29 @@ STRATEGIES: dict[str, TeamStrategy] = {
 }
 
 
-def session_from_config(cfg: dict | None) -> "TeamSession":
+def session_from_config(cfg: dict | None, run_dir: Path | str | None = None) -> "TeamSession":
     """Build TeamSession from configs/default.yaml team_assignment block."""
+    from pathlib import Path as _Path
+
     from src.review.team_live import TeamSession
 
     ta = (cfg or {}).get("team_assignment") or {}
     kit_mode = str(ta.get("kit_mode", KIT_MODE_AUTO))
     strat_key = ta.get("strategy")
     if strat_key and strat_key in STRATEGIES:
-        return TeamSession(strategy=STRATEGIES[strat_key])
-    return TeamSession(kit_mode=kit_mode)
+        sess = TeamSession(strategy=STRATEGIES[strat_key])
+    else:
+        sess = TeamSession(kit_mode=kit_mode)
+    centroids_path = ta.get("kit_centroids_path")
+    if centroids_path:
+        path = _Path(centroids_path)
+    elif run_dir:
+        path = _Path(run_dir) / "team_centroids.json"
+    else:
+        path = None
+    if path is not None and path.is_file():
+        sess.load_centroids_file(path)
+    return sess
 
 
 def list_strategies(names: str) -> list[TeamStrategy]:

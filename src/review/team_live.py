@@ -5,6 +5,7 @@ Review-only temporal layer (TeamSession) on shared team_core features.
 from __future__ import annotations
 
 from collections import Counter
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -27,6 +28,7 @@ from src.perception.team_core import (
     fit_match_centroids,
     fit_team_centroids,
     jersey_feature,
+    load_centroids,
     torso_crop,
     tracklet_median_feature,
     which_goal_box,
@@ -323,6 +325,17 @@ class TeamSession:
         self._bal_n0 = 0
         self._bal_n1 = 0
         self._bal_cooldown = 0
+
+    def seed_centroids(self, centroids: np.ndarray, radius: float) -> None:
+        self.centroids = np.asarray(centroids, dtype=np.float32).copy()
+        self.radius = float(radius)
+
+    def load_centroids_file(self, path: Path) -> bool:
+        loaded = load_centroids(path)
+        if loaded is None:
+            return False
+        self.seed_centroids(*loaded)
+        return True
 
     @staticmethod
     def _flip_team(tid: int) -> int:

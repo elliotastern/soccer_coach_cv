@@ -420,13 +420,71 @@ def tracklet_median_feature(feats: list[np.ndarray]) -> np.ndarray | None:
     return np.median(np.stack(feats, axis=0), axis=0).astype(np.float32)
 
 
-def save_centroids(path: Path, centroids: np.ndarray, radius: float) -> None:
+def centroids_from_labeled(
+    team_feats: dict[int, list[np.ndarray]],
+) -> tuple[np.ndarray, float] | None:
+    """Fit team centroids from explicit Team 0 / Team 1 jersey features."""
+    t0 = team_feats.get(0) or []
+    t1 = team_feats.get(1) or []
+    if len(t0) < 1 or len(t1) < 1:
+        return None
+    c0 = np.mean(np.stack(t0, axis=0), axis=0).astype(np.float32)
+    c1 = np.mean(np.stack(t1, axis=0), axis=0).astype(np.float32)
+    cents = np.stack([c0, c1], axis=0)
+    all_feats = t0 + t1
+    dmin = [
+        min(feature_distance(f, cents[0]), feature_distance(f, cents[1]))
+        for f in all_feats
+    ]
+    radius = float(np.median(dmin) * OUTLIER_MEDIAN_MULT + 1e-3)
+    sep = float(np.linalg.norm(cents[0, :KIT_DIM] - cents[1, :KIT_DIM]))
+    if sep < 0.12:
+        return None
+    return cents, max(radius, 0.08)
+
+
+def kit_feat_preview_bgr(feat: np.ndarray) -> np.ndarray:
+    """Approximate kit color swatch from jersey feature fractions."""
+    blue = float(feat[0])
+    white = float(feat[1])
+    yellow = float(feat[2])
+    b = int(40 + 180 * blue)
+    g = int(40 + 160 * white + 80 * yellow)
+    r = int(40 + 160 * white + 180 * yellow)
+    swatch = np.zeros((48, 48, 3), dtype=np.uint8)
+    swatch[:, :] = (b, g, r)
+    return swatch
+
+
+def save_centroids(path: Path, centroids: np.ndarray, radius: float, **meta) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "centroids": centroids.tolist(),
         "radius": float(radius),
     }
+    payload.update(meta)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def save_kit_ref(
+    path: Path,
+    centroids: np.ndarray,
+    radius: float,
+    *,
+    team_names: tuple[str, str] = ("Team 0", "Team 1"),
+    kit_mode: str = KIT_MODE_AUTO,
+    n_samples: tuple[int, int] = (0, 0),
+    source: str = "kit_label_dashboard",
+) -> None:
+    save_centroids(
+        path,
+        centroids,
+        radius,
+        team_names=list(team_names),
+        kit_mode=kit_mode,
+        n_samples=list(n_samples),
+        source=source,
+    )
 
 
 def load_centroids(path: Path) -> tuple[np.ndarray, float] | None:
@@ -434,6 +492,17 @@ def load_centroids(path: Path) -> tuple[np.ndarray, float] | None:
         return None
     data = json.loads(path.read_text(encoding="utf-8"))
     return np.asarray(data["centroids"], dtype=np.float32), float(data["radius"])
+
+
+def load_kit_ref_meta(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        k: data[k]
+        for k in ("team_names", "kit_mode", "n_samples", "source")
+        if k in data
+    }
 
 
 def _goal_boxes() -> dict:
