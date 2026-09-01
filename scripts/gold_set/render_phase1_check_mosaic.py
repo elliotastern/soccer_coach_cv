@@ -84,6 +84,13 @@ def parse_args():
         default="mosaic",
         help="mosaic = quad + pitch; best_ball = single best-ball cam + pitch",
     )
+    default_kit = ROOT / "data/output/match_4_5min/P10-match4/team_centroids.json"
+    p.add_argument(
+        "--kit-centroids",
+        type=Path,
+        default=None,
+        help=f"Pre-labeled team_centroids.json (auto: {default_kit.name} if present)",
+    )
     return p.parse_args()
 
 
@@ -242,6 +249,14 @@ def main() -> int:
     if cfg_path.is_file():
         cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     sess = session_from_config(cfg)
+    kit_path = args.kit_centroids
+    if kit_path is None:
+        auto_kit = ROOT / "data/output/match_4_5min/P10-match4/team_centroids.json"
+        if auto_kit.is_file():
+            kit_path = auto_kit
+    if kit_path is not None and Path(kit_path).is_file():
+        if sess.load_centroids_file(Path(kit_path)):
+            print(f"kit centroids loaded from {kit_path}", flush=True)
     event_det = EventDetector() if args.events_bar else None
     prev_fd = None
     recent_emits: list[dict] = []

@@ -1,41 +1,45 @@
 {
-  "ts": "2026-08-26T07:51:58.381052+00:00",
-  "meta": "reports/eval_match3/team_id_strategy_grid_m4/match4_5min_s13/meta.json",
+  "ts": "2026-09-01T21:07:01.747226+00:00",
+  "meta": "reports/eval_match3/improve_eng_loop/match4_5min/meta.json",
   "metrics": {
-    "n_frames": 1200,
-    "mean_blue_share": 0.5946906493167136,
-    "collapse_frac": 0.0075,
-    "both3_frac": 0.9383333333333334,
-    "balanced_frac": 0.8733333333333333,
-    "mean_players": 14.105833333333333
+    "n_frames": 360,
+    "mean_blue_share": 0.7827302224238157,
+    "collapse_frac": 0.175,
+    "both3_frac": 0.18333333333333332,
+    "balanced_frac": 0.4388888888888889,
+    "mean_players": 14.188888888888888
   },
   "gate": 9.0,
   "scores": {
     "01_meta_exists": 10.0,
     "02_n_frames": 10.0,
-    "03_mean_blue_share": 10.0,
-    "04_collapse_frac": 10.0,
-    "05_both3_frac": 10.0,
+    "03_mean_blue_share": 8.304266034179681,
+    "04_collapse_frac": 9.705882352941178,
+    "05_both3_frac": 3.6666666666666665,
     "06_mean_players": 10.0,
     "07_balanced_frac": 10.0,
     "08_kit_mode_auto": 10.0,
     "09_fuse_cap": 10.0,
     "10_no_match3_hard_in_auto": 10.0,
-    "20_product_ready": 10.0
+    "20_product_ready": 7.919203763446881
   },
   "notes": {
-    "01_meta_exists": "reports/eval_match3/team_id_strategy_grid_m4/match4_5min_s13/meta.json",
-    "02_n_frames": "n=1200",
-    "03_mean_blue_share": "mean=0.595 gate=[0.35,0.65]",
-    "04_collapse_frac": "collapse=0.007 max=0.15",
-    "05_both3_frac": "both3=0.938 min=0.5",
-    "06_mean_players": "mean_n=14.11 max=14.5",
-    "07_balanced_frac": "balanced=0.873",
+    "01_meta_exists": "reports/eval_match3/improve_eng_loop/match4_5min/meta.json",
+    "02_n_frames": "n=360",
+    "03_mean_blue_share": "mean=0.783 gate=[0.35,0.65]",
+    "04_collapse_frac": "collapse=0.175 max=0.15",
+    "05_both3_frac": "both3=0.183 min=0.5",
+    "06_mean_players": "mean_n=14.19 max=14.5",
+    "07_balanced_frac": "balanced=0.439",
     "08_kit_mode_auto": "modes auto=auto match3=match3",
     "09_fuse_cap": "max=14 merge_live=2.2",
     "10_no_match3_hard_in_auto": "auto skips hue hard rules",
-    "20_product_ready": "mean_hard=10.0"
+    "20_product_ready": "mean_hard=7.9"
   },
-  "failed": {},
-  "pass": true
+  "failed": {
+    "03_mean_blue_share": 8.304266034179681,
+    "05_both3_frac": 3.6666666666666665,
+    "20_product_ready": 7.919203763446881
+  },
+  "pass": false
 }

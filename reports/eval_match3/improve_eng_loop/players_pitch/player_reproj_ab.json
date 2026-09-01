@@ -1,0 +1,61 @@
+{
+  "frames": [
+    {
+      "frame_id": 2400,
+      "n_off": 13,
+      "n_on": 1,
+      "consensus_off": {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      },
+      "consensus_on": {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "frame_id": 3078,
+      "n_off": 11,
+      "n_on": 11,
+      "consensus_off": {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      },
+      "consensus_on": {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      }
+    },
+    {
+      "frame_id": 3600,
+      "n_off": 10,
+      "n_on": 1,
+      "consensus_off": {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      },
+      "consensus_on": {
+        "n_clusters": 0,
+        "n_multi_cam": 0,
+        "n_agree": 0,
+        "n_labeled_multi": 0,
+        "n_conflict_gray": 0
+      }
+    }
+  ]
+}

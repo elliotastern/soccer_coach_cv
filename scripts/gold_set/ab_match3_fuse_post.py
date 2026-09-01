@@ -30,16 +30,17 @@ STRIPS = [
 ]
 CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 WH = (1920, 1080)
-# name, f1, f2, hold, ghost_prune
+# name, f1, f2, hold, ghost_prune, reproj_prune
 VARIANTS = (
-    ("baseline", False, False, False, False),
-    ("F1", True, False, False, False),
-    ("F2", False, True, False, False),
-    ("F3", False, False, False, True),
-    ("F1+F2", True, True, False, False),
-    ("F1+F2+F3", True, True, False, True),
-    ("F1+F2+F0", True, True, True, False),
-    ("F1+F2+F0+F3", True, True, True, True),
+    ("baseline", False, False, False, False, False),
+    ("F1", True, False, False, False, False),
+    ("F2", False, True, False, False, False),
+    ("F3", False, False, False, True, False),
+    ("F1+F2", True, True, False, False, False),
+    ("F1+F2+F3", True, True, False, True, False),
+    ("F1+F2+F0", True, True, True, False, False),
+    ("F1+F2+F0+F3", True, True, True, True, False),
+    ("F1+F2+F0+F3+F4", True, True, True, True, True),
 )
 
 
@@ -57,7 +58,7 @@ def mapped_at(dets, i, calibs, cams):
     return rows
 
 
-def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold, ghost):
+def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold, ghost, reproj):
     cams = [c for c in CAMS if c in dets]
     tp = fp = emit = clear = clear_emit = 0
     errs = []
@@ -79,6 +80,7 @@ def score_variant(labels, dets, calibs, focus, stride, f1, f2, use_hold, ghost):
             solo_max_conf=f2,
             ghost_prune=ghost,
             ghost_conf=GHOST_CONF,
+            reproj_prune=reproj,
         )
         if use_hold:
             fresh = fuse_balls(rows, **kwargs)
@@ -130,15 +132,16 @@ def score_strip_all_variants(path: Path) -> dict:
     focus = labels.get("focus_cam") or "P10"
     stride = infer_cache_stride(dets)
     rows = {}
-    for name, f1, f2, hold, ghost in VARIANTS:
+    for name, f1, f2, hold, ghost, reproj in VARIANTS:
         rows[name] = score_variant(
-            labels, dets, calibs, focus, stride, f1, f2, hold, ghost
+            labels, dets, calibs, focus, stride, f1, f2, hold, ghost, reproj
         )
         rows[name]["flags"] = {
             "soft_dual_fallback": f1,
             "solo_max_conf": f2,
             "hold": hold,
             "ghost_prune": ghost,
+            "reproj_prune": reproj,
         }
     return {
         "pack": labels.get("pack"),

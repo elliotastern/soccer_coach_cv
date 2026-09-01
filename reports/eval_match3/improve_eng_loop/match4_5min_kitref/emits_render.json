@@ -1,0 +1,88 @@
+{
+  "emits": [
+    {
+      "type": "dribble",
+      "t_end": 1.25,
+      "t_start": 0.75,
+      "confidence": 1.0,
+      "frame_id": 75
+    },
+    {
+      "type": "dribble",
+      "t_end": 2.5,
+      "t_start": 2.0,
+      "confidence": 1.0,
+      "frame_id": 150
+    },
+    {
+      "type": "pass",
+      "t_end": 12.25,
+      "t_start": 12.0,
+      "confidence": 1.0,
+      "frame_id": 735
+    },
+    {
+      "type": "pass",
+      "t_end": 13.5,
+      "t_start": 13.25,
+      "confidence": 1.0,
+      "frame_id": 810
+    },
+    {
+      "type": "dribble",
+      "t_end": 18.25,
+      "t_start": 17.75,
+      "confidence": 1.0,
+      "frame_id": 1095
+    },
+    {
+      "type": "dribble",
+      "t_end": 36.5,
+      "t_start": 36.0,
+      "confidence": 1.0,
+      "frame_id": 2190
+    },
+    {
+      "type": "pass",
+      "t_end": 50.5,
+      "t_start": 50.25,
+      "confidence": 1.0,
+      "frame_id": 3030
+    },
+    {
+      "type": "dribble",
+      "t_end": 70.25,
+      "t_start": 69.75,
+      "confidence": 1.0,
+      "frame_id": 4215
+    },
+    {
+      "type": "dribble",
+      "t_end": 72.5,
+      "t_start": 72.0,
+      "confidence": 1.0,
+      "frame_id": 4350
+    },
+    {
+      "type": "dribble",
+      "t_end": 73.75,
+      "t_start": 73.25,
+      "confidence": 1.0,
+      "frame_id": 4425
+    },
+    {
+      "type": "dribble",
+      "t_end": 87.75,
+      "t_start": 87.25,
+      "confidence": 1.0,
+      "frame_id": 5265
+    },
+    {
+      "type": "dribble",
+      "t_end": 89.0,
+      "t_start": 88.5,
+      "confidence": 1.0,
+      "frame_id": 5340
+    }
+  ]
+}

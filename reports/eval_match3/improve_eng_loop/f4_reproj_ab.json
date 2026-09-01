@@ -1,0 +1,146 @@
+{
+  "ts": "2026-09-01T20:46:22.442484+00:00",
+  "hit_m": 4.0,
+  "holdout_gate": 0.884,
+  "strips": {
+    "match3_quad_p10_31": {
+      "pack": "match3_quad_p10_31",
+      "path": "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+      "F1+F2+F0+F3": {
+        "n_clear": 224,
+        "n_emit_scored": 219,
+        "tp": 219,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 0.79,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "F1+F2+F0+F3+F4": {
+        "n_clear": 224,
+        "n_emit_scored": 197,
+        "tp": 197,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.79,
+        "err_median_m": 0.835,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": false
+      }
+    },
+    "match3_quad_p8_87": {
+      "pack": "match3_quad_p8_87",
+      "path": "data/processed/gold_sets/match3_quad_p8_87/labels.json",
+      "F1+F2+F0+F3": {
+        "n_clear": 272,
+        "n_emit_scored": 248,
+        "tp": 0,
+        "fp": 248,
+        "P_emit": 0.0,
+        "clear_ball_R": 0.846,
+        "err_median_m": 13.603,
+        "poc_pass_P_emit": false,
+        "poc_pass_clear_R": true
+      },
+      "F1+F2+F0+F3+F4": {
+        "n_clear": 272,
+        "n_emit_scored": 233,
+        "tp": 0,
+        "fp": 233,
+        "P_emit": 0.0,
+        "clear_ball_R": 0.798,
+        "err_median_m": 13.664,
+        "poc_pass_P_emit": false,
+        "poc_pass_clear_R": false
+      }
+    }
+  },
+  "holdout": {
+    "F1+F2+F0+F3": {
+      "caches": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "clear_frames": 80,
+          "clear_emit": 78,
+          "emit": 201,
+          "clear_ball_proxy_R": 0.975
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "clear_frames": 0,
+          "clear_emit": 0,
+          "emit": 0,
+          "clear_ball_proxy_R": null
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "clear_frames": 69,
+          "clear_emit": 66,
+          "emit": 151,
+          "clear_ball_proxy_R": 0.957
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "clear_frames": 5,
+          "clear_emit": 2,
+          "emit": 12,
+          "clear_ball_proxy_R": 0.4
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "clear_frames": 87,
+          "clear_emit": 69,
+          "emit": 190,
+          "clear_ball_proxy_R": 0.793
+        }
+      ],
+      "clear_ball_proxy_R": 0.892
+    },
+    "F1+F2+F0+F3+F4": {
+      "caches": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "clear_frames": 80,
+          "clear_emit": 78,
+          "emit": 190,
+          "clear_ball_proxy_R": 0.975
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "clear_frames": 0,
+          "clear_emit": 0,
+          "emit": 0,
+          "clear_ball_proxy_R": null
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "clear_frames": 69,
+          "clear_emit": 62,
+          "emit": 135,
+          "clear_ball_proxy_R": 0.899
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "clear_frames": 5,
+          "clear_emit": 2,
+          "emit": 12,
+          "clear_ball_proxy_R": 0.4
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "clear_frames": 87,
+          "clear_emit": 52,
+          "emit": 130,
+          "clear_ball_proxy_R": 0.598
+        }
+      ],
+      "clear_ball_proxy_R": 0.805
+    }
+  },
+  "promote_F4": false,
+  "gates": {
+    "strips_pass": false,
+    "holdout_pass": false
+  }
+}

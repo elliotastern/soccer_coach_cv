@@ -1,0 +1,151 @@
+{
+  "frames": [
+    {
+      "frame_id": 2400,
+      "n_raw_boxes": 15,
+      "n_det_ok": 15,
+      "n_map_ball_support": 15,
+      "n_map_player_support": 15,
+      "n_fused_old": 12,
+      "n_fused_new": 13,
+      "n_fuse_live": 13,
+      "reasons_ball_min_support": {
+        "ok": 15
+      },
+      "reasons_player_min_support": {
+        "ok": 15
+      },
+      "per_cam": {
+        "P10": {
+          "raw": 5,
+          "det_ok": 5,
+          "map_ball_ok": 5,
+          "map_player_ok": 5,
+          "drop": {}
+        },
+        "P9": {
+          "raw": 0,
+          "det_ok": 0,
+          "map_ball_ok": 0,
+          "map_player_ok": 0,
+          "drop": {}
+        },
+        "P7": {
+          "raw": 8,
+          "det_ok": 8,
+          "map_ball_ok": 8,
+          "map_player_ok": 8,
+          "drop": {}
+        },
+        "P8": {
+          "raw": 2,
+          "det_ok": 2,
+          "map_ball_ok": 2,
+          "map_player_ok": 2,
+          "drop": {}
+        }
+      },
+      "lift_mapped": 0,
+      "lift_fused": 1
+    },
+    {
+      "frame_id": 3078,
+      "n_raw_boxes": 14,
+      "n_det_ok": 14,
+      "n_map_ball_support": 14,
+      "n_map_player_support": 14,
+      "n_fused_old": 10,
+      "n_fused_new": 11,
+      "n_fuse_live": 11,
+      "reasons_ball_min_support": {
+        "ok": 14
+      },
+      "reasons_player_min_support": {
+        "ok": 14
+      },
+      "per_cam": {
+        "P10": {
+          "raw": 2,
+          "det_ok": 2,
+          "map_ball_ok": 2,
+          "map_player_ok": 2,
+          "drop": {}
+        },
+        "P9": {
+          "raw": 2,
+          "det_ok": 2,
+          "map_ball_ok": 2,
+          "map_player_ok": 2,
+          "drop": {}
+        },
+        "P7": {
+          "raw": 3,
+          "det_ok": 3,
+          "map_ball_ok": 3,
+          "map_player_ok": 3,
+          "drop": {}
+        },
+        "P8": {
+          "raw": 7,
+          "det_ok": 7,
+          "map_ball_ok": 7,
+          "map_player_ok": 7,
+          "drop": {}
+        }
+      },
+      "lift_mapped": 0,
+      "lift_fused": 1
+    },
+    {
+      "frame_id": 3600,
+      "n_raw_boxes": 11,
+      "n_det_ok": 11,
+      "n_map_ball_support": 11,
+      "n_map_player_support": 11,
+      "n_fused_old": 10,
+      "n_fused_new": 10,
+      "n_fuse_live": 10,
+      "reasons_ball_min_support": {
+        "ok": 11
+      },
+      "reasons_player_min_support": {
+        "ok": 11
+      },
+      "per_cam": {
+        "P10": {
+          "raw": 0,
+          "det_ok": 0,
+          "map_ball_ok": 0,
+          "map_player_ok": 0,
+          "drop": {}
+        },
+        "P9": {
+          "raw": 0,
+          "det_ok": 0,
+          "map_ball_ok": 0,
+          "map_player_ok": 0,
+          "drop": {}
+        },
+        "P7": {
+          "raw": 1,
+          "det_ok": 1,
+          "map_ball_ok": 1,
+          "map_player_ok": 1,
+          "drop": {}
+        },
+        "P8": {
+          "raw": 10,
+          "det_ok": 10,
+          "map_ball_ok": 10,
+          "map_player_ok": 10,
+          "drop": {}
+        }
+      },
+      "lift_mapped": 0,
+      "lift_fused": 0
+    }
+  ],
+  "player_min_support": 0.1,
+  "ball_min_support": 0.2,
+  "note": "D1 funnel: softer player hull + live ghost floors vs ball gates"
+}

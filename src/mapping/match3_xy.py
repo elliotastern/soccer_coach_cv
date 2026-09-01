@@ -25,6 +25,9 @@ PLAYER_MIN_SUPPORT = 0.10
 P8_LOWER_ZONE_Y = 350.0
 # F3: drop weak maps that disagree with the max-conf anchor (ghost prune).
 GHOST_CONF = 0.45
+# F4: drop maps whose foot pixel disagrees with back-project of fused pitch xy.
+REPROJ_MAX_PX_BALL = 48.0
+REPROJ_MAX_PX_PLAYER = 64.0
 MATCH3_CAMS = ["P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2"]
 
 
@@ -201,6 +204,7 @@ def map_ball_box(
         "conf": c,
         "support": support,
         "weight": c * support,
+        "foot_px": (float(px), float(py)),
     }
 
 
@@ -239,6 +243,7 @@ def map_player_box(
             "conf": c,
             "support": support,
             "weight": c * support,
+            "foot_px": (float(px), float(py)),
         }
 
     if calib.get("H_player") is not None:
@@ -335,6 +340,75 @@ def _near(a: dict, b: dict) -> bool:
     return (dx * dx + dy * dy) ** 0.5 <= AGREE_M
 
 
+def pitch_xy_to_pixel(
+    calib: dict,
+    xy,
+    frame_wh=None,
+    *,
+    h_player: bool = False,
+) -> tuple[float, float] | None:
+    """Back-project Pitch 1 xy to calib-space foot pixel (matches map_ball_box px/py)."""
+    _ = frame_wh
+    H = player_H(calib) if h_player else calib["H"]
+    try:
+        H_inv = np.linalg.inv(np.asarray(H, dtype=float))
+    except np.linalg.LinAlgError:
+        return None
+    v = H_inv @ np.array([float(xy[0]), float(xy[1]), 1.0], dtype=float)
+    if abs(v[2]) < 1e-8:
+        return None
+    return float(v[0] / v[2]), float(v[1] / v[2])
+
+
+def reproj_err_px(
+    calib: dict,
+    pitch_xy,
+    foot_px,
+    frame_wh=None,
+    *,
+    h_player: bool = False,
+) -> float:
+    """L2 px error between det foot and back-project of pitch xy."""
+    if foot_px is None:
+        return float("inf")
+    rp = pitch_xy_to_pixel(calib, pitch_xy, frame_wh, h_player=h_player)
+    if rp is None:
+        return float("inf")
+    dx = float(foot_px[0]) - float(rp[0])
+    dy = float(foot_px[1]) - float(rp[1])
+    return float((dx * dx + dy * dy) ** 0.5)
+
+
+def prune_reproj_outliers(
+    rows: list[dict],
+    *,
+    enabled: bool = True,
+    max_px: float = REPROJ_MAX_PX_BALL,
+    ref_xy=None,
+    h_player: bool = False,
+) -> list[dict]:
+    """F4: drop cams whose foot pixel disagrees with ref pitch xy reprojection."""
+    if not enabled or len(rows) < 2:
+        return rows
+    ref = ref_xy if ref_xy is not None else _median_xy(rows)
+    kept = []
+    for row in rows:
+        foot = row.get("foot_px")
+        if foot is None:
+            kept.append(row)
+            continue
+        calib = load_calib(str(row.get("cam", "")))
+        if calib is None:
+            kept.append(row)
+            continue
+        err = reproj_err_px(calib, ref, foot, h_player=h_player)
+        if err <= float(max_px):
+            kept.append(row)
+    if kept:
+        return kept
+    return [max(rows, key=lambda r: float(r["conf"]))]
+
+
 def prune_ghost_maps(
     rows: list[dict],
     *,
@@ -377,6 +451,8 @@ def fuse_balls(
     solo_max_conf: bool = True,
     ghost_prune: bool = True,
     ghost_conf: float = GHOST_CONF,
+    reproj_prune: bool = False,
+    reproj_max_px: float = REPROJ_MAX_PX_BALL,
 ) -> dict | None:
     """Pitch-space fuse. EMIT_CONF / AGREE_M hard gates.
 
@@ -384,10 +460,14 @@ def fuse_balls(
     through to solo instead of silent drop.
     F2 solo_max_conf: solo uses max conf among candidates, not weight seed only.
     F3 ghost_prune: drop weak maps that disagree with the max-conf anchor.
+    F4 reproj_prune: drop maps whose foot pixel disagrees with median reproject.
     """
     valid = [r for r in rows if r]
     if not valid:
         return None
+    valid = prune_reproj_outliers(
+        valid, enabled=reproj_prune, max_px=reproj_max_px,
+    )
     valid = prune_ghost_maps(valid, enabled=ghost_prune, ghost_conf=ghost_conf)
     valid.sort(key=lambda r: r["weight"], reverse=True)
     seed = valid[0]
@@ -422,6 +502,8 @@ def fuse_balls_with_hold(
     solo_max_conf: bool = True,
     ghost_prune: bool = True,
     ghost_conf: float = GHOST_CONF,
+    reproj_prune: bool = False,
+    reproj_max_px: float = REPROJ_MAX_PX_BALL,
     hold_max_gap: int = HOLD_MAX_GAP,
 ) -> dict | None:
     """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap."""
@@ -431,6 +513,8 @@ def fuse_balls_with_hold(
         solo_max_conf=solo_max_conf,
         ghost_prune=ghost_prune,
         ghost_conf=ghost_conf,
+        reproj_prune=reproj_prune,
+        reproj_max_px=reproj_max_px,
     )
     if cur is not None:
         return cur

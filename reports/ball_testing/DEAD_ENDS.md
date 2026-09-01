@@ -13,7 +13,10 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | Lower EMIT_CONF / widen AGREE_M / drop hull | — | Forbidden | Phase 1 precision-first Hard no |
 | Phase-2 RNN / occlusion merge for Phase 1 clear-R | — | Out of scope | product_phase_scope |
 | t552 one-clip det (map-first residual) | Holdout after P10 hull | **Skipped** — map FNs 22 vs conf 6 | Conf not majority; no MPS burn |
+| **Defish-detect A/B** (undistort frame → RF-DETR → map no foot undistort) | Holdout proxy **0.892→0.936**; quad **0.931→0.876**; P10 strip clear_R **0.879→0.817**; P8 **0.846→0.820** | Holdout proxy ↑ but **labeled strips + quad down** | Keep batch **raw detect + foot undistort**; mosaic-only path OK · `defish_detect_ab.json` |
 
+| **F4 reprojection prune** | holdout/strips A/B | **Skipped** — gates failed | See `reports/eval_match3/improve_eng_loop/f4_reproj_ab.json` |
+| **Player F4 reprojection** (64 px, 3 frames) | player_map_funnel frames | **Skipped** — 13→1, 10→1 on fr 2400/3600 | Default off; `player_reproj_ab.json` |
 ## Worked (keep)
 
 | Tried | Result |

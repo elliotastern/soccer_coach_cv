@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 import pandas as pd
 
 from src.mapping.match3_xy import fuse_balls
@@ -54,6 +55,38 @@ def _merge_radius_m(xy_a, xy_b, base_m: float = PLAYER_MERGE_M) -> float:
     if which_goal_box(xy_a) is not None or which_goal_box(xy_b) is not None:
         return max(float(base_m), float(PLAYER_MERGE_M_BOX))
     return float(base_m)
+
+
+def _prune_player_reproj(
+    player_pts: list[dict],
+    *,
+    enabled: bool = False,
+    max_px: float = 64.0,
+) -> list[dict]:
+    """Drop player maps whose foot pixel disagrees with pitch median reproject."""
+    if not enabled or len(player_pts) < 2:
+        return player_pts
+    from src.mapping.match3_xy import load_calib, reproj_err_px
+
+    xs = [float(p["xy"][0]) for p in player_pts]
+    ys = [float(p["xy"][1]) for p in player_pts]
+    ref = (float(np.median(xs)), float(np.median(ys)))
+    kept = []
+    for p in player_pts:
+        foot = p.get("foot_px")
+        cam = p.get("cam")
+        if foot is None or not cam:
+            kept.append(p)
+            continue
+        calib = load_calib(str(cam))
+        if calib is None:
+            kept.append(p)
+            continue
+        use_player_h = calib.get("H_player") is not None
+        err = reproj_err_px(calib, ref, foot, h_player=use_player_h)
+        if err <= float(max_px):
+            kept.append(p)
+    return kept if kept else list(player_pts)
 
 
 def _cluster_players(
@@ -361,6 +394,7 @@ def fuse_live_dets_for_pitch(
     player_recall: bool = True,
     debug_cam: bool = False,
     fuse_stats: bool = False,
+    reproj_prune_players: bool = False,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -439,6 +473,7 @@ def fuse_live_dets_for_pitch(
                     "cam": cam,
                     "bbox": tuple(float(v) for v in d.bbox),
                     "frame_wh": wh,
+                    "foot_px": mapped.get("foot_px"),
                 }
             )
         if mapped_any:
@@ -446,6 +481,8 @@ def fuse_live_dets_for_pitch(
 
     if player_pts and frames_by_cam:
         label_player_pts(player_pts, frames_by_cam, team_session=team_session)
+
+    player_pts = _prune_player_reproj(player_pts, enabled=reproj_prune_players)
 
     solo = PLAYER_LIVE_SOLO_CONF if player_recall else PLAYER_SOLO_CONF
     ghost = PLAYER_LIVE_GHOST_CONF if player_recall else PLAYER_GHOST_CONF

@@ -26,6 +26,9 @@ from src.mapping.match3_xy import (  # noqa: E402
     map_ball_box,
     map_player_box,
     prune_ghost_maps,
+    prune_reproj_outliers,
+    pitch_xy_to_pixel,
+    reproj_err_px,
 )
 
 
@@ -138,6 +141,20 @@ def test_map_ball_uses_undistort_for_raw_foot() -> None:
             raise AssertionError(
                 f"skipping undistort should hurt edge landmark ({bad_err:.3f} vs {err:.3f})"
             )
+
+
+def test_defish_detect_no_double_warp() -> None:
+    """Boxes in defished pixel space must not be foot-undistorted again at map."""
+    rec = load_calib("P10")
+    box = [960.0, 540.0, 16.0, 16.0]
+    once = map_ball_box(rec, box, 0.95, rec["image_wh"], apply_undistort=False)
+    twice = map_ball_box(rec, box, 0.95, rec["image_wh"], apply_undistort=True)
+    if once is None or twice is None:
+        return
+    dx = abs(once["xy"][0] - twice["xy"][0])
+    dy = abs(once["xy"][1] - twice["xy"][1])
+    if dx < 0.02 and dy < 0.02:
+        raise AssertionError("defish-detect pairing must differ from double-warp at map")
 
 
 def test_off_pitch_dropped() -> None:
@@ -408,12 +425,73 @@ def test_f3_ghost_prune() -> None:
         raise AssertionError(f"near weak should keep {both}")
 
 
+def test_reproj_roundtrip_low_err() -> None:
+    """map_ball_box foot_px → pitch → back-project stays within a few px."""
+    rec = load_calib("P10")
+    if rec is None:
+        raise AssertionError("missing P10")
+    img = rec["image_points"][0]
+    fx, fy = float(img[0]), float(img[1])
+    box = [fx - 5.0, fy - 18.0, 10.0, 18.0]
+    mapped = map_ball_box(rec, box, 0.99, frame_wh=rec.get("image_wh"))
+    if mapped is None:
+        raise AssertionError("map_ball_box failed on P10 landmark foot")
+    err = reproj_err_px(rec, mapped["xy"], mapped["foot_px"])
+    if err > 5.0:
+        raise AssertionError(f"P10 mapped reproj err {err:.2f}px > 5")
+
+
+def test_f4_solo_unchanged() -> None:
+    row = {
+        "cam": "P10",
+        "xy": (0.0, 0.0),
+        "conf": 0.9,
+        "support": 1.0,
+        "weight": 0.9,
+        "foot_px": (960.0, 540.0),
+    }
+    out = prune_reproj_outliers([row], enabled=True)
+    if len(out) != 1:
+        raise AssertionError(f"solo row must pass F4 {out}")
+
+
+def test_f4_drops_far_ghost() -> None:
+    rec = load_calib("P10")
+    if rec is None:
+        raise AssertionError("missing P10")
+    img = rec["image_points"][0]
+    fx, fy = float(img[0]), float(img[1])
+    box = [fx - 5.0, fy - 18.0, 10.0, 18.0]
+    good = map_ball_box(rec, box, 0.92, frame_wh=rec.get("image_wh"))
+    if good is None:
+        raise AssertionError("good map failed")
+    bad = {
+        "cam": "P10",
+        "xy": good["xy"],
+        "conf": 0.88,
+        "support": 1.0,
+        "weight": 0.88,
+        "foot_px": (good["foot_px"][0] + 200.0, good["foot_px"][1] + 200.0),
+    }
+    pruned = prune_reproj_outliers([good, bad], enabled=True, max_px=48.0)
+    if len(pruned) != 1 or float(pruned[0]["conf"]) != 0.92:
+        raise AssertionError(f"F4 should drop bad reproj row {pruned}")
+    out = fuse_balls(
+        [good, bad],
+        reproj_prune=True,
+        ghost_prune=True,
+    )
+    if out is None or out.get("agree"):
+        raise AssertionError(f"F4 fuse should solo good cam {out}")
+
+
 def main() -> int:
     test_foot_not_center()
     test_roundtrip()
     test_undistort_params_on_defish_cams()
     test_undistort_px_matches_remap()
     test_map_ball_uses_undistort_for_raw_foot()
+    test_defish_detect_no_double_warp()
     test_off_pitch_dropped()
     test_far_hull_dropped()
     test_hull_image_points_expand()
@@ -431,6 +509,9 @@ def main() -> int:
     test_f2_solo_max_conf()
     test_f0_hold()
     test_f3_ghost_prune()
+    test_reproj_roundtrip_low_err()
+    test_f4_solo_unchanged()
+    test_f4_drops_far_ghost()
     print("match3_xy ok")
     return 0
 

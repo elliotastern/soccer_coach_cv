@@ -1,0 +1,35 @@
+{
+  "ts": "2026-09-01T21:07:00+00:00",
+  "baseline_meta": "reports/eval_match3/improve_eng_loop/match4_5min/meta.json",
+  "kitref_meta": "reports/eval_match3/improve_eng_loop/match4_5min_kitref/meta.json",
+  "kit_centroids": "data/output/match_4_5min/P10-match4/team_centroids.json",
+  "mosaic_metrics": {
+    "baseline": {
+      "mean_blue_share": 0.783,
+      "collapse_frac": 0.175,
+      "both3_frac": 0.183,
+      "balanced_frac": 0.439,
+      "pass": false
+    },
+    "kitref": {
+      "mean_blue_share": 0.553,
+      "collapse_frac": 0.014,
+      "both3_frac": 0.925,
+      "balanced_frac": 0.772,
+      "pass": true
+    },
+    "delta": {
+      "mean_blue_share": -0.23,
+      "collapse_frac": -0.161,
+      "both3_frac": 0.742,
+      "balanced_frac": 0.333
+    }
+  },
+  "kit_ref_ab_cache": "reports/eval_match3/improve_eng_loop/kit_ref_ab/kit_ref_ab.json",
+  "flicker_delta": {
+    "flip_events": -6,
+    "sticky_keep": 0.002,
+    "flickering_score": 0.01
+  },
+  "verdict": "Kit centroids in mosaic render fixes white-kit collapse and team ratio; promote --kit-centroids for Match 4 mosaic renders."
+}
