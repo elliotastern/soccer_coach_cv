@@ -5,6 +5,7 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | Tried | Metric / pack | Result | Why not again |
 |-------|---------------|--------|----------------|
 | Stronger fisheye k1 alone | Random / strips | No product-wide R fix | Geometry already locked; see MATCH3_DEFISH |
+| **Manual tags retune** (P7 k1 −0.30→−0.41, P10 −0.32→−0.49; P8/P9 unchanged) | Strips P_emit/clear_R flat; **P10 mean err 0.88→1.21 m**; holdout proxy R **0.892** flat, emit 554→552 | Visual k-only vs locked H | Do not promote into `*_manual.json` without landmark re-click · `manual_defish_tags_ab.json` |
 | Defish (D0) alone | Random clear proxy | ~0.30 → ~0.63; still &lt; 0.80 | Necessary, not sufficient |
 | Quad / P6 hull expands (C1/C3) for “product-wide” | Quad ↑ (~0.84); random stuck ~0.53 | Seed/FOV overfit when chasing tune pack | Prefer **holdout** gate + systemic FOV only |
 | Proxy score without F0 hold | Random clear proxy | **0.525** undercount | Measurement bug — product already holds |

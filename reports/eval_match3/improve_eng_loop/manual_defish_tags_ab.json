@@ -1,0 +1,141 @@
+{
+  "note": "Manual tags k-only overlay on locked defish H (no landmark re-click). Product calib JSON unchanged.",
+  "param_delta": {
+    "P7": {
+      "locked": {
+        "k1": -0.3,
+        "k2": -0.08
+      },
+      "manual": {
+        "k1": -0.41,
+        "k2": -0.1
+      }
+    },
+    "P8": {
+      "locked": {
+        "k1": -0.3,
+        "k2": 0
+      },
+      "manual": {
+        "k1": -0.3,
+        "k2": 0
+      }
+    },
+    "P9": {
+      "locked": {
+        "k1": -0.4,
+        "k2": 0
+      },
+      "manual": {
+        "k1": -0.4,
+        "k2": 0
+      }
+    },
+    "P10": {
+      "locked": {
+        "k1": -0.32,
+        "k2": 0
+      },
+      "manual": {
+        "k1": -0.49,
+        "k2": 0
+      }
+    }
+  },
+  "strips": {
+    "P10": {
+      "locked": {
+        "n_clear": 224,
+        "n_emit_scored": 219,
+        "tp": 219,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 0.79,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "manual_tags": {
+        "n_clear": 224,
+        "n_emit_scored": 219,
+        "tp": 219,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 1.134,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "locked_err": {
+        "mean_err_m": 0.882,
+        "med_err_m": 0.79,
+        "p90_err_m": 1.561,
+        "n": 219
+      },
+      "manual_err": {
+        "mean_err_m": 1.21,
+        "med_err_m": 1.134,
+        "p90_err_m": 1.963,
+        "n": 219
+      },
+      "delta_mean_err_m": 0.328
+    },
+    "P8": {
+      "locked": {
+        "n_clear": 272,
+        "n_emit_scored": 248,
+        "tp": 248,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.846,
+        "err_median_m": 0.147,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "manual_tags": {
+        "n_clear": 272,
+        "n_emit_scored": 248,
+        "tp": 248,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.846,
+        "err_median_m": 0.147,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "locked_err": {
+        "mean_err_m": 0.319,
+        "med_err_m": 0.147,
+        "p90_err_m": 0.758,
+        "n": 248
+      },
+      "manual_err": {
+        "mean_err_m": 0.319,
+        "med_err_m": 0.147,
+        "p90_err_m": 0.758,
+        "n": 248
+      },
+      "delta_mean_err_m": 0.0
+    }
+  },
+  "holdout_proxy": {
+    "locked": {
+      "n_clips": 5,
+      "emit": 554,
+      "agree": 190,
+      "clear_ball_proxy_R": 0.892,
+      "agree_among_emit": 0.343
+    },
+    "manual_tags": {
+      "n_clips": 5,
+      "emit": 552,
+      "agree": 187,
+      "clear_ball_proxy_R": 0.892,
+      "agree_among_emit": 0.339
+    },
+    "delta_proxy_R": 0.0,
+    "delta_emit": -2,
+    "delta_agree": -3
+  },
+  "verdict": "do_not_promote_hurts_map_error_under_locked_H"
+}

@@ -5,10 +5,11 @@ Run this and open http://localhost:8080/view_annotations.html in your browser (d
 """
 import argparse
 import http.server
-import socketserver
 import os
 import json
+import signal
 import socket
+import socketserver
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -454,10 +455,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
                 if gold not in sys.path:
                     sys.path.insert(0, gold)
-                import importlib
                 import match3_fisheye_dashboard as fish
 
-                fish = importlib.reload(fish)
                 jpeg = fish.render_preview_jpeg(cam, k1, k2, p1, p2, alpha)
                 self.send_response(200)
                 self.send_header('Content-type', 'image/jpeg')
@@ -728,10 +727,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
                 if gold not in sys.path:
                     sys.path.insert(0, gold)
-                import importlib
                 import match3_fisheye_dashboard as fish
 
-                fish = importlib.reload(fish)
                 tags = fish.apply_tag_updates(data)
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
@@ -1001,6 +998,11 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 def main():
+    # Survive parent-shell teardown (Cursor agent shells send SIGHUP/SIGTERM to the group).
+    try:
+        signal.signal(signal.SIGHUP, signal.SIG_IGN)
+    except (AttributeError, ValueError):
+        pass
     parser = argparse.ArgumentParser(description="HTTP server for annotation/viewer HTML")
     parser.add_argument(
         "--port",

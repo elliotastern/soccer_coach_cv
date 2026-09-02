@@ -113,14 +113,21 @@ function params() {
 }
 function status(msg) { document.getElementById("status").textContent = msg || ""; }
 
+function stillUrl(id) {
+  return "/reports/eval_match3/fisheye_dashboard/stills/" + id + ".jpg?v=" + Date.now();
+}
 function refreshPreview() {
   if (!cam) return;
   const p = params();
   const q = new URLSearchParams({
     cam, k1:p.k1, k2:p.k2, p1:p.p1, p2:p.p2, alpha:p.alpha, t:String(Date.now())
   });
-  document.getElementById("prev").src = "/match3_fisheye_preview?" + q.toString();
+  const prev = document.getElementById("prev");
+  prev.onerror = () => status("Preview failed for " + cam);
+  prev.onload = () => { if (statusText().startsWith("Preview failed")) status(""); };
+  prev.src = "/match3_fisheye_preview?" + q.toString();
 }
+function statusText() { return document.getElementById("status").textContent || ""; }
 function schedulePreview() {
   clearTimeout(timer);
   timer = setTimeout(refreshPreview, 120);
@@ -155,15 +162,23 @@ function paintTags() {
   });
 }
 function selectCam(id) {
+  clearTimeout(timer);
   cam = id;
   const c = cams.find(x => x.id === id);
+  if (!c) {
+    status("Unknown cam " + id);
+    return;
+  }
   const rec = Object.assign({
     tag:"unknown", use_undistort:false, k1:-0.20, k2:0, p1:0, p2:0, alpha:0.5, notes:""
   }, tags.cameras[id] || {});
   tags.cameras[id] = rec;
   document.getElementById("camTitle").textContent = id;
-  document.getElementById("camFile").textContent = c ? c.file : "";
-  document.getElementById("orig").src = c.still + "?v=" + Date.now();
+  document.getElementById("camFile").textContent = c.file || "";
+  const orig = document.getElementById("orig");
+  orig.onerror = () => status("Still missing: " + id);
+  orig.onload = () => { if (statusText().startsWith("Still missing")) status(""); };
+  orig.src = stillUrl(id);
   document.getElementById("useUnd").checked = !!rec.use_undistort;
   document.getElementById("notes").value = rec.notes || "";
   setNum("k1", rec.k1); setNum("k2", rec.k2);
