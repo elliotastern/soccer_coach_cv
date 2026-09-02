@@ -20,6 +20,9 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | **3D triangulate fuse** (pure, no fallback) | holdout clear_R **0.801**; agree **0.411**; P10 strip clear_R **0.732** | **Skipped** — below 0.884 holdout gate | Default off · `fuse3d_ab.json` |
 | **3D + F0–F3 hybrid** (naive: 3D solo before 2D) | holdout clear_R **0.892**; agree **0.231** | **Skipped** — agree below baseline 0.343 | Replaced by smart `pick_3d_hybrid` · `fuse3d_ab.json` |
 | **3D + UKF** | holdout clear_R **0.809**; agree **0.473** | **Skipped** — clear_R below gate | Default off · agree lift only · `fuse3d_ab.json` |
+| **Ball foot-point modes** (inset/center/radius) | holdout/strips A/B | **Skipped** — no gate-safe win vs bottom | See `reports/eval_match3/improve_eng_loop/ball_foot_ab.json` |
+| **Soft / gated F4** (agree-gate + n≥3 prune) | holdout/strips A/B | **Skipped** — no gate-safe win vs F0–F3 | See `reports/eval_match3/improve_eng_loop/soft_f4_ab.json` |
+| **ghost_conf 0.45→0.80** | holdout/P10 A/B | **Skipped** — no gate-safe win | See `reports/eval_match3/improve_eng_loop/ghost_conf_ab.json` |
 ## Worked (keep)
 
 | Tried | Result |

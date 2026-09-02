@@ -41,6 +41,8 @@ bash scripts/run_batch_match4_5min.sh
 
 **Config:** merges `configs/default.yaml` + `configs/batch_rtx5090.yaml` (no `enhance_ball` / `use_kalman`; 600-frame event checkpoints).
 
+**Kit-ref before batch:** label on http://127.0.0.1:8503 (`bash scripts/run_kit_label_dashboard.sh`), then ensure `data/output/match_4_5min/team_centroids.json` (or `$KIT_REF`) exists — scripts seed every cam. See [KIT_REF.md](KIT_REF.md).
+
 **Review while running:** http://127.0.0.1:8501 → **Expert mode** → output root `data/output/match_4_5min`. Refresh after each chunk.
 
 **Fastest smoke (one cam):**

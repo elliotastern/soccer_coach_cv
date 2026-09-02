@@ -25,3 +25,7 @@
 - [HOLDOUT_BASELINE.md](HOLDOUT_BASELINE.md)
 - [DEAD_ENDS.md](DEAD_ENDS.md)
 - `reports/eval_match3/improve_eng_loop/{m1_provisional,r1_random_fn_audit_holdout,h1_minsupport_ab,holdout_other_cam_funnel}.json`
+
+## Residual
+
+- **P8 strip gold drift (2026-09-02):** after P8 H expand (Sep 1), stale `gold_xy` (x≈26.95) made P_emit look like 0 / err ~13 m. Reseeded from current `map_ball_box(gt_balls)` → P_emit **1.0**, clear_R **0.846**, err **0.147**. Guard: `scripts/gold_set/test_match3_strip_gold_sync.py`.

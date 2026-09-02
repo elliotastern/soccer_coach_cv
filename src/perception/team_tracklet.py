@@ -12,8 +12,10 @@ from src.perception.team_core import (
     TEAM_MIN_TRACKLETS,
     assign_feature,
     fit_match_centroids,
+    is_kit_ref,
     jersey_feature,
     load_centroids,
+    load_kit_ref_meta,
     save_centroids,
     torso_crop,
     tracklet_median_feature,
@@ -70,7 +72,12 @@ class TrackletTeamModel:
         self.centroids: np.ndarray | None = None
         self.radius: float | None = None
         self.track_labels: dict[int, tuple[int, float]] = {}
+        self.kit_meta: dict = {}
         self._live_feats: dict[int, list[np.ndarray]] = defaultdict(list)
+
+    @property
+    def from_kit_ref(self) -> bool:
+        return is_kit_ref(self.kit_meta)
 
     def fit_from_accumulator(
         self,
@@ -98,6 +105,7 @@ class TrackletTeamModel:
         if loaded is None:
             return False
         self.centroids, self.radius = loaded
+        self.kit_meta = load_kit_ref_meta(path)
         labels_path = path.with_name("team_track_labels.json")
         if labels_path.is_file():
             raw = json.loads(labels_path.read_text(encoding="utf-8"))
@@ -107,7 +115,7 @@ class TrackletTeamModel:
     def save(self, path: Path) -> None:
         if self.centroids is None or self.radius is None:
             return
-        save_centroids(path, self.centroids, self.radius)
+        save_centroids(path, self.centroids, self.radius, **self.kit_meta)
         labels_path = path.with_name("team_track_labels.json")
         payload = {str(k): [int(v[0]), float(v[1])] for k, v in self.track_labels.items()}
         labels_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

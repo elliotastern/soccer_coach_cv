@@ -20,12 +20,18 @@ from src.mapping.match3_xy import load_calib_for_video  # noqa: E402
 from src.perception.team_core import (  # noqa: E402
     KIT_MODE_AUTO,
     KIT_MODE_MATCH3,
+    backup_kit_ref,
     centroids_from_labeled,
     jersey_feature,
     kit_feat_preview_bgr,
+    kit_samples_bank_path,
     load_centroids,
     load_kit_ref_meta,
+    load_kit_samples_bank,
+    merge_kit_sample_rows,
     save_kit_ref,
+    save_kit_samples_bank,
+    samples_to_bank_rows,
     torso_crop,
 )
 from src.review.cam_mosaic import undistort_bgr  # noqa: E402
@@ -174,6 +180,118 @@ def samples_by_team() -> dict[int, list[np.ndarray]]:
     return out
 
 
+def bank_rows_to_session(rows: list[dict], *, merge: bool) -> None:
+    """Load bank rows into session; synthesize preview swatches from features."""
+    incoming = []
+    for s in rows:
+        feat = np.asarray(s["feat"], dtype=np.float32)
+        preview = kit_feat_preview_bgr(feat)
+        crop_rgb = cv2.cvtColor(preview, cv2.COLOR_BGR2RGB)
+        incoming.append(
+            {
+                "team": int(s["team"]),
+                "feat": feat.tolist(),
+                "crop_rgb": crop_rgb.tolist(),
+                "frame_id": int(s.get("frame_id") or 0),
+                "tag": str(s.get("tag") or "bank"),
+                "slot_key": str(s.get("slot_key") or ""),
+            }
+        )
+    if merge:
+        st.session_state.kit_samples = merge_kit_sample_rows(
+            st.session_state.kit_samples, incoming
+        )
+    else:
+        st.session_state.kit_samples = incoming
+    st.session_state.kit_assignments = {
+        s["slot_key"]: int(s["team"])
+        for s in st.session_state.kit_samples
+        if s.get("slot_key")
+    }
+
+
+def persist_kit_save(
+    save_path: Path,
+    out_root: Path,
+    cents: np.ndarray,
+    radius: float,
+    *,
+    team_names: tuple[str, str],
+    kit_mode: str,
+    samples: list[dict],
+) -> Path | None:
+    """Backup prior file, write centroids + sample bank (+ match-root copies)."""
+    backup = backup_kit_ref(save_path)
+    n0 = sum(1 for s in samples if int(s["team"]) == 0)
+    n1 = sum(1 for s in samples if int(s["team"]) == 1)
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    save_kit_ref(
+        save_path,
+        cents,
+        radius,
+        team_names=team_names,
+        kit_mode=kit_mode,
+        n_samples=(n0, n1),
+    )
+    save_kit_samples_bank(
+        kit_samples_bank_path(save_path),
+        samples,
+        meta={"team_names": list(team_names), "kit_mode": kit_mode},
+    )
+    match_root = out_root / "team_centroids.json"
+    if save_path.resolve() != match_root.resolve():
+        backup_kit_ref(match_root)
+        save_kit_ref(
+            match_root,
+            cents,
+            radius,
+            team_names=team_names,
+            kit_mode=kit_mode,
+            n_samples=(n0, n1),
+        )
+        save_kit_samples_bank(
+            kit_samples_bank_path(match_root),
+            samples,
+            meta={"team_names": list(team_names), "kit_mode": kit_mode},
+        )
+    return backup
+
+
+def merged_samples_for_save(save_path: Path) -> list[dict]:
+    """Session samples unioned with on-disk bank (session wins on same slot_key)."""
+    prior = load_kit_samples_bank(kit_samples_bank_path(save_path))
+    return merge_kit_sample_rows(
+        prior, samples_to_bank_rows(st.session_state.kit_samples)
+    )
+
+
+def save_kit_append(
+    save_path: Path,
+    out_root: Path,
+    *,
+    team_names: tuple[str, str],
+    kit_mode: str,
+) -> tuple[Path | None, int, int]:
+    """Default save: merge with bank, refit, write. Never drops prior bank rows."""
+    merged = merged_samples_for_save(save_path)
+    bank_rows_to_session(merged, merge=False)
+    fit = fit_centroids()
+    if fit is None:
+        raise ValueError("Need ≥1 sample per team after merge")
+    cents, radius = fit
+    backup = persist_kit_save(
+        save_path,
+        out_root,
+        cents,
+        radius,
+        team_names=team_names,
+        kit_mode=kit_mode,
+        samples=st.session_state.kit_samples,
+    )
+    n0, n1 = len(samples_by_team()[0]), len(samples_by_team()[1])
+    return backup, n0, n1
+
+
 def fit_centroids():
     return centroids_from_labeled(samples_by_team())
 
@@ -202,8 +320,8 @@ def main():
     init_session()
     st.title("Team kit labeling")
     st.caption(
-        "Pick pre-game frames, assign player crops to each kit, then save "
-        "`team_centroids.json` for batch / review."
+        "Pick pre-game frames, assign player crops to each kit, then save. "
+        "**Save always merges** with `kit_samples_bank.json` (does not wipe prior labels)."
     )
 
     raw_videos = list_raw_videos(DEFAULT_RAW)
@@ -235,12 +353,52 @@ def main():
         det_thr = st.slider("Player det threshold", 0.05, 0.6, 0.25, 0.05)
         detect = st.button("Detect players on frame", type="primary")
         st.divider()
-        if st.button("Clear all samples"):
+        st.subheader("Reset")
+        reset_disk = st.checkbox(
+            "Also delete sample bank + centroids on disk",
+            value=False,
+            help="Dangerous. Session-only reset keeps files; Save can rebuild from labels.",
+        )
+        if st.button("Reset labels", type="secondary"):
             st.session_state.kit_samples = []
             st.session_state.kit_assignments = {}
+            st.session_state.pop("kit_loaded_centroids", None)
+            st.session_state.pop("kit_dets", None)
+            st.session_state.pop("kit_det_key", None)
+            # Prevent auto-load from immediately restoring the bank.
+            st.session_state[f"kit_autoload::{save_path_for_run(out_root, run_name)}"] = True
+            if reset_disk:
+                sp = save_path_for_run(out_root, run_name)
+                backup_kit_ref(sp)
+                for p in (
+                    sp,
+                    kit_samples_bank_path(sp),
+                    out_root / "team_centroids.json",
+                    kit_samples_bank_path(out_root / "team_centroids.json"),
+                ):
+                    if p.is_file():
+                        p.unlink()
+                st.warning("Session cleared and on-disk kit files removed (backup if prior existed).")
+            else:
+                st.info("Session labels cleared (disk bank untouched).")
             st.rerun()
         save_path = save_path_for_run(out_root, run_name)
-        st.caption(f"Save → `{save_path}`")
+        st.caption(f"Save → `{save_path}` (append/merge)")
+        bank_path = kit_samples_bank_path(save_path)
+        # Auto-load bank once per session when UI starts empty.
+        autoload_key = f"kit_autoload::{save_path}"
+        if (
+            not st.session_state.kit_samples
+            and bank_path.is_file()
+            and not st.session_state.get(autoload_key)
+        ):
+            rows = load_kit_samples_bank(bank_path)
+            if rows:
+                bank_rows_to_session(rows, merge=False)
+                st.session_state[autoload_key] = True
+                st.info(f"Loaded {len(rows)} samples from existing bank.")
+                st.rerun()
+            st.session_state[autoload_key] = True
 
     if not video_path.is_file():
         st.error(f"Video not found: {video_path}")
@@ -349,22 +507,52 @@ def main():
         m2.image(cv2.cvtColor(p1, cv2.COLOR_BGR2RGB), caption=f"{team1_name} centroid", width=96)
         m3.metric("Kit separation", f"{sep:.3f}", help="Higher = easier to tell apart")
 
-        if st.button("Save team_centroids.json", type="primary"):
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-            n0, n1 = len(samples_by_team()[0]), len(samples_by_team()[1])
-            save_kit_ref(
+        if st.button("Save (merge with bank)", type="primary"):
+            try:
+                backup, n0, n1 = save_kit_append(
+                    save_path,
+                    out_root,
+                    team_names=(team0_name, team1_name),
+                    kit_mode=kit_mode,
+                )
+            except ValueError as exc:
+                st.error(str(exc))
+            else:
+                st.success(f"Saved (merged) {save_path} — {n0} / {n1} samples")
+                st.info(
+                    f"Bank `{kit_samples_bank_path(save_path).name}` + "
+                    f"match root `{out_root / 'team_centroids.json'}`"
+                )
+                if backup:
+                    st.caption(f"Previous centroids backed up to `{backup.name}`")
+                st.rerun()
+
+        wipe = st.checkbox(
+            "Allow replace-all save (wipes bank)",
+            value=False,
+            help="Only for starting over. Default Save always merges.",
+        )
+        if wipe and st.button("Replace all samples on disk"):
+            backup = persist_kit_save(
                 save_path,
+                out_root,
                 cents,
                 radius,
                 team_names=(team0_name, team1_name),
                 kit_mode=kit_mode,
-                n_samples=(n0, n1),
+                samples=st.session_state.kit_samples,
             )
-            st.success(f"Saved {save_path}")
+            n0, n1 = len(samples_by_team()[0]), len(samples_by_team()[1])
+            st.warning(f"Replaced bank with session only ({n0} / {n1})")
+            if backup:
+                st.caption(f"Backup: `{backup.name}`")
+            st.rerun()
 
     if save_path.is_file():
         loaded = load_centroids(save_path)
         meta = load_kit_ref_meta(save_path)
+        bank_path = kit_samples_bank_path(save_path)
+        bank_rows = load_kit_samples_bank(bank_path)
         st.divider()
         st.subheader("Existing file on disk")
         st.json(
@@ -372,9 +560,20 @@ def main():
                 "path": str(save_path),
                 "meta": meta,
                 "radius": loaded[1] if loaded else None,
+                "bank_samples": len(bank_rows),
+                "bank_path": str(bank_path) if bank_path.is_file() else None,
             }
         )
-        if st.button("Load existing into session (replace samples)"):
+        if st.button("Reload bank into session"):
+            if not bank_rows:
+                st.error(
+                    "No kit_samples_bank.json yet — Save once after labeling to create it."
+                )
+            else:
+                bank_rows_to_session(bank_rows, merge=False)
+                st.success(f"Loaded {len(bank_rows)} bank samples.")
+                st.rerun()
+        if st.button("Load centroids only (no samples)"):
             if loaded is None:
                 st.error("Could not load centroids.")
             else:
@@ -386,7 +585,8 @@ def main():
                     "meta": meta,
                     "loaded_at": datetime.now(timezone.utc).isoformat(),
                 }
-                st.info("Centroids loaded — re-label samples to refine, or save again.")
+                st.info("Centroids loaded — add samples then Save (merge).")
+
 
 
 if __name__ == "__main__":

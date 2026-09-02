@@ -9,3 +9,6 @@ checkpoint:
 
 team_assignment:
   golden_batch_frames: 600
+  # Prefer empty + script seeding (KIT_REF / match-root team_centroids.json). Optional override:
+  # kit_centroids_path: data/output/match_4_5min/team_centroids.json
+  kit_centroids_path: ""

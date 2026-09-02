@@ -6,3 +6,7 @@ detection:
 
 checkpoint:
   interval_frames: 150
+
+team_assignment:
+  # Empty = match-root / run_dir resolve (see docs/product/KIT_REF.md)
+  kit_centroids_path: ""

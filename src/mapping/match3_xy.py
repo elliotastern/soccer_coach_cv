@@ -87,9 +87,36 @@ def scale_px(x: float, y: float, frame_wh, calib_wh) -> tuple[float, float]:
     return x * (cw / fw), y * (ch / fh)
 
 
-def bbox_foot(box) -> tuple[float, float]:
+# Ball contact point from detection box. Product default = bottom-center foot.
+BALL_FOOT_BOTTOM = "bottom"
+BALL_FOOT_MODES = (
+    BALL_FOOT_BOTTOM,
+    "inset15",
+    "inset25",
+    "inset35",
+    "center",
+    "radius",
+)
+
+
+def bbox_foot(box, mode: str = BALL_FOOT_BOTTOM) -> tuple[float, float]:
+    """Ball map point from xywh box. ``bottom`` = product default (y+h)."""
     x, y, w, h = [float(v) for v in box]
-    return x + w / 2.0, y + h
+    cx = x + w / 2.0
+    key = (mode or BALL_FOOT_BOTTOM).strip().lower()
+    if key == BALL_FOOT_BOTTOM:
+        return cx, y + h
+    if key == "center":
+        return cx, y + 0.5 * h
+    if key == "inset15":
+        return cx, y + 0.85 * h
+    if key == "inset25":
+        return cx, y + 0.75 * h
+    if key == "inset35":
+        return cx, y + 0.65 * h
+    if key == "radius":
+        return cx, y + h - 0.5 * min(w, h)
+    raise ValueError(f"unknown ball foot mode: {mode!r}")
 
 
 def apply_H(H: np.ndarray, x: float, y: float) -> tuple[float, float] | None:
@@ -179,14 +206,16 @@ def map_ball_box(
     *,
     apply_undistort: bool | None = None,
     min_support: float | None = None,
+    foot_mode: str = BALL_FOOT_BOTTOM,
 ) -> dict | None:
     """Map detection box foot to Pitch 1 meters.
 
     If calib has ``undistort`` (defished landmark H), raw detection pixels are
     undistorted with the same Brown params before H / hull support.
+    ``foot_mode`` selects contact point; product default is ``bottom``.
     """
     wh = frame_wh or calib.get("image_wh") or [1920, 1080]
-    fx, fy = bbox_foot(box)
+    fx, fy = bbox_foot(box, mode=foot_mode)
     px, py = scale_px(fx, fy, wh, calib.get("image_wh") or wh)
     params = calib_undistort_params(calib)
     use_u = bool(params) if apply_undistort is None else bool(apply_undistort and params)
@@ -391,9 +420,10 @@ def prune_reproj_outliers(
     max_px: float = REPROJ_MAX_PX_BALL,
     ref_xy=None,
     h_player: bool = False,
+    min_n: int = 2,
 ) -> list[dict]:
     """F4: drop cams whose foot pixel disagrees with ref pitch xy reprojection."""
-    if not enabled or len(rows) < 2:
+    if not enabled or len(rows) < max(2, int(min_n)):
         return rows
     ref = ref_xy if ref_xy is not None else _median_xy(rows)
     kept = []
@@ -412,6 +442,27 @@ def prune_reproj_outliers(
     if kept:
         return kept
     return [max(rows, key=lambda r: float(r["conf"]))]
+
+
+def cluster_reproj_ok(
+    cluster: list[dict],
+    *,
+    max_px: float = REPROJ_MAX_PX_BALL,
+) -> bool:
+    """True when every cluster foot reprojects near the median pitch xy."""
+    if len(cluster) < 2:
+        return True
+    ref = _median_xy(cluster)
+    for row in cluster:
+        foot = row.get("foot_px")
+        if foot is None:
+            continue
+        calib = load_calib(str(row.get("cam", "")))
+        if calib is None:
+            continue
+        if reproj_err_px(calib, ref, foot) > float(max_px):
+            return False
+    return True
 
 
 def prune_ghost_maps(
@@ -458,6 +509,8 @@ def fuse_balls(
     ghost_conf: float = GHOST_CONF,
     reproj_prune: bool = False,
     reproj_max_px: float = REPROJ_MAX_PX_BALL,
+    reproj_min_n: int = 2,
+    reproj_agree_gate: bool = False,
 ) -> dict | None:
     """Pitch-space fuse. EMIT_CONF / AGREE_M hard gates.
 
@@ -466,12 +519,16 @@ def fuse_balls(
     F2 solo_max_conf: solo uses max conf among candidates, not weight seed only.
     F3 ghost_prune: drop weak maps that disagree with the max-conf anchor.
     F4 reproj_prune: drop maps whose foot pixel disagrees with median reproject.
+    Soft F4 reproj_agree_gate: never drop maps; demote agree→solo if reproj fails.
     """
     valid = [r for r in rows if r]
     if not valid:
         return None
     valid = prune_reproj_outliers(
-        valid, enabled=reproj_prune, max_px=reproj_max_px,
+        valid,
+        enabled=reproj_prune,
+        max_px=reproj_max_px,
+        min_n=reproj_min_n,
     )
     valid = prune_ghost_maps(valid, enabled=ghost_prune, ghost_conf=ghost_conf)
     valid.sort(key=lambda r: r["weight"], reverse=True)
@@ -480,6 +537,11 @@ def fuse_balls(
     if len(cluster) >= 2:
         conf = combined_conf([r["conf"] for r in cluster])
         if conf >= EMIT_CONF:
+            if reproj_agree_gate and not cluster_reproj_ok(
+                cluster, max_px=reproj_max_px
+            ):
+                pool = valid if solo_max_conf else [seed]
+                return _solo_emit(pool)
             win = max(cluster, key=lambda r: r["support"])
             return {
                 "xy": _median_xy(cluster),
@@ -509,6 +571,8 @@ def fuse_balls_with_hold(
     ghost_conf: float = GHOST_CONF,
     reproj_prune: bool = False,
     reproj_max_px: float = REPROJ_MAX_PX_BALL,
+    reproj_min_n: int = 2,
+    reproj_agree_gate: bool = False,
     hold_max_gap: int = HOLD_MAX_GAP,
 ) -> dict | None:
     """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap."""
@@ -520,6 +584,8 @@ def fuse_balls_with_hold(
         ghost_conf=ghost_conf,
         reproj_prune=reproj_prune,
         reproj_max_px=reproj_max_px,
+        reproj_min_n=reproj_min_n,
+        reproj_agree_gate=reproj_agree_gate,
     )
     if cur is not None:
         return cur

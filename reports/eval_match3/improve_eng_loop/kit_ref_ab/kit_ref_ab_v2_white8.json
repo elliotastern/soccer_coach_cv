@@ -1,0 +1,50 @@
+{
+  "ts": "2026-09-02T08:31:07.395278+00:00",
+  "n_samples": [
+    3,
+    8
+  ],
+  "colors": "Team0 blue (3), Team1 white (8)",
+  "kit_ref_metrics": {
+    "n_frames": 360,
+    "mean_blue_share": 0.6049147536831361,
+    "collapse_frac": 0.022222222222222223,
+    "both3_frac": 0.9138888888888889,
+    "balanced_frac": 0.8027777777777778,
+    "mean_players": 13.1,
+    "multcam_frac": 0.2239084753677329,
+    "agree_frac": 0.6287799791449427,
+    "conflict_gray_frac": 0.06777893639207508
+  },
+  "gates": {
+    "mean_blue_share": {
+      "pass": true,
+      "value": 0.6049147536831361,
+      "gate": "[0.35,0.65]"
+    },
+    "collapse_frac": {
+      "pass": true,
+      "value": 0.022222222222222223,
+      "gate": "<=0.15"
+    },
+    "both3_frac": {
+      "pass": true,
+      "value": 0.9138888888888889,
+      "gate": ">=0.5"
+    }
+  },
+  "vs_prior_mosaic_kitref": {
+    "prior_n_samples": [
+      9,
+      3
+    ],
+    "prior_metrics": {
+      "mean_blue_share": 0.553,
+      "collapse_frac": 0.014,
+      "both3_frac": 0.925,
+      "balanced_frac": 0.772,
+      "pass": true
+    },
+    "note": "Prior mosaic A/B used [9,3]; this eval is det-cache path with [3,8]. Catch down \u2014 full mosaic/batch re-run pending."
+  }
+}

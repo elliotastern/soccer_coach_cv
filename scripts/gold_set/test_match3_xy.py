@@ -38,6 +38,21 @@ def test_foot_not_center() -> None:
         raise AssertionError(f"foot {x,y} want (110, 120)")
 
 
+def test_foot_modes() -> None:
+    box = [100, 80, 20, 40]
+    if bbox_foot(box, "center") != (110.0, 100.0):
+        raise AssertionError(bbox_foot(box, "center"))
+    if bbox_foot(box, "inset25") != (110.0, 110.0):
+        raise AssertionError(bbox_foot(box, "inset25"))
+    if bbox_foot(box, "radius") != (110.0, 110.0):
+        raise AssertionError(bbox_foot(box, "radius"))
+    try:
+        bbox_foot(box, "nope")
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError for unknown mode")
+
+
 def test_roundtrip() -> None:
     for cam in MATCH3_CAMS:
         rec = load_calib(cam)
@@ -485,8 +500,53 @@ def test_f4_drops_far_ghost() -> None:
         raise AssertionError(f"F4 fuse should solo good cam {out}")
 
 
+def test_soft_f4_demotes_agree_not_drop() -> None:
+    """Soft F4 keeps emitting but refuses agree when reproj fails."""
+    import numpy as np
+    from src.mapping import match3_xy as m
+
+    a = {
+        "cam": "P10",
+        "xy": (0.0, 0.0),
+        "conf": 0.9,
+        "support": 1.0,
+        "weight": 0.9,
+        "foot_px": (100.0, 100.0),
+    }
+    b = {
+        "cam": "P9",
+        "xy": (1.0, 0.0),
+        "conf": 0.85,
+        "support": 1.0,
+        "weight": 0.85,
+        "foot_px": (400.0, 100.0),
+    }
+    old = m.load_calib
+
+    def _fake(cam: str):
+        return {"camera": cam, "H": np.eye(3), "image_wh": [1920, 1080]}
+
+    m.load_calib = _fake  # type: ignore
+    try:
+        out = fuse_balls(
+            [a, b],
+            ghost_prune=False,
+            reproj_agree_gate=True,
+            reproj_max_px=5.0,
+        )
+    finally:
+        m.load_calib = old  # type: ignore
+    if out is None:
+        raise AssertionError("soft F4 should still emit")
+    if out.get("agree"):
+        raise AssertionError(f"soft F4 should demote agree→solo {out}")
+    if out.get("n", 1) != 1:
+        raise AssertionError(f"expected solo n=1 got {out}")
+
+
 def main() -> int:
     test_foot_not_center()
+    test_foot_modes()
     test_roundtrip()
     test_undistort_params_on_defish_cams()
     test_undistort_px_matches_remap()
@@ -512,6 +572,7 @@ def main() -> int:
     test_reproj_roundtrip_low_err()
     test_f4_solo_unchanged()
     test_f4_drops_far_ghost()
+    test_soft_f4_demotes_agree_not_drop()
     print("match3_xy ok")
     return 0
 

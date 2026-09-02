@@ -41,6 +41,7 @@ from src.mapping.pitch_bounds import in_pitch_bounds
 from src.perception.camera import detect_scene_cut, is_gameplay_view
 from src.perception.rfdetr_local import build_detector
 from src.perception.team_tracklet import TrackletAccumulator, TrackletTeamModel
+from src.perception.team_core import resolve_kit_centroids_path
 from src.perception.track_ball import create_ball_tracker_wrapper
 from src.perception.tracker import Tracker
 from src.state.types import Ball, FrameData, Location, Player
@@ -400,9 +401,15 @@ def process_video(
         return create_ball_tracker_wrapper(base, min_track_length=5, fit_threshold=0.15)
 
     centroids_path = run_dir / "team_centroids.json"
+    resolved = resolve_kit_centroids_path(config, output_root=run_dir.parent, run_dir=run_dir)
     team_model = TrackletTeamModel()
-    if team_model.load(centroids_path):
-        print(f"Using pre-labeled kit centroids from {centroids_path}")
+    if resolved is not None and team_model.load(resolved):
+        src_tag = "kit-ref" if team_model.from_kit_ref else "centroids"
+        print(f"Using {src_tag} from {resolved}")
+        if resolved.resolve() != centroids_path.resolve():
+            centroids_path.parent.mkdir(parents=True, exist_ok=True)
+            centroids_path.write_text(resolved.read_text(encoding="utf-8"), encoding="utf-8")
+            print(f"Seeded → {centroids_path}")
     else:
         gb_tracker = _make_tracker()
         cap_gb = open_video_file(video_path)
@@ -422,9 +429,15 @@ def process_video(
             fps,
         )
         cap_gb.release()
-    team_model.save(centroids_path)
-    if team_model.centroids is not None:
-        print(f"Team centroids → {centroids_path}")
+    if team_model.from_kit_ref:
+        # Kit meta already on disk via seed/copy; skip bare rewrite.
+        if not centroids_path.is_file():
+            team_model.save(centroids_path)
+        print(f"Team centroids (kit-ref preserved) → {centroids_path}")
+    else:
+        team_model.save(centroids_path)
+        if team_model.centroids is not None:
+            print(f"Team centroids → {centroids_path}")
 
     tracker = _make_tracker()
     print(

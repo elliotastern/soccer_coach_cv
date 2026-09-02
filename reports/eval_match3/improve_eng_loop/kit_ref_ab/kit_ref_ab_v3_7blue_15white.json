@@ -1,0 +1,45 @@
+{
+  "ts": "2026-09-02T08:54:56.175344+00:00",
+  "n_samples": [
+    7,
+    15
+  ],
+  "colors": "Team0 blue (7), Team1 white (15)",
+  "kit_ref_metrics": {
+    "n_frames": 360,
+    "mean_blue_share": 0.49374362996299276,
+    "collapse_frac": 0.005555555555555556,
+    "both3_frac": 0.9527777777777777,
+    "balanced_frac": 0.8611111111111112,
+    "mean_players": 13.1,
+    "multcam_frac": 0.2239084753677329,
+    "agree_frac": 0.6746611053180396,
+    "conflict_gray_frac": 0.051094890510948905
+  },
+  "gates": {
+    "mean_blue_share": {
+      "pass": true,
+      "value": 0.49374362996299276
+    },
+    "collapse_frac": {
+      "pass": true,
+      "value": 0.005555555555555556
+    },
+    "both3_frac": {
+      "pass": true,
+      "value": 0.9527777777777777
+    }
+  },
+  "all_pass": true,
+  "vs_baseline_on_same_cache": {
+    "mean_blue_share": 0.06513710984911969,
+    "collapse_frac": -0.0027777777777777775,
+    "balanced_frac": -0.02499999999999991,
+    "both3_frac": -0.01666666666666672,
+    "flickering_score": -0.09999999999999964,
+    "sticky_keep": -0.010999999999999899,
+    "swing_rate": 0.009000000000000001,
+    "flip_events": 50
+  },
+  "note": "Improved vs [3,8] run: blue_share 0.605\u21920.494, collapse 0.022\u21920.006, both3 0.914\u21920.953."
+}

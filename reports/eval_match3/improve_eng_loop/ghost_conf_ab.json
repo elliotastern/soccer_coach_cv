@@ -1,0 +1,30 @@
+{
+  "base_ghost_conf": 0.45,
+  "variants": {
+    "0.45": {
+      "holdout": {
+        "clear_ball_proxy_R": 0.892,
+        "agree_among_emit": 0.343,
+        "emit": 554
+      },
+      "p10": {
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 0.79
+      }
+    },
+    "0.8": {
+      "holdout": {
+        "clear_ball_proxy_R": 0.892,
+        "agree_among_emit": 0.345,
+        "emit": 554
+      },
+      "p10": {
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 0.79
+      }
+    }
+  },
+  "promote": false
+}

@@ -1,0 +1,36 @@
+{
+  "diagnosis": "P8 strip gold_xy seeded under pre-expand H (5 landmarks). Sep 1 P8_manual.json expanded to 7 landmarks; same gt_balls now map ~13.7m away from stale gold (x pinned at north endline 26.95).",
+  "evidence": {
+    "old_H_vs_stale_gold_med_m": 2.379,
+    "new_H_vs_stale_gold_med_m": 13.75,
+    "historical_f_post_ab_P8": {
+      "P_emit": 0.966,
+      "clear_ball_R": 0.801,
+      "err_median_m": 0.027
+    },
+    "before_reseed_today": {
+      "P_emit": 0.0,
+      "clear_ball_R": 0.846,
+      "err_median_m": 13.603
+    },
+    "after_reseed_product_F0F3": {
+      "n_clear": 272,
+      "n_emit_scored": 248,
+      "tp": 248,
+      "fp": 0,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.846,
+      "err_median_m": 0.147,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "flags": {
+        "soft_dual_fallback": true,
+        "solo_max_conf": true,
+        "hold": true,
+        "ghost_prune": true,
+        "reproj_prune": false
+      }
+    }
+  },
+  "fix": "Reseeded gold_xy from current map_ball_box(P8 gt_balls); pixel labels unchanged."
+}

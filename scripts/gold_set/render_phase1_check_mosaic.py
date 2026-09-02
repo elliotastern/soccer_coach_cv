@@ -37,8 +37,29 @@ from src.mapping.fuse_config import load_fuse_config  # noqa: E402
 from src.review.cam_mosaic import fill_fuse_cams_for_pitch  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
+from src.perception.team_core import (  # noqa: E402
+    find_kit_ref_under,
+    resolve_kit_centroids_path,
+)
 from src.perception.team_strategy import session_from_config  # noqa: E402
 from src.state.types import Ball, FrameData, Player  # noqa: E402
+
+
+def _resolve_mosaic_kit(args, cfg: dict, out: Path) -> Path | None:
+    """CLI → config → match root → any kit_label_dashboard under out → legacy P10."""
+    if args.kit_centroids is not None and Path(args.kit_centroids).is_file():
+        return Path(args.kit_centroids)
+    resolved = resolve_kit_centroids_path(cfg, output_root=out, run_dir=None)
+    if resolved is not None:
+        return resolved
+    found = find_kit_ref_under(out)
+    if found is not None:
+        return found
+    legacy = ROOT / "data/output/match_4_5min/P10-match4/team_centroids.json"
+    if legacy.is_file():
+        return legacy
+    return None
+
 
 EVENT_BAR_H = 56
 EVENT_COLORS = {
@@ -86,12 +107,11 @@ def parse_args():
         default="mosaic",
         help="mosaic = quad + pitch; best_ball = single best-ball cam + pitch",
     )
-    default_kit = ROOT / "data/output/match_4_5min/P10-match4/team_centroids.json"
     p.add_argument(
         "--kit-centroids",
         type=Path,
         default=None,
-        help=f"Pre-labeled team_centroids.json (auto: {default_kit.name} if present)",
+        help="Pre-labeled team_centroids.json (auto: config / {out}/team_centroids.json / kit_label source / legacy P10)",
     )
     p.add_argument(
         "--fuse-mode",
@@ -269,11 +289,7 @@ def main() -> int:
     if cfg_path.is_file():
         cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     sess = session_from_config(cfg)
-    kit_path = args.kit_centroids
-    if kit_path is None:
-        auto_kit = ROOT / "data/output/match_4_5min/P10-match4/team_centroids.json"
-        if auto_kit.is_file():
-            kit_path = auto_kit
+    kit_path = _resolve_mosaic_kit(args, cfg, out)
     if kit_path is not None and Path(kit_path).is_file():
         if sess.load_centroids_file(Path(kit_path)):
             print(f"kit centroids loaded from {kit_path}", flush=True)

@@ -20,6 +20,26 @@ CFG="$LOGDIR/_batch_rtx5090_merged.yaml"
 # Quad only by default — enough for coach mosaic. Override: CAMS="P10-match4" ...
 CAMS="${CAMS:-P10-match4 P9-match4 P7-match4 P8-match4}"
 
+# Kit-ref: env → match root → P10 cam (overwrite Golden Batch junk per cam)
+if [[ -z "${KIT_REF:-}" ]]; then
+  if [[ -f "$OUT/team_centroids.json" ]]; then
+    KIT_REF="$OUT/team_centroids.json"
+  elif [[ -f "$OUT/P10-match4/team_centroids.json" ]]; then
+    KIT_REF="$OUT/P10-match4/team_centroids.json"
+  fi
+fi
+if [[ -n "${KIT_REF:-}" && -f "$KIT_REF" ]]; then
+  echo "KIT_REF=$KIT_REF — seeding all cams under $OUT"
+  for c in $CAMS; do
+    mkdir -p "$OUT/$c"
+    cp -f "$KIT_REF" "$OUT/$c/team_centroids.json"
+  done
+  mkdir -p "$OUT"
+  cp -f "$KIT_REF" "$OUT/team_centroids.json"
+else
+  echo "WARN: no KIT_REF / team_centroids.json — cams will Golden Batch cluster"
+fi
+
 python3 - <<'PY'
 import yaml
 from pathlib import Path
@@ -91,6 +111,11 @@ PY
   cp -f "$cum/frame_data.csv" "$OUT/$stem/frame_data.csv" 2>/dev/null || true
   cp -f "$cum/events.json" "$OUT/$stem/events.json" 2>/dev/null || true
   cp -f "$cum/events.csv" "$OUT/$stem/events.csv" 2>/dev/null || true
+  if [[ -n "${KIT_REF:-}" && -f "$KIT_REF" ]]; then
+    cp -f "$KIT_REF" "$OUT/$stem/team_centroids.json"
+  elif [[ -f "$cum/team_centroids.json" ]]; then
+    cp -f "$cum/team_centroids.json" "$OUT/$stem/team_centroids.json"
+  fi
 }
 
 run_cam() {
@@ -105,6 +130,9 @@ run_cam() {
   local start=0
   [[ -f "$state" ]] && start="$(cat "$state")"
   mkdir -p "$OUT" "$cum" "$OUT/$stem"
+  if [[ -n "${KIT_REF:-}" && -f "$KIT_REF" ]]; then
+    cp -f "$KIT_REF" "$OUT/$stem/team_centroids.json"
+  fi
   : >> "$log"
   echo "[$(date -u +%H:%M:%S)] START $stem start=$start total=$TOTAL chunk=$CHUNK" \
     | tee -a "$MASTER" "$log"

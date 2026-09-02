@@ -15,7 +15,9 @@
   "seed": {
     "accept_conf": 0.55,
     "clear_side": 25,
-    "note": "PROVISIONAL \u2014 P8 clear dets mapped via P8 H; human-correct before final"
+    "note": "gold_xy reseeded from P8 gt_balls via current map_ball_box after P8 landmark/H expand (2026-09-01). Pixel gt_balls unchanged.",
+    "reseed_ts": "2026-09-02T08:16:48.671845+00:00",
+    "reseed_backup": "data/processed/gold_sets/match3_quad_p8_87/labels_pre_reseed_20260902_011648.json"
   },
   "frames": [
     {
@@ -52,12 +54,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.957465512839143,
-            -2.4006868353391466
+            17.97981346058784,
+            -8.724878675675756
           ],
           "human_conf": 1,
           "seed_side": 16.050156739811882,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -125,12 +128,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9575287469546,
-            -2.4539534417227604
+            18.022860858886556,
+            -8.711695265244467
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -189,12 +193,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957408562689732,
-            -2.412689188027413
+            17.94219856741241,
+            -8.768870643880547
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -253,12 +258,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957344552493637,
-            -2.298763751949413
+            17.894215345212622,
+            -8.751077160154374
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962382,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -317,12 +323,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957353227837398,
-            -2.4243511345705535
+            17.904792807056143,
+            -8.812618035779801
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -390,12 +397,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95742439695197,
-            -2.366046406527834
+            17.951207466351196,
+            -8.733636343546573
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467068,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -454,12 +462,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957297245668926,
-            -2.141877026908799
+            17.855194403139723,
+            -8.698079462229165
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -527,12 +536,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956952437966965,
-            -1.6999048622653707
+            17.572305710079732,
+            -8.68847355889398
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -600,8 +610,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956737580519707,
-            -1.4833159638240117
+            17.374066858823284,
+            -8.718099510123436
           ],
           "prelabel": {
             "bbox": [
@@ -615,7 +625,8 @@
           },
           "human_conf": 1,
           "seed_side": 26.081504702194252,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -674,12 +685,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95649593239166,
-            -1.0628304254258198
+            17.11562206444051,
+            -8.63878655163816
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194252,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -738,12 +750,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956277675525428,
-            -0.7697988537648253
+            16.85629683872829,
+            -8.618603755609366
           ],
           "gold_support": 1.0,
           "seed_conf": 0.838898777961731,
-          "seed_side": 25.60577392578125
+          "seed_side": 25.60577392578125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -802,12 +815,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95615472946894,
-            -0.528390861086824
+            16.691334868492753,
+            -8.550646245616905
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -866,12 +880,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955929703918653,
-            -0.2918690002196694
+            16.36896228874468,
+            -8.572376104188004
           ],
           "gold_support": 1.0,
           "seed_conf": 0.834153413772583,
-          "seed_side": 26.732940673828125
+          "seed_side": 26.732940673828125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -930,12 +945,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95578940866998,
-            -0.16269353202105047
+            16.14534073230633,
+            -8.602394069146712
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -994,12 +1010,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955631370204443,
-            0.06397510481903021
+            15.86186107690396,
+            -8.57012926972202
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8305214643478394,
-          "seed_side": 25.675857543945312
+          "seed_side": 25.675857543945312,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -1058,12 +1075,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955522589061054,
-            0.218388640846862
+            15.648170000813977,
+            -8.54722517083057
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1122,12 +1140,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955438661420576,
-            0.188442528845479
+            15.483629779678116,
+            -8.665083983152424
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1195,12 +1214,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955451994165347,
-            0.14912663635143214
+            15.513962786103475,
+            -8.686087466907797
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1259,12 +1279,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955395177679595,
-            0.015457905745745258
+            15.407502644793347,
+            -8.875276926172388
           ],
           "human_conf": 1,
           "seed_side": 22.068965517241395,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -1503,12 +1524,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955301375666448,
-            -0.3266563413784855
+            15.232867322702626,
+            -9.320394514627809
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -1585,12 +1607,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955329272259092,
-            -0.3170035324044713
+            15.293851238702372,
+            -9.272124018284824
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1649,12 +1672,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95528381081386,
-            -0.34328249115796855
+            15.194740444533231,
+            -9.361435743920648
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1722,12 +1746,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9553266117771,
-            -0.43628663566694215
+            15.298211767876023,
+            -9.388532071220654
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1786,12 +1811,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955336156524364,
-            -0.3525426434010557
+            15.311935647159054,
+            -9.296100948034555
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1841,12 +1867,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955352827647932,
-            -0.3033718295058637
+            15.34391441975081,
+            -9.226994844605569
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1905,13 +1932,14 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955363161688823,
-            -0.31075352255359384
+            15.366728324309712,
+            -9.219916703482575
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8274891376495361,
           "seed_side": 20.062695924764853,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -1952,12 +1980,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955395168786055,
-            -0.42772546697228736
+            15.44402464699198,
+            -9.28512068496108
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962382,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2016,12 +2045,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95539721805127,
-            -0.32150973590102083
+            15.439569175509806,
+            -9.184455509415812
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8129033446311951,
-          "seed_side": 28.128509521484375
+          "seed_side": 28.128509521484375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2080,12 +2110,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9554163950617,
-            -0.34874149818175265
+            15.481516040577315,
+            -9.18426828614531
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2153,12 +2184,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955409236520833,
-            -0.34679978367687214
+            15.466599015732621,
+            -9.191888725387601
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8017141819000244,
-          "seed_side": 28.3692626953125
+          "seed_side": 28.3692626953125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2217,12 +2249,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955442069716,
-            -0.3348824806997021
+            15.53271852731056,
+            -9.138356595402723
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2281,12 +2314,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955425764102518,
-            -0.3605404340916535
+            15.501671453481096,
+            -9.18280395509839
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8357841372489929,
-          "seed_side": 29.786407470703125
+          "seed_side": 29.786407470703125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2354,12 +2388,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955431257945992,
-            -0.42318655373242736
+            15.517914840641017,
+            -9.232686145812782
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2418,12 +2453,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955434353621612,
-            -0.41422499817070835
+            15.52347544969155,
+            -9.220457936291224
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8417252898216248,
-          "seed_side": 31.069122314453125
+          "seed_side": 31.069122314453125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2464,12 +2500,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95546491806894,
-            -0.4481456549062459
+            15.587444702101756,
+            -9.21123884896672
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2528,12 +2565,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955452420270383,
-            -0.4370369755444172
+            15.561679219869367,
+            -9.217478044313044
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8475372195243835,
-          "seed_side": 29.239837646484375
+          "seed_side": 29.239837646484375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2574,12 +2612,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955451889919374,
-            -0.5027314642942824
+            15.565844100363753,
+            -9.277486933467532
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2638,12 +2677,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955465969441143,
-            -0.48530032905453857
+            15.59246080932328,
+            -9.24326447782164
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8459469676017761,
-          "seed_side": 27.765838623046875
+          "seed_side": 27.765838623046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2702,12 +2742,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955484142588524,
-            -0.4950067359285751
+            15.628954845374412,
+            -9.228334665281515
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2766,12 +2807,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955457948465547,
-            -0.5924697370259073
+            15.585029738664494,
+            -9.350236136424623
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7940917611122131,
-          "seed_side": 29.406494140625
+          "seed_side": 29.406494140625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2830,12 +2872,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955482578161536,
-            -0.6560142495400823
+            15.638471083463978,
+            -9.373985034588944
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2894,12 +2937,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955467149430874,
-            -0.5789663077121026
+            15.602176702633074,
+            -9.325774098065908
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -2949,12 +2993,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.95545806505145,
-            -0.6995327343158398
+            15.593725785256535,
+            -9.446279997074155
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3013,12 +3058,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9554651724947,
-            -0.7051110745406279
+            15.608207883367573,
+            -9.44149274198515
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8798717856407166,
-          "seed_side": 28.00079345703125
+          "seed_side": 28.00079345703125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3068,12 +3114,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955477302232644,
-            -0.8441390203834178
+            15.642864759607487,
+            -9.548749383590042
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962382,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3174,12 +3221,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955468171779184,
-            -0.962605584256489
+            15.634298938283795,
+            -9.667278171894228
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3247,12 +3295,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955472112545557,
-            -1.02965468377839
+            15.64722638848348,
+            -9.72120754321436
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3302,12 +3351,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955446118291263,
-            -1.0348489305691213
+            15.596554723248243,
+            -9.764325618304191
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3375,12 +3425,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955435536581412,
-            -1.0348118942474311
+            15.575489248963507,
+            -9.780168844219794
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8715890645980835,
-          "seed_side": 27.82666015625
+          "seed_side": 27.82666015625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3439,12 +3490,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9554500064127,
-            -1.101099211745122
+            15.609480942265776,
+            -9.81782415830295
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3503,12 +3555,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955430352878977,
-            -1.2035659123409888
+            15.57856075984479,
+            -9.939941729448003
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717937,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3567,12 +3620,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955402087298964,
-            -1.2329187055925674
+            15.523887793181453,
+            -10.011233446603182
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3631,12 +3685,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955411163305303,
-            -1.303618310074606
+            15.547999481021668,
+            -10.060647475840149
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3686,12 +3741,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955409267558768,
-            -1.2712417858682241
+            15.54156219889297,
+            -10.034426444525677
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3750,12 +3806,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955376925167517,
-            -1.3825890715065003
+            15.48440728288137,
+            -10.188847366107264
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3805,12 +3862,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95538206536131,
-            -1.3888108539269468
+            15.495523460066853,
+            -10.185891551361633
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3869,13 +3927,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955369479569615,
-            -1.5785553969149995
+            15.485033666094383,
+            -10.380576401758647
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8663826584815979,
           "seed_side": 32.100313479623765,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3934,12 +3993,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95539470696926,
-            -1.5228934891856036
+            15.532285119478132,
+            -10.286357400700169
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -3998,12 +4058,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95538909818098,
-            -1.427007100664461
+            15.513073294261382,
+            -10.208850993523662
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4053,12 +4114,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955396168007315,
-            -1.465398672097618
+            15.53061497773253,
+            -10.23179523895697
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4126,12 +4188,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955417602782518,
-            -1.5817626034249719
+            15.583191962369826,
+            -10.300537949446507
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457679,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4190,12 +4253,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955437128056563,
-            -1.5765597982242212
+            15.621551343097972,
+            -10.263040469701842
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4263,12 +4327,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955449925697174,
-            -1.6230906756593122
+            15.650317011032548,
+            -10.283079739398849
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4309,12 +4374,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95543904440975,
-            -1.6091794007037616
+            15.62789596278488,
+            -10.288912515780407
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4364,12 +4430,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95543555588395,
-            -1.634822665041291
+            15.623043581895352,
+            -10.31763966191943
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4419,12 +4486,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955462856862855,
-            -1.6700992939383983
+            15.679099350029453,
+            -10.303124205082064
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4483,8 +4551,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955448319000947,
-            -1.6815500492436368
+            15.651752913147229,
+            -10.337647970131707
           ],
           "prelabel": {
             "bbox": [
@@ -4498,7 +4566,8 @@
           },
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4539,12 +4608,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955446394709387,
-            -1.6488290619277275
+            15.645431248642117,
+            -10.311843484888396
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4603,12 +4673,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955482647506223,
-            -1.6801146959972988
+            15.717855857727203,
+            -10.279137068121141
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7868441939353943,
-          "seed_side": 26.641021728515625
+          "seed_side": 26.641021728515625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4649,12 +4720,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95548716162445,
-            -1.7322641071626776
+            15.730438228305445,
+            -10.317361067031522
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4713,12 +4785,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955489154054163,
-            -1.7323162413453452
+            15.734220690080228,
+            -10.314106543738202
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7905128598213196,
-          "seed_side": 26.225830078125
+          "seed_side": 26.225830078125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -4777,12 +4850,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95549134485965,
-            -1.891177622615766
+            15.75048535183353,
+            -10.44912616671661
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4841,13 +4915,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955485971276875,
-            -1.9751165071289107
+            15.746741674187852,
+            -10.531522178011135
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7770527601242065,
           "seed_side": 34.10658307210019,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4897,12 +4972,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95549331172497,
-            -1.9244635650496362
+            15.756724102677927,
+            -10.47477563182252
           ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -4961,12 +5037,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955477025888598,
-            -1.90584420196431
+            15.724474645906298,
+            -10.486414688365553
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8361133933067322,
-          "seed_side": 29.483489990234375
+          "seed_side": 29.483489990234375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5034,12 +5111,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955467623537466,
-            -2.00932583692463
+            15.71448980645634,
+            -10.593463390556096
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5098,12 +5176,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955474909669643,
-            -1.9656815536259387
+            15.725037822520044,
+            -10.542465614772116
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8282585144042969,
-          "seed_side": 27.52734375
+          "seed_side": 27.52734375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5195,12 +5274,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95546982498399,
-            -2.038113419238765
+            15.720910051687884,
+            -10.61481076034019
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8173692226409912,
-          "seed_side": 25.8289794921875
+          "seed_side": 25.8289794921875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5250,12 +5330,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955465989336794,
-            -2.066918499733312
+            15.71580044650731,
+            -10.64685705166776
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5314,12 +5395,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955452754502417,
-            -2.1228042605539637
+            15.69471135504227,
+            -10.719719775400538
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7959826588630676,
-          "seed_side": 26.9169921875
+          "seed_side": 26.9169921875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5369,12 +5451,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95543269939634,
-            -2.252543619959088
+            15.66593838227857,
+            -10.87114670527153
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219448,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5433,12 +5516,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.95544681604113,
-            -2.2454380327620367
+            15.692767320859337,
+            -10.838518681471276
           ],
           "human_conf": 1,
           "seed_side": 22.06896551724151,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5488,12 +5572,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95541878275583,
-            -2.2595477749640014
+            15.639229859924981,
+            -10.90362753670493
           ],
           "human_conf": 1,
           "seed_side": 30.09404388714745,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5552,12 +5637,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95543211008712,
-            -2.3057946976492176
+            15.668952855470067,
+            -10.919316120921891
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8435842990875244,
-          "seed_side": 26.65570068359375
+          "seed_side": 26.65570068359375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5598,12 +5684,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95542253270481,
-            -2.323379979191953
+            15.651616575880102,
+            -10.953103412597672
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219448,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5662,12 +5749,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955431552896975,
-            -2.3959102621858865
+            15.674907324840213,
+            -10.999941278598182
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717937,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5717,12 +5805,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955438734578113,
-            -2.4367193975936114
+            15.692010653351387,
+            -11.022084940888368
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5781,13 +5870,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95544940682988,
-            -2.454395019990513
+            15.713930405191727,
+            -11.01711879879771
           ],
           "gold_support": 1.0,
           "seed_conf": 0.84010249376297,
           "seed_side": 26.081504702194366,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -5846,12 +5936,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955433437395726,
-            -2.427945734135541
+            15.681067385086603,
+            -11.024563933439648
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962382,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5910,12 +6001,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955459406523072,
-            -2.42676110164314
+            15.730919664921792,
+            -10.973896269532059
           ],
           "gold_support": 1.0,
           "seed_conf": 0.844528317451477,
-          "seed_side": 25.1578369140625
+          "seed_side": 25.1578369140625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -5965,12 +6057,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.95548206083239,
-            -2.5084715611778865
+            15.77995701011788,
+            -11.002154723273708
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6038,12 +6131,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955466756069015,
-            -2.494227697129302
+            15.750053195168656,
+            -11.018791981302861
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8510572910308838,
-          "seed_side": 25.9879150390625
+          "seed_side": 25.9879150390625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6102,12 +6196,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955450099928086,
-            -2.6296631392409866
+            15.7287746096265,
+            -11.169140045304767
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6175,13 +6270,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955464337291886,
-            -2.625260831184939
+            15.755494061640665,
+            -11.137474112672763
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8401941657066345,
           "seed_side": 36.11285266457679,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6222,12 +6318,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955465931183177,
-            -2.5696281017102636
+            15.754256738404848,
+            -11.085997656788107
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6295,12 +6392,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955488162669937,
-            -2.6957094305425384
+            15.805493926245843,
+            -11.152289472075948
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6350,12 +6448,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955481009684114,
-            -2.7418338074296584
+            15.795664168783002,
+            -11.205984288260723
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6414,12 +6513,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955470403481183,
-            -2.810242297540691
+            15.781013296890839,
+            -11.286035890471883
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457679,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6487,12 +6587,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95545770041958,
-            -2.7585423790877686
+            15.753125902415604,
+            -11.26645994970211
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6560,13 +6661,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955456487009673,
-            -2.9000326804707695
+            15.761651498148021,
+            -11.391867787924742
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8628206253051758,
           "seed_side": 36.11285266457679,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6616,12 +6718,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955459603551486,
-            -2.7907944403250275
+            15.759194275664784,
+            -11.290701617421746
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219431,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6680,13 +6783,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955447735940776,
-            -2.9123207815402425
+            15.746003468280858,
+            -11.42042127563428
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8635374903678894,
           "seed_side": 32.100313479623765,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6745,12 +6849,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.95546532027466,
-            -2.8876297654886454
+            15.777353234454251,
+            -11.363216907555923
           ],
           "human_conf": 1,
           "seed_side": 24.07523510971788,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6818,12 +6923,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95544791183709,
-            -2.9319541435578556
+            15.74784478638862,
+            -11.437151061948027
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8499601483345032,
-          "seed_side": 27.415374755859375
+          "seed_side": 27.415374755859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6873,12 +6979,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955454940330473,
-            -2.9543223357589143
+            15.762877295629918,
+            -11.442159954655407
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -6946,12 +7053,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955455605213352,
-            -3.0136224382489387
+            15.76866201056526,
+            -11.492235729668716
           ],
           "gold_support": 1.0,
           "seed_conf": 0.860028862953186,
-          "seed_side": 28.020477294921875
+          "seed_side": 28.020477294921875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7001,12 +7109,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955462183456046,
-            -2.996545800409851
+            15.779745661282133,
+            -11.463888589564633
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7074,12 +7183,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955458939881183,
-            -3.0644584965646127
+            15.778818007783187,
+            -11.529360681914865
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8679447770118713,
-          "seed_side": 27.959381103515625
+          "seed_side": 27.959381103515625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7120,12 +7230,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955464084742008,
-            -3.02874409381305
+            15.785761966948838,
+            -11.48782728352715
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7193,13 +7304,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955455646195215,
-            -3.126265339444287
+            15.777329708514317,
+            -11.589732974310078
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8509314060211182,
           "seed_side": 36.112852664576735,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7267,12 +7379,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95546286809528,
-            -3.1687923146857204
+            15.794114290331486,
+            -11.611316835440766
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7331,12 +7444,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95545652811399,
-            -3.1462457354481326
+            15.780510468132006,
+            -11.605168109162756
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8533592224121094,
-          "seed_side": 25.428436279296875
+          "seed_side": 25.428436279296875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7395,12 +7509,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955475518865455,
-            -3.2222276388910367
+            15.82170363570873,
+            -11.630752283752178
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467085,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7459,12 +7574,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95544888058944,
-            -3.214015318951389
+            15.77127281381647,
+            -11.680042726004421
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8518478870391846,
-          "seed_side": 27.198699951171875
+          "seed_side": 27.198699951171875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7565,12 +7681,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95544849762403,
-            -3.292529825933846
+            15.776543813252266,
+            -11.7488463877842
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8385964632034302,
-          "seed_side": 27.943878173828125
+          "seed_side": 27.943878173828125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7629,12 +7746,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95545636068527,
-            -3.2970005608707416
+            15.79166157083515,
+            -11.735785946471777
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467068,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7693,12 +7811,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955450221868638,
-            -3.3641448442972695
+            15.785247161328874,
+            -11.807033911293438
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8188354969024658,
-          "seed_side": 25.42889404296875
+          "seed_side": 25.42889404296875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7757,12 +7876,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955476506057384,
-            -3.4793596588232787
+            15.842841678238962,
+            -11.848976517558354
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7821,12 +7941,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955448359845615,
-            -3.4287262346023906
+            15.786665209869563,
+            -11.866888663560001
           ],
           "gold_support": 1.0,
           "seed_conf": 0.808405339717865,
-          "seed_side": 25.88775634765625
+          "seed_side": 25.88775634765625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7876,12 +7997,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95546461919474,
-            -3.5941816935203867
+            15.829521516982885,
+            -11.973331214252063
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467068,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -7949,8 +8071,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955487630822976,
-            -3.587517267180768
+            15.87129649100703,
+            -11.91702222644986
           ],
           "prelabel": {
             "bbox": [
@@ -7964,7 +8086,8 @@
           },
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8074,12 +8197,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9555215330827,
-            -3.7350867213633867
+            15.943155315665216,
+            -11.967941454008926
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7761963605880737,
-          "seed_side": 28.162872314453125
+          "seed_side": 28.162872314453125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -8138,12 +8262,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95551923769045,
-            -3.797660576130185
+            15.943642932489542,
+            -12.025477399488837
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219431,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8202,12 +8327,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95557245545039,
-            -3.9037361708539016
+            16.044007796356453,
+            -11.998401045656694
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8267223834991455,
-          "seed_side": 27.5242919921875
+          "seed_side": 27.5242919921875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8257,12 +8383,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95559018420315,
-            -4.070656037542619
+            16.085854220183606,
+            -12.097283748461937
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219448,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8321,12 +8448,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9556093367219,
-            -4.107484678434911
+            16.120461217339646,
+            -12.086107329712023
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8537907600402832,
-          "seed_side": 28.845703125
+          "seed_side": 28.845703125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8376,12 +8504,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955640462175474,
-            -4.213494821122891
+            16.17889632549381,
+            -12.105347879824325
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8440,12 +8569,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95564711116007,
-            -4.239669352333387
+            16.191455203426287,
+            -12.112232372016763
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8519279956817627,
-          "seed_side": 25.66070556640625
+          "seed_side": 25.66070556640625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8513,12 +8643,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9556653901192,
-            -4.359979961015354
+            16.22893252998389,
+            -12.169481171701934
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8577,12 +8708,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955693940620176,
-            -4.387594212307803
+            16.2758620899647,
+            -12.131108676601364
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8161709308624268,
-          "seed_side": 25.0421142578125
+          "seed_side": 25.0421142578125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8641,12 +8773,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955718848230592,
-            -4.513478310558625
+            16.322757416718876,
+            -12.177803433440149
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8705,12 +8838,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95576220243217,
-            -4.614545440273681
+            16.39491913455599,
+            -12.166298005016584
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8011661767959595,
-          "seed_side": 26.54986572265625
+          "seed_side": 26.54986572265625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8760,12 +8894,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955776923055694,
-            -4.710288479134717
+            16.422856326409367,
+            -12.209543059265574
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8824,12 +8959,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95580659375469,
-            -4.79673114607076
+            16.471640400170468,
+            -12.214588606277754
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8378049731254578,
-          "seed_side": 27.19354248046875
+          "seed_side": 27.19354248046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8888,12 +9024,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955842584985426,
-            -4.8957257584419835
+            16.529206157790103,
+            -12.216183731425861
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717937,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8952,12 +9089,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955858920402473,
-            -4.9895691004012726
+            16.557874679257466,
+            -12.253371177606414
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8296611905097961,
-          "seed_side": 28.49017333984375
+          "seed_side": 28.49017333984375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -8998,12 +9136,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955883958940262,
-            -5.057931883829262
+            16.59667125883698,
+            -12.253784277304016
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9062,12 +9201,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95590624691127,
-            -5.1934602304123505
+            16.635131363888778,
+            -12.308961648959064
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8371891975402832,
-          "seed_side": 27.712158203125
+          "seed_side": 27.712158203125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9108,12 +9248,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955923749368765,
-            -5.283971904489728
+            16.663995206113057,
+            -12.340109482393881
           ],
           "human_conf": 1,
           "seed_side": 20.06269592476474,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9172,12 +9313,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95593486522025,
-            -5.3460834607326735
+            16.68242620102451,
+            -12.363068219233025
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8127455115318298,
-          "seed_side": 26.96435546875
+          "seed_side": 26.96435546875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9218,12 +9360,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.955973029160404,
-            -5.436783928709537
+            16.737647499668274,
+            -12.35270114691359
           ],
           "human_conf": 1,
           "seed_side": 22.068965517241395,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9282,8 +9425,8 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.956023504406243,
-            -5.695467733543099
+            16.816526287923327,
+            -12.437382655182105
           ],
           "prelabel": {
             "bbox": [
@@ -9297,7 +9440,8 @@
           },
           "human_conf": 1,
           "seed_side": 24.07523510971805,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9338,12 +9482,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956054254977534,
-            -5.737613534662255
+            16.85696842549598,
+            -12.406911021962864
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194252,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9402,12 +9547,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956062550958926,
-            -5.788081795202199
+            16.86991077954319,
+            -12.426077131924627
           ],
           "gold_support": 1.0,
           "seed_conf": 0.763824999332428,
-          "seed_side": 25.71368408203125
+          "seed_side": 25.71368408203125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9457,12 +9603,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.95609361669413,
-            -5.904384224633298
+            16.913824336821836,
+            -12.44673423141313
           ],
           "human_conf": 1,
           "seed_side": 22.068965517241395,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9530,12 +9677,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95612215566869,
-            -5.9932328646637325
+            16.952480175114513,
+            -12.453041062629673
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8193886280059814,
-          "seed_side": 26.7484130859375
+          "seed_side": 26.7484130859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9576,12 +9724,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95614922914908,
-            -6.078606784326528
+            16.988609790108015,
+            -12.459665821048747
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194252,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9640,12 +9789,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956186149365813,
-            -6.230664353690147
+            17.03882047915682,
+            -12.492490103098891
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8482946157455444,
-          "seed_side": 27.42364501953125
+          "seed_side": 27.42364501953125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -9722,12 +9872,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.95619394750192,
-            -6.298283722271424
+            17.05112872077075,
+            -12.523135276700485
           ],
           "human_conf": 1,
           "seed_side": 22.068965517241395,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9795,12 +9946,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95623317398043,
-            -6.473300637206428
+            17.103701091460064,
+            -12.565712125078667
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8399863243103027,
-          "seed_side": 26.3770751953125
+          "seed_side": 26.3770751953125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9868,12 +10020,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956259162258227,
-            -6.573835537083896
+            17.13709058306405,
+            -12.583250310848596
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9932,12 +10085,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956280223847617,
-            -6.651498129399446
+            17.163594530529974,
+            -12.594780683523267
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8376896381378174,
-          "seed_side": 26.322998046875
+          "seed_side": 26.322998046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -9996,12 +10150,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956314164896547,
-            -6.790053091515889
+            17.20630075748942,
+            -12.621740584378898
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10069,12 +10224,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95634188149842,
-            -6.870640603284729
+            17.238982084365585,
+            -12.622479695909377
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8146271705627441,
-          "seed_side": 25.36669921875
+          "seed_side": 25.36669921875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10133,12 +10289,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956445645845623,
-            -7.210117229575023
+            17.358772144125155,
+            -12.64871280553102
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10197,12 +10354,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956437079108763,
-            -7.212401741472544
+            17.350556080250513,
+            -12.665547651516688
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7730324268341064,
-          "seed_side": 25.364501953125
+          "seed_side": 25.364501953125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10252,12 +10410,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956458137614025,
-            -7.39743371419182
+            17.379530840201674,
+            -12.74271935492188
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10316,12 +10475,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956502014681433,
-            -7.4914737390681765
+            17.4254858598972,
+            -12.72186348452003
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7856027483940125,
-          "seed_side": 27.12640380859375
+          "seed_side": 27.12640380859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -10398,12 +10558,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956548380166836,
-            -7.639396166182455
+            17.475091783047578,
+            -12.729766081549709
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194252,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10462,8 +10623,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956571753176238,
-            -7.702067160155506
+            17.499115488928727,
+            -12.726511018448528
           ],
           "prelabel": {
             "bbox": [
@@ -10477,7 +10638,8 @@
           },
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10545,12 +10707,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956584992240117,
-            -7.897469160520286
+            17.519640672376035,
+            -12.820598688533982
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194252,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10609,12 +10772,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95660884664351,
-            -7.962589761913285
+            17.54368439675702,
+            -12.817446919264032
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10664,12 +10828,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95661894033928,
-            -8.11084539051595
+            17.55901266315909,
+            -12.887791959745384
           ],
           "human_conf": 1,
           "seed_side": 40.12539184952982,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10728,8 +10893,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956661044703317,
-            -8.145876438623992
+            17.597030380107828,
+            -12.834655991950028
           ],
           "prelabel": {
             "bbox": [
@@ -10743,7 +10908,8 @@
           },
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10793,12 +10959,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95666792779847,
-            -8.246357807405671
+            17.607211990846768,
+            -12.881633738858953
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10857,12 +11024,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956692968941454,
-            -8.315629989895486
+            17.631393071272516,
+            -12.878545214901239
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -10921,12 +11089,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956740625973918,
-            -8.405808789823888
+            17.674855523685693,
+            -12.848791856937808
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -10985,12 +11154,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956696457649837,
-            -8.366362542869698
+            17.63646998933401,
+            -12.902018640696376
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11058,12 +11228,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956750077742843,
-            -8.390023426466868
+            17.681962562767165,
+            -12.82362491823336
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11122,8 +11293,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956746508201473,
-            -8.338413549720128
+            17.676895878846285,
+            -12.79999583434958
           ],
           "prelabel": {
             "bbox": [
@@ -11137,7 +11308,8 @@
           },
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11196,12 +11368,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956766780315682,
-            -8.477847767878073
+            17.69920955595018,
+            -12.845656547238523
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11260,8 +11433,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956773991672954,
-            -8.58179073731021
+            17.709316520335832,
+            -12.892798002740735
           ],
           "prelabel": {
             "bbox": [
@@ -11275,7 +11448,8 @@
           },
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11334,12 +11508,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956795811264456,
-            -8.430556732233843
+            17.72069574426467,
+            -12.769886366657252
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11398,12 +11573,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956803109186357,
-            -8.535452666930881
+            17.73079841372644,
+            -12.817285544442669
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -11462,12 +11638,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956875509754905,
-            -8.777341468909441
+            17.79718144675714,
+            -12.833050273663144
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11517,12 +11694,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956843967975587,
-            -8.647503518205125
+            17.76757147381157,
+            -12.81251370416422
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11581,12 +11759,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956921910477522,
-            -8.949007428059636
+            17.839160531041344,
+            -12.85203513077276
           ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11645,8 +11824,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956871742318103,
-            -8.723673087604542
+            17.792156909626573,
+            -12.80932418049358
           ],
           "prelabel": {
             "bbox": [
@@ -11660,7 +11839,8 @@
           },
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11719,12 +11899,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.956902768149913,
-            -8.677478059008436
+            17.81408563829707,
+            -12.733045719444052
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11783,12 +11964,13 @@
           "empty": false,
           "clear": false,
           "gold_xy": [
-            26.956910403814227,
-            -8.7858959830687
+            17.824125816320137,
+            -12.780729618873199
           ],
           "human_conf": 1,
           "seed_side": 24.075235109717823,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11838,12 +12020,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95695774847277,
-            -8.95954707245392
+            17.86625222643158,
+            -12.79971546456362
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11902,12 +12085,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95694700893451,
-            -8.974294570851733
+            17.8588703916376,
+            -12.825117933103499
           ],
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -11957,12 +12141,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957110715189653,
-            -9.379086259155354
+            17.990889466104722,
+            -12.783565348355165
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12021,12 +12206,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957060198731806,
-            -9.377100132850133
+            17.95576848419863,
+            -12.861647919628743
           ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12085,12 +12271,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95712254425546,
-            -9.36515444786742
+            17.998479610471957,
+            -12.757942566089582
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12149,12 +12336,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957106565098037,
-            -9.32152076324489
+            17.985931723286082,
+            -12.759581480735106
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210042,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -12204,12 +12392,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95709897488839,
-            -9.392926326919921
+            17.983319641801607,
+            -12.809127890639228
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12277,8 +12466,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957059422100713,
-            -9.192790903941392
+            17.9483755119296,
+            -12.764487747009834
           ],
           "prelabel": {
             "bbox": [
@@ -12292,7 +12481,8 @@
           },
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12342,12 +12532,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957119040185933,
-            -9.49443809884463
+            18.00079553201537,
+            -12.831444316327776
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12415,8 +12606,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95720881908324,
-            -9.648169090458488
+            18.06637004699314,
+            -12.773792601514234
           ],
           "prelabel": {
             "bbox": [
@@ -12430,7 +12621,8 @@
           },
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12498,12 +12690,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95708660395684,
-            -9.221023495753386
+            17.96843305475165,
+            -12.737219491142438
           ],
           "human_conf": 1,
           "seed_side": 26.081504702194366,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12571,12 +12764,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957143512517426,
-            -9.655064260314115
+            18.02321500839755,
+            -12.877638912448555
           ],
           "human_conf": 1,
           "seed_side": 44.13793103448279,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -12644,12 +12838,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95706102550686,
-            -9.560847362956642
+            17.963160259264125,
+            -12.958225755540157
           ],
           "human_conf": 1,
           "seed_side": 44.137931034482676,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12708,12 +12903,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957075005681997,
-            -9.235343531677646
+            17.960879706263068,
+            -12.76285406734375
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12772,12 +12968,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957075005682007,
-            -9.235343531677657
+            17.960879706263068,
+            -12.762854067343747
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12836,12 +13033,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956976418342695,
-            -9.055308423107153
+            17.883645376641763,
+            -12.8219333649234
           ],
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12900,12 +13098,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.957031875870815,
-            -8.981445771900892
+            17.920939806637538,
+            -12.694162601802978
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -12964,8 +13163,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956964650918167,
-            -8.889503243493735
+            17.86865290435566,
+            -12.750369308411337
           ],
           "prelabel": {
             "bbox": [
@@ -12979,7 +13178,8 @@
           },
           "human_conf": 1,
           "seed_side": 38.11912225705339,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13029,12 +13229,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956815502790043,
-            -8.398535091937644
+            17.735114775195537,
+            -12.719077673723083
           ],
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13093,12 +13294,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956781899284138,
-            -8.339739822819205
+            17.70578711491975,
+            -12.741308349862383
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8130190968513489,
-          "seed_side": 26.6619873046875
+          "seed_side": 26.6619873046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13148,12 +13350,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956710079324974,
-            -8.114545658359111
+            17.637304693160498,
+            -12.732204876377926
           ],
           "human_conf": 1,
           "seed_side": 30.09404388714711,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13212,13 +13415,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956622897493595,
-            -7.8797077467315235
+            17.55244480027547,
+            -12.743601377272402
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8194581866264343,
           "seed_side": 34.10658307210031,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13268,12 +13472,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956573193738627,
-            -7.865260575026268
+            17.50763897637813,
+            -12.822172156658153
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13332,12 +13537,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95659213265129,
-            -7.75109174020283
+            17.51957949396042,
+            -12.72033711318695
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7751246094703674,
-          "seed_side": 26.037109375
+          "seed_side": 26.037109375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13405,12 +13611,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956533573731914,
-            -7.560234805989893
+            17.457946163672823,
+            -12.707837594810519
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13469,12 +13676,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956489993319327,
-            -7.431670411598999
+            17.411442110358085,
+            -12.706577507198794
           ],
           "gold_support": 1.0,
           "seed_conf": 0.816911518573761,
-          "seed_side": 25.451171875
+          "seed_side": 25.451171875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13524,12 +13732,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956470752895385,
-            -7.315037348295494
+            17.387804017679372,
+            -12.668948192780082
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13588,12 +13797,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956423999812937,
-            -7.2087040503642825
+            17.33760584594142,
+            -12.686886559895314
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7992037534713745,
-          "seed_side": 26.56854248046875
+          "seed_side": 26.56854248046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13652,12 +13862,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956336018421855,
-            -6.995864271502999
+            17.239045942301217,
+            -12.713710171986735
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13716,8 +13927,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95631001022446,
-            -6.853077327901895
+            17.20506073193519,
+            -12.670239769784292
           ],
           "prelabel": {
             "bbox": [
@@ -13731,7 +13942,8 @@
           },
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13799,12 +14011,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95630005936469,
-            -6.826884458140529
+            17.193327453497538,
+            -12.67188380239386
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13863,8 +14076,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956251274960458,
-            -6.698475688506947
+            17.134852773680404,
+            -12.680078832449473
           ],
           "prelabel": {
             "bbox": [
@@ -13878,7 +14091,8 @@
           },
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -13937,12 +14151,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956209607885995,
-            -6.660053363566339
+            17.087282344758176,
+            -12.734649250278569
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14001,8 +14216,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95615745355891,
-            -6.556445434050953
+            17.02326666729609,
+            -12.767308033802196
           ],
           "prelabel": {
             "bbox": [
@@ -14016,7 +14231,8 @@
           },
           "human_conf": 1,
           "seed_side": 36.112852664576735,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14066,12 +14282,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956185579475818,
-            -6.525561216142761
+            17.053520137678355,
+            -12.691482143177128
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14130,13 +14347,14 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956185579475818,
-            -6.525561216142761
+            17.053520137678355,
+            -12.691482143177128
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8464357256889343,
           "seed_side": 30.094043887147336,
-          "human_conf": 1
+          "human_conf": 1,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14204,12 +14422,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956099269423508,
-            -6.332702593053053
+            16.943735145153934,
+            -12.730699187876219
           ],
           "human_conf": 1,
           "seed_side": 28.08777429467068,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14268,12 +14487,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95613336649186,
-            -6.366184211442702
+            16.985491237681533,
+            -12.685927144540088
           ],
           "gold_support": 1.0,
           "seed_conf": 0.830008327960968,
-          "seed_side": 26.9017333984375
+          "seed_side": 26.9017333984375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14332,12 +14552,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956071010512954,
-            -6.2240298698351975
+            16.904091703333886,
+            -12.712447633379778
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14405,12 +14626,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95609943284231,
-            -6.268123259538676
+            16.94044526155947,
+            -12.686017119366383
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8198477625846863,
-          "seed_side": 26.159912109375
+          "seed_side": 26.159912109375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14478,12 +14700,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956085424124964,
-            -6.227791709146577
+            16.92159225089603,
+            -12.686158722887988
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219448,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14542,12 +14765,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.956059014113883,
-            -6.128362965386293
+            16.884333495708972,
+            -12.67015825047475
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8279693722724915,
-          "seed_side": 25.8900146484375
+          "seed_side": 25.8900146484375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14606,12 +14830,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955986382146403,
-            -5.968351711010994
+            16.785147433505237,
+            -12.705464800556115
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14670,12 +14895,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955993556748126,
-            -5.95716292865416
+            16.79360964602655,
+            -12.68276222301809
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7924155592918396,
-          "seed_side": 26.30999755859375
+          "seed_side": 26.30999755859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14725,12 +14951,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95594715539422,
-            -5.865603721528452
+            16.72880445786868,
+            -12.71344156005827
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14789,8 +15016,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955916585626735,
-            -5.7855339043261855
+            16.683942570753352,
+            -12.71979481707715
           ],
           "prelabel": {
             "bbox": [
@@ -14804,7 +15031,8 @@
           },
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14854,12 +15082,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95590189854918,
-            -5.6510342727931455
+            16.656405023592768,
+            -12.65281146995885
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14918,12 +15147,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955883726490825,
-            -5.620382109832943
+            16.630042295739045,
+            -12.668725392828557
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8442792296409607,
-          "seed_side": 26.40350341796875
+          "seed_side": 26.40350341796875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -14964,12 +15194,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95585750608826,
-            -5.630796762404246
+            16.594778892288016,
+            -12.732427135344427
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15028,12 +15259,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955857687688262,
-            -5.547519089519286
+            16.589999048406973,
+            -12.670421423775327
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8526608347892761,
-          "seed_side": 26.4473876953125
+          "seed_side": 26.4473876953125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15083,12 +15315,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955847993417738,
-            -5.574564943371124
+            16.57820925641091,
+            -12.711272260784588
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15147,12 +15380,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95582550280591,
-            -5.453791131075204
+            16.539352365931084,
+            -12.669814570303043
           ],
           "gold_support": 1.0,
           "seed_conf": 0.84583979845047,
-          "seed_side": 26.945068359375
+          "seed_side": 26.945068359375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -15211,12 +15445,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955771478253254,
-            -5.375108878900106
+            16.456892756758187,
+            -12.728602606107579
           ],
           "human_conf": 1,
           "seed_side": 36.11285266457685,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15284,12 +15519,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955799126787067,
-            -5.344935885154091
+            16.49506248624106,
+            -12.645129618532136
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8235551714897156,
-          "seed_side": 27.916015625
+          "seed_side": 27.916015625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15348,12 +15584,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95573380662228,
-            -5.306843151344202
+            16.396836020449033,
+            -12.760495481878726
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15412,12 +15649,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955766411348907,
-            -5.252789770452388
+            16.441746936133438,
+            -12.646613924944445
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7958744764328003,
-          "seed_side": 27.57794189453125
+          "seed_side": 27.57794189453125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15476,12 +15714,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95573822554592,
-            -5.19827857902749
+            16.396483431718487,
+            -12.667067789314626
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15540,12 +15779,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955712182018353,
-            -5.131347813705145
+            16.3528401742426,
+            -12.673447630314836
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15595,12 +15835,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955703617422934,
-            -5.079639477280723
+            16.33638261064528,
+            -12.65244700677852
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15650,8 +15891,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95567203282012,
-            -4.998857117426141
+            16.28211376012319,
+            -12.660440883130105
           ],
           "prelabel": {
             "bbox": [
@@ -15665,7 +15906,8 @@
           },
           "human_conf": 1,
           "seed_side": 26.08150470219448,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15715,12 +15957,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955663804912103,
-            -5.03620415951735
+            16.271678960079118,
+            -12.708612600690833
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15779,8 +16022,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95564332598664,
-            -4.954399856242334
+            16.23373068461668,
+            -12.690866590875089
           ],
           "prelabel": {
             "bbox": [
@@ -15794,7 +16037,8 @@
           },
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15853,12 +16097,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9556372589926,
-            -4.938809404397103
+            16.2229679864804,
+            -12.692441096163492
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15917,12 +16162,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955630666208588,
-            -4.8416946334849715
+            16.205780636193307,
+            -12.630168508109353
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7731035351753235,
-          "seed_side": 25.1312255859375
+          "seed_side": 25.1312255859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -15981,12 +16227,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955629171366734,
-            -4.889236939173928
+            16.206596586473687,
+            -12.67156823891234
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16045,8 +16292,8 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95556483112222,
-            -4.72469385562775
+            16.088992700206234,
+            -12.688905373934249
           ],
           "prelabel": {
             "bbox": [
@@ -16060,7 +16307,8 @@
           },
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16119,12 +16367,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955585814752688,
-            -4.750061881199015
+            16.1259570601603,
+            -12.660232244815436
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16183,12 +16432,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955561254194937,
-            -4.663446764066196
+            16.078628570722188,
+            -12.647296890999643
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8204821348190308,
-          "seed_side": 26.27587890625
+          "seed_side": 26.27587890625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16247,12 +16497,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955566572327037,
-            -4.672995683409117
+            16.08829991753039,
+            -12.642601523245958
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670908,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16311,12 +16562,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955535265637046,
-            -4.60902000846923
+            16.03029794046153,
+            -12.664085852301321
           ],
           "gold_support": 1.0,
           "seed_conf": 0.841559112071991,
-          "seed_side": 28.421630859375
+          "seed_side": 28.421630859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16375,12 +16627,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955512828271964,
-            -4.564308191723558
+            15.988024268481835,
+            -12.680722239210796
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16439,12 +16692,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955511867807516,
-            -4.507479051761378
+            15.982222608269376,
+            -12.635740231181925
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8581224083900452,
-          "seed_side": 28.37744140625
+          "seed_side": 28.37744140625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16494,12 +16748,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955492838784814,
-            -4.459021863188858
+            15.945006361591961,
+            -12.64093272775398
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16558,12 +16813,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95549149090175,
-            -4.430181531669266
+            15.940488697015358,
+            -12.619992750669374
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8624361753463745,
-          "seed_side": 27.31463623046875
+          "seed_side": 27.31463623046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16622,12 +16878,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955445736373306,
-            -4.340306225526352
+            15.850756926828359,
+            -12.655144148683204
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16677,12 +16934,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.9554638410757,
-            -4.371114338651016
+            15.886260361776632,
+            -12.637069791751463
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8508460521697998,
-          "seed_side": 28.37860107421875
+          "seed_side": 28.37860107421875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16741,12 +16999,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955427258424145,
-            -4.3201595166900715
+            15.814901893234063,
+            -12.683525809336945
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16805,12 +17064,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95542809198749,
-            -4.275026389940978
+            15.813032270785063,
+            -12.642738438762073
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8129077553749084,
-          "seed_side": 27.23651123046875
+          "seed_side": 27.23651123046875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": {
@@ -16887,12 +17147,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955381116224608,
-            -4.1774509002199975
+            15.7160662363773,
+            -12.675463722251182
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16942,12 +17203,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955411971299792,
-            -4.256741159987541
+            15.781297141703917,
+            -12.666960509947007
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7929369807243347,
-          "seed_side": 29.58441162109375
+          "seed_side": 29.58441162109375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -16997,12 +17259,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95536024547355,
-            -4.099220156999294
+            15.669139921325339,
+            -12.659685646285407
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17061,12 +17324,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955376453376626,
-            -4.119395206465538
+            15.702469950086943,
+            -12.636466974215043
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8238353729248047,
-          "seed_side": 26.89556884765625
+          "seed_side": 26.89556884765625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17125,12 +17389,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955351358629784,
-            -4.1534244461126875
+            15.655879710673176,
+            -12.730119108176615
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210019,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17198,12 +17463,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95534903665526,
-            -4.022158891673099
+            15.640834089316671,
+            -12.620120837516799
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8366458415985107,
-          "seed_side": 26.2164306640625
+          "seed_side": 26.2164306640625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17271,12 +17537,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955353779332064,
-            -4.057417646331708
+            15.653053302888685,
+            -12.639246918719131
           ],
           "human_conf": 1,
           "seed_side": 26.08150470219448,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17335,12 +17602,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95533117666323,
-            -3.981018269102812
+            15.60176368227991,
+            -12.62905440583277
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8469054102897644,
-          "seed_side": 27.41094970703125
+          "seed_side": 27.41094970703125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17399,12 +17667,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95530606866733,
-            -3.913322566707639
+            15.545129588605478,
+            -12.63295829984244
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17463,12 +17732,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955312918170527,
-            -3.919405178955234
+            15.559679904486702,
+            -12.620781589830571
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8510907292366028,
-          "seed_side": 27.70892333984375
+          "seed_side": 27.70892333984375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17536,12 +17806,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955288852283907,
-            -3.9449532611888105
+            15.51209988320234,
+            -12.70625757274908
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17609,12 +17880,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955298008252186,
-            -3.866801937062437
+            15.524679004759975,
+            -12.611872633097187
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8425372242927551,
-          "seed_side": 25.93206787109375
+          "seed_side": 25.93206787109375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17664,12 +17936,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95528991924757,
-            -3.898057395302106
+            15.51045284309171,
+            -12.661079164861741
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17719,12 +17992,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955278850990688,
-            -3.8034777730028
+            15.479454656557918,
+            -12.604146888403411
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8429750800132751,
-          "seed_side": 25.19122314453125
+          "seed_side": 25.19122314453125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17774,12 +18048,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95525186976846,
-            -3.7543408898283226
+            15.417973996963743,
+            -12.629849764545327
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17847,12 +18122,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955260114773978,
-            -3.7454424141108316
+            15.43488574992219,
+            -12.600045642332367
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8394150733947754,
-          "seed_side": 25.51190185546875
+          "seed_side": 25.51190185546875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17920,12 +18196,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95523172292732,
-            -3.65616733039422
+            15.365960059338658,
+            -12.592480456264818
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -17984,12 +18261,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955233321119593,
-            -3.6682619927370634
+            15.370486395974071,
+            -12.599453564009258
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8392381072044373,
-          "seed_side": 25.95684814453125
+          "seed_side": 25.95684814453125,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18039,12 +18317,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955206053331302,
-            -3.6411421997458158
+            15.307995442571777,
+            -12.646932742273997
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18103,12 +18382,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955219424235366,
-            -3.6255567105607978
+            15.336309593865602,
+            -12.596652388908355
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8152750730514526,
-          "seed_side": 25.99810791015625
+          "seed_side": 25.99810791015625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18176,12 +18456,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955200406407613,
-            -3.6033904214604378
+            15.292083586734496,
+            -12.62677875397622
           ],
           "human_conf": 1,
           "seed_side": 32.100313479623765,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18240,12 +18521,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955188333797516,
-            -3.540611122592771
+            15.259380662347318,
+            -12.600256075510156
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7829339504241943,
-          "seed_side": 25.86639404296875
+          "seed_side": 25.86639404296875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18304,12 +18586,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955163839245888,
-            -3.560175843570978
+            15.205127359043093,
+            -12.685412334782708
           ],
           "human_conf": 1,
           "seed_side": 38.11912225705328,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18359,12 +18642,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955164140656173,
-            -3.4817717279585247
+            15.198816178750464,
+            -12.610033052674744
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8355305194854736,
-          "seed_side": 27.71746826171875
+          "seed_side": 27.71746826171875,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18414,12 +18698,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955156870702446,
-            -3.4963664980918745
+            15.183282696251402,
+            -12.643800057914625
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18478,12 +18763,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955144869853044,
-            -3.4247448735496637
+            15.148796735476967,
+            -12.608216860540008
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8520253300666809,
-          "seed_side": 28.27587890625
+          "seed_side": 28.27587890625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18533,12 +18819,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95513619762867,
-            -3.422504487386855
+            15.1281590017158,
+            -12.629930840250994
           ],
           "human_conf": 1,
           "seed_side": 32.10031347962388,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18588,12 +18875,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955132732737976,
-            -3.3921027632442557
+            15.117181282729357,
+            -12.610214325392612
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8570443391799927,
-          "seed_side": 28.5322265625
+          "seed_side": 28.5322265625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18643,12 +18931,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955126411619236,
-            -3.4214928189762404
+            15.10484059026658,
+            -12.656075771472544
           ],
           "human_conf": 1,
           "seed_side": 34.10658307210031,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18698,12 +18987,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95511609542298,
-            -3.3462473708261955
+            15.073222081558013,
+            -12.611907673009792
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7841288447380066,
-          "seed_side": 29.61859130859375
+          "seed_side": 29.61859130859375,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18762,12 +19052,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.95511886859111,
-            -3.2885146954931708
+            15.074565192074102,
+            -12.548211059180375
           ],
           "human_conf": 1,
           "seed_side": 28.087774294670794,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18817,12 +19108,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955099623977414,
-            -3.26481493093472
+            15.025732764025625,
+            -12.578382585424475
           ],
           "gold_support": 1.0,
           "seed_conf": 0.7560430765151978,
-          "seed_side": 25.67877197265625
+          "seed_side": 25.67877197265625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18890,12 +19182,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955090335379378,
-            -3.2878217270691104
+            15.005123877628456,
+            -12.62691030377309
           ],
           "human_conf": 1,
           "seed_side": 30.094043887147336,
-          "gold_support": 1.0
+          "gold_support": 1.0,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null
@@ -18954,12 +19247,13 @@
           "empty": false,
           "clear": true,
           "gold_xy": [
-            26.955085070494455,
-            -3.246369829331511
+            14.98824434275137,
+            -12.601000860834592
           ],
           "gold_support": 1.0,
           "seed_conf": 0.8537717461585999,
-          "seed_side": 26.047119140625
+          "seed_side": 26.047119140625,
+          "gold_reseed": "map_ball_box_P8_current_H"
         },
         "P9": {
           "prelabel": null

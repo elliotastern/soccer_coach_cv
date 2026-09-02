@@ -1,0 +1,229 @@
+{
+  "ts": "2026-09-02T08:09:21.181719+00:00",
+  "hit_m": 4.0,
+  "holdout_gate": 0.884,
+  "agree_lift": 0.02,
+  "modes": [
+    "bottom",
+    "inset15",
+    "inset25",
+    "inset35",
+    "center",
+    "radius"
+  ],
+  "strips": {
+    "match3_quad_p10_31": {
+      "path": "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+      "modes": {
+        "bottom": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "agree_among_emit": 0.416,
+          "err_median_m": 0.79,
+          "pair_span_median_m": 19.017,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 2
+        },
+        "inset15": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "agree_among_emit": 0.416,
+          "err_median_m": 0.848,
+          "pair_span_median_m": 19.259,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 2
+        },
+        "inset25": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "agree_among_emit": 0.416,
+          "err_median_m": 0.92,
+          "pair_span_median_m": 19.452,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 2
+        },
+        "inset35": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "agree_among_emit": 0.416,
+          "err_median_m": 0.981,
+          "pair_span_median_m": 19.648,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 2
+        },
+        "center": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "agree_among_emit": 0.416,
+          "err_median_m": 1.067,
+          "pair_span_median_m": 19.947,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 2
+        },
+        "radius": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "agree_among_emit": 0.416,
+          "err_median_m": 1.067,
+          "pair_span_median_m": 19.944,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 2
+        }
+      }
+    },
+    "match3_quad_p8_87": {
+      "path": "data/processed/gold_sets/match3_quad_p8_87/labels.json",
+      "modes": {
+        "bottom": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 0,
+          "fp": 248,
+          "P_emit": 0.0,
+          "clear_ball_R": 0.846,
+          "agree_among_emit": 0.742,
+          "err_median_m": 13.603,
+          "pair_span_median_m": 17.759,
+          "poc_pass_P_emit": false,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 1
+        },
+        "inset15": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 0,
+          "fp": 248,
+          "P_emit": 0.0,
+          "clear_ball_R": 0.846,
+          "agree_among_emit": 0.742,
+          "err_median_m": 13.475,
+          "pair_span_median_m": 17.923,
+          "poc_pass_P_emit": false,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 1
+        },
+        "inset25": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 0,
+          "fp": 248,
+          "P_emit": 0.0,
+          "clear_ball_R": 0.846,
+          "agree_among_emit": 0.738,
+          "err_median_m": 13.384,
+          "pair_span_median_m": 18.045,
+          "poc_pass_P_emit": false,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 1
+        },
+        "inset35": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 0,
+          "fp": 248,
+          "P_emit": 0.0,
+          "clear_ball_R": 0.846,
+          "agree_among_emit": 0.734,
+          "err_median_m": 13.293,
+          "pair_span_median_m": 18.167,
+          "poc_pass_P_emit": false,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 1
+        },
+        "center": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 0,
+          "fp": 248,
+          "P_emit": 0.0,
+          "clear_ball_R": 0.846,
+          "agree_among_emit": 0.73,
+          "err_median_m": 13.168,
+          "pair_span_median_m": 18.353,
+          "poc_pass_P_emit": false,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 1
+        },
+        "radius": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 0,
+          "fp": 248,
+          "P_emit": 0.0,
+          "clear_ball_R": 0.846,
+          "agree_among_emit": 0.73,
+          "err_median_m": 13.173,
+          "pair_span_median_m": 18.325,
+          "poc_pass_P_emit": false,
+          "poc_pass_clear_R": true,
+          "det_cache_stride": 1
+        }
+      }
+    }
+  },
+  "holdout": {
+    "bottom": {
+      "clear_ball_proxy_R": 0.892,
+      "agree_among_emit": 0.343,
+      "emit": 554
+    },
+    "inset15": {
+      "clear_ball_proxy_R": 0.896,
+      "agree_among_emit": 0.344,
+      "emit": 556
+    },
+    "inset25": {
+      "clear_ball_proxy_R": 0.9,
+      "agree_among_emit": 0.344,
+      "emit": 556
+    },
+    "inset35": {
+      "clear_ball_proxy_R": 0.9,
+      "agree_among_emit": 0.345,
+      "emit": 557
+    },
+    "center": {
+      "clear_ball_proxy_R": 0.905,
+      "agree_among_emit": 0.347,
+      "emit": 559
+    },
+    "radius": {
+      "clear_ball_proxy_R": 0.905,
+      "agree_among_emit": 0.347,
+      "emit": 559
+    }
+  },
+  "promote_foot_modes": [],
+  "promote": false,
+  "note": "Default product foot stays bottom unless a mode is promoted."
+}

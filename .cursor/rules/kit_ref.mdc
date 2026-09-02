@@ -1,0 +1,27 @@
+---
+description: Kit-ref — pre-labeled team_centroids.json is default for Match 4 / new matches
+alwaysApply: true
+---
+
+# Kit-ref (pre-labeled team centroids)
+
+Default for **Match 4 / new matches**: label on **8503** before batch; seed match-level + per-cam `team_centroids.json`. Skip Golden Batch when file exists.
+
+Human spec: [KIT_REF.md](../../docs/product/KIT_REF.md)
+
+## Flow
+
+1. `bash scripts/run_kit_label_dashboard.sh` → http://127.0.0.1:8503
+2. Save → **merges** into `kit_samples_bank.json` (no wipe) + cam/match-root centroids; timestamp backup. Replace-all is opt-in only.
+3. Match 4 scripts: `$KIT_REF` → `$OUT/team_centroids.json` → `$OUT/P10-match4/team_centroids.json`, then `cp -f` into each cam
+4. Batch resolve: `kit_centroids_path` → match root → `run_dir` (preserves kit meta; no bare strip)
+
+## Continue Match 4
+
+Reuse `data/output/match_4_5min/P10-match4/team_centroids.json` (and match-root copy). Re-label only if lighting/kits change.
+
+## Do / don’t
+
+- **Do** clear torsos, 3–5 samples/side; skip blur / grass / wrong-kit GK-ref.
+- **Don’t** reopen F4 reprojection / 3D fuse here.
+- **Don’t** hardcode Match-4-only absolute path in `configs/default.yaml`.

@@ -11,9 +11,11 @@ Canonical improve loop: [MATCH3_MULTICAM_IMPROVE_PLAN.md](MATCH3_MULTICAM_IMPROV
 | **Holdout** (seed 20260821) | **0.884** | — |
 | Tune random | 0.625 | — |
 | Strip P10 | **0.879** | 1.0 |
-| Strip P8 | 0.801 | 0.966 |
+| Strip P8 | **0.846** | **1.0** |
 
 Holdout freeze was **0.556**; map-first (P10 hull + MIN_SUPPORT 0.20) lifted it above **0.80** with strip precision held. L1 white-line re-click on P8/P9 (RT ≤ 0.15 m, hulls kept) → P10 clear_R **0.876→0.879**; P8 / holdout unchanged; strip P held.
+
+**P8 strip gold (2026-09-02):** Sep 1 P8 landmark/H expand left Aug-21 `gold_xy` stale (x pinned at north endline ≈26.95 → false P_emit 0 / err ~13 m). Reseeded pitch gold from current `map_ball_box(gt_balls)`; pixels unchanged. Guard: `scripts/gold_set/test_match3_strip_gold_sync.py`.
 
 ## What worked
 

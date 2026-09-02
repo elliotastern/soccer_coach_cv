@@ -27,6 +27,7 @@ Match 3 smoke: `scripts/run_phase1_2min_sample.sh` → `data/output/full_match_2
 
 - **Do** run batch and mosaic on **Catch** in **tmux** when the 5090 is reachable (see `catch_remote_compute.mdc`).
 - **Do** use `CAMS=P10-match4 bash scripts/run_batch_match4_5min.sh` for fastest single-cam smoke.
+- **Do** label kits on 8503 and seed `team_centroids.json` before Match 4 batch ([KIT_REF.md](../product/KIT_REF.md)).
 - **Do** keep dashboard on http://127.0.0.1:8501 while batch runs.
 - **Don't** default to `run_batch_match4.sh` (full 8 cams × full MP4 ≈ 26+ h) for testing or handover.
 - **Don't** run multi-hour batch or mosaic on the **Mac** if Catch is available — delegate to Catch GPU ([CATCH_REMOTE_COMPUTE.md](docs/product/CATCH_REMOTE_COMPUTE.md)).

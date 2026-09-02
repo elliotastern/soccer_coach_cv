@@ -36,6 +36,22 @@ run_one() {
 }
 
 echo "Match 4 batch started $TS → $OUT" | tee "$MASTER"
+# Kit-ref: env → match root → P10 cam
+if [[ -z "${KIT_REF:-}" ]]; then
+  if [[ -f "$OUT/team_centroids.json" ]]; then
+    KIT_REF="$OUT/team_centroids.json"
+  elif [[ -f "$OUT/P10-match4/team_centroids.json" ]]; then
+    KIT_REF="$OUT/P10-match4/team_centroids.json"
+  fi
+fi
+if [[ -n "${KIT_REF:-}" && -f "$KIT_REF" ]]; then
+  echo "KIT_REF=$KIT_REF — seeding all cams under $OUT" | tee -a "$MASTER"
+  for c in "${CAMS[@]}"; do
+    mkdir -p "$OUT/$c"
+    cp -f "$KIT_REF" "$OUT/$c/team_centroids.json"
+  done
+  cp -f "$KIT_REF" "$OUT/team_centroids.json"
+fi
 for c in "${CAMS[@]}"; do
   run_one "$c"
 done

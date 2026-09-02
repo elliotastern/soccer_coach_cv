@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -487,6 +488,94 @@ def save_kit_ref(
     )
 
 
+def kit_samples_bank_path(centroids_path: Path) -> Path:
+    return Path(centroids_path).with_name("kit_samples_bank.json")
+
+
+def backup_kit_ref(path: Path) -> Path | None:
+    """Copy existing centroids (+ bank if present) to a timestamped backup."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup = path.with_name(f"team_centroids_backup_{stamp}.json")
+    backup.write_bytes(path.read_bytes())
+    bank = kit_samples_bank_path(path)
+    if bank.is_file():
+        bank.with_name(f"kit_samples_bank_backup_{stamp}.json").write_bytes(
+            bank.read_bytes()
+        )
+    return backup
+
+
+def samples_to_bank_rows(samples: list[dict]) -> list[dict]:
+    """Persistable rows: features + ids (no full crop pixels)."""
+    rows = []
+    for s in samples:
+        rows.append(
+            {
+                "team": int(s["team"]),
+                "feat": [float(x) for x in s["feat"]],
+                "frame_id": int(s.get("frame_id") or 0),
+                "tag": str(s.get("tag") or ""),
+                "slot_key": str(s.get("slot_key") or ""),
+            }
+        )
+    return rows
+
+
+def save_kit_samples_bank(path: Path, samples: list[dict], *, meta: dict | None = None) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "source": "kit_label_dashboard",
+        "n_samples": [
+            sum(1 for s in samples if int(s["team"]) == 0),
+            sum(1 for s in samples if int(s["team"]) == 1),
+        ],
+        "samples": samples_to_bank_rows(samples),
+    }
+    if meta:
+        payload.update(meta)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def load_kit_samples_bank(path: Path) -> list[dict]:
+    path = Path(path)
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = data.get("samples") or []
+    out = []
+    for s in rows:
+        feat = s.get("feat")
+        if feat is None:
+            continue
+        out.append(
+            {
+                "team": int(s["team"]),
+                "feat": [float(x) for x in feat],
+                "frame_id": int(s.get("frame_id") or 0),
+                "tag": str(s.get("tag") or ""),
+                "slot_key": str(s.get("slot_key") or ""),
+            }
+        )
+    return out
+
+
+def merge_kit_sample_rows(existing: list[dict], new_rows: list[dict]) -> list[dict]:
+    """Union by slot_key (new wins); rows without slot_key are always kept."""
+    by_key: dict[str, dict] = {}
+    extras: list[dict] = []
+    for s in existing + new_rows:
+        key = str(s.get("slot_key") or "").strip()
+        if not key:
+            extras.append(s)
+            continue
+        by_key[key] = s
+    return list(by_key.values()) + extras
+
+
 def load_centroids(path: Path) -> tuple[np.ndarray, float] | None:
     if not path.is_file():
         return None
@@ -503,6 +592,56 @@ def load_kit_ref_meta(path: Path) -> dict:
         for k in ("team_names", "kit_mode", "n_samples", "source")
         if k in data
     }
+
+
+def is_kit_ref(meta_or_path) -> bool:
+    """True when file/meta came from kit label dashboard (or carries kit fields)."""
+    if isinstance(meta_or_path, (str, Path)):
+        meta = load_kit_ref_meta(Path(meta_or_path))
+    else:
+        meta = meta_or_path or {}
+    if not meta:
+        return False
+    if meta.get("source") == "kit_label_dashboard":
+        return True
+    return any(k in meta for k in ("team_names", "kit_mode", "n_samples"))
+
+
+def resolve_kit_centroids_path(
+    cfg: dict | None,
+    output_root: Path | str | None = None,
+    run_dir: Path | str | None = None,
+) -> Path | None:
+    """Prefer config path → match-level → run_dir team_centroids.json."""
+    ta = (cfg or {}).get("team_assignment") or {}
+    raw = (ta.get("kit_centroids_path") or "").strip()
+    if raw:
+        p = Path(raw)
+        if p.is_file():
+            return p
+    if output_root is not None:
+        match_level = Path(output_root) / "team_centroids.json"
+        if match_level.is_file():
+            return match_level
+    if run_dir is not None:
+        run_path = Path(run_dir) / "team_centroids.json"
+        if run_path.is_file():
+            return run_path
+    return None
+
+
+def find_kit_ref_under(output_root: Path | str) -> Path | None:
+    """First cam/match file under output_root with kit_label_dashboard source."""
+    root = Path(output_root)
+    if not root.is_dir():
+        return None
+    match_level = root / "team_centroids.json"
+    if match_level.is_file() and is_kit_ref(match_level):
+        return match_level
+    for path in sorted(root.glob("*/team_centroids.json")):
+        if is_kit_ref(path):
+            return path
+    return None
 
 
 def _goal_boxes() -> dict:

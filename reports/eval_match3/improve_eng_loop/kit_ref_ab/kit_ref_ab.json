@@ -1,17 +1,17 @@
 {
-  "ts": "2026-09-01T21:07:21.933429+00:00",
-  "kit_ref": "/Volumes/LaCie/Projects/Soccer Coach CV/data/output/match_4_5min/P10-match4/team_centroids.json",
+  "ts": "2026-09-02T08:54:56.175344+00:00",
+  "kit_ref": "data/output/match_4_5min/team_centroids.json",
   "kit_meta": {
     "team_names": [
       "Team 0",
       "Team 1"
     ],
     "n_samples": [
-      9,
-      3
+      7,
+      15
     ],
     "kit_mode": "auto",
-    "radius": 0.7869600931827423
+    "radius": 0.6746180411626503
   },
   "cache": "/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/team_id_strategy_grid/m4_90s_det_plain.json",
   "strategy": "auto_traj_no_gray",
@@ -44,34 +44,34 @@
     "label": "kit_ref_seeded",
     "metrics": {
       "n_frames": 360,
-      "mean_blue_share": 0.461652011523335,
+      "mean_blue_share": 0.49374362996299276,
       "collapse_frac": 0.005555555555555556,
-      "both3_frac": 0.9666666666666667,
-      "balanced_frac": 0.8472222222222222,
+      "both3_frac": 0.9527777777777777,
+      "balanced_frac": 0.8611111111111112,
       "mean_players": 13.1,
       "multcam_frac": 0.2239084753677329,
-      "agree_frac": 0.6684045881126173,
-      "conflict_gray_frac": 0.054223149113660066
+      "agree_frac": 0.6746611053180396,
+      "conflict_gray_frac": 0.051094890510948905
     },
     "scores": {
-      "consensus": 6.83,
+      "consensus": 6.87,
       "balanced": 10.0,
-      "flickering": 9.66,
-      "composite": 8.93,
-      "sticky_keep": 0.94,
-      "swing_rate": 0.008
+      "flickering": 9.55,
+      "composite": 8.9,
+      "sticky_keep": 0.927,
+      "swing_rate": 0.017
     },
-    "flip_events": 277,
+    "flip_events": 333,
     "sticky_total": 4588
   },
   "delta": {
-    "mean_blue_share": 0.03304549140946195,
+    "mean_blue_share": 0.06513710984911969,
     "collapse_frac": -0.0027777777777777775,
-    "balanced_frac": -0.03888888888888886,
-    "both3_frac": -0.002777777777777768,
-    "flickering_score": 0.009999999999999787,
-    "sticky_keep": 0.0020000000000000018,
-    "swing_rate": 0.0,
-    "flip_events": -6
+    "balanced_frac": -0.02499999999999991,
+    "both3_frac": -0.01666666666666672,
+    "flickering_score": -0.09999999999999964,
+    "sticky_keep": -0.010999999999999899,
+    "swing_rate": 0.009000000000000001,
+    "flip_events": 50
   }
 }
