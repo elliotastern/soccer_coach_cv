@@ -16,16 +16,22 @@ import pandas as pd
 import yaml
 from dotenv import load_dotenv
 
-from src.export.schema import frame_data_to_csv_row, get_csv_schema
+from src.review.multicam_fuse import (
+    ball_map_rows_at_frame,
+    discover_cam_frame_csvs,
+    load_cam_tables,
+    merge_live_and_sibling_ball_rows,
+)
 from src.events.event_manager import EventManager
 from src.events.events import EventDetector
 from src.ingest.video import open_video_file
 from src.mapping.mapping import PitchMapper
+from src.mapping.fuse_config import fuse_cams_list, load_fuse_config
+from src.mapping.fuse_product import fuse_ball_product
 from src.mapping.match3_xy import (
     EMIT_CONF,
     apply_H,
     calib_undistort_params,
-    fuse_balls_with_hold,
     load_calib_for_video,
     map_ball_box,
     scale_px,
@@ -119,13 +125,30 @@ def apply_match3_ball_hold(
     frame_wh,
     prev_emit: Optional[dict],
     frames_since_emit: int,
-) -> tuple[FrameData, Optional[dict], int]:
-    """Override tracker ball with map_ball_box + F0 hold (same as M1 product)."""
+    fuse_cfg: dict | None = None,
+    ukf_state=None,
+    *,
+    sibling_tables: dict | None = None,
+    cam_id: str | None = None,
+) -> tuple[FrameData, Optional[dict], int, object]:
+    """Override tracker ball with map_ball_box + product fuse (2D or 3D)."""
     rows = collect_ball_maps(calib, frame_data.detections or [], ball_id, frame_wh)
-    emit = fuse_balls_with_hold(prev_emit, rows, frames_since_emit)
+    if sibling_tables and cam_id and fuse_cfg:
+        cams = fuse_cams_list(fuse_cfg)
+        if len(cams) > 1:
+            sibling_rows = ball_map_rows_at_frame(
+                sibling_tables,
+                int(frame_data.frame_id),
+                cams=cams,
+                skip_cam=cam_id,
+            )
+            rows = merge_live_and_sibling_ball_rows(rows, sibling_rows, current_cam=cam_id)
+    emit, prev_emit, frames_since_emit, ukf_state = fuse_ball_product(
+        rows, prev_emit, frames_since_emit, cfg=fuse_cfg, ukf=ukf_state,
+    )
     if emit is None:
         frame_data.ball = None
-        return frame_data, prev_emit, frames_since_emit + 1
+        return frame_data, prev_emit, frames_since_emit, ukf_state
     frame_data.ball = Ball(
         x_pitch=float(emit["xy"][0]),
         y_pitch=float(emit["xy"][1]),
@@ -134,7 +157,7 @@ def apply_match3_ball_hold(
         timestamp=frame_data.timestamp,
         object_id=-1,
     )
-    return frame_data, emit, 0
+    return frame_data, emit, 0, ukf_state
 
 
 def _cam_id_from_video(video_path: str) -> str | None:
@@ -418,6 +441,23 @@ def process_video(
     frames_since_ball = 10**9
     ball_emit_frames = 0
     ball_id = config["detection"]["ball_class_id"]
+    fuse_cfg = config.get("fuse") or load_fuse_config()
+    ball_ukf = None
+    multicam_root = run_dir.parent
+    sibling_tables: dict = {}
+    sibling_refresh = 0
+
+    def _refresh_sibling_tables(force: bool = False) -> dict:
+        nonlocal sibling_tables, sibling_refresh
+        sibling_refresh += 1
+        if not force and sibling_refresh % 50 != 1 and sibling_tables:
+            return sibling_tables
+        cam_csvs = discover_cam_frame_csvs(multicam_root)
+        if len(cam_csvs) <= 1:
+            sibling_tables = {}
+            return sibling_tables
+        sibling_tables = load_cam_tables(cam_csvs)
+        return sibling_tables
 
     while frame_id < end_frame:
         ret, frame = cap.read()
@@ -441,13 +481,18 @@ def process_video(
         if frame_data:
             if calib is not None:
                 frame_wh = (frame.shape[1], frame.shape[0])
-                frame_data, prev_ball_emit, frames_since_ball = apply_match3_ball_hold(
+                sibs = _refresh_sibling_tables()
+                frame_data, prev_ball_emit, frames_since_ball, ball_ukf = apply_match3_ball_hold(
                     frame_data,
                     calib,
                     ball_id,
                     frame_wh,
                     prev_ball_emit,
                     frames_since_ball,
+                    fuse_cfg=fuse_cfg,
+                    ukf_state=ball_ukf,
+                    sibling_tables=sibs if sibs else None,
+                    cam_id=cam_id,
                 )
             if frame_data.ball is not None:
                 ball_emit_frames += 1

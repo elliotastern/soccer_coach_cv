@@ -17,6 +17,9 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 
 | **F4 reprojection prune** | holdout/strips A/B | **Skipped** — gates failed | See `reports/eval_match3/improve_eng_loop/f4_reproj_ab.json` |
 | **Player F4 reprojection** (64 px, 3 frames) | player_map_funnel frames | **Skipped** — 13→1, 10→1 on fr 2400/3600 | Default off; `player_reproj_ab.json` |
+| **3D triangulate fuse** (pure, no fallback) | holdout clear_R **0.801**; agree **0.411**; P10 strip clear_R **0.732** | **Skipped** — below 0.884 holdout gate | Default off · `fuse3d_ab.json` |
+| **3D + F0–F3 hybrid** (naive: 3D solo before 2D) | holdout clear_R **0.892**; agree **0.231** | **Skipped** — agree below baseline 0.343 | Replaced by smart `pick_3d_hybrid` · `fuse3d_ab.json` |
+| **3D + UKF** | holdout clear_R **0.809**; agree **0.473** | **Skipped** — clear_R below gate | Default off · agree lift only · `fuse3d_ab.json` |
 ## Worked (keep)
 
 | Tried | Result |
@@ -26,6 +29,7 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | H1 MIN_SUPPORT **0.25 → 0.20** | Holdout R **0.867 → 0.884**; strip P held → **promoted** |
 | Other-cam ≥0.80 on clear FNs | **0/28** — residual is map/det, not fuse drop |
 | L1 white-line re-click P8/P9 (≤18 px; hull preserved) | RT ≤ 0.15; P10 clear_R **0.876→0.879**; P8/holdout flat; strip P held |
+| **3D + smart hybrid** (`pick_3d_hybrid`: 3D when agree, else F0–F3) | Holdout clear_R **0.892** (parity); agree **0.343** (parity); P10 strip held; **promote_3d=true** | Opt-in via `fuse.mode: triangulate_3d`; default stays `pitch_merge` · `fuse3d_ab.json` |
 
 ## Residual (not fixed)
 

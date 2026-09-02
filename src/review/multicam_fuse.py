@@ -323,14 +323,21 @@ def fuse_players_at_frame(
     )
 
 
-def fuse_ball_at_frame(
+def ball_map_rows_at_frame(
     cam_tables: dict[str, pd.DataFrame],
     frame_id: int,
-    tol: int = 2,
-) -> Optional[tuple[float, float]]:
-    """Fuse ball maps across cams → one (x, y) or None."""
+    *,
+    cams: list[str] | None = None,
+    tol: int = 0,
+    skip_cam: str | None = None,
+) -> list[dict]:
+    """Ball map rows from sibling exports at ``frame_id`` (for batch / review fuse)."""
     rows = []
     for cam, df in cam_tables.items():
+        if skip_cam and cam == skip_cam:
+            continue
+        if cams and cam not in cams:
+            continue
         sub = _rows_near_frame(df, frame_id, tol)
         balls = sub[sub["Player_ID"] == -1] if "Player_ID" in sub.columns else sub.iloc[0:0]
         exact = balls[balls["frame_id"] == int(frame_id)]
@@ -348,14 +355,53 @@ def fuse_ball_at_frame(
                 "cam": cam,
             }
         )
+    return rows
+
+
+def merge_live_and_sibling_ball_rows(
+    live_rows: list[dict],
+    sibling_rows: list[dict],
+    *,
+    current_cam: str | None = None,
+) -> list[dict]:
+    """Prefer live detections for ``current_cam``; add sibling export rows for other cams."""
+    out = list(live_rows)
+    live_cams = {str(r.get("cam", "")) for r in live_rows if r.get("cam")}
+    for row in sibling_rows:
+        cam = str(row.get("cam", ""))
+        if not cam or cam in live_cams:
+            continue
+        if current_cam and cam == current_cam:
+            continue
+        out.append(row)
+    return out
+
+
+def fuse_ball_at_frame(
+    cam_tables: dict[str, pd.DataFrame],
+    frame_id: int,
+    tol: int = 2,
+    *,
+    fuse_cfg: dict | None = None,
+) -> Optional[tuple[float, float]]:
+    """Fuse ball maps across cams → one (x, y) or None."""
+    from src.mapping.fuse_config import fuse_cams_list, load_fuse_config
+    from src.mapping.fuse_product import fuse_ball_product
+
+    cfg = fuse_cfg or load_fuse_config()
+    cams = fuse_cams_list(cfg)
+    rows = ball_map_rows_at_frame(cam_tables, frame_id, cams=cams, tol=tol)
     if not rows:
         return None
-    fused = fuse_balls(rows)
-    if fused is None:
-        # fallback: max-conf solo even below emit gate (review coverage)
-        best = max(rows, key=lambda r: r["conf"])
-        return best["xy"]
-    return tuple(fused["xy"])
+    emit, _, _, _ = fuse_ball_product(rows, None, 0, cfg=cfg)
+    if emit is not None:
+        return tuple(emit["xy"])
+    if str(cfg.get("mode", "pitch_merge")) == "pitch_merge":
+        fused = fuse_balls(rows)
+        if fused is not None:
+            return tuple(fused["xy"])
+    best = max(rows, key=lambda r: r["conf"])
+    return best["xy"]
 
 
 def fuse_frame_for_pitch(
@@ -395,6 +441,8 @@ def fuse_live_dets_for_pitch(
     debug_cam: bool = False,
     fuse_stats: bool = False,
     reproj_prune_players: bool = False,
+    fuse_cfg: dict | None = None,
+    ukf_state=None,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -532,21 +580,41 @@ def fuse_live_dets_for_pitch(
         players = team_session.stabilize_fused(players)
 
     ball_xy = None
+    ball_meta = None
+    ukf_out = ukf_state
     if ball_rows:
-        fused = fuse_balls(ball_rows)
-        if fused is not None:
-            ball_xy = tuple(fused["xy"])
+        from src.mapping.fuse_config import load_fuse_config
+        from src.mapping.fuse_product import fuse_ball_product
+
+        cfg = fuse_cfg or load_fuse_config()
+        emit, _prev, _gap, ukf_out = fuse_ball_product(
+            ball_rows, None, 0, cfg=cfg, ukf=ukf_state,
+        )
+        if emit is not None:
+            ball_xy = tuple(emit["xy"])
+            ball_meta = emit
+        elif str(cfg.get("mode", "pitch_merge")) == "pitch_merge":
+            fused = fuse_balls(ball_rows)
+            if fused is not None:
+                ball_xy = tuple(fused["xy"])
+                ball_meta = fused
+            else:
+                best = max(ball_rows, key=lambda r: r["conf"])
+                ball_xy = tuple(best["xy"])
         else:
             best = max(ball_rows, key=lambda r: r["conf"])
-            ball_xy = tuple(best["xy"])
+            if float(best["conf"]) >= 0.80:
+                ball_xy = tuple(best.get("ground_xy") or best["xy"])
 
     out = {
         "players": players,
         "ball_xy": ball_xy,
+        "ball_meta": ball_meta,
         "n_cams": len(used),
         "cams": sorted(used),
         "source": "live",
         "consensus": consensus_stats,
+        "ukf_state": ukf_out if ball_rows else ukf_state,
     }
     if debug_cam:
         out["player_cams"] = player_cams

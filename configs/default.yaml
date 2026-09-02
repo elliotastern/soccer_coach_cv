@@ -39,6 +39,20 @@ mapping:
   pitch_length: 53.9
   pitch_width: 34.84
   homography_method: manual
+fuse:
+  mode: pitch_merge
+  ukf_enabled: false
+  cams: quad
+  fallback_pitch_merge: true
+  reproj_max_px:
+    P7: 48
+    P8: 48
+    P9: 48
+    P10: 48
+    P1: 72
+    P6: 72
+    P_Goal1: 80
+    P_Goal2: 80
 events:
   pass_velocity_threshold: 5.0
   dribble_distance_threshold: 2.0

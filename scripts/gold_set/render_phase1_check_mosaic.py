@@ -33,6 +33,8 @@ from src.review.cam_mosaic import (
     _is_ball_det,
 )  # noqa: E402
 from src.review.frame_sync import keep_top1_ball  # noqa: E402
+from src.mapping.fuse_config import load_fuse_config  # noqa: E402
+from src.review.cam_mosaic import fill_fuse_cams_for_pitch  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
 from src.perception.team_strategy import session_from_config  # noqa: E402
@@ -90,6 +92,24 @@ def parse_args():
         type=Path,
         default=None,
         help=f"Pre-labeled team_centroids.json (auto: {default_kit.name} if present)",
+    )
+    p.add_argument(
+        "--fuse-mode",
+        choices=("pitch_merge", "triangulate_3d"),
+        default=None,
+        help="Override configs/default.yaml fuse.mode",
+    )
+    p.add_argument(
+        "--fuse-ukf",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Override configs/default.yaml fuse.ukf_enabled",
+    )
+    p.add_argument(
+        "--fuse-cams",
+        choices=("quad", "all"),
+        default=None,
+        help="Override configs/default.yaml fuse.cams (all = eight cams in pitch fuse bag)",
     )
     return p.parse_args()
 
@@ -266,6 +286,17 @@ def main() -> int:
     mp4 = out / args.out_file
     stats = []
     events_only = bool(args.events_only)
+    fuse_cfg = load_fuse_config(cfg_path)
+    if args.fuse_mode is not None:
+        fuse_cfg = {**fuse_cfg, "mode": args.fuse_mode}
+    if args.fuse_ukf is not None:
+        fuse_cfg = {**fuse_cfg, "ukf_enabled": bool(args.fuse_ukf)}
+    if args.fuse_cams is not None:
+        fuse_cfg = {**fuse_cfg, "cams": args.fuse_cams}
+    ball_ukf = None
+    use_full_fuse_bag = (
+        fuse_cfg.get("cams") == "all" or fuse_cfg.get("mode") == "triangulate_3d"
+    )
     print(
         f"{'events-only' if events_only else 'rendering'} n={len(frames)} "
         f"out_fps={args.out_fps} dur≈{len(frames) / args.out_fps:.1f}s match={args.match_sec}s",
@@ -306,12 +337,28 @@ def main() -> int:
                 grid_w,
                 grid_h,
             )
+        fuse_bag: dict = {}
+        if use_full_fuse_bag:
+            fill_fuse_cams_for_pitch(
+                vids,
+                fr,
+                fuse_bag,
+                detect_fn,
+                apply_defish,
+                fuse_cfg=fuse_cfg,
+                single_ball=False,
+            )
+        else:
+            fuse_bag = bag
         live = fuse_live_dets_for_pitch(
-            bag,
+            fuse_bag,
             apply_undistort=apply_undistort,
             team_session=sess,
             debug_cam=args.debug_cam,
+            fuse_cfg=fuse_cfg,
+            ukf_state=ball_ukf,
         )
+        ball_ukf = live.get("ukf_state")
         players = live["players"]
         ball = live["ball_xy"]
         if ball is not None:

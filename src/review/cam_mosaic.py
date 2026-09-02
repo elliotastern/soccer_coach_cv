@@ -1051,6 +1051,37 @@ def fill_quad_dets_for_pitch(
     return dets_by_cam
 
 
+def fill_fuse_cams_for_pitch(
+    videos: dict[str, Path],
+    frame_id: int,
+    dets_by_cam: dict,
+    detect_fn: DetectFn | None,
+    apply_defish: bool = True,
+    *,
+    fuse_cfg: dict | None = None,
+    single_ball: bool = False,
+) -> dict:
+    """Detect on every cam in fuse config (quad or all eight) for pitch fuse.
+
+    Unlike ``mosaic_quads_coach``, this can include P1/P6/goals without changing
+    the on-screen quad mosaic. Default ``single_ball=False`` keeps one ball per cam
+    for triangulate_3d / multi-cam agree scoring.
+    """
+    from src.mapping.fuse_config import fuse_cams_list, load_fuse_config
+
+    if detect_fn is None or dets_by_cam is None:
+        return dets_by_cam or {}
+    cams = fuse_cams_list(fuse_cfg or load_fuse_config())
+    bag: dict = dict(dets_by_cam)
+    for cam in cams:
+        _ensure_cam_dets(videos, cam, frame_id, bag, detect_fn, apply_defish)
+    if single_ball:
+        _keep_single_mosaic_ball(bag, apply_defish=apply_defish)
+    dets_by_cam.clear()
+    dets_by_cam.update(bag)
+    return dets_by_cam
+
+
 def build_cam_view(
     repo_root: Path,
     view: str,

@@ -48,6 +48,11 @@ def load_calib(cam: str) -> dict | None:
     if hp is not None:
         rec["H_player"] = np.asarray(hp, dtype=float)
     rec["camera"] = cam
+    from src.mapping.camera_projection import fit_projection_from_landmarks
+
+    proj = fit_projection_from_landmarks(rec)
+    if proj is not None:
+        rec["projection3d"] = proj
     return rec
 
 

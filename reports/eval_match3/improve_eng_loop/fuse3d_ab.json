@@ -1,0 +1,210 @@
+{
+  "ts": "2026-09-02T00:41:59.083841+00:00",
+  "hit_m": 4.0,
+  "holdout_gate": 0.884,
+  "strips": {
+    "match3_quad_p10_31": {
+      "pack": "match3_quad_p10_31",
+      "path": "data/processed/gold_sets/match3_quad_p10_31/labels.json",
+      "F1+F2+F0+F3": {
+        "n_clear": 224,
+        "n_emit_scored": 219,
+        "tp": 219,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 0.79,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      },
+      "triangulate_3d": {
+        "n_clear": 224,
+        "n_emit_scored": 219,
+        "tp": 219,
+        "fp": 0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "err_median_m": 0.811,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true
+      }
+    },
+    "match3_quad_p8_87": {
+      "pack": "match3_quad_p8_87",
+      "path": "data/processed/gold_sets/match3_quad_p8_87/labels.json",
+      "F1+F2+F0+F3": {
+        "n_clear": 272,
+        "n_emit_scored": 248,
+        "tp": 0,
+        "fp": 248,
+        "P_emit": 0.0,
+        "clear_ball_R": 0.846,
+        "err_median_m": 13.603,
+        "poc_pass_P_emit": false,
+        "poc_pass_clear_R": true
+      },
+      "triangulate_3d": {
+        "n_clear": 272,
+        "n_emit_scored": 248,
+        "tp": 0,
+        "fp": 248,
+        "P_emit": 0.0,
+        "clear_ball_R": 0.846,
+        "err_median_m": 13.598,
+        "poc_pass_P_emit": false,
+        "poc_pass_clear_R": true
+      }
+    }
+  },
+  "holdout": {
+    "F1+F2+F0+F3": {
+      "caches": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "clear_frames": 80,
+          "clear_emit": 78,
+          "emit": 201,
+          "agree_among_emit": 0.353,
+          "clear_ball_proxy_R": 0.975
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "clear_frames": 0,
+          "clear_emit": 0,
+          "emit": 0,
+          "agree_among_emit": null,
+          "clear_ball_proxy_R": null
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "clear_frames": 69,
+          "clear_emit": 66,
+          "emit": 151,
+          "agree_among_emit": 0.358,
+          "clear_ball_proxy_R": 0.957
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "clear_frames": 5,
+          "clear_emit": 2,
+          "emit": 12,
+          "agree_among_emit": 0.25,
+          "clear_ball_proxy_R": 0.4
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "clear_frames": 87,
+          "clear_emit": 69,
+          "emit": 190,
+          "agree_among_emit": 0.326,
+          "clear_ball_proxy_R": 0.793
+        }
+      ],
+      "clear_ball_proxy_R": 0.892,
+      "agree_among_emit": 0.343
+    },
+    "triangulate_3d": {
+      "caches": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "clear_frames": 80,
+          "clear_emit": 78,
+          "emit": 201,
+          "agree_among_emit": 0.353,
+          "clear_ball_proxy_R": 0.975
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "clear_frames": 0,
+          "clear_emit": 0,
+          "emit": 0,
+          "agree_among_emit": null,
+          "clear_ball_proxy_R": null
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "clear_frames": 69,
+          "clear_emit": 66,
+          "emit": 151,
+          "agree_among_emit": 0.358,
+          "clear_ball_proxy_R": 0.957
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "clear_frames": 5,
+          "clear_emit": 2,
+          "emit": 12,
+          "agree_among_emit": 0.25,
+          "clear_ball_proxy_R": 0.4
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "clear_frames": 87,
+          "clear_emit": 69,
+          "emit": 190,
+          "agree_among_emit": 0.326,
+          "clear_ball_proxy_R": 0.793
+        }
+      ],
+      "clear_ball_proxy_R": 0.892,
+      "agree_among_emit": 0.343
+    },
+    "triangulate_3d+ukf": {
+      "caches": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "clear_frames": 80,
+          "clear_emit": 76,
+          "emit": 159,
+          "agree_among_emit": 0.447,
+          "clear_ball_proxy_R": 0.95
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "clear_frames": 0,
+          "clear_emit": 0,
+          "emit": 0,
+          "agree_among_emit": null,
+          "clear_ball_proxy_R": null
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "clear_frames": 69,
+          "clear_emit": 62,
+          "emit": 119,
+          "agree_among_emit": 0.454,
+          "clear_ball_proxy_R": 0.899
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "clear_frames": 5,
+          "clear_emit": 2,
+          "emit": 5,
+          "agree_among_emit": 0.6,
+          "clear_ball_proxy_R": 0.4
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "clear_frames": 87,
+          "clear_emit": 55,
+          "emit": 119,
+          "agree_among_emit": 0.521,
+          "clear_ball_proxy_R": 0.632
+        }
+      ],
+      "clear_ball_proxy_R": 0.809,
+      "agree_among_emit": 0.473
+    }
+  },
+  "promote_3d": true,
+  "gates": {
+    "strips_pass": true,
+    "holdout_pass": true,
+    "agree_lift": false
+  },
+  "notes": [
+    "Smart hybrid: pick_3d_hybrid prefers 3D when agree, else F0-F3.",
+    "fallback_pitch_merge=true fills silent frames via fuse_balls_with_hold.",
+    "UKF lifts agree (0.473) but drops clear_R (0.809) \u2014 keep ukf_enabled=false."
+  ]
+}

@@ -234,3 +234,7 @@ rf-detr-base.pth
 # Match 3 pitchmap gallery: keep dual-pane renders; skip raw multicam source cuts
 reports/eval_match3/pitchmap_gallery/source/
 reports/eval_match3/quad_pitchmap_gallery/source/
+
+# Local Cursor DB archive + agent temp (never commit)
+.cursor_archive/
+.tmp/
