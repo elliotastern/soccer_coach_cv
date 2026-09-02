@@ -1,0 +1,36 @@
+{
+  "ts": "2026-09-02T17:48:37+00:00",
+  "push": "noop_main_equals_origin",
+  "phase0": {
+    "artifact": "reports/eval_match3/improve_eng_loop/h_consistency/h_consistency_baseline.json",
+    "span_median_m": 13.2163,
+    "h_not_bottleneck": false,
+    "verdict": "H may contribute to multi-cam span — improve calib before AGREE_M shrink"
+  },
+  "phase1": {
+    "artifact": "reports/eval_match3/improve_eng_loop/h_consistency/h_refit_report.json",
+    "wrote_calibs": false,
+    "note": "Re-DLT/RANSAC on existing clicks does not reduce landmark RT; API fit_h_from_paired_points + write_calib_h ready for commercial-safe auto keypoints. Match 4 uses same P-code calibs."
+  },
+  "phase2": {
+    "artifact": "reports/eval_match3/improve_eng_loop/agree_m_ab.json",
+    "promote": {"3.0": false, "2.5": false},
+    "product_agree_m": 4.0,
+    "holdout_agree": {"4.0": 0.343, "3.0": 0.337, "2.5": 0.321}
+  },
+  "phase3": {
+    "artifact": "reports/eval_match3/improve_eng_loop/fuse3d_ab.json",
+    "promote_3d_opt_in_parity": true,
+    "product_default": "pitch_merge",
+    "ukf_product_default": false,
+    "holdout": {
+      "pitch_merge_clear_R": 0.892,
+      "pitch_merge_agree": 0.343,
+      "triangulate_3d_clear_R": 0.892,
+      "triangulate_3d_agree": 0.343,
+      "ukf_clear_R": 0.809,
+      "ukf_agree": 0.473
+    },
+    "note": "Same parity as prior; UKF still fails clear_R gate. Do not promote."
+  }
+}

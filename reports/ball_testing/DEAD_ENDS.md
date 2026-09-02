@@ -23,6 +23,9 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | **Ball foot-point modes** (inset/center/radius) | holdout/strips A/B | **Skipped** — no gate-safe win vs bottom | See `reports/eval_match3/improve_eng_loop/ball_foot_ab.json` |
 | **Soft / gated F4** (agree-gate + n≥3 prune) | holdout/strips A/B | **Skipped** — no gate-safe win vs F0–F3 | See `reports/eval_match3/improve_eng_loop/soft_f4_ab.json` |
 | **ghost_conf 0.45→0.80** | holdout/P10 A/B | **Skipped** — no gate-safe win | See `reports/eval_match3/improve_eng_loop/ghost_conf_ab.json` |
+| **AGREE_M shrink** 4→3.0/2.5 | holdout agree **0.343→0.337/0.321**; proxy held | **Skipped** — agree fell; product stays 4.0 | `agree_m_ab.json` |
+| **H-first 3D+UKF re-A/B** (same calibs) | hybrid parity clear_R **0.892** agree **0.343**; UKF clear_R **0.809** | **No product change** — still parity / UKF kills recall | `fuse3d_ab.json` + `h_consistency/` |
+
 ## Worked (keep)
 
 | Tried | Result |
@@ -40,3 +43,5 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 - Systemic `mapped_conf_below_emit` on **P6** (2 holdout caches, small n) — only if holdout regresses later.
 
 See [CLEAR_BALL_FRONT.md](CLEAR_BALL_FRONT.md) · [HOLDOUT_BASELINE.md](HOLDOUT_BASELINE.md).
+
+- H-consistency baseline: holdout pairwise map span median **~13 m** → improve landmarks/auto-H before shrinking agree (`h_consistency/`).

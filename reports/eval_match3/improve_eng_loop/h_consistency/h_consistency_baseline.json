@@ -1,0 +1,201 @@
+{
+  "ts": "2026-09-02T17:47:17.034119+00:00",
+  "span_kill_m": 2.5,
+  "l1_max_rt_m": 0.15,
+  "landmark_roundtrip": {
+    "P10": {
+      "n_landmarks": 7,
+      "rt_mean_m": 0.4613,
+      "rt_max_m": 1.0707,
+      "rt_pass_l1": false,
+      "names": [
+        "left_post_near",
+        "center",
+        "left_near_corner",
+        "left_box_18_near",
+        "left_box_goal_near",
+        "circle_near",
+        "circle_far"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 30.567226649834037
+    },
+    "P1": {
+      "n_landmarks": 11,
+      "rt_mean_m": 0.4107,
+      "rt_max_m": 1.1216,
+      "rt_pass_l1": false,
+      "names": [
+        "right_post_far",
+        "halfway_far_touch",
+        "right_box_18_far",
+        "right_far_corner",
+        "center",
+        "right_box_18_mid",
+        "right_box_18_near",
+        "right_box_goal_near",
+        "right_post_near",
+        "right_box_goal_far",
+        "circle_far"
+      ],
+      "has_hull": false,
+      "projection3d_max_reproj_px": 14.12612795520861
+    },
+    "P6": {
+      "n_landmarks": 11,
+      "rt_mean_m": 1.3104,
+      "rt_max_m": 2.3832,
+      "rt_pass_l1": false,
+      "names": [
+        "halfway_near_touch",
+        "circle_near",
+        "left_box_18_near",
+        "left_near_corner",
+        "center",
+        "left_box_18_mid",
+        "left_box_18_far",
+        "left_box_goal_near",
+        "left_post_near",
+        "left_post_far",
+        "left_box_goal_far"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 122.11889799480869
+    },
+    "P7": {
+      "n_landmarks": 9,
+      "rt_mean_m": 0.3693,
+      "rt_max_m": 0.6834,
+      "rt_pass_l1": false,
+      "names": [
+        "left_box_18_mid",
+        "left_box_18_far",
+        "circle_far",
+        "left_far_corner",
+        "circle_near",
+        "left_box_goal_far",
+        "left_post_near",
+        "center",
+        "left_post_far"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 21.384636340987413
+    },
+    "P8": {
+      "n_landmarks": 7,
+      "rt_mean_m": 0.2092,
+      "rt_max_m": 0.3985,
+      "rt_pass_l1": false,
+      "names": [
+        "right_box_18_mid",
+        "right_box_goal_far",
+        "right_box_18_far",
+        "right_post_far",
+        "right_post_near",
+        "right_far_corner",
+        "right_box_goal_near"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 13.626389265385315
+    },
+    "P9": {
+      "n_landmarks": 7,
+      "rt_mean_m": 0.4915,
+      "rt_max_m": 0.6516,
+      "rt_pass_l1": false,
+      "names": [
+        "right_box_goal_near",
+        "right_post_far",
+        "right_box_18_near",
+        "right_near_corner",
+        "right_post_near",
+        "right_box_18_mid",
+        "right_box_goal_far"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 39.11093233869796
+    },
+    "P_Goal1": {
+      "n_landmarks": 7,
+      "rt_mean_m": 0.104,
+      "rt_max_m": 0.1682,
+      "rt_pass_l1": false,
+      "names": [
+        "left_box_18_mid",
+        "left_box_18_near",
+        "left_box_goal_near",
+        "left_box_18_far",
+        "left_post_near",
+        "left_post_far",
+        "left_box_goal_far"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 9.495800317416878
+    },
+    "P_Goal2": {
+      "n_landmarks": 7,
+      "rt_mean_m": 0.0654,
+      "rt_max_m": 0.1316,
+      "rt_pass_l1": true,
+      "names": [
+        "right_box_goal_near",
+        "right_box_goal_far",
+        "right_box_18_near",
+        "right_box_18_far",
+        "right_box_18_mid",
+        "right_post_near",
+        "right_post_far"
+      ],
+      "has_hull": true,
+      "projection3d_max_reproj_px": 12.040701163821833
+    }
+  },
+  "holdout_pairwise_map_span": {
+    "n_frames": 1495,
+    "n_multi_cam_frames": 427,
+    "n_pair_spans": 1056,
+    "span_median_m": 13.2163,
+    "span_mean_m": 14.5247,
+    "span_p90_m": 28.7055,
+    "span_max_m": 49.3721,
+    "h_not_bottleneck": false,
+    "caches": [
+      {
+        "cache": "det_cache_rand_t00166.0s_thr010.json",
+        "n_multi_cam_frames": 124,
+        "n_pair_spans": 377,
+        "span_median_m": 12.6062,
+        "span_p90_m": 26.6511
+      },
+      {
+        "cache": "det_cache_rand_t00519.7s_thr010.json",
+        "n_multi_cam_frames": 34,
+        "n_pair_spans": 42,
+        "span_median_m": 20.3304,
+        "span_p90_m": 32.7602
+      },
+      {
+        "cache": "det_cache_rand_t00552.8s_thr010.json",
+        "n_multi_cam_frames": 123,
+        "n_pair_spans": 294,
+        "span_median_m": 11.4007,
+        "span_p90_m": 30.8122
+      },
+      {
+        "cache": "det_cache_rand_t00821.8s_thr010.json",
+        "n_multi_cam_frames": 20,
+        "n_pair_spans": 24,
+        "span_median_m": 16.4721,
+        "span_p90_m": 44.2913
+      },
+      {
+        "cache": "det_cache_rand_t01767.3s_thr010.json",
+        "n_multi_cam_frames": 126,
+        "n_pair_spans": 319,
+        "span_median_m": 13.2148,
+        "span_p90_m": 27.7078
+      }
+    ]
+  },
+  "verdict": "H may contribute to multi-cam span \u2014 improve calib before AGREE_M shrink"
+}

@@ -325,6 +325,32 @@ def test_agree_radius() -> None:
         raise AssertionError("agree radius is 4 m")
 
 
+def test_agree_m_override_tightens_cluster() -> None:
+    """Optional agree_m A/B must not change product AGREE_M default."""
+    a = {
+        "cam": "P9",
+        "xy": (0.0, 0.0),
+        "conf": 0.90,
+        "support": 1.0,
+        "weight": 0.90,
+    }
+    b = {
+        "cam": "P10",
+        "xy": (3.5, 0.0),
+        "conf": 0.88,
+        "support": 0.9,
+        "weight": 0.79,
+    }
+    wide = fuse_balls([a, b], agree_m=4.0)
+    tight = fuse_balls([a, b], agree_m=2.5)
+    if wide is None or not wide.get("agree"):
+        raise AssertionError(f"4m should agree {wide}")
+    if tight is None or tight.get("agree"):
+        raise AssertionError(f"2.5m should solo {tight}")
+    if AGREE_M != 4.0:
+        raise AssertionError("product AGREE_M must stay 4.0")
+
+
 def test_f1_soft_dual_fallback() -> None:
     """Weak agree cluster (combined < 0.80) must fall through to strong out-of-cluster solo."""
     a = {
@@ -565,6 +591,7 @@ def main() -> int:
     test_fuse_no_midpoint()
     test_low_conf_silent()
     test_agree_radius()
+    test_agree_m_override_tightens_cluster()
     test_f1_soft_dual_fallback()
     test_f2_solo_max_conf()
     test_f0_hold()

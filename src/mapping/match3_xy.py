@@ -368,10 +368,11 @@ def _median_xy(rows: list[dict]) -> tuple[float, float]:
     return (xs[mid - 1] + xs[mid]) / 2, (ys[mid - 1] + ys[mid]) / 2
 
 
-def _near(a: dict, b: dict) -> bool:
+def _near(a: dict, b: dict, agree_m: float | None = None) -> bool:
+    lim = AGREE_M if agree_m is None else float(agree_m)
     dx = a["xy"][0] - b["xy"][0]
     dy = a["xy"][1] - b["xy"][1]
-    return (dx * dx + dy * dy) ** 0.5 <= AGREE_M
+    return (dx * dx + dy * dy) ** 0.5 <= lim
 
 
 def pitch_xy_to_pixel(
@@ -470,6 +471,7 @@ def prune_ghost_maps(
     *,
     enabled: bool = True,
     ghost_conf: float = GHOST_CONF,
+    agree_m: float | None = None,
 ) -> list[dict]:
     """F3: keep maps near max-conf anchor, or far maps with conf ≥ ghost_conf.
 
@@ -480,7 +482,11 @@ def prune_ghost_maps(
         return rows
     floor = float(ghost_conf)
     anchor = max(rows, key=lambda r: float(r["conf"]))
-    kept = [r for r in rows if _near(anchor, r) or float(r["conf"]) >= floor]
+    kept = [
+        r
+        for r in rows
+        if _near(anchor, r, agree_m=agree_m) or float(r["conf"]) >= floor
+    ]
     return kept if kept else [anchor]
 
 
@@ -511,6 +517,7 @@ def fuse_balls(
     reproj_max_px: float = REPROJ_MAX_PX_BALL,
     reproj_min_n: int = 2,
     reproj_agree_gate: bool = False,
+    agree_m: float | None = None,
 ) -> dict | None:
     """Pitch-space fuse. EMIT_CONF / AGREE_M hard gates.
 
@@ -520,6 +527,7 @@ def fuse_balls(
     F3 ghost_prune: drop weak maps that disagree with the max-conf anchor.
     F4 reproj_prune: drop maps whose foot pixel disagrees with median reproject.
     Soft F4 reproj_agree_gate: never drop maps; demote agree→solo if reproj fails.
+    agree_m: optional A/B override; product default remains AGREE_M (4.0).
     """
     valid = [r for r in rows if r]
     if not valid:
@@ -530,10 +538,12 @@ def fuse_balls(
         max_px=reproj_max_px,
         min_n=reproj_min_n,
     )
-    valid = prune_ghost_maps(valid, enabled=ghost_prune, ghost_conf=ghost_conf)
+    valid = prune_ghost_maps(
+        valid, enabled=ghost_prune, ghost_conf=ghost_conf, agree_m=agree_m
+    )
     valid.sort(key=lambda r: r["weight"], reverse=True)
     seed = valid[0]
-    cluster = [r for r in valid if _near(seed, r)]
+    cluster = [r for r in valid if _near(seed, r, agree_m=agree_m)]
     if len(cluster) >= 2:
         conf = combined_conf([r["conf"] for r in cluster])
         if conf >= EMIT_CONF:
@@ -573,6 +583,7 @@ def fuse_balls_with_hold(
     reproj_max_px: float = REPROJ_MAX_PX_BALL,
     reproj_min_n: int = 2,
     reproj_agree_gate: bool = False,
+    agree_m: float | None = None,
     hold_max_gap: int = HOLD_MAX_GAP,
 ) -> dict | None:
     """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap."""
@@ -586,6 +597,7 @@ def fuse_balls_with_hold(
         reproj_max_px=reproj_max_px,
         reproj_min_n=reproj_min_n,
         reproj_agree_gate=reproj_agree_gate,
+        agree_m=agree_m,
     )
     if cur is not None:
         return cur

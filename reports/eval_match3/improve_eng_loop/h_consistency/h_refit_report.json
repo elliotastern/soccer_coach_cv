@@ -1,0 +1,339 @@
+{
+  "ts": "2026-09-02T17:47:17.969873+00:00",
+  "write": false,
+  "cams": [
+    {
+      "cam": "P10",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.4613,
+        "rt_max_m": 1.0707,
+        "rt_pass_l1": false,
+        "names": [
+          "left_post_near",
+          "center",
+          "left_near_corner",
+          "left_box_18_near",
+          "left_box_goal_near",
+          "circle_near",
+          "circle_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 30.567226649834037
+      },
+      "after": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.4613,
+        "rt_max_m": 1.0707,
+        "rt_pass_l1": false,
+        "names": [
+          "left_post_near",
+          "center",
+          "left_near_corner",
+          "left_box_18_near",
+          "left_box_goal_near",
+          "circle_near",
+          "circle_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 30.567226649834037
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P1",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 11,
+        "rt_mean_m": 0.4107,
+        "rt_max_m": 1.1216,
+        "rt_pass_l1": false,
+        "names": [
+          "right_post_far",
+          "halfway_far_touch",
+          "right_box_18_far",
+          "right_far_corner",
+          "center",
+          "right_box_18_mid",
+          "right_box_18_near",
+          "right_box_goal_near",
+          "right_post_near",
+          "right_box_goal_far",
+          "circle_far"
+        ],
+        "has_hull": false,
+        "projection3d_max_reproj_px": 14.12612795520861
+      },
+      "after": {
+        "n_landmarks": 11,
+        "rt_mean_m": 0.4107,
+        "rt_max_m": 1.1216,
+        "rt_pass_l1": false,
+        "names": [
+          "right_post_far",
+          "halfway_far_touch",
+          "right_box_18_far",
+          "right_far_corner",
+          "center",
+          "right_box_18_mid",
+          "right_box_18_near",
+          "right_box_goal_near",
+          "right_post_near",
+          "right_box_goal_far",
+          "circle_far"
+        ],
+        "has_hull": false,
+        "projection3d_max_reproj_px": 14.12612795520861
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P6",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 11,
+        "rt_mean_m": 1.3104,
+        "rt_max_m": 2.3832,
+        "rt_pass_l1": false,
+        "names": [
+          "halfway_near_touch",
+          "circle_near",
+          "left_box_18_near",
+          "left_near_corner",
+          "center",
+          "left_box_18_mid",
+          "left_box_18_far",
+          "left_box_goal_near",
+          "left_post_near",
+          "left_post_far",
+          "left_box_goal_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 122.11889799480869
+      },
+      "after": {
+        "n_landmarks": 11,
+        "rt_mean_m": 1.3104,
+        "rt_max_m": 2.3832,
+        "rt_pass_l1": false,
+        "names": [
+          "halfway_near_touch",
+          "circle_near",
+          "left_box_18_near",
+          "left_near_corner",
+          "center",
+          "left_box_18_mid",
+          "left_box_18_far",
+          "left_box_goal_near",
+          "left_post_near",
+          "left_post_far",
+          "left_box_goal_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 122.11889799480869
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P7",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 9,
+        "rt_mean_m": 0.3693,
+        "rt_max_m": 0.6834,
+        "rt_pass_l1": false,
+        "names": [
+          "left_box_18_mid",
+          "left_box_18_far",
+          "circle_far",
+          "left_far_corner",
+          "circle_near",
+          "left_box_goal_far",
+          "left_post_near",
+          "center",
+          "left_post_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 21.384636340987413
+      },
+      "after": {
+        "n_landmarks": 9,
+        "rt_mean_m": 0.3693,
+        "rt_max_m": 0.6834,
+        "rt_pass_l1": false,
+        "names": [
+          "left_box_18_mid",
+          "left_box_18_far",
+          "circle_far",
+          "left_far_corner",
+          "circle_near",
+          "left_box_goal_far",
+          "left_post_near",
+          "center",
+          "left_post_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 21.384636340987413
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P8",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.2092,
+        "rt_max_m": 0.3985,
+        "rt_pass_l1": false,
+        "names": [
+          "right_box_18_mid",
+          "right_box_goal_far",
+          "right_box_18_far",
+          "right_post_far",
+          "right_post_near",
+          "right_far_corner",
+          "right_box_goal_near"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 13.626389265385315
+      },
+      "after": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.2092,
+        "rt_max_m": 0.3985,
+        "rt_pass_l1": false,
+        "names": [
+          "right_box_18_mid",
+          "right_box_goal_far",
+          "right_box_18_far",
+          "right_post_far",
+          "right_post_near",
+          "right_far_corner",
+          "right_box_goal_near"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 13.626389265385315
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P9",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.4915,
+        "rt_max_m": 0.6516,
+        "rt_pass_l1": false,
+        "names": [
+          "right_box_goal_near",
+          "right_post_far",
+          "right_box_18_near",
+          "right_near_corner",
+          "right_post_near",
+          "right_box_18_mid",
+          "right_box_goal_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 39.11093233869796
+      },
+      "after": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.4915,
+        "rt_max_m": 0.6516,
+        "rt_pass_l1": false,
+        "names": [
+          "right_box_goal_near",
+          "right_post_far",
+          "right_box_18_near",
+          "right_near_corner",
+          "right_post_near",
+          "right_box_18_mid",
+          "right_box_goal_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 39.11093233869796
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P_Goal1",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.104,
+        "rt_max_m": 0.1682,
+        "rt_pass_l1": false,
+        "names": [
+          "left_box_18_mid",
+          "left_box_18_near",
+          "left_box_goal_near",
+          "left_box_18_far",
+          "left_post_near",
+          "left_post_far",
+          "left_box_goal_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 9.495800317416878
+      },
+      "after": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.104,
+        "rt_max_m": 0.1682,
+        "rt_pass_l1": false,
+        "names": [
+          "left_box_18_mid",
+          "left_box_18_near",
+          "left_box_goal_near",
+          "left_box_18_far",
+          "left_post_near",
+          "left_post_far",
+          "left_box_goal_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 9.495800317416878
+      },
+      "improved_max_rt": true
+    },
+    {
+      "cam": "P_Goal2",
+      "dry_run": true,
+      "before": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.0654,
+        "rt_max_m": 0.1316,
+        "rt_pass_l1": true,
+        "names": [
+          "right_box_goal_near",
+          "right_box_goal_far",
+          "right_box_18_near",
+          "right_box_18_far",
+          "right_box_18_mid",
+          "right_post_near",
+          "right_post_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 12.040701163821833
+      },
+      "after": {
+        "n_landmarks": 7,
+        "rt_mean_m": 0.0654,
+        "rt_max_m": 0.1316,
+        "rt_pass_l1": true,
+        "names": [
+          "right_box_goal_near",
+          "right_box_goal_far",
+          "right_box_18_near",
+          "right_box_18_far",
+          "right_box_18_mid",
+          "right_post_near",
+          "right_post_far"
+        ],
+        "has_hull": true,
+        "projection3d_max_reproj_px": 12.040701163821833
+      },
+      "improved_max_rt": true
+    }
+  ],
+  "note": "Auto-keypoint path: detect Pitch 1 landmarks \u2192 fit_h_from_paired_points \u2192 write_calib_h. Match 4 uses same P-code calib files."
+}

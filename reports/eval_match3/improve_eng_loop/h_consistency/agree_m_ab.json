@@ -1,0 +1,92 @@
+{
+  "ts": "2026-09-02T17:47:56.323141+00:00",
+  "product_agree_m": 4.0,
+  "hit_m_gold": 4.0,
+  "holdout_gate": 0.884,
+  "holdout": {
+    "4.0": {
+      "agree_m": 4.0,
+      "clear_ball_proxy_R": 0.892,
+      "agree_among_emit": 0.343,
+      "emit": 554
+    },
+    "3.0": {
+      "agree_m": 3.0,
+      "clear_ball_proxy_R": 0.884,
+      "agree_among_emit": 0.337,
+      "emit": 546
+    },
+    "2.5": {
+      "agree_m": 2.5,
+      "clear_ball_proxy_R": 0.884,
+      "agree_among_emit": 0.321,
+      "emit": 546
+    }
+  },
+  "strips": {
+    "match3_quad_p10_31": {
+      "4.0": {
+        "agree_m": 4.0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "agree_among_emit": 0.416,
+        "err_median_m": 0.79,
+        "n_emit_scored": 219,
+        "n_clear": 224
+      },
+      "3.0": {
+        "agree_m": 3.0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "agree_among_emit": 0.416,
+        "err_median_m": 0.786,
+        "n_emit_scored": 219,
+        "n_clear": 224
+      },
+      "2.5": {
+        "agree_m": 2.5,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.879,
+        "agree_among_emit": 0.416,
+        "err_median_m": 0.786,
+        "n_emit_scored": 219,
+        "n_clear": 224
+      }
+    },
+    "match3_quad_p8_87": {
+      "4.0": {
+        "agree_m": 4.0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.846,
+        "agree_among_emit": 0.742,
+        "err_median_m": 0.147,
+        "n_emit_scored": 248,
+        "n_clear": 272
+      },
+      "3.0": {
+        "agree_m": 3.0,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.846,
+        "agree_among_emit": 0.726,
+        "err_median_m": 0.146,
+        "n_emit_scored": 248,
+        "n_clear": 272
+      },
+      "2.5": {
+        "agree_m": 2.5,
+        "P_emit": 1.0,
+        "clear_ball_R": 0.846,
+        "agree_among_emit": 0.714,
+        "err_median_m": 0.138,
+        "n_emit_scored": 248,
+        "n_clear": 272
+      }
+    }
+  },
+  "promote": {
+    "3.0": false,
+    "2.5": false
+  },
+  "any_promote": false,
+  "note": "Product default stays AGREE_M=4.0 unless promote[*]=true"
+}
