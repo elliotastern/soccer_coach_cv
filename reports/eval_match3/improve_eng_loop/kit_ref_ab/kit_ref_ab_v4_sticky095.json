@@ -1,0 +1,46 @@
+{
+  "ts": "2026-09-02T09:08:11.092459+00:00",
+  "n_samples": [
+    7,
+    15
+  ],
+  "colors": "Team0 blue (7), Team1 white (15)",
+  "kit_ref_metrics": {
+    "n_frames": 360,
+    "mean_blue_share": 0.5081913533996867,
+    "collapse_frac": 0.008333333333333333,
+    "both3_frac": 0.9166666666666666,
+    "balanced_frac": 0.8527777777777777,
+    "mean_players": 13.1,
+    "multcam_frac": 0.2239084753677329,
+    "agree_frac": 0.7205422314911366,
+    "conflict_gray_frac": 0.047966631908237745
+  },
+  "kit_ref_scores": {
+    "consensus": 7.1,
+    "balanced": 10.0,
+    "flickering": 9.66,
+    "composite": 9.01,
+    "sticky_keep": 0.946,
+    "swing_rate": 0.014
+  },
+  "flip_events": 249,
+  "baseline_flip_events": 283,
+  "gates": {
+    "mean_blue_share": true,
+    "collapse_frac": true,
+    "both3_frac": true
+  },
+  "all_pass": true,
+  "vs_baseline_on_same_cache": {
+    "mean_blue_share": 0.07958483328581362,
+    "collapse_frac": 0.0,
+    "balanced_frac": -0.033333333333333326,
+    "both3_frac": -0.05277777777777781,
+    "flickering_score": 0.009999999999999787,
+    "sticky_keep": 0.008000000000000007,
+    "swing_rate": 0.006,
+    "flip_events": -34
+  },
+  "note": "Kit-ref sticky 0.95: blue_share~0.508, flips 249 vs baseline 283 (better than unlabeled flicker) while keeping ~50/50. Freeze EMA/rebalance rejected \u2014 broke balance to ~0.70 blue."
+}

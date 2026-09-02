@@ -95,9 +95,24 @@ def test_label_player_pts() -> None:
     assert 0 in teams and 1 in teams
 
 
+def test_kit_ref_raises_sticky() -> None:
+    from src.perception.team_strategy import KIT_REF_STICKY_FLIP_CONF
+    from src.perception.team_core import STICKY_FLIP_CONF_AUTO
+
+    sess = TeamSession()
+    assert sess.sticky_flip_conf == STICKY_FLIP_CONF_AUTO
+    cents = np.zeros((2, 15), dtype=np.float32)
+    cents[0, 0] = 0.7
+    cents[1, 1] = 0.7
+    sess.seed_centroids(cents, 0.5, from_kit_ref=True)
+    assert sess.from_kit_ref is True
+    assert sess.sticky_flip_conf >= KIT_REF_STICKY_FLIP_CONF
+
+
 if __name__ == "__main__":
     test_torso_skips_legs()
     test_blue_vs_white_split()
     test_grass_rejected()
     test_label_player_pts()
+    test_kit_ref_raises_sticky()
     print("ok")

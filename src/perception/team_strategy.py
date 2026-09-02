@@ -12,6 +12,8 @@ from src.perception.team_core import (
 )
 
 STICKY_MATCH3 = 0.78
+# Kit-ref: raise sticky so labeled runs don't flicker worse than online-fit.
+KIT_REF_STICKY_FLIP_CONF = 0.95
 
 
 @dataclass(frozen=True)

@@ -33,7 +33,13 @@ from src.perception.team_core import (
     tracklet_median_feature,
     which_goal_box,
 )
-from src.perception.team_strategy import STRATEGIES, TeamStrategy, production_default, sticky_conf
+from src.perception.team_strategy import (
+    KIT_REF_STICKY_FLIP_CONF,
+    STRATEGIES,
+    TeamStrategy,
+    production_default,
+    sticky_conf,
+)
 
 BOX_DEDUP_M = 2.0
 STABLE_PID_M = 2.8
@@ -307,6 +313,7 @@ class TeamSession:
         self.sticky_flip_conf = sticky_conf(self.strategy)
         self.centroids: np.ndarray | None = None
         self.radius: float | None = None
+        self.from_kit_ref = False
         self.prev: list[dict] = []
         self.prev_fused: list[dict] = []
         self._next_stable_pid: int = 1
@@ -318,6 +325,7 @@ class TeamSession:
     def reset(self) -> None:
         self.centroids = None
         self.radius = None
+        self.from_kit_ref = False
         self.prev = []
         self.prev_fused = []
         self._next_stable_pid = 1
@@ -326,15 +334,27 @@ class TeamSession:
         self._bal_n1 = 0
         self._bal_cooldown = 0
 
-    def seed_centroids(self, centroids: np.ndarray, radius: float) -> None:
+    def seed_centroids(
+        self,
+        centroids: np.ndarray,
+        radius: float,
+        *,
+        from_kit_ref: bool = False,
+    ) -> None:
         self.centroids = np.asarray(centroids, dtype=np.float32).copy()
         self.radius = float(radius)
+        self.from_kit_ref = bool(from_kit_ref)
+        if self.from_kit_ref:
+            # Stickier than online-fit so kit-ref doesn't flicker worse than unlabeled.
+            self.sticky_flip_conf = max(self.sticky_flip_conf, KIT_REF_STICKY_FLIP_CONF)
 
     def load_centroids_file(self, path: Path) -> bool:
         loaded = load_centroids(path)
         if loaded is None:
             return False
-        self.seed_centroids(*loaded)
+        from src.perception.team_core import is_kit_ref
+
+        self.seed_centroids(*loaded, from_kit_ref=is_kit_ref(path))
         return True
 
     @staticmethod
