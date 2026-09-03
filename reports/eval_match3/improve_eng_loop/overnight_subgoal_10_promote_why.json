@@ -1,0 +1,11 @@
+{
+  "subgoal": 10,
+  "title": "Promote product ball_checkpoint only if A/B passes",
+  "why_score": 9.5,
+  "why": "Product pointer must stay v13 unless strip P_emit≥0.80, no clear_R regress vs v13, and holdout proxy R≥0.884. One-epoch v13 already taught short specialty can regress P10 — promote is evidence-gated, not train-gated.",
+  "prompt": "scripts/overnight_v14_finish.sh implements gate; writes overnight_subgoal_10_promote.json; on fail append DEAD_ENDS and keep configs/default.yaml → v13.",
+  "prompt_score": 9.6,
+  "fix_needed": true,
+  "fix_blocked_on": "v14 train finish",
+  "status": "why_ready_waiting_train"
+}

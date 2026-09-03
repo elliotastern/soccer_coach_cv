@@ -1,0 +1,17 @@
+{
+  "subgoal": 8,
+  "title": "Systemic FN bucket shrink (mapped_conf_below_emit)",
+  "why_score": 9.2,
+  "why": "Holdout v13 FN bins: mapped_conf_below_emit=26 (21 in conf 0.50–0.79), focus_map_fail=6 clip-only Goal1. Systemic keys: P10 (4 caches), P6 (2). Soft-conf specialty targets that band; success = fewer soft-conf FNs and/or more clear proxies emitted without lowering EMIT. Do not hull Goal1 low_support.",
+  "prompt": "Compare r1_random_fn_audit_holdout_v14 vs v13 totals.fn_buckets; require mapped_conf_below_emit ≤26 or clear_emit/clear_frames lift with R≥gate. Clip-only low_support must stay non-systemic.",
+  "prompt_score": 9.3,
+  "baseline": {
+    "mapped_conf_below_emit": 26,
+    "focus_map_fail": 6,
+    "soft_050_079": 21,
+    "source": "r1_random_fn_audit_holdout_v13.json"
+  },
+  "fix_needed": true,
+  "fix_blocked_on": "v14 train finish",
+  "status": "why_ready_waiting_train"
+}

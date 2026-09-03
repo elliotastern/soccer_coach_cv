@@ -1,0 +1,25 @@
+{
+  "subgoal": 8,
+  "title": "Systemic soft-conf FN shrink",
+  "why_score": 9.6,
+  "prompt_score": 9.4,
+  "why": "mapped_conf_below_emit holdout FNs 26\u219211; P6 no longer systemic (\u22652 caches).",
+  "evidence": {
+    "v13_buckets": {
+      "focus_map_fail": 6,
+      "mapped_conf_below_emit": 26
+    },
+    "v14_buckets": {
+      "mapped_conf_below_emit": 11
+    },
+    "v13_systemic": [
+      "mapped_conf_below_emit|P10|-",
+      "mapped_conf_below_emit|P6|-"
+    ],
+    "v14_systemic": [
+      "mapped_conf_below_emit|P10|-"
+    ]
+  },
+  "status": "pass_9plus",
+  "fix_needed": false
+}

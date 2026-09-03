@@ -1,0 +1,14 @@
+{
+  "subgoal": 5,
+  "title": "Strip P8 after v14",
+  "why_score": 9.5,
+  "prompt_score": 9.5,
+  "why": "P8 clear_R held/slight lift; P_emit\u22650.80.",
+  "evidence": {
+    "v13": 0.904,
+    "v14": 0.908,
+    "P_emit": 0.989
+  },
+  "status": "pass_9plus",
+  "fix_needed": false
+}

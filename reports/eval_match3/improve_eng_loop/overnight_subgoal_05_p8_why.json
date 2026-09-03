@@ -1,0 +1,12 @@
+{
+  "subgoal": 5,
+  "title": "Strip P8 clear_R / P_emit after v14 (no regress vs v13)",
+  "why_score": 9.4,
+  "why": "P8 still owns most strip residual after v13: label FN buckets soft conf 16 + no_det 7 + emit_fp 2; product clear_R=0.904 P_emit=0.992. Soft-conf specialty pack is P8-heavy (46 residual train items). Failure mode = conf still <0.80 on clear gold or no_det remains; success = clear_R ≥0.904−ε with P_emit≥0.80.",
+  "prompt": "Score P8 via ab_v14; compare to v13 0.904/0.992. If clear_R flat/regress but no_det shrinks, still accept if P_emit held and holdout gate held. If P_emit dips below 0.80, kill promote.",
+  "prompt_score": 9.5,
+  "baseline": {"P_emit": 0.992, "clear_ball_R": 0.904, "source": "ab_v13_residual_vs_v12.json"},
+  "fix_needed": true,
+  "fix_blocked_on": "v14 train finish",
+  "status": "why_ready_waiting_train"
+}

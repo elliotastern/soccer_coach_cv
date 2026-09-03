@@ -1,0 +1,28 @@
+{
+  "subgoal": "fusion_scoreboard",
+  "title": "Why camera-fusion eng-loop is not all >=9 yet",
+  "why_score": 9.5,
+  "why": "Product ball/fuse gates (product_goals/post, h1, f_post, c1/c2) already >=9. Only l2_overlap fails (P1/P6 RT>0.15). Landmarks FOV are fully labelled \u2014 inventing marks is locked closed. Therefore fusion-metric lift must come from detector soft-conf (Top-1), not L2 clicks. Current below-9: {'l2_overlap': 6.0}.",
+  "prompt": "Do not chase l2_overlap overnight. Keep Top-1 detector specialty; after v14 A/B, re-score product_goals. Player/kit metrics follow once ball emit coverage rises and player-map work (rank 3-4) starts.",
+  "prompt_score": 9.5,
+  "scores": {
+    "plan": 10.0,
+    "t1_wire": 10.0,
+    "l1_calib": 10.0,
+    "l2_overlap": 6.0,
+    "h1_support": 10.0,
+    "c1_fn": 10.0,
+    "c2_det": 9.0,
+    "c3_p6": 10.0,
+    "f_post": 10.0,
+    "product_goals": 9.0,
+    "product_post": 10.0
+  },
+  "below_notes": {
+    "l2_overlap": [
+      "P1 RT > 0.15",
+      "P6 RT > 0.15"
+    ]
+  },
+  "status": "why_locked_top1_correct"
+}

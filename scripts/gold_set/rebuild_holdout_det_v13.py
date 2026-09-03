@@ -120,6 +120,8 @@ def main() -> int:
     )
     args = p.parse_args()
     ckpt = args.ckpt or product_ckpt()
+    if not ckpt.is_absolute():
+        ckpt = (ROOT / ckpt).resolve()
     if not ckpt.is_file():
         raise SystemExit(f"missing {ckpt}")
 

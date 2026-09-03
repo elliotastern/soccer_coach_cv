@@ -1,0 +1,12 @@
+{
+  "subgoal": 7,
+  "title": "Holdout other-cam≥0.80 funnel stays ~0",
+  "why_score": 9.6,
+  "why": "0/32 clear FNs have another cam mapped ≥0.80 under v13 (holdout_other_cam_funnel_v13.json). High frac would mean fuse drop; near-zero means map/det residual. Overnight must not introduce fuse regressions; re-run funnel on post-v14 caches and require frac≈0.",
+  "prompt": "holdout_other_cam_funnel.py --cache-dir …/det_cache_v13 after v14 detect; require n_with_other_ge080_mapped / n_clear_fn ≤ 0.05.",
+  "prompt_score": 9.5,
+  "baseline": {"n_clear_fn": 32, "other_ge080": 0, "frac": 0.0},
+  "fix_needed": true,
+  "fix_blocked_on": "v14 train finish",
+  "status": "why_ready_waiting_train"
+}

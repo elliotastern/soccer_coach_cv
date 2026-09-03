@@ -1,0 +1,9 @@
+{
+  "subgoal": 3,
+  "title": "Specialty resume continuity",
+  "why_score": 9.5,
+  "prompt_score": 9.5,
+  "why": "Train completed epochs 265\u2192274 successfully; checkpoint snapped to v14_residual_snaps.",
+  "status": "pass_9plus",
+  "fix_needed": false
+}

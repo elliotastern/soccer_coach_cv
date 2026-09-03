@@ -47,4 +47,6 @@ Hard nos: train on holdout gallery; lower EMIT; invent landmarks; hull for one c
 
 - Product ball ckpt: `models/v13_residual_snaps/post_train/checkpoint.pth` (promoted)
 - v14 Mac MPS train running: epochs 265→275 · log `/tmp/v14_residual_mac_train.log`
-- After train: `ab_v14_residual_vs_v13.py` → promote only if no strip regress + P_emit≥0.80 + holdout gate held
+- Subgoals **1–3, 9** measured ≥9/10; **4–8, 10** have ≥9/10 *why* prompts; fix gated on train finish
+- Auto finish: `scripts/overnight_v14_finish.sh` (waits for train → A/B → holdout → promote or DEAD_ENDS)
+- Tracker: `reports/eval_match3/improve_eng_loop/overnight_top1_subgoal_tracker.json`

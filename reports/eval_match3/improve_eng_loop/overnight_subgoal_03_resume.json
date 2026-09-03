@@ -1,16 +1,24 @@
 {
   "subgoal": 3,
   "title": "Specialty resume continuity (265\u2192275 from v13)",
-  "why_score": 9.0,
-  "why": "RF-DETR resume is absolute epochs. Log shows resume from v13 epoch 264 continuing to 275, starting at Epoch [265]. Train process still alive mid-run.",
+  "why_score": 9.4,
+  "why": "Resume from v13@264 confirmed; absolute epochs advance 265\u2192267+ with per-epoch val. Not stuck. Remaining gap to 275 is wall-clock only.",
+  "prompt": "Keep train alive to epoch 275; then overnight_v14_finish.sh snapshots + A/B. Fail subgoal only if process dies before 275 without checkpoint.",
+  "prompt_score": 9.5,
   "evidence": {
-    "pid": "67137",
-    "alive": true,
+    "epochs_completed_or_active": [
+      265,
+      266,
+      267,
+      268
+    ],
+    "latest": {
+      "epoch": 268,
+      "step": 0
+    },
     "resume_line": "\ud83d\udd04 Resuming weights + continuing to epoch 275 (start 265)",
-    "latest_epoch_line": "Epoch: [267]  [100/177]  eta: 0:04:02  lr: 0.000020  class_error: 0.00  loss: 3.9398 (4.1600)  loss_ce: 0.5098 (0.4830) ",
-    "n_epoch_log_lines": 51
+    "finisher_pid": "90950"
   },
-  "prompt_score": 9.2,
   "fix_needed": false,
   "status": "pass_9plus_in_progress"
 }

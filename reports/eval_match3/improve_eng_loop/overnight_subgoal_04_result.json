@@ -1,0 +1,14 @@
+{
+  "subgoal": 4,
+  "title": "Strip P10 after v14",
+  "why_score": 9.5,
+  "prompt_score": 9.5,
+  "why": "Soft-conf specialty lifted P10 product clear_R; P_emit stayed \u22650.80.",
+  "evidence": {
+    "v13": 0.888,
+    "v14": 0.929,
+    "P_emit": 0.978
+  },
+  "status": "pass_9plus",
+  "fix_needed": false
+}

@@ -39,6 +39,7 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | L1 white-line re-click P8/P9 (≤18 px; hull preserved) | RT ≤ 0.15; P10 clear_R **0.876→0.879**; P8/holdout flat; strip P held |
 | **3D + smart hybrid** (`pick_3d_hybrid`: 3D when agree, else F0–F3) | Holdout clear_R **0.892** (parity); agree **0.343** (parity); P10 strip held; **promote_3d=true** | Opt-in via `fuse.mode: triangulate_3d`; default stays `pitch_merge` · `fuse3d_ab.json` |
 | **v13 residual 10-epoch** (Mac MPS @560; Catch down; no new landmarks) | P10 clear_R **0.879→0.888**; P8 **0.846→0.904**; P_emit ≥**0.99** | **Promoted** product `ball_checkpoint` → `v13_residual_snaps` · `ab_v13_residual_vs_v12.json` |
+| **v14 residual 10-epoch** (Mac MPS @560; no holdout train) | P10 clear_R **0.888→0.929**; P8 **0.904→0.908**; holdout proxy **0.96**; P_emit ≥**0.97** | **Promoted** product `ball_checkpoint` → `v14_residual_snaps` · `ab_v14_residual_vs_v13.json` |
 
 ## Residual (not fixed)
 

@@ -1,0 +1,14 @@
+{
+  "subgoal": 6,
+  "title": "Holdout proxy R \u22650.884",
+  "why_score": 9.7,
+  "prompt_score": 9.5,
+  "why": "Holdout clear_ball_proxy_R rose 0.893\u21920.960; gate held with margin.",
+  "evidence": {
+    "v13": 0.893,
+    "v14": 0.96,
+    "gate": 0.884
+  },
+  "status": "pass_9plus",
+  "fix_needed": false
+}

@@ -1,0 +1,24 @@
+{
+  "subgoal": 10,
+  "title": "Promote product ball_checkpoint only if A/B passes",
+  "why_score": 9.6,
+  "why": "Promote requires strip P_emit>=0.80, no clear_R regress vs v13, holdout proxy R>=0.884.",
+  "prompt_score": 9.6,
+  "promote": true,
+  "strip_promote_candidate": true,
+  "holdout_R": 0.96,
+  "holdout_gate_ok": true,
+  "strips": {
+    "match3_quad_p10_31": {
+      "v13_clear_R": 0.888,
+      "v14_clear_R": 0.929,
+      "d_clear_R": 0.041
+    },
+    "match3_quad_p8_87": {
+      "v13_clear_R": 0.904,
+      "v14_clear_R": 0.908,
+      "d_clear_R": 0.004
+    }
+  },
+  "status": "pass_9plus_promoted"
+}

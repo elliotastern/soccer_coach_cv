@@ -10,7 +10,7 @@ detection:
   player_class_id: 0
   ball_class_id: 1
   player_checkpoint: models/people_after_100_epochs.pth
-  ball_checkpoint: models/v13_residual_snaps/post_train/checkpoint.pth
+  ball_checkpoint: models/v14_residual_snaps/post_train/checkpoint.pth
   enhance_ball: true
   use_sahi: false
   use_kalman: true
@@ -27,10 +27,7 @@ tracker:
   apply_emit_gate: true
 team_assignment:
   kit_mode: auto
-  # Pre-game kit labels (kit_label_dashboard → team_centroids.json). Empty = fall back to
-  # {output_root}/team_centroids.json then {run_dir}/team_centroids.json. Match 4 scripts
-  # seed from KIT_REF / match root / P10-match4 — do not hardcode a Match-4-only path here.
-  kit_centroids_path: ""
+  kit_centroids_path: ''
   min_session_crops: 20
   fuse_max_players: 14
   golden_batch_frames: 600

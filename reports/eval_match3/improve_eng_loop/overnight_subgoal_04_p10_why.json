@@ -1,0 +1,12 @@
+{
+  "subgoal": 4,
+  "title": "Strip P10 clear_R / P_emit after v14 (no regress vs v13)",
+  "why_score": 9.4,
+  "why": "Fusion emits only when mapped ball conf clears EMIT_CONF=0.80. On P10 strip, residual clear FNs after v13 are almost gone (label audit: 1× mapped_conf_below_emit; product clear_R=0.888, P_emit=1.0). Subgoal fails only if v14 regresses clear_R below v13 or kills P_emit. Not a fuse-wiring issue (other-cam funnel 0).",
+  "prompt": "After v14 checkpoint exists: run ab_v14_residual_vs_v13.py; require P10 P_emit≥0.80 and clear_R ≥ v13 0.888−0.001. If regress, do not promote; diagnose conf histogram on FN frames only.",
+  "prompt_score": 9.5,
+  "baseline": {"P_emit": 1.0, "clear_ball_R": 0.888, "source": "ab_v13_residual_vs_v12.json"},
+  "fix_needed": true,
+  "fix_blocked_on": "v14 train finish",
+  "status": "why_ready_waiting_train"
+}

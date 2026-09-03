@@ -1,0 +1,12 @@
+{
+  "subgoal": 6,
+  "title": "Holdout gallery clear_ball_proxy_R ≥ gate 0.884",
+  "why_score": 9.3,
+  "why": "Holdout is the product-wide clear gate (not strip). v13 rebuild: proxy R=0.893 on 298 clear frames (was 0.892/241). Gate already passes; overnight risk is specialty overfit to strips → holdout drop. Measure with rebuild_holdout_det_v13.py pointed at v14 ckpt; pass if R≥0.884.",
+  "prompt": "Rebuild holdout det_cache_v13 with v14 weights; score pack clear_ball_proxy_R; fail promote if <0.884 even if strips look good.",
+  "prompt_score": 9.5,
+  "baseline": {"clear_ball_proxy_R": 0.893, "gate": 0.884, "source": "ab_v13_holdout_score.json"},
+  "fix_needed": true,
+  "fix_blocked_on": "v14 train finish",
+  "status": "why_ready_waiting_train"
+}
