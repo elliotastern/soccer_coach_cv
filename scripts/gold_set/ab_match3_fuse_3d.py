@@ -45,13 +45,14 @@ def score_holdout_cache(path: Path, cfg: dict) -> dict:
     prev = None
     gap = 0
     ukf = None
+    static = None
     for i in range(n):
         active, mapped = map_active(dets, i, cams, calibs, True)
         is_clear = any(
             float(rows[0][2]) >= CLEAR_SIDE and float(rows[0][1]) >= 0.30
             for rows in active.values()
         )
-        fused, prev, gap, ukf = fuse_ball_product(mapped, prev, gap, cfg=cfg, ukf=ukf)
+        fused, prev, gap, ukf, static = fuse_ball_product(mapped, prev, gap, cfg=cfg, ukf=ukf, frame_id=i, static_state=static)
         if fused is not None:
             emit += 1
             if fused.get("agree"):
@@ -105,6 +106,7 @@ def score_strip_3d(path: Path) -> dict:
     prev = None
     gap = 0
     ukf = None
+    static = None
     for fr in labels["frames"]:
         i = int(fr["i"])
         seed = (fr.get("cams") or {}).get(focus) or {}
@@ -113,7 +115,7 @@ def score_strip_3d(path: Path) -> dict:
         if is_clear:
             clear += 1
         active, mapped = map_active(dets, i, cams, calibs, True)
-        fused, prev, gap, ukf = fuse_ball_product(mapped, prev, gap, cfg=F3D_CFG, ukf=ukf)
+        fused, prev, gap, ukf, static = fuse_ball_product(mapped, prev, gap, cfg=F3D_CFG, ukf=ukf, frame_id=i, static_state=static)
         if fused is None or gold is None:
             continue
         emit += 1

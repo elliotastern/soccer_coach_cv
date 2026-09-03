@@ -1,6 +1,10 @@
 """Product ball fuse router: pitch_merge (F0-F3) vs triangulate_3d + optional UKF."""
 from __future__ import annotations
 
+from src.mapping.ball_static_ghost import (
+    apply_static_solo_ghost,
+    new_static_ghost_state,
+)
 from src.mapping.ball_ukf import BallPitchUKF
 from src.mapping.fuse3d_ball import fuse_balls_3d
 from src.mapping.fuse_config import load_fuse_config
@@ -43,12 +47,22 @@ def fuse_ball_product(
     cfg: dict | None = None,
     ukf: BallPitchUKF | None = None,
     hold_max_gap: int = HOLD_MAX_GAP,
-) -> tuple[dict | None, dict | None, int, BallPitchUKF | None]:
-    """Return (emit, prev_emit, frames_since_emit, ukf)."""
+    frame_id: int = 0,
+    static_state: dict | None = None,
+) -> tuple[dict | None, dict | None, int, BallPitchUKF | None, dict]:
+    """Return (emit, prev_emit, frames_since_emit, ukf, static_state).
+
+    Prefer multi-cam agree (existing F0–F3). Static high-conf solos that do not
+    move for STATIC_SOLO_FRAMES are dropped as ghosts (ballcap / junk).
+    """
     cfg = cfg or load_fuse_config()
     mode = str(cfg.get("mode", "pitch_merge"))
     reproj = cfg.get("reproj_max_px") or {}
     kw = _pitch_merge_kw(reproj)
+    st = static_state if static_state is not None else new_static_ghost_state()
+
+    def _gate(emit: dict | None) -> tuple[dict | None, dict]:
+        return apply_static_solo_ghost(emit, st, frame_id)
 
     if mode == "triangulate_3d":
         fresh_3d = fuse_balls_3d(rows, reproj_overrides=reproj)
@@ -58,27 +72,38 @@ def fuse_ball_product(
             if ukf is None:
                 ukf = BallPitchUKF()
             emit = ukf.step(fresh, hold_max_gap=hold_max_gap)
+            emit, st = _gate(emit)
             if emit is not None:
-                return emit, emit, 0, ukf
-            return None, prev_emit, frames_since_emit + 1, ukf
+                return emit, emit, 0, ukf, st
+            return None, prev_emit, frames_since_emit + 1, ukf, st
         if fresh is not None:
-            return fresh, fresh, 0, ukf
+            fresh, st = _gate(fresh)
+            if fresh is not None:
+                return fresh, fresh, 0, ukf, st
         gap = frames_since_emit + 1
         if cfg.get("fallback_pitch_merge", True):
             held = fuse_balls_with_hold(prev_emit, rows, gap, hold_max_gap=hold_max_gap, **kw)
             if held is not None:
                 held = {**held, "fuse_mode": "triangulate_3d+f0f3_hold"}
-                return held, prev_emit, gap, ukf
+                held, st = _gate(held)
+                if held is not None:
+                    return held, prev_emit, gap, ukf, st
         if prev_emit is not None and gap <= hold_max_gap:
             held = {**prev_emit, "hold": True, "gap": gap}
-            return held, prev_emit, gap, ukf
-        return None, prev_emit, gap, ukf
+            held, st = _gate(held)
+            if held is not None:
+                return held, prev_emit, gap, ukf, st
+        return None, prev_emit, gap, ukf, st
 
     fresh = fuse_balls(rows, **kw)
     if fresh is not None:
-        return fresh, fresh, 0, ukf
+        fresh, st = _gate(fresh)
+        if fresh is not None:
+            return fresh, fresh, 0, ukf, st
     gap = frames_since_emit + 1
     held = fuse_balls_with_hold(prev_emit, [], gap, hold_max_gap=hold_max_gap, **kw)
     if held is not None:
-        return held, prev_emit, gap, ukf
-    return None, prev_emit, gap, ukf
+        held, st = _gate(held)
+        if held is not None:
+            return held, prev_emit, gap, ukf, st
+    return None, prev_emit, gap, ukf, st

@@ -64,7 +64,7 @@ def test_hybrid_prefers_2d_when_3d_solo() -> None:
         {"xy": (0.0, 0.0), "conf": 0.95, "weight": 0.95, "support": 0.95, "cam": "P10"},
         {"xy": (0.5, 0.5), "conf": 0.90, "weight": 0.90, "support": 0.90, "cam": "P7"},
     ]
-    emit, _, gap, _ = fuse_ball_product(rows, None, 0, cfg=cfg)
+    emit, _, gap, _, _ = fuse_ball_product(rows, None, 0, cfg=cfg)
     if emit is None or gap != 0:
         raise AssertionError(f"hybrid 2-cam failed emit={emit}")
     if emit.get("fuse_mode") != "triangulate_3d+f0f3_fallback" and not emit.get("agree"):
@@ -107,7 +107,7 @@ def test_hybrid_fallback_recovers_solo() -> None:
         "support": 0.95,
         "cam": "P10",
     }
-    emit, _, gap, _ = fuse_ball_product([row], None, 0, cfg=cfg)
+    emit, _, gap, _, _ = fuse_ball_product([row], None, 0, cfg=cfg)
     if emit is None or gap != 0:
         raise AssertionError(f"hybrid solo failed emit={emit} gap={gap}")
     d3 = {"xy": (0.0, 0.0), "conf": 0.9, "agree": True, "fuse_mode": "triangulate_3d"}

@@ -185,10 +185,19 @@ def draw_events_bar(width: int, t_s: float, recent: list[dict], flash: str | Non
 
 
 def pick_best_ball_cam(bag: dict) -> str:
-    for cam in ("P10", "P9", "P7", "P8"):
-        if any(_is_ball_det(d) for d in (bag.get(cam) or [])):
-            return cam
-    return "P10"
+    """Highest-conf ball among cams present in bag (all eight when fuse bag is filled)."""
+    order = ("P10", "P9", "P7", "P8", "P1", "P6", "P_Goal1", "P_Goal2")
+    best_cam = None
+    best_conf = -1.0
+    for cam in order:
+        for d in bag.get(cam) or []:
+            if not _is_ball_det(d):
+                continue
+            conf = float(getattr(d, "confidence", 0.0) or 0.0)
+            if conf > best_conf:
+                best_conf = conf
+                best_cam = cam
+    return best_cam or "P10"
 
 
 def render_cam_panel(
@@ -202,6 +211,8 @@ def render_cam_panel(
     tile_h: int,
     grid_w: int,
     grid_h: int,
+    *,
+    bag_already_filled: bool = False,
 ) -> np.ndarray:
     if layout == "mosaic":
         return mosaic_quads_coach(
@@ -213,15 +224,16 @@ def render_cam_panel(
             detect_fn=detect_fn,
             apply_defish=apply_defish,
         )
-    mosaic_quads_coach(
-        vids,
-        fr,
-        tile_w=tile_w,
-        tile_h=tile_h,
-        dets_by_cam=bag,
-        detect_fn=detect_fn,
-        apply_defish=apply_defish,
-    )
+    if not bag_already_filled:
+        mosaic_quads_coach(
+            vids,
+            fr,
+            tile_w=tile_w,
+            tile_h=tile_h,
+            dets_by_cam=bag,
+            detect_fn=detect_fn,
+            apply_defish=apply_defish,
+        )
     best = pick_best_ball_cam(bag)
     rotate = best in QUAD_ROTATE_180
     tile = _tile(
@@ -270,9 +282,27 @@ def main() -> int:
     end = args.start + n_match - 1
     frames = list(range(args.start, end + 1, args.stride))
     vids = match3_videos(ROOT)
+    cfg_path = ROOT / "configs/default.yaml"
+    cfg = {}
+    if cfg_path.is_file():
+        cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+    ball_ckpt = str(
+        ROOT
+        / (
+            ((cfg.get("detection") or {}).get("ball_checkpoint"))
+            or "models/v14_residual_snaps/post_train/checkpoint.pth"
+        )
+    )
+    player_ckpt = str(
+        ROOT
+        / (
+            ((cfg.get("detection") or {}).get("player_checkpoint"))
+            or "models/people_after_100_epochs.pth"
+        )
+    )
     det = LocalRFDETRDetector(
-        player_checkpoint=str(ROOT / "models/people_after_100_epochs.pth"),
-        ball_checkpoint=str(ROOT / "models/v12_hard_snaps/post_train/checkpoint.pth"),
+        player_checkpoint=player_ckpt,
+        ball_checkpoint=ball_ckpt,
         confidence_threshold=0.15,
         enhance_ball=False,
         use_sahi=False,
@@ -280,14 +310,11 @@ def main() -> int:
         player_nms_iou=0.30,
         ball_nms_iou=0.4,
     )
+    print(f"ball_checkpoint={ball_ckpt}", flush=True)
 
     def detect_fn(cam, frame_bgr):
         return keep_top1_ball(det.detect(frame_bgr))
 
-    cfg_path = ROOT / "configs/default.yaml"
-    cfg = {}
-    if cfg_path.is_file():
-        cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     sess = session_from_config(cfg)
     kit_path = _resolve_mosaic_kit(args, cfg, out)
     if kit_path is not None and Path(kit_path).is_file():
@@ -310,6 +337,9 @@ def main() -> int:
     if args.fuse_cams is not None:
         fuse_cfg = {**fuse_cfg, "cams": args.fuse_cams}
     ball_ukf = None
+    ball_prev_emit = None
+    ball_gap = 0
+    ball_static = None
     use_full_fuse_bag = (
         fuse_cfg.get("cams") == "all" or fuse_cfg.get("mode") == "triangulate_3d"
     )
@@ -330,6 +360,7 @@ def main() -> int:
     stack = pitch_stack_metrics(grid_w, grid_h, drop_top=True, scale=0.46)
     for i, fr in enumerate(frames):
         bag = {}
+        bag_filled = False
         if events_only:
             mosaic_quads_coach(
                 vids,
@@ -339,6 +370,32 @@ def main() -> int:
                 dets_by_cam=bag,
                 detect_fn=detect_fn,
                 apply_defish=apply_defish,
+            )
+            bag_filled = True
+        elif args.layout == "best_ball" and use_full_fuse_bag:
+            # Detect all fuse cams once: pick best-ball view + pitch fuse share the bag.
+            fill_fuse_cams_for_pitch(
+                vids,
+                fr,
+                bag,
+                detect_fn,
+                apply_defish,
+                fuse_cfg=fuse_cfg,
+                single_ball=False,
+            )
+            bag_filled = True
+            mosaic = render_cam_panel(
+                args.layout,
+                vids,
+                fr,
+                bag,
+                detect_fn,
+                apply_defish,
+                tile_w,
+                tile_h,
+                grid_w,
+                grid_h,
+                bag_already_filled=True,
             )
         else:
             mosaic = render_cam_panel(
@@ -353,8 +410,11 @@ def main() -> int:
                 grid_w,
                 grid_h,
             )
+            bag_filled = True
         fuse_bag: dict = {}
-        if use_full_fuse_bag:
+        if args.layout == "best_ball" and use_full_fuse_bag and bag_filled:
+            fuse_bag = bag
+        elif use_full_fuse_bag:
             fill_fuse_cams_for_pitch(
                 vids,
                 fr,
@@ -373,8 +433,15 @@ def main() -> int:
             debug_cam=args.debug_cam,
             fuse_cfg=fuse_cfg,
             ukf_state=ball_ukf,
+            ball_prev_emit=ball_prev_emit,
+            ball_frames_since_emit=ball_gap,
+            ball_static_state=ball_static,
+            frame_id=int(fr),
         )
         ball_ukf = live.get("ukf_state")
+        ball_prev_emit = live.get("ball_prev_emit")
+        ball_gap = int(live.get("ball_frames_since_emit") or 0)
+        ball_static = live.get("ball_static_state")
         players = live["players"]
         ball = live["ball_xy"]
         if ball is not None:

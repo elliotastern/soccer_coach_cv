@@ -1074,11 +1074,25 @@ def render_synced_frame_review(
     fused = None
     if dets_enabled and dets_by_cam:
         try:
+            prev = st.session_state.get("_ball_prev_emit")
+            gap = int(st.session_state.get("_ball_gap") or 0)
+            static = st.session_state.get("_ball_static")
+            last_fr = st.session_state.get("_ball_fuse_fr")
+            if last_fr is not None and abs(int(frame_id) - int(last_fr)) > 90:
+                prev, gap, static = None, 10**9, None
             live = fuse_live_dets_for_pitch(
                 dets_by_cam,
                 apply_undistort=not bool(apply_defish),
                 team_session=team_session,
+                ball_prev_emit=prev,
+                ball_frames_since_emit=gap,
+                ball_static_state=static,
+                frame_id=int(frame_id),
             )
+            st.session_state._ball_prev_emit = live.get("ball_prev_emit")
+            st.session_state._ball_gap = live.get("ball_frames_since_emit")
+            st.session_state._ball_static = live.get("ball_static_state")
+            st.session_state._ball_fuse_fr = int(frame_id)
             if live["n_cams"] > 0 and (live["players"] or live["ball_xy"]):
                 fused = live
         except Exception as exc:

@@ -131,7 +131,8 @@ def apply_match3_ball_hold(
     *,
     sibling_tables: dict | None = None,
     cam_id: str | None = None,
-) -> tuple[FrameData, Optional[dict], int, object]:
+    static_state: dict | None = None,
+) -> tuple[FrameData, Optional[dict], int, object, dict]:
     """Override tracker ball with map_ball_box + product fuse (2D or 3D)."""
     rows = collect_ball_maps(calib, frame_data.detections or [], ball_id, frame_wh)
     if sibling_tables and cam_id and fuse_cfg:
@@ -144,12 +145,18 @@ def apply_match3_ball_hold(
                 skip_cam=cam_id,
             )
             rows = merge_live_and_sibling_ball_rows(rows, sibling_rows, current_cam=cam_id)
-    emit, prev_emit, frames_since_emit, ukf_state = fuse_ball_product(
-        rows, prev_emit, frames_since_emit, cfg=fuse_cfg, ukf=ukf_state,
+    emit, prev_emit, frames_since_emit, ukf_state, static_state = fuse_ball_product(
+        rows,
+        prev_emit,
+        frames_since_emit,
+        cfg=fuse_cfg,
+        ukf=ukf_state,
+        frame_id=int(frame_data.frame_id),
+        static_state=static_state,
     )
     if emit is None:
         frame_data.ball = None
-        return frame_data, prev_emit, frames_since_emit, ukf_state
+        return frame_data, prev_emit, frames_since_emit, ukf_state, static_state
     frame_data.ball = Ball(
         x_pitch=float(emit["xy"][0]),
         y_pitch=float(emit["xy"][1]),
@@ -158,7 +165,7 @@ def apply_match3_ball_hold(
         timestamp=frame_data.timestamp,
         object_id=-1,
     )
-    return frame_data, emit, 0, ukf_state
+    return frame_data, emit, 0, ukf_state, static_state
 
 
 def _cam_id_from_video(video_path: str) -> str | None:
@@ -456,6 +463,7 @@ def process_video(
     ball_id = config["detection"]["ball_class_id"]
     fuse_cfg = config.get("fuse") or load_fuse_config()
     ball_ukf = None
+    ball_static_state = None
     multicam_root = run_dir.parent
     sibling_tables: dict = {}
     sibling_refresh = 0
@@ -495,7 +503,8 @@ def process_video(
             if calib is not None:
                 frame_wh = (frame.shape[1], frame.shape[0])
                 sibs = _refresh_sibling_tables()
-                frame_data, prev_ball_emit, frames_since_ball, ball_ukf = apply_match3_ball_hold(
+                frame_data, prev_ball_emit, frames_since_ball, ball_ukf, ball_static_state = (
+                    apply_match3_ball_hold(
                     frame_data,
                     calib,
                     ball_id,
@@ -506,6 +515,8 @@ def process_video(
                     ukf_state=ball_ukf,
                     sibling_tables=sibs if sibs else None,
                     cam_id=cam_id,
+                    static_state=ball_static_state,
+                    )
                 )
             if frame_data.ball is not None:
                 ball_emit_frames += 1

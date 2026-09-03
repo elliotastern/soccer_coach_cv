@@ -433,15 +433,10 @@ def fuse_ball_at_frame(
     rows = ball_map_rows_at_frame(cam_tables, frame_id, cams=cams, tol=tol)
     if not rows:
         return None
-    emit, _, _, _ = fuse_ball_product(rows, None, 0, cfg=cfg)
+    emit, _, _, _, _ = fuse_ball_product(rows, None, 0, cfg=cfg, frame_id=int(frame_id))
     if emit is not None:
         return tuple(emit["xy"])
-    if str(cfg.get("mode", "pitch_merge")) == "pitch_merge":
-        fused = fuse_balls(rows)
-        if fused is not None:
-            return tuple(fused["xy"])
-    best = max(rows, key=lambda r: r["conf"])
-    return best["xy"]
+    return None
 
 
 def fuse_frame_for_pitch(
@@ -485,6 +480,10 @@ def fuse_live_dets_for_pitch(
     reproj_prune_players: bool = False,
     fuse_cfg: dict | None = None,
     ukf_state=None,
+    ball_prev_emit: dict | None = None,
+    ball_frames_since_emit: int = 0,
+    ball_static_state: dict | None = None,
+    frame_id: int = 0,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -494,8 +493,9 @@ def fuse_live_dets_for_pitch(
     Use apply_undistort=True for raw mosaic pixels; False when dets are already defished.
     ``player_recall=True`` (default): softer player hull + live ghost floors.
     ``color_gate_soft``: absorb cross-cam solos up to ``soft_m`` only when team labels agree.
+    Thread ``ball_prev_emit`` / ``ball_static_state`` across frames for F0 hold + static-solo ghost.
     """
-    from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box, map_player_box
+    from src.mapping.match3_xy import load_calib, map_ball_box, map_player_box
     from src.review.team_live import label_player_pts
 
     if not dets_by_cam:
@@ -630,29 +630,27 @@ def fuse_live_dets_for_pitch(
     ball_xy = None
     ball_meta = None
     ukf_out = ukf_state
-    if ball_rows:
-        from src.mapping.fuse_config import load_fuse_config
-        from src.mapping.fuse_product import fuse_ball_product
+    prev_out = ball_prev_emit
+    gap_out = int(ball_frames_since_emit)
+    static_out = ball_static_state
+    from src.mapping.fuse_config import load_fuse_config
+    from src.mapping.fuse_product import fuse_ball_product
 
-        cfg = fuse_cfg or load_fuse_config()
-        emit, _prev, _gap, ukf_out = fuse_ball_product(
-            ball_rows, None, 0, cfg=cfg, ukf=ukf_state,
-        )
-        if emit is not None:
-            ball_xy = tuple(emit["xy"])
-            ball_meta = emit
-        elif str(cfg.get("mode", "pitch_merge")) == "pitch_merge":
-            fused = fuse_balls(ball_rows)
-            if fused is not None:
-                ball_xy = tuple(fused["xy"])
-                ball_meta = fused
-            else:
-                best = max(ball_rows, key=lambda r: r["conf"])
-                ball_xy = tuple(best["xy"])
-        else:
-            best = max(ball_rows, key=lambda r: r["conf"])
-            if float(best["conf"]) >= 0.80:
-                ball_xy = tuple(best.get("ground_xy") or best["xy"])
+    cfg = fuse_cfg or load_fuse_config()
+    # Always step product fuse (even with empty rows) so hold + static ghost advance.
+    emit, prev_out, gap_out, ukf_out, static_out = fuse_ball_product(
+        ball_rows,
+        ball_prev_emit,
+        int(ball_frames_since_emit),
+        cfg=cfg,
+        ukf=ukf_state,
+        frame_id=int(frame_id),
+        static_state=ball_static_state,
+    )
+    if emit is not None:
+        ball_xy = tuple(emit["xy"])
+        ball_meta = emit
+    # No raw max-conf fallback: product drop (incl. static ghost) must stay dropped.
 
     out = {
         "players": players,
@@ -662,7 +660,10 @@ def fuse_live_dets_for_pitch(
         "cams": sorted(used),
         "source": "live",
         "consensus": consensus_stats,
-        "ukf_state": ukf_out if ball_rows else ukf_state,
+        "ukf_state": ukf_out,
+        "ball_prev_emit": prev_out,
+        "ball_frames_since_emit": gap_out,
+        "ball_static_state": static_out,
     }
     if debug_cam:
         out["player_cams"] = player_cams
