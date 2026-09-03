@@ -1,0 +1,15 @@
+{
+  "subgoal": 1,
+  "title": "Residual FN harvest correctness (no holdout leakage)",
+  "why_score": 9.5,
+  "why": "v14 pack excludes Match3 frames 120-194 and never includes holdout gallery stems. Train COCO verified: holdout_frame_leak=0, holdout_gallery_leak=0. Residual recipe uses v13 strip caches for soft/no_det only.",
+  "evidence": {
+    "train_images": 709,
+    "holdout_frame_leak_count": 0,
+    "holdout_gallery_leak_count": 0,
+    "manifest_held_out": "Match3 M1 frames 120\u2013194 (same as v11); not written to train"
+  },
+  "prompt_score": 9.5,
+  "fix_needed": false,
+  "status": "pass_9plus"
+}

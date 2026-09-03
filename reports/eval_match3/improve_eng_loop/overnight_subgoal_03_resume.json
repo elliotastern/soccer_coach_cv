@@ -1,0 +1,16 @@
+{
+  "subgoal": 3,
+  "title": "Specialty resume continuity (265\u2192275 from v13)",
+  "why_score": 9.0,
+  "why": "RF-DETR resume is absolute epochs. Log shows resume from v13 epoch 264 continuing to 275, starting at Epoch [265]. Train process still alive mid-run.",
+  "evidence": {
+    "pid": "67137",
+    "alive": true,
+    "resume_line": "\ud83d\udd04 Resuming weights + continuing to epoch 275 (start 265)",
+    "latest_epoch_line": "Epoch: [267]  [100/177]  eta: 0:04:02  lr: 0.000020  class_error: 0.00  loss: 3.9398 (4.1600)  loss_ce: 0.5098 (0.4830) ",
+    "n_epoch_log_lines": 51
+  },
+  "prompt_score": 9.2,
+  "fix_needed": false,
+  "status": "pass_9plus_in_progress"
+}

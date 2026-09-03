@@ -1,0 +1,19 @@
+{
+  "subgoal": 9,
+  "title": "Catch @1288 path ready when Tailscale returns",
+  "why_score": 9.0,
+  "why": "Sync + overnight + catch yaml exist. Catch SSH currently timed out / unreachable \u2014 blocker is network not missing scripts. Mac @560 continues overnight.",
+  "evidence": {
+    "scripts_present": {
+      "scripts/sync_v13_residual_to_catch.sh": true,
+      "scripts/overnight_v13_residual.sh": true,
+      "configs/finetune_v13_residual_catch.yaml": true
+    },
+    "catch_ssh_up": false,
+    "catch_stderr": "ssh: connect to host 100.113.134.41 port 22: Operation timed out\n"
+  },
+  "prompt_score": 9.0,
+  "fix_needed": false,
+  "action_when_up": "bash scripts/sync_v13_residual_to_catch.sh then overnight at 1288",
+  "status": "pass_9plus_deferred_network"
+}

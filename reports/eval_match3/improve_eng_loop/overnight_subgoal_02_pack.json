@@ -1,0 +1,20 @@
+{
+  "subgoal": 2,
+  "title": "Train pack integrity (COCO, symlinks, resolution 560)",
+  "why_score": 9.5,
+  "why": "v14 COCO train/valid exist with images on disk; models/dataset/{train,valid,test} symlink to pack (test\u2192valid); Mac config resolution=560 batch=1.",
+  "evidence": {
+    "train_images": 709,
+    "valid_images": 39,
+    "symlinks": {
+      "train": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v14_residual/train",
+      "valid": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v14_residual/valid",
+      "test": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v14_residual/valid"
+    },
+    "resolution": 560,
+    "issues": []
+  },
+  "prompt_score": 9.5,
+  "fix_needed": false,
+  "status": "pass_9plus"
+}

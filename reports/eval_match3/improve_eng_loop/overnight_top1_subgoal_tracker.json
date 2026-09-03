@@ -1,0 +1,68 @@
+{
+  "goal": "Top-1 detector soft-conf specialty \u2192 fusion-fed metrics 9/10+",
+  "overfit": "low \u2014 holdout excluded",
+  "subgoals": [
+    {
+      "subgoal": 1,
+      "title": "Residual FN harvest correctness (no holdout leakage)",
+      "why_score": 9.5,
+      "why": "v14 pack excludes Match3 frames 120-194 and never includes holdout gallery stems. Train COCO verified: holdout_frame_leak=0, holdout_gallery_leak=0. Residual recipe uses v13 strip caches for soft/no_det only.",
+      "evidence": {
+        "train_images": 709,
+        "holdout_frame_leak_count": 0,
+        "holdout_gallery_leak_count": 0,
+        "manifest_held_out": "Match3 M1 frames 120\u2013194 (same as v11); not written to train"
+      },
+      "prompt_score": 9.5,
+      "fix_needed": false,
+      "status": "pass_9plus"
+    },
+    {
+      "subgoal": 2,
+      "title": "Train pack integrity (COCO, symlinks, resolution 560)",
+      "why_score": 9.5,
+      "why": "v14 COCO train/valid exist with images on disk; models/dataset/{train,valid,test} symlink to pack (test\u2192valid); Mac config resolution=560 batch=1.",
+      "evidence": {
+        "train_images": 709,
+        "valid_images": 39,
+        "symlinks": {
+          "train": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v14_residual/train",
+          "valid": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v14_residual/valid",
+          "test": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v14_residual/valid"
+        },
+        "resolution": 560,
+        "issues": []
+      },
+      "prompt_score": 9.5,
+      "fix_needed": false,
+      "status": "pass_9plus"
+    },
+    {
+      "subgoal": 3,
+      "title": "Specialty resume continuity (265\u2192275 from v13)",
+      "why_score": 9.0,
+      "why": "RF-DETR resume is absolute epochs. Log shows resume from v13 epoch 264 continuing to 275, starting at Epoch [265]. Train process still alive mid-run.",
+      "evidence": {
+        "pid": "67137",
+        "alive": true,
+        "resume_line": "\ud83d\udd04 Resuming weights + continuing to epoch 275 (start 265)",
+        "latest_epoch_line": "Epoch: [267]  [100/177]  eta: 0:04:02  lr: 0.000020  class_error: 0.00  loss: 3.9398 (4.1600)  loss_ce: 0.5098 (0.4830) ",
+        "n_epoch_log_lines": 51
+      },
+      "prompt_score": 9.2,
+      "fix_needed": false,
+      "status": "pass_9plus_in_progress"
+    }
+  ],
+  "blocked_on_train": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    10
+  ],
+  "ready_scripts": [
+    9
+  ]
+}
