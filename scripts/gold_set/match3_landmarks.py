@@ -488,6 +488,67 @@ def migrate_clicks_to_defish(
     return out
 
 
+def load_saved_clicks_for_ui(cam: str) -> dict:
+    """Load calib clicks onto the current tags.json defish still.
+
+    When fingerprints match, return clicks as saved. When tags moved (manual
+    retune), migrate clicks through raw → new defish so the user can nudge
+    and Save map (refit H). Never writes calib.
+    """
+    if cam not in {c["id"] for c in CAMS}:
+        raise ValueError(f"unknown cam {cam}")
+    calib_path = CALIB_DIR / f"{cam}_manual.json"
+    if not calib_path.is_file():
+        return {"ok": True, "camera": cam, "has_calib": False, "image_points": []}
+    rec = json.loads(calib_path.read_text(encoding="utf-8"))
+    names = list(rec.get("landmark_names") or [])
+    pts = list(rec.get("image_points") or [])
+    fish = load_fisheye_tag(cam)
+    old_u = rec.get("undistort")
+    out = {
+        "ok": True,
+        "camera": cam,
+        "has_calib": True,
+        "order": rec.get("order"),
+        "landmark_names": names,
+        "image_points": pts,
+        "migrated": False,
+        "undistort": fish,
+        "undistort_fingerprint": undistort_fingerprint(fish) if fish else None,
+        "calib_fingerprint": rec.get("undistort_fingerprint")
+        or (undistort_fingerprint(_brown_params(old_u)) if old_u else None),
+    }
+    if fish is None or not old_u or not pts:
+        return out
+    want = undistort_fingerprint(fish)
+    got = out["calib_fingerprint"]
+    if got == want:
+        rt, _ = _fit_rt(pts, names)
+        out["rt_max_m"] = round(rt, 4)
+        return out
+    raw_path = STILL_RAW_DIR / f"{cam}.jpg"
+    img = cv2.imread(str(raw_path))
+    if img is None:
+        still = STILL_DIR / f"{cam}.jpg"
+        img = cv2.imread(str(still))
+    if img is None:
+        raise FileNotFoundError(f"no still for {cam} — run match3_landmarks extract")
+    h, w = img.shape[:2]
+    migrated = migrate_clicks_to_defish(
+        pts, w, h, _brown_params(old_u), _brown_params(fish)
+    )
+    rt, _ = _fit_rt(migrated, names)
+    out.update(
+        {
+            "image_points": migrated,
+            "migrated": True,
+            "rt_max_m": round(rt, 4),
+            "note": "Clicks migrated to current tags.json defish — nudge onto lines, then Save map.",
+        }
+    )
+    return out
+
+
 def _fit_rt(image_points: list, landmark_names: list) -> tuple[float, np.ndarray | None]:
     src, dst, names = [], [], []
     for n, pt in zip(landmark_names, image_points):

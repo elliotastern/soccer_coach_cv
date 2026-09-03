@@ -1,28 +1,20 @@
-# Overnight Top-1 status board — COMPLETE
+# Overnight fusion status
 
-**Goal:** camera fusion 9/10+ via better ball/player/kit metrics  
-**Top-1 (non-overfit):** detector soft-conf specialty — **DONE / PROMOTED v14**
+## Hard stop
 
-## Results
+**Only eng-loop fail:** `match4_kit=7.7`  
+**Only fix:** Catch PC online → Match-4 batch with P1/P6 + kit-ref  
+**Catch:** Tailscale **Offline** (last seen ~7d / 2026-08-27)  
+**Mac Tailscale:** up · **Waiter:** polling PID (see `/tmp/wait_catch_m4kit.log`)
 
-| Metric | v13 | v14 |
-|--------|----:|----:|
-| Strip P10 clear_R | 0.888 | **0.929** |
-| Strip P8 clear_R | 0.904 | **0.908** |
-| Holdout proxy R | 0.893 | **0.960** |
-| Holdout soft FNs | 26 | **11** |
-| Other-cam≥0.80 funnel | 0/32 | **0/11** |
+## Top 5
 
-Product `ball_checkpoint` → `models/v14_residual_snaps/post_train/checkpoint.pth`
+1. **Power on Catch** → fullcam kit batch (waiter ready)
+2. Soft merge &gt;4.5 — defer
+3. Goals — optional
+4. Local polarity/merge/H — exhausted
+5. v15 — diminishing
 
-## Top 5 (next after Top-1)
+## Do not re-run
 
-1. ~~Detector soft-conf specialty~~ **done**
-2. H/map on existing landmarks (L2 eng-loop still 6 — FOV locked; skip invent)
-3. Player pitch-map stitch ← next for kit metrics
-4. Kit-ref sticky
-5. Opt-in 3D when agree
-
-## Subgoals 1–10
-
-All ≥9/10 for Top-1 loop (see overnight_subgoal_*_result.json / promote.json).
+Local fusion A/B for kit consensus 9 — proven impossible on quad-only without end cams.

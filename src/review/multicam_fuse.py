@@ -12,6 +12,8 @@ from src.mapping.match3_xy import fuse_balls
 # Pitch-space merge radius for same person seen by two cams (meters)
 PLAYER_MERGE_M = 1.8
 PLAYER_MERGE_M_LIVE = 2.2
+# Live: mutual-nearest same-team soft merge beyond LIVE radius (holdout-gated)
+PLAYER_MERGE_SOFT_M_LIVE = 4.5
 FUSE_MAX_PLAYERS = 14
 SOLO_TEAM_CONF = 0.55
 # End-line H error is larger — wider merge inside Pitch 1 goal boxes
@@ -92,6 +94,9 @@ def _prune_player_reproj(
 def _cluster_players(
     player_pts: list[dict],
     merge_m: float = PLAYER_MERGE_M,
+    *,
+    soft_m: float | None = None,
+    color_gate: bool = False,
 ) -> list[list[dict]]:
     pts = sorted(player_pts, key=lambda p: p["conf"], reverse=True)
     clusters: list[list[dict]] = []
@@ -105,7 +110,42 @@ def _cluster_players(
                 break
         if not placed:
             clusters.append([p])
-    return clusters
+    if not color_gate or soft_m is None or float(soft_m) <= float(merge_m):
+        return clusters
+    # Mutual-nearest same-team soft merge (cross-cam solos only) — anti-teammate.
+    solo_idx = [i for i, cl in enumerate(clusters) if len(cl) == 1]
+    solos = [(i, clusters[i][0]) for i in solo_idx]
+    nearest: dict[int, tuple[int, float]] = {}
+    for i, p in solos:
+        tid = int(p.get("team", -1))
+        if tid < 0:
+            continue
+        best_j, best_d = -1, 1e9
+        for j, q in solos:
+            if j == i:
+                continue
+            if p.get("cam") and q.get("cam") == p.get("cam"):
+                continue
+            if int(q.get("team", -1)) != tid:
+                continue
+            d = _dist(p["xy"], q["xy"])
+            if d <= float(merge_m) or d > float(soft_m):
+                continue
+            if d < best_d:
+                best_d, best_j = d, j
+        if best_j >= 0:
+            nearest[i] = (best_j, best_d)
+    used: set[int] = set()
+    for i, (j, _d) in nearest.items():
+        if i in used or j in used:
+            continue
+        if nearest.get(j, (-1, 0.0))[0] != i:
+            continue
+        clusters[i].append(clusters[j][0])
+        clusters[j] = []
+        used.add(i)
+        used.add(j)
+    return [cl for cl in clusters if cl]
 
 
 def _weighted_team_vote(cl: list[dict]) -> int:
@@ -436,6 +476,8 @@ def fuse_live_dets_for_pitch(
     *,
     apply_undistort: bool = True,
     merge_m: float = PLAYER_MERGE_M_LIVE,
+    soft_m: float | None = PLAYER_MERGE_SOFT_M_LIVE,
+    color_gate_soft: bool = True,
     team_session=None,
     player_recall: bool = True,
     debug_cam: bool = False,
@@ -451,6 +493,7 @@ def fuse_live_dets_for_pitch(
     Pass ``team_session`` (TeamSession) to lock kit identity across frames.
     Use apply_undistort=True for raw mosaic pixels; False when dets are already defished.
     ``player_recall=True`` (default): softer player hull + live ghost floors.
+    ``color_gate_soft``: absorb cross-cam solos up to ``soft_m`` only when team labels agree.
     """
     from src.mapping.match3_xy import fuse_balls, load_calib, map_ball_box, map_player_box
     from src.review.team_live import label_player_pts
@@ -543,7 +586,12 @@ def fuse_live_dets_for_pitch(
         "n_conflict_gray": 0,
     }
     if player_pts:
-        clusters = _cluster_players(player_pts, merge_m=merge_m)
+        clusters = _cluster_players(
+            player_pts,
+            merge_m=merge_m,
+            soft_m=soft_m,
+            color_gate=bool(color_gate_soft),
+        )
         if debug_cam:
             players, player_cams, consensus_stats = _fuse_player_clusters(
                 clusters,

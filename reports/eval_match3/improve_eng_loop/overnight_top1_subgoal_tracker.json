@@ -1,6 +1,13 @@
 {
   "goal": "Top-1 detector soft-conf specialty \u2192 fusion-fed metrics 9/10+",
-  "overfit": "low \u2014 holdout excluded",
+  "overfit": "low \u2014 holdout excluded; promote on holdout+strips",
+  "top5": [
+    "detector soft-conf specialty",
+    "H/map on existing landmarks",
+    "player pitch-map stitch",
+    "kit-ref sticky",
+    "opt-in 3D when agree"
+  ],
   "subgoals": [
     {
       "subgoal": 1,
@@ -52,17 +59,119 @@
       "prompt_score": 9.2,
       "fix_needed": false,
       "status": "pass_9plus_in_progress"
+    },
+    {
+      "subgoal": 4,
+      "title": "Strip P10 clear_R / P_emit after v14 (no regress vs v13)",
+      "why_score": 9.4,
+      "why": "Fusion emits only when mapped ball conf clears EMIT_CONF=0.80. On P10 strip, residual clear FNs after v13 are almost gone (label audit: 1\u00d7 mapped_conf_below_emit; product clear_R=0.888, P_emit=1.0). Subgoal fails only if v14 regresses clear_R below v13 or kills P_emit. Not a fuse-wiring issue (other-cam funnel 0).",
+      "prompt": "After v14 checkpoint exists: run ab_v14_residual_vs_v13.py; require P10 P_emit\u22650.80 and clear_R \u2265 v13 0.888\u22120.001. If regress, do not promote; diagnose conf histogram on FN frames only.",
+      "prompt_score": 9.5,
+      "baseline": {
+        "P_emit": 1.0,
+        "clear_ball_R": 0.888,
+        "source": "ab_v13_residual_vs_v12.json"
+      },
+      "fix_needed": true,
+      "fix_blocked_on": "v14 train finish",
+      "status": "why_ready_waiting_train"
+    },
+    {
+      "subgoal": 5,
+      "title": "Strip P8 clear_R / P_emit after v14 (no regress vs v13)",
+      "why_score": 9.4,
+      "why": "P8 still owns most strip residual after v13: label FN buckets soft conf 16 + no_det 7 + emit_fp 2; product clear_R=0.904 P_emit=0.992. Soft-conf specialty pack is P8-heavy (46 residual train items). Failure mode = conf still <0.80 on clear gold or no_det remains; success = clear_R \u22650.904\u2212\u03b5 with P_emit\u22650.80.",
+      "prompt": "Score P8 via ab_v14; compare to v13 0.904/0.992. If clear_R flat/regress but no_det shrinks, still accept if P_emit held and holdout gate held. If P_emit dips below 0.80, kill promote.",
+      "prompt_score": 9.5,
+      "baseline": {
+        "P_emit": 0.992,
+        "clear_ball_R": 0.904,
+        "source": "ab_v13_residual_vs_v12.json"
+      },
+      "fix_needed": true,
+      "fix_blocked_on": "v14 train finish",
+      "status": "why_ready_waiting_train"
+    },
+    {
+      "subgoal": 6,
+      "title": "Holdout gallery clear_ball_proxy_R \u2265 gate 0.884",
+      "why_score": 9.3,
+      "why": "Holdout is the product-wide clear gate (not strip). v13 rebuild: proxy R=0.893 on 298 clear frames (was 0.892/241). Gate already passes; overnight risk is specialty overfit to strips \u2192 holdout drop. Measure with rebuild_holdout_det_v13.py pointed at v14 ckpt; pass if R\u22650.884.",
+      "prompt": "Rebuild holdout det_cache_v13 with v14 weights; score pack clear_ball_proxy_R; fail promote if <0.884 even if strips look good.",
+      "prompt_score": 9.5,
+      "baseline": {
+        "clear_ball_proxy_R": 0.893,
+        "gate": 0.884,
+        "source": "ab_v13_holdout_score.json"
+      },
+      "fix_needed": true,
+      "fix_blocked_on": "v14 train finish",
+      "status": "why_ready_waiting_train"
+    },
+    {
+      "subgoal": 7,
+      "title": "Holdout other-cam\u22650.80 funnel stays ~0",
+      "why_score": 9.6,
+      "why": "0/32 clear FNs have another cam mapped \u22650.80 under v13 (holdout_other_cam_funnel_v13.json). High frac would mean fuse drop; near-zero means map/det residual. Overnight must not introduce fuse regressions; re-run funnel on post-v14 caches and require frac\u22480.",
+      "prompt": "holdout_other_cam_funnel.py --cache-dir \u2026/det_cache_v13 after v14 detect; require n_with_other_ge080_mapped / n_clear_fn \u2264 0.05.",
+      "prompt_score": 9.5,
+      "baseline": {
+        "n_clear_fn": 32,
+        "other_ge080": 0,
+        "frac": 0.0
+      },
+      "fix_needed": true,
+      "fix_blocked_on": "v14 train finish",
+      "status": "why_ready_waiting_train"
+    },
+    {
+      "subgoal": 8,
+      "title": "Systemic FN bucket shrink (mapped_conf_below_emit)",
+      "why_score": 9.2,
+      "why": "Holdout v13 FN bins: mapped_conf_below_emit=26 (21 in conf 0.50\u20130.79), focus_map_fail=6 clip-only Goal1. Systemic keys: P10 (4 caches), P6 (2). Soft-conf specialty targets that band; success = fewer soft-conf FNs and/or more clear proxies emitted without lowering EMIT. Do not hull Goal1 low_support.",
+      "prompt": "Compare r1_random_fn_audit_holdout_v14 vs v13 totals.fn_buckets; require mapped_conf_below_emit \u226426 or clear_emit/clear_frames lift with R\u2265gate. Clip-only low_support must stay non-systemic.",
+      "prompt_score": 9.3,
+      "baseline": {
+        "mapped_conf_below_emit": 26,
+        "focus_map_fail": 6,
+        "soft_050_079": 21,
+        "source": "r1_random_fn_audit_holdout_v13.json"
+      },
+      "fix_needed": true,
+      "fix_blocked_on": "v14 train finish",
+      "status": "why_ready_waiting_train"
+    },
+    {
+      "subgoal": 9,
+      "title": "Catch @1288 path ready when Tailscale returns",
+      "why_score": 9.0,
+      "why": "Sync + overnight + catch yaml exist. Catch SSH currently timed out / unreachable \u2014 blocker is network not missing scripts. Mac @560 continues overnight.",
+      "evidence": {
+        "scripts_present": {
+          "scripts/sync_v13_residual_to_catch.sh": true,
+          "scripts/overnight_v13_residual.sh": true,
+          "configs/finetune_v13_residual_catch.yaml": true
+        },
+        "catch_ssh_up": false,
+        "catch_stderr": "ssh: connect to host 100.113.134.41 port 22: Operation timed out\n"
+      },
+      "prompt_score": 9.0,
+      "fix_needed": false,
+      "action_when_up": "bash scripts/sync_v13_residual_to_catch.sh then overnight at 1288",
+      "status": "pass_9plus_deferred_network"
+    },
+    {
+      "subgoal": 10,
+      "title": "Promote product ball_checkpoint only if A/B passes",
+      "why_score": 9.5,
+      "why": "Product pointer must stay v13 unless strip P_emit\u22650.80, no clear_R regress vs v13, and holdout proxy R\u22650.884. One-epoch v13 already taught short specialty can regress P10 \u2014 promote is evidence-gated, not train-gated.",
+      "prompt": "scripts/overnight_v14_finish.sh implements gate; writes overnight_subgoal_10_promote.json; on fail append DEAD_ENDS and keep configs/default.yaml \u2192 v13.",
+      "prompt_score": 9.6,
+      "fix_needed": true,
+      "fix_blocked_on": "v14 train finish",
+      "status": "why_ready_waiting_train"
     }
   ],
-  "blocked_on_train": [
-    4,
-    5,
-    6,
-    7,
-    8,
-    10
-  ],
-  "ready_scripts": [
-    9
-  ]
+  "overnight_finish_script": "scripts/overnight_v14_finish.sh",
+  "train_log": "/tmp/v14_residual_mac_train.log"
 }

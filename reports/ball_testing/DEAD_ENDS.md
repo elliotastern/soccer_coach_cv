@@ -40,6 +40,16 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | **3D + smart hybrid** (`pick_3d_hybrid`: 3D when agree, else F0–F3) | Holdout clear_R **0.892** (parity); agree **0.343** (parity); P10 strip held; **promote_3d=true** | Opt-in via `fuse.mode: triangulate_3d`; default stays `pitch_merge` · `fuse3d_ab.json` |
 | **v13 residual 10-epoch** (Mac MPS @560; Catch down; no new landmarks) | P10 clear_R **0.879→0.888**; P8 **0.846→0.904**; P_emit ≥**0.99** | **Promoted** product `ball_checkpoint` → `v13_residual_snaps` · `ab_v13_residual_vs_v12.json` |
 | **v14 residual 10-epoch** (Mac MPS @560; no holdout train) | P10 clear_R **0.888→0.929**; P8 **0.904→0.908**; holdout proxy **0.96**; P_emit ≥**0.97** | **Promoted** product `ball_checkpoint` → `v14_residual_snaps` · `ab_v14_residual_vs_v13.json` |
+| **Constrained P1/P6 landmark nudge** (existing IDs; min-disp; kill-switched) | RT **1.12/2.43→0.13/0.0**; eng_loop `l2_overlap` **6→10**; strips/holdout held | **Promoted** · backups `*_pre_nudge_20260903_115944.json` · `overnight_top1f_nudge_result.json` |
+| **Color-gated soft merge** (live 2.2 hard + same-team soft to 3.2) | Hold consensus **6.68→7.01** (+0.33); full kit consensus **7.1→7.35**; composite **9.01→9.1** | **Promoted** then superseded by mutual-nearest · `ab_color_gated_merge_kit_holdout.json` |
+| **Mutual-nearest soft extend** (same-team cross-cam solos to 4.5 m) | Hold **7.01→7.42** (+0.41); full consensus **7.35→7.73**; composite **9.1→9.21** | **Promoted** · `PLAYER_MERGE_SOFT_M_LIVE=4.5` · `ab_mutual_nearest_soft_extend.json` |
+| **Match3 full-cam kit** (add P1/P6 vs quad-only; tune-fit freeze) | Hold consensus **6.54→9.11**; mfc **0.11→0.51**; composite **9.57** | **Path confirmed** — Match4 needs Catch for P1/P6 · `ab_match3_fullcam_kit_freeze.json` |
+| **Match3 Goal1/Goal2 in kit** (full8 vs full6 freeze wB) | Cons **9.31→9.53**; composite **8.95→8.96** (&lt;+0.2 bar) | **Optional / no promote** · `ab_match3_full8_goals_kit_freeze_wB.json` |
+| **Kit centroid polarity select** (tune mean_blue band → freeze) | Tune blue in-band; hold B still mean_blue **0.26** / composite **8.95** (real share, not flip) | **Dead end** · `ab_match3_polarity_select_kit.json` |
+| **Constrained P7–P10 quad nudge** (for kit mfc) | Kit full consensus **7.1→6.75**; mfc **0.22→0.14** at merge 2.2 | **Restored** · `ab_kit_after_quad_nudge.json` · `quad_nudge_restored.json` |
+
+| **Widen PLAYER_MERGE_M_LIVE 2.2→3.2** (Match4 tune/hold) | Hold consensus **6.68→6.83** (<+0.3); tune looked better | **No promote** — H-span ceiling · `ab_player_merge_m_kit_holdout.json` |
+| **Auto-H seed/cold + white-line snap/drop** on P1/P6 | Seed matched &lt;4; cold RT≈0 but only 4 mislabeled names (circular); snap ≈no lift; drop-4 still RT **0.20/0.67** &gt;0.15 | **No promote** — need human re-click of existing IDs · `h_consistency/snap_drop_h_ab.json` · `pitch1_auto_h.json` |
 
 ## Residual (not fixed)
 

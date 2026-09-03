@@ -236,7 +236,7 @@ svg.pitch { width: 100%; height: auto; display: block; background: #1a3a22; bord
         </p>
         <div class="defish-row">
           <label for="defishK1">k1</label>
-          <input type="range" id="defishK1" min="-48" max="-18" value="-30"/>
+          <input type="range" id="defishK1" min="-55" max="-15" value="-30"/>
           <span class="val" id="defishK1v">-0.30</span>
         </div>
         <div class="defish-row">
@@ -1112,26 +1112,22 @@ function selectCam(id) {
   img.addEventListener("load", applyStillRefresh, { once: true });
   img.src = spec.still + "?t=" + Date.now();
 
-  fetch(`/reports/eval_match3/match3_pitch_calib/${id}_manual.json?t=${Date.now()}`)
+  fetch(`/match3_landmark_load?cam=${encodeURIComponent(id)}&t=${Date.now()}`)
     .then(r => r.ok ? r.json() : null)
     .then(j => {
       if (gen !== camLoadGen || cam !== id) return;
-      if (!j || j.camera !== id) {
+      if (!j || !j.ok) {
+        status.textContent = (j && j.error) || "Could not load saved landmarks.";
+        status.className = "status err";
+        refresh();
+        return;
+      }
+      if (!j.has_calib || !(j.landmark_names || []).length) {
         status.textContent = spec.undistort
           ? `Defished (k1=${spec.undistort.k1}, α=${spec.undistort.alpha}) — no saved clicks yet.`
           : "";
         refresh();
         return;
-      }
-      if (spec.undistort) {
-        const want = fingerprintOf(spec.undistort);
-        const got = j.undistort_fingerprint || fingerprintOf(j.undistort);
-        if (!got || got !== want) {
-          status.textContent =
-            `Defished still — old raw-map clicks ignored; re-click and save.`;
-          refresh();
-          return;
-        }
       }
       const allowed = new Set(data.on_pitch || []);
       const names = j.landmark_names || [];
@@ -1139,17 +1135,26 @@ function selectCam(id) {
         refresh();
         return;
       }
-      document.getElementById("order").value = j.order;
+      if (j.order) document.getElementById("order").value = j.order;
       setLiveFromOrder();
       if (names.length) {
         liveOrder = names.map(landmarkSpec).filter(Boolean);
       }
-      clicks = (j.image_points || []).map(p => [p[0], p[1]]);
+      clicks = (j.image_points || []).map(p => (p ? [p[0], p[1]] : null));
       while (clicks.length < liveOrder.length) clicks.push(null);
       active = 0;
-      spec.saved = clicks.filter(Boolean).length >= 4;
-      status.textContent = `Loaded ${clicks.filter(Boolean).length} saved landmarks.`;
-      status.className = "status ok";
+      spec.saved = clicks.filter(Boolean).length >= 4 && !j.migrated;
+      const n = clicks.filter(Boolean).length;
+      if (j.migrated) {
+        status.textContent =
+          `Migrated ${n} landmarks onto new defish` +
+          (j.rt_max_m != null ? ` (RT ${j.rt_max_m} m)` : "") +
+          ` — nudge onto white lines, then Save map.`;
+        status.className = "status";
+      } else {
+        status.textContent = `Loaded ${n} saved landmarks.`;
+        status.className = "status ok";
+      }
       renderNav();
       refresh();
       if (img.complete) refresh();

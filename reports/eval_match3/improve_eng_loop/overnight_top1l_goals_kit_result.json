@@ -1,0 +1,11 @@
+{
+  "top1": "match3_goals_in_kit_fuse",
+  "decision": "goals_optional_non_blocking",
+  "promote": false,
+  "window_B": {
+    "full6": {"hold_consensus": 9.31, "hold_composite": 8.95, "hold_multcam": 0.436},
+    "full8": {"hold_consensus": 9.53, "hold_composite": 8.96, "hold_multcam": 0.468, "goal_map_ok": 34, "goal_map_try": 49}
+  },
+  "why_composite_stuck": "balanced≈8.1–8.3 from mean_blue_share≈0.24–0.26 outside band; goals do not fix share imbalance",
+  "next": "Catch Match4 P1/P6 kit-ref freeze — still blocked on Tailscale SSH"
+}

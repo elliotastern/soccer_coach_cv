@@ -104,6 +104,9 @@ def score_l1_calibs() -> tuple[float, list[str]]:
 def score_l2_overlap() -> tuple[float, list[str]]:
     notes = []
     score = 10.0
+    # Prefer live fit residual (landmark_roundtrip_m); stored field is often missing.
+    from report_match3_h_consistency import landmark_roundtrip_m  # noqa: WPS433
+
     for cam in ("P1", "P6"):
         path = ROOT / f"reports/eval_match3/match3_pitch_calib/{cam}_manual.json"
         if not path.is_file():
@@ -118,7 +121,13 @@ def score_l2_overlap() -> tuple[float, list[str]]:
         if "center" not in names:
             score -= 3.0
             notes.append(f"{cam} missing center overlap")
-        if float(rec.get("roundtrip_max_m", 99.0)) > 0.15:
+        live = landmark_roundtrip_m(rec)
+        rt = (
+            float(live["rt_max_m"])
+            if live is not None
+            else float(rec.get("roundtrip_max_m") or 99.0)
+        )
+        if rt > 0.15:
             score -= 2.0
             notes.append(f"{cam} RT > 0.15")
     if not notes:
@@ -300,18 +309,20 @@ def score_c2_quad_det() -> tuple[float, list[str]]:
         return 0.0, ["missing c2_quad_det_funnel.json — run funnel_match3_quad_det.py"]
     data = json.loads(path.read_text(encoding="utf-8"))
     winner = data.get("winner")
-    if winner not in ("v12_plain", "v12_sahi_fallback"):
+    ok_winners = ("v12_plain", "v12_sahi_fallback", "v14_plain")
+    if winner not in ok_winners:
         score -= 3.0
-        notes.append(f"winner {winner} not v12")
+        notes.append(f"winner {winner} not in {ok_winners}")
     variants = {r["variant"]: r for r in data.get("variants") or []}
     base = variants.get("v10_plain", {}).get("totals", {})
-    win = variants.get(winner or "", {}).get("totals", {})
+    win_row = variants.get(winner or "") or {}
+    win = win_row.get("totals") or {}
     b_r = float(base.get("clear_ball_proxy_R") or 0)
     w_r = float(win.get("clear_ball_proxy_R") or 0)
     if w_r <= b_r:
         score -= 2.0
-        notes.append(f"v12 did not beat v10 ({w_r} vs {b_r})")
-    p9 = (win.get("per_stem") or {}).get("quad_P9_t00655.3s") or {}
+        notes.append(f"{winner} did not beat v10 ({w_r} vs {b_r})")
+    p9 = (win_row.get("per_stem") or {}).get("quad_P9_t00655.3s") or {}
     if float(p9.get("clear_ball_proxy_R") or 0) < 0.80:
         score -= 1.0
         notes.append("P9 t655 proxy R still below 0.80")
@@ -441,6 +452,60 @@ def score_product_post() -> tuple[float, list[str]]:
     return clamp(score), notes
 
 
+def score_kit_fusion() -> tuple[float, list[str]]:
+    """Match3 full-cam kit gate (P1+P6+quad, tune-freeze) ≥ 9/10."""
+    notes = []
+    gate = OUT / "kit_ref_ab" / "kit_fusion_gate_locked.json"
+    if not gate.is_file():
+        return 0.0, ["missing kit_fusion_gate_locked.json"]
+    data = json.loads(gate.read_text(encoding="utf-8"))
+    wins = data.get("windows") or {}
+    a = (wins.get("A") or {}).get("hold_consensus")
+    b = (wins.get("B") or {}).get("hold_consensus")
+    both = bool(data.get("both_windows_pass"))
+    score = 10.0
+    if a is None or float(a) < 9.0:
+        score -= 4.0
+        notes.append(f"window A hold_consensus {a}")
+    if b is None or float(b) < 9.0:
+        score -= 4.0
+        notes.append(f"window B hold_consensus {b}")
+    if not both:
+        score -= 2.0
+        notes.append("both_windows_pass false")
+    if not notes:
+        notes.append(f"kit fusion locked A={a} B={b}")
+    return clamp(score), notes
+
+
+def score_match4_kit() -> tuple[float, list[str]]:
+    """Match4 product kit consensus ≥ 9/10 (needs P1/P6 — Catch)."""
+    notes = []
+    path = OUT / "kit_ref_ab" / "kit_ref_ab_v6_mutual45.json"
+    if not path.is_file():
+        # fall back to any latest kit_ref_ab_v*.json
+        cands = sorted((OUT / "kit_ref_ab").glob("kit_ref_ab_v*.json"))
+        if not cands:
+            return 0.0, ["missing kit_ref_ab_v*.json"]
+        path = cands[-1]
+    data = json.loads(path.read_text(encoding="utf-8"))
+    scores = (data.get("kit_ref_run") or {}).get("scores") or {}
+    cons = scores.get("consensus")
+    if cons is None:
+        return 0.0, [f"no consensus in {path.name}"]
+    cons_f = float(cons)
+    # Map consensus directly onto 0–10 (already on that scale)
+    out = clamp(cons_f)
+    if cons_f < 9.0:
+        notes.append(
+            f"Match4 quad kit consensus {cons_f:.2f} < 9 "
+            f"(mfc ceiling; need Catch P1/P6 — {path.name})"
+        )
+    else:
+        notes.append(f"Match4 kit consensus {cons_f:.2f} ok ({path.name})")
+    return out, notes
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     scores, notes = {}, {}
@@ -455,6 +520,8 @@ def main() -> int:
     scores["f_post"], notes["f_post"] = score_f_post()
     scores["product_goals"], notes["product_goals"] = score_product_goals()
     scores["product_post"], notes["product_post"] = score_product_post()
+    scores["kit_fusion"], notes["kit_fusion"] = score_kit_fusion()
+    scores["match4_kit"], notes["match4_kit"] = score_match4_kit()
     fails = [f"{k}={scores[k]} {notes[k]}" for k in scores if scores[k] < PASS]
     summary = {"scores": scores, "notes": notes, "pass": PASS, "fails": fails}
     (OUT / "scores.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

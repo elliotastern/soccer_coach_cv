@@ -34,6 +34,16 @@ QUAD_SRC = ROOT / "reports/eval_match3/quad_pitchmap_gallery/source"
 QUAD_CACHE = ROOT / "reports/eval_match3/quad_pitchmap_gallery/det_cache"
 CKPT_V10 = ROOT / "models/v10_snaps/post_train/checkpoint.pth"
 CKPT_V12 = ROOT / "models/v12_hard_snaps/post_train/checkpoint.pth"
+CKPT_V14 = ROOT / "models/v14_residual_snaps/post_train/checkpoint.pth"
+# Optional pre-built product caches (skip redetect when present).
+REUSE_V14 = {
+    "quad_P10_t00031.0s": ROOT
+    / "reports/eval_match3/improve_eng_loop/v14_residual_det_cache"
+    / "det_cache_quad_P10_t00031.0s_v14_thr010.json",
+    "quad_P8_t00087.0s": ROOT
+    / "reports/eval_match3/improve_eng_loop/v14_residual_det_cache"
+    / "det_cache_quad_P8_t00087.0s_v14_thr010.json",
+}
 STEMS = [
     "quad_P9_t00559.2s",
     "quad_P9_t00655.3s",
@@ -57,6 +67,7 @@ def variant_cfgs() -> list[tuple[str, Path, BallPrelabelConfig]]:
         ("v10_plain", CKPT_V10, plain),
         ("v12_plain", CKPT_V12, plain),
         ("v12_sahi_fallback", CKPT_V12, sahi_fb),
+        ("v14_plain", CKPT_V14, plain),
     ]
 
 
@@ -113,18 +124,32 @@ def score_stem_cache(path: Path) -> dict:
     }
 
 
-def run_variant(name: str, ckpt: Path, cfg: BallPrelabelConfig) -> dict:
+def run_variant(
+    name: str,
+    ckpt: Path,
+    cfg: BallPrelabelConfig,
+    *,
+    reuse: dict[str, Path] | None = None,
+) -> dict:
     if not ckpt.is_file():
         raise FileNotFoundError(ckpt)
-    model = load_ball_model(str(ckpt))
+    model = None
     per_stem = {}
     tmp_dir = OUT.parent / f"_c2_tmp_{name}"
     tmp_dir.mkdir(parents=True, exist_ok=True)
+    reuse = reuse or {}
     for stem in STEMS:
-        print(f"  detect {name} {stem}", flush=True)
-        payload = detect_stem(stem, model, cfg)
-        cache_path = tmp_dir / f"det_cache_{stem}_thr010.json"
-        cache_dump_n(cache_path, payload, len(payload[b.CAM_IDS[0]]))
+        reuse_path = reuse.get(stem)
+        if reuse_path is not None and reuse_path.is_file():
+            print(f"  reuse {name} {stem} ← {reuse_path.name}", flush=True)
+            cache_path = reuse_path
+        else:
+            if model is None:
+                model = load_ball_model(str(ckpt))
+            print(f"  detect {name} {stem}", flush=True)
+            payload = detect_stem(stem, model, cfg)
+            cache_path = tmp_dir / f"det_cache_{stem}_thr010.json"
+            cache_dump_n(cache_path, payload, len(payload[b.CAM_IDS[0]]))
         per_stem[stem] = score_stem_cache(cache_path)
     totals = {"clear_frames": 0, "clear_emit": 0, "emit": 0}
     for row in per_stem.values():
@@ -135,7 +160,12 @@ def run_variant(name: str, ckpt: Path, cfg: BallPrelabelConfig) -> dict:
         if totals["clear_frames"] == 0
         else round(totals["clear_emit"] / totals["clear_frames"], 3)
     )
-    return {"variant": name, "checkpoint": str(ckpt.name), "per_stem": per_stem, "totals": totals}
+    return {
+        "variant": name,
+        "checkpoint": str(ckpt.relative_to(ROOT) if ckpt.is_relative_to(ROOT) else ckpt),
+        "per_stem": per_stem,
+        "totals": totals,
+    }
 
 
 def pick_winner(rows: list[dict]) -> str | None:
@@ -172,6 +202,17 @@ def main() -> int:
 
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--promote", type=str, default="", help="promote variant tmp caches to quad det_cache")
+    p.add_argument(
+        "--only",
+        type=str,
+        default="",
+        help="comma list of variants (default: all). Example: v14_plain",
+    )
+    p.add_argument(
+        "--merge-existing",
+        action="store_true",
+        help="Keep prior variants from c2_quad_det_funnel.json when --only is set",
+    )
     args = p.parse_args()
     if args.promote:
         promote_winner(args.promote)
@@ -183,10 +224,20 @@ def main() -> int:
         if path.is_file():
             baseline[stem] = score_stem_cache(path)
 
+    want = {x.strip() for x in args.only.split(",") if x.strip()}
     rows = []
+    if args.merge_existing and OUT.is_file() and want:
+        prior = json.loads(OUT.read_text(encoding="utf-8"))
+        for r in prior.get("variants") or []:
+            if r.get("variant") not in want:
+                rows.append(r)
+
     for name, ckpt, cfg in variant_cfgs():
+        if want and name not in want:
+            continue
         print(f"variant {name}", flush=True)
-        rows.append(run_variant(name, ckpt, cfg))
+        reuse = REUSE_V14 if name == "v14_plain" else None
+        rows.append(run_variant(name, ckpt, cfg, reuse=reuse))
 
     winner = pick_winner(rows)
     out = {

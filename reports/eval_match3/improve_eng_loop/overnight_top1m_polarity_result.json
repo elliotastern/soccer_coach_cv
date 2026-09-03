@@ -1,0 +1,14 @@
+{
+  "top1_product": "catch_match4_p1_p6_kit_ref",
+  "blocked": true,
+  "block_reason": "ssh catch@100.113.134.41 Connection timed out",
+  "executable_top1": "kit_centroid_polarity_tune_select",
+  "executable_decision": "dead_end_polarity_cannot_fix_composite",
+  "eng_loop": {
+    "kit_fusion": 10.0,
+    "match4_kit": 7.7,
+    "only_fail": "match4_kit"
+  },
+  "why_match4_kit_lt9": "quad-only mfc≈0.22 → consensus ceiling ~8.6; Match3 full6 freeze already ≥9.11 on two windows",
+  "next_action": "When Catch is up: bash scripts/run_batch_match4_5min_fullcam_kit.sh then holdout kit consensus ≥9 with frozen kit-ref"
+}

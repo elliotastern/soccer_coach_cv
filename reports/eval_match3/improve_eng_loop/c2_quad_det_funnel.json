@@ -8,36 +8,36 @@
   "stride": 2,
   "baseline_v10": {
     "quad_P9_t00559.2s": {
-      "emit": 26,
-      "clear_ball_proxy_R": 0.164,
-      "clear_frames": 146,
-      "clear_emit": 24,
-      "agree": 0,
-      "product_clear_R": 0.253
+      "emit": 244,
+      "clear_ball_proxy_R": 0.858,
+      "clear_frames": 148,
+      "clear_emit": 127,
+      "agree": 11,
+      "product_clear_R": 0.926
     },
     "quad_P9_t00655.3s": {
-      "emit": 37,
-      "clear_ball_proxy_R": 0.661,
-      "clear_frames": 56,
-      "clear_emit": 37,
+      "emit": 84,
+      "clear_ball_proxy_R": 0.933,
+      "clear_frames": 45,
+      "clear_emit": 42,
       "agree": 0,
-      "product_clear_R": 0.786
+      "product_clear_R": 1.0
     },
     "quad_P8_t00087.0s": {
-      "emit": 74,
-      "clear_ball_proxy_R": 0.73,
-      "clear_frames": 89,
-      "clear_emit": 65,
-      "agree": 0,
-      "product_clear_R": 0.966
+      "emit": 241,
+      "clear_ball_proxy_R": 1.0,
+      "clear_frames": 94,
+      "clear_emit": 94,
+      "agree": 93,
+      "product_clear_R": 1.0
     },
     "quad_P10_t00031.0s": {
-      "emit": 98,
-      "clear_ball_proxy_R": 0.908,
-      "clear_frames": 87,
-      "clear_emit": 79,
-      "agree": 66,
-      "product_clear_R": 0.977
+      "emit": 258,
+      "clear_ball_proxy_R": 0.977,
+      "clear_frames": 88,
+      "clear_emit": 86,
+      "agree": 94,
+      "product_clear_R": 1.0
     }
   },
   "variants": [
@@ -172,8 +172,52 @@
         "emit": 259,
         "clear_ball_proxy_R": 0.584
       }
+    },
+    {
+      "variant": "v14_plain",
+      "checkpoint": "models/v14_residual_snaps/post_train/checkpoint.pth",
+      "per_stem": {
+        "quad_P9_t00559.2s": {
+          "emit": 297,
+          "clear_ball_proxy_R": 1.0,
+          "clear_frames": 149,
+          "clear_emit": 149,
+          "agree": 7,
+          "product_clear_R": 1.0
+        },
+        "quad_P9_t00655.3s": {
+          "emit": 116,
+          "clear_ball_proxy_R": 0.915,
+          "clear_frames": 47,
+          "clear_emit": 43,
+          "agree": 0,
+          "product_clear_R": 0.957
+        },
+        "quad_P8_t00087.0s": {
+          "emit": 274,
+          "clear_ball_proxy_R": 0.983,
+          "clear_frames": 240,
+          "clear_emit": 236,
+          "agree": 203,
+          "product_clear_R": 1.0
+        },
+        "quad_P10_t00031.0s": {
+          "emit": 280,
+          "clear_ball_proxy_R": 0.983,
+          "clear_frames": 117,
+          "clear_emit": 115,
+          "agree": 99,
+          "product_clear_R": 1.0
+        }
+      },
+      "totals": {
+        "clear_frames": 553,
+        "clear_emit": 543,
+        "emit": 967,
+        "clear_ball_proxy_R": 0.982
+      }
     }
   ],
-  "winner": "v12_plain",
+  "winner": "v14_plain",
   "gate": "max quad clear_ball_proxy_R (product fuse in score_cache)"
 }

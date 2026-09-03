@@ -151,6 +151,9 @@ def score_strip_all_variants(path: Path) -> dict:
     }
 
 
+PRODUCT_LOCKED = "F1+F2+F0+F3"
+
+
 def pick_winner(by_strip: dict) -> str | None:
     """Survivors must pass P_emit on every available strip; rank by mean clear_R."""
     names = [v[0] for v in VARIANTS]
@@ -172,6 +175,14 @@ def pick_winner(by_strip: dict) -> str | None:
     return survivors[0][0]
 
 
+def product_passes(by_strip: dict, name: str = PRODUCT_LOCKED) -> bool:
+    for block in by_strip.values():
+        row = (block.get("variants") or {}).get(name) or {}
+        if not row.get("poc_pass_P_emit"):
+            return False
+    return bool(by_strip)
+
+
 def main() -> int:
     by_strip = {}
     for path in STRIPS:
@@ -184,13 +195,21 @@ def main() -> int:
     if not by_strip:
         print("no strips")
         return 1
-    winner = pick_winner(by_strip)
+    ranked = pick_winner(by_strip)
+    # Product fuse stays F1+F2+F0+F3 whenever it clears P_emit on all strips.
+    winner = PRODUCT_LOCKED if product_passes(by_strip) else ranked
     out = {
         "hit_m": HIT_M,
         "ghost_conf": GHOST_CONF,
         "strips": by_strip,
         "winner": winner,
-        "gate": "P_emit >= 0.80 on all strips; rank mean clear_ball_R",
+        "winner_ab_rank": ranked,
+        "winner_note": (
+            f"Product locked at {PRODUCT_LOCKED}; A/B mean-clear_R pick was {ranked}."
+            if ranked != winner
+            else f"A/B and product agree on {winner}."
+        ),
+        "gate": "P_emit >= 0.80 on all strips; product prefers F1+F2+F0+F3",
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2), encoding="utf-8")

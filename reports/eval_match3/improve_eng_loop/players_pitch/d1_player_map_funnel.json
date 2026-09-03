@@ -2,18 +2,18 @@
   "frames": [
     {
       "frame_id": 2400,
-      "n_raw_boxes": 15,
-      "n_det_ok": 15,
-      "n_map_ball_support": 15,
-      "n_map_player_support": 15,
-      "n_fused_old": 12,
-      "n_fused_new": 13,
+      "n_raw_boxes": 18,
+      "n_det_ok": 18,
+      "n_map_ball_support": 18,
+      "n_map_player_support": 18,
+      "n_fused_old": 13,
+      "n_fused_new": 14,
       "n_fuse_live": 13,
       "reasons_ball_min_support": {
-        "ok": 15
+        "ok": 18
       },
       "reasons_player_min_support": {
-        "ok": 15
+        "ok": 18
       },
       "per_cam": {
         "P10": {
@@ -31,10 +31,10 @@
           "drop": {}
         },
         "P7": {
-          "raw": 8,
-          "det_ok": 8,
-          "map_ball_ok": 8,
-          "map_player_ok": 8,
+          "raw": 11,
+          "det_ok": 11,
+          "map_ball_ok": 11,
+          "map_player_ok": 11,
           "drop": {}
         },
         "P8": {
@@ -50,18 +50,18 @@
     },
     {
       "frame_id": 3078,
-      "n_raw_boxes": 14,
-      "n_det_ok": 14,
-      "n_map_ball_support": 14,
-      "n_map_player_support": 14,
+      "n_raw_boxes": 13,
+      "n_det_ok": 13,
+      "n_map_ball_support": 13,
+      "n_map_player_support": 13,
       "n_fused_old": 10,
-      "n_fused_new": 11,
-      "n_fuse_live": 11,
+      "n_fused_new": 10,
+      "n_fuse_live": 10,
       "reasons_ball_min_support": {
-        "ok": 14
+        "ok": 13
       },
       "reasons_player_min_support": {
-        "ok": 14
+        "ok": 13
       },
       "per_cam": {
         "P10": {
@@ -86,30 +86,30 @@
           "drop": {}
         },
         "P8": {
-          "raw": 7,
-          "det_ok": 7,
-          "map_ball_ok": 7,
-          "map_player_ok": 7,
+          "raw": 6,
+          "det_ok": 6,
+          "map_ball_ok": 6,
+          "map_player_ok": 6,
           "drop": {}
         }
       },
       "lift_mapped": 0,
-      "lift_fused": 1
+      "lift_fused": 0
     },
     {
       "frame_id": 3600,
-      "n_raw_boxes": 11,
-      "n_det_ok": 11,
-      "n_map_ball_support": 11,
-      "n_map_player_support": 11,
-      "n_fused_old": 10,
-      "n_fused_new": 10,
-      "n_fuse_live": 10,
+      "n_raw_boxes": 12,
+      "n_det_ok": 12,
+      "n_map_ball_support": 12,
+      "n_map_player_support": 12,
+      "n_fused_old": 11,
+      "n_fused_new": 11,
+      "n_fuse_live": 11,
       "reasons_ball_min_support": {
-        "ok": 11
+        "ok": 12
       },
       "reasons_player_min_support": {
-        "ok": 11
+        "ok": 12
       },
       "per_cam": {
         "P10": {
@@ -127,10 +127,10 @@
           "drop": {}
         },
         "P7": {
-          "raw": 1,
-          "det_ok": 1,
-          "map_ball_ok": 1,
-          "map_player_ok": 1,
+          "raw": 2,
+          "det_ok": 2,
+          "map_ball_ok": 2,
+          "map_player_ok": 2,
           "drop": {}
         },
         "P8": {

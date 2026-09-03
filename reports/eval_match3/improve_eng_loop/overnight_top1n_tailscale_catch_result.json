@@ -1,0 +1,15 @@
+{
+  "top1": "start_tailscale_then_catch_match4_fullcam_kit",
+  "mac_tailscale": "started — elliots-mac-mini online",
+  "catch_peer": {
+    "ip": "100.113.134.41",
+    "online": false,
+    "last_seen": "2026-08-27T01:21:32.1Z"
+  },
+  "ssh": "timeout",
+  "decision": "blocked_catch_pc_offline",
+  "partial_fix": "Mac Tailscale was stopped — now up (prerequisite)",
+  "waiter": "scripts/wait_catch_and_run_match4_fullcam_kit.sh",
+  "eng_loop_only_fail": "match4_kit=7.7",
+  "user_action": "Power on Catch Ubuntu PC and ensure Tailscale is running there, then run the waiter script"
+}

@@ -1,0 +1,20 @@
+{
+  "mode": "tune_fit_freeze_hold",
+  "n_tune_feats": 1072,
+  "results": {
+    "quad": {
+      "hold_consensus": 7.55,
+      "hold_multcam": 0.14331210191082802,
+      "hold_agree": 0.8888888888888888,
+      "hold_composite": 9.08
+    },
+    "full6": {
+      "hold_consensus": 9.11,
+      "hold_multcam": 0.5118733509234829,
+      "hold_agree": 0.8144329896907216,
+      "hold_composite": 9.57
+    }
+  },
+  "gate_pass": true,
+  "decision": "path_confirmed"
+}
