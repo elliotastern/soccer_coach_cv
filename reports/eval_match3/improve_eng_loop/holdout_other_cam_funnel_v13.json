@@ -1,6 +1,7 @@
 {
   "note": "Clear FNs where \u22651 non-focus cam maps at conf\u22650.80. High frac \u2192 fuse/wiring issue; low \u2192 real map/det residual.",
-  "n_clear_fn": 26,
+  "cache_dir": "reports/eval_match3/pitchmap_gallery_holdout/det_cache_v13",
+  "n_clear_fn": 32,
   "n_with_other_ge080_mapped": 0,
   "frac": 0.0,
   "by_other_cam": {},

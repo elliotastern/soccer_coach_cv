@@ -212,7 +212,7 @@ pip install -r requirements.txt
 | Model | Path |
 |--------|------|
 | Players | `models/people_after_100_epochs.pth` |
-| Ball | `models/v12_hard_snaps/post_train/checkpoint.pth` |
+| Ball | `models/v13_residual_snaps/post_train/checkpoint.pth` (v12_hard kept as prior) |
 
 **Recommended:** store videos and run heavy processing on a **fast local SSD**. Slow USB external drives can cause read errors during 4-cam scrubbing.
 

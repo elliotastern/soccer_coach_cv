@@ -10,7 +10,7 @@ detection:
   player_class_id: 0
   ball_class_id: 1
   player_checkpoint: models/people_after_100_epochs.pth
-  ball_checkpoint: models/v12_hard_snaps/post_train/checkpoint.pth
+  ball_checkpoint: models/v13_residual_snaps/post_train/checkpoint.pth
   enhance_ball: true
   use_sahi: false
   use_kalman: true

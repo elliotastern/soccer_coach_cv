@@ -1,0 +1,57 @@
+# v13 residual specialty: Match3 strip FN conf/localization. Resume from v12_hard.
+# Paths match existing v12 RunPod layout under /workspace/soccer_cv_ball/.
+# Catch (optional): /home/catch/soccer_coach_cv/datasets/ball_finetune_v13_residual/{train,valid}
+#   and resume /home/catch/soccer_coach_cv/models/v12_hard_snaps/post_train/checkpoint.pth
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+dataset:
+  coco_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_v13_residual/train
+  coco_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_v13_residual/valid
+  yolo_train_path: /workspace/soccer_cv_ball/datasets/ball_finetune_v13_residual/train
+  yolo_val_path: /workspace/soccer_cv_ball/datasets/ball_finetune_v13_residual/valid
+  ball_class_id: 1
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: true
+  prefetch_factor: 1
+  persistent_workers: false
+
+training:
+  # Absolute epoch end (RF-DETR resume): v12_hard ended @254 → +60 specialty epochs.
+  epochs: 315
+  batch_size: 2
+  grad_accum_steps: 16
+  learning_rate: 0.00004
+  encoder_learning_rate: 0.000025
+  weight_decay: 0.0001
+  resolution: 1288
+  amp: true
+  mixed_precision: true
+  num_workers: 2
+  device: cuda
+  multi_scale: true
+  expanded_scales: true
+
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+
+output:
+  output_dir: /workspace/soccer_cv_ball/models
+  save_every_epochs: 1
+
+checkpoint:
+  resume_from: /workspace/soccer_cv_ball/models/v12_hard_snaps/post_train/checkpoint.pth
+  save_dir: models/v13_residual_snaps

@@ -1,0 +1,179 @@
+{
+  "stems": [
+    "quad_P9_t00559.2s",
+    "quad_P9_t00655.3s",
+    "quad_P8_t00087.0s",
+    "quad_P10_t00031.0s"
+  ],
+  "stride": 2,
+  "baseline_v10": {
+    "quad_P9_t00559.2s": {
+      "emit": 26,
+      "clear_ball_proxy_R": 0.164,
+      "clear_frames": 146,
+      "clear_emit": 24,
+      "agree": 0,
+      "product_clear_R": 0.253
+    },
+    "quad_P9_t00655.3s": {
+      "emit": 37,
+      "clear_ball_proxy_R": 0.661,
+      "clear_frames": 56,
+      "clear_emit": 37,
+      "agree": 0,
+      "product_clear_R": 0.786
+    },
+    "quad_P8_t00087.0s": {
+      "emit": 74,
+      "clear_ball_proxy_R": 0.73,
+      "clear_frames": 89,
+      "clear_emit": 65,
+      "agree": 0,
+      "product_clear_R": 0.966
+    },
+    "quad_P10_t00031.0s": {
+      "emit": 98,
+      "clear_ball_proxy_R": 0.908,
+      "clear_frames": 87,
+      "clear_emit": 79,
+      "agree": 66,
+      "product_clear_R": 0.977
+    }
+  },
+  "variants": [
+    {
+      "variant": "v10_plain",
+      "checkpoint": "checkpoint.pth",
+      "per_stem": {
+        "quad_P9_t00559.2s": {
+          "emit": 26,
+          "clear_ball_proxy_R": 0.164,
+          "clear_frames": 146,
+          "clear_emit": 24,
+          "agree": 0,
+          "product_clear_R": 0.253
+        },
+        "quad_P9_t00655.3s": {
+          "emit": 37,
+          "clear_ball_proxy_R": 0.661,
+          "clear_frames": 56,
+          "clear_emit": 37,
+          "agree": 0,
+          "product_clear_R": 0.786
+        },
+        "quad_P8_t00087.0s": {
+          "emit": 74,
+          "clear_ball_proxy_R": 0.73,
+          "clear_frames": 89,
+          "clear_emit": 65,
+          "agree": 0,
+          "product_clear_R": 0.966
+        },
+        "quad_P10_t00031.0s": {
+          "emit": 98,
+          "clear_ball_proxy_R": 0.908,
+          "clear_frames": 87,
+          "clear_emit": 79,
+          "agree": 66,
+          "product_clear_R": 0.977
+        }
+      },
+      "totals": {
+        "clear_frames": 378,
+        "clear_emit": 205,
+        "emit": 235,
+        "clear_ball_proxy_R": 0.542
+      }
+    },
+    {
+      "variant": "v12_plain",
+      "checkpoint": "checkpoint.pth",
+      "per_stem": {
+        "quad_P9_t00559.2s": {
+          "emit": 27,
+          "clear_ball_proxy_R": 0.182,
+          "clear_frames": 148,
+          "clear_emit": 27,
+          "agree": 0,
+          "product_clear_R": 0.277
+        },
+        "quad_P9_t00655.3s": {
+          "emit": 36,
+          "clear_ball_proxy_R": 0.8,
+          "clear_frames": 45,
+          "clear_emit": 36,
+          "agree": 3,
+          "product_clear_R": 0.978
+        },
+        "quad_P8_t00087.0s": {
+          "emit": 83,
+          "clear_ball_proxy_R": 0.819,
+          "clear_frames": 94,
+          "clear_emit": 77,
+          "agree": 1,
+          "product_clear_R": 0.989
+        },
+        "quad_P10_t00031.0s": {
+          "emit": 113,
+          "clear_ball_proxy_R": 0.898,
+          "clear_frames": 88,
+          "clear_emit": 79,
+          "agree": 82,
+          "product_clear_R": 0.977
+        }
+      },
+      "totals": {
+        "clear_frames": 375,
+        "clear_emit": 219,
+        "emit": 259,
+        "clear_ball_proxy_R": 0.584
+      }
+    },
+    {
+      "variant": "v12_sahi_fallback",
+      "checkpoint": "checkpoint.pth",
+      "per_stem": {
+        "quad_P9_t00559.2s": {
+          "emit": 27,
+          "clear_ball_proxy_R": 0.182,
+          "clear_frames": 148,
+          "clear_emit": 27,
+          "agree": 0,
+          "product_clear_R": 0.277
+        },
+        "quad_P9_t00655.3s": {
+          "emit": 36,
+          "clear_ball_proxy_R": 0.8,
+          "clear_frames": 45,
+          "clear_emit": 36,
+          "agree": 3,
+          "product_clear_R": 0.978
+        },
+        "quad_P8_t00087.0s": {
+          "emit": 83,
+          "clear_ball_proxy_R": 0.819,
+          "clear_frames": 94,
+          "clear_emit": 77,
+          "agree": 1,
+          "product_clear_R": 0.989
+        },
+        "quad_P10_t00031.0s": {
+          "emit": 113,
+          "clear_ball_proxy_R": 0.898,
+          "clear_frames": 88,
+          "clear_emit": 79,
+          "agree": 82,
+          "product_clear_R": 0.977
+        }
+      },
+      "totals": {
+        "clear_frames": 375,
+        "clear_emit": 219,
+        "emit": 259,
+        "clear_ball_proxy_R": 0.584
+      }
+    }
+  ],
+  "winner": "v12_plain",
+  "gate": "max quad clear_ball_proxy_R (product fuse in score_cache)"
+}

@@ -1,0 +1,91 @@
+{
+  "seed": 42,
+  "recipe": "v11_all_validated",
+  "train": {
+    "images": 1178,
+    "annotations": 1298,
+    "by_source": {
+      "quad_p10": 41,
+      "quad_p10_aug2": 41,
+      "official_train": 35,
+      "match3_p10_31_aug2": 50,
+      "match2_train100_aug1": 87,
+      "quad_p7_aug1": 44,
+      "match2_train100_aug2": 87,
+      "quad_p10_aug1": 41,
+      "quad_cam4plus_aug2": 48,
+      "quad_p7": 44,
+      "match3_p10_31": 50,
+      "match3_p10_31_aug1": 50,
+      "match1_train_random": 68,
+      "match1_train_batch3": 66,
+      "quad_cam4plus_aug1": 48,
+      "match2_train100": 87,
+      "kjoyy_test": 12,
+      "kjoyy_valid": 12,
+      "match1_train_random_aug1": 68,
+      "quad_cam4plus": 48,
+      "kjoyy_train": 36,
+      "match1_train_batch3_aug1": 66,
+      "quad_p7_aug2": 44,
+      "official_test": 3,
+      "official_valid": 2
+    }
+  },
+  "valid": {
+    "images": 45,
+    "annotations": 45,
+    "by_source": {
+      "official_valid": 2,
+      "kjoyy_valid": 3,
+      "kjoyy_test": 2,
+      "kjoyy_train": 15,
+      "match2_train100": 10,
+      "official_train": 13
+    }
+  },
+  "test": {
+    "images": 85,
+    "annotations": 98,
+    "by_source": {
+      "gold100_test_0_49": 35,
+      "match2_gold_test": 50
+    }
+  },
+  "raw_counts": {
+    "match1": 134,
+    "match2_train100": 87,
+    "quad_stride": 133,
+    "match3_stride": 50
+  },
+  "holdout_not_in_pack_images": {
+    "match3_m1_120_194": 75,
+    "quad_240_299": 178
+  },
+  "held_out": {
+    "match2_gold_frames": "data/processed/gold_sets/match2_gold_frames",
+    "gold100_strip_0_49": "data/processed/gold_sets/match1_1_100",
+    "match3_m1_frames": "120\u2013194",
+    "quad_last_1s": "frames 240\u2013299 of Top Left P10/P7/Cam4plus",
+    "unvalidated": [
+      "math_1_training_batch2",
+      "match2_4quad_center_start_cam4plus",
+      "match2_4quad_label"
+    ]
+  },
+  "aug": {
+    "match1": 2,
+    "match2": 3,
+    "dense": 3
+  },
+  "stride": {
+    "quad": 5,
+    "match3": 2
+  },
+  "notes": [
+    "Validated human boxes only (gold XML / Match3 human labels.json).",
+    "Dense 60fps clips strided so near-duplicate frames do not dominate.",
+    "Match3 120\u2013194 kept for honest M1 clear-ball R.",
+    "Gold100 0\u201349 and match2_gold_frames remain test-only."
+  ]
+}

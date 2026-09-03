@@ -1,0 +1,289 @@
+{
+  "v13_ckpt": "models/v13_residual_snaps/post_train/checkpoint.pth",
+  "strips_v13": {
+    "match3_quad_p10_31": {
+      "pack": "match3_quad_p10_31",
+      "provisional": true,
+      "hit_m": 4.0,
+      "n_frames": 299,
+      "det_cache_stride": 2,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.888,
+      "n_clear": 224,
+      "n_emit_scored": 221,
+      "tp": 221,
+      "fp": 0,
+      "err_median_m": 0.711,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "modes": {
+        "raw_all_label_frames": {
+          "n_clear": 224,
+          "n_emit_scored": 103,
+          "tp": 103,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.415,
+          "err_median_m": 0.772,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "detect_ticks_only": {
+          "n_clear": 109,
+          "n_emit_scored": 103,
+          "tp": 103,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.853,
+          "err_median_m": 0.772,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "carry_neighbor_tick": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.893,
+          "err_median_m": 0.727,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "product_f0_hold": {
+          "n_clear": 224,
+          "n_emit_scored": 221,
+          "tp": 221,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.888,
+          "err_median_m": 0.711,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        }
+      },
+      "note": "det cache stride=2: primary = product F1+F2+F0+F3 hold. detect_ticks / carry kept for A/B.",
+      "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
+    },
+    "match3_quad_p8_87": {
+      "pack": "match3_quad_p8_87",
+      "provisional": true,
+      "hit_m": 4.0,
+      "n_frames": 299,
+      "det_cache_stride": 1,
+      "P_emit": 0.992,
+      "clear_ball_R": 0.904,
+      "n_clear": 272,
+      "n_emit_scored": 266,
+      "tp": 264,
+      "fp": 2,
+      "err_median_m": 0.216,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "modes": {
+        "raw_all_label_frames": {
+          "n_clear": 272,
+          "n_emit_scored": 235,
+          "tp": 233,
+          "fp": 2,
+          "P_emit": 0.991,
+          "clear_ball_R": 0.812,
+          "err_median_m": 0.211,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "detect_ticks_only": {
+          "n_clear": 272,
+          "n_emit_scored": 235,
+          "tp": 233,
+          "fp": 2,
+          "P_emit": 0.991,
+          "clear_ball_R": 0.812,
+          "err_median_m": 0.211,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "carry_neighbor_tick": {
+          "n_clear": 272,
+          "n_emit_scored": 235,
+          "tp": 233,
+          "fp": 2,
+          "P_emit": 0.991,
+          "clear_ball_R": 0.812,
+          "err_median_m": 0.211,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "product_f0_hold": {
+          "n_clear": 272,
+          "n_emit_scored": 266,
+          "tp": 264,
+          "fp": 2,
+          "P_emit": 0.992,
+          "clear_ball_R": 0.904,
+          "err_median_m": 0.216,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        }
+      },
+      "note": "det cache stride=1: primary = product F1+F2+F0+F3 hold. detect_ticks / carry kept for A/B.",
+      "seed_note": "gold_xy reseeded from P8 gt_balls via current map_ball_box after P8 landmark/H expand (2026-09-01). Pixel gt_balls unchanged."
+    }
+  },
+  "baseline_strips": {
+    "match3_quad_p10_31": {
+      "pack": "match3_quad_p10_31",
+      "provisional": true,
+      "hit_m": 4.0,
+      "n_frames": 299,
+      "det_cache_stride": 2,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.879,
+      "n_clear": 224,
+      "n_emit_scored": 219,
+      "tp": 219,
+      "fp": 0,
+      "err_median_m": 0.784,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "modes": {
+        "raw_all_label_frames": {
+          "n_clear": 224,
+          "n_emit_scored": 100,
+          "tp": 100,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.397,
+          "err_median_m": 0.773,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "detect_ticks_only": {
+          "n_clear": 109,
+          "n_emit_scored": 100,
+          "tp": 100,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.817,
+          "err_median_m": 0.773,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "carry_neighbor_tick": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.888,
+          "err_median_m": 0.758,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        },
+        "product_f0_hold": {
+          "n_clear": 224,
+          "n_emit_scored": 219,
+          "tp": 219,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.879,
+          "err_median_m": 0.784,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        }
+      },
+      "note": "det cache stride=2: primary = product F1+F2+F0+F3 hold. detect_ticks / carry kept for A/B.",
+      "seed_note": "PROVISIONAL \u2014 P10 clear dets mapped via P10 H; human-correct before final M1"
+    },
+    "match3_quad_p8_87": {
+      "pack": "match3_quad_p8_87",
+      "provisional": true,
+      "hit_m": 4.0,
+      "n_frames": 299,
+      "det_cache_stride": 1,
+      "P_emit": 1.0,
+      "clear_ball_R": 0.846,
+      "n_clear": 272,
+      "n_emit_scored": 248,
+      "tp": 248,
+      "fp": 0,
+      "err_median_m": 0.209,
+      "poc_pass_P_emit": true,
+      "poc_pass_clear_R": true,
+      "modes": {
+        "raw_all_label_frames": {
+          "n_clear": 272,
+          "n_emit_scored": 207,
+          "tp": 207,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.713,
+          "err_median_m": 0.204,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "detect_ticks_only": {
+          "n_clear": 272,
+          "n_emit_scored": 207,
+          "tp": 207,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.713,
+          "err_median_m": 0.204,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "carry_neighbor_tick": {
+          "n_clear": 272,
+          "n_emit_scored": 207,
+          "tp": 207,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.713,
+          "err_median_m": 0.204,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": false
+        },
+        "product_f0_hold": {
+          "n_clear": 272,
+          "n_emit_scored": 248,
+          "tp": 248,
+          "fp": 0,
+          "P_emit": 1.0,
+          "clear_ball_R": 0.846,
+          "err_median_m": 0.209,
+          "poc_pass_P_emit": true,
+          "poc_pass_clear_R": true
+        }
+      },
+      "note": "det cache stride=1: primary = product F1+F2+F0+F3 hold. detect_ticks / carry kept for A/B.",
+      "seed_note": "gold_xy reseeded from P8 gt_balls via current map_ball_box after P8 landmark/H expand (2026-09-01). Pixel gt_balls unchanged."
+    }
+  },
+  "p_emit_kills": [],
+  "promote_candidate": true,
+  "cache_dir": "reports/eval_match3/improve_eng_loop/v13_residual_det_cache",
+  "comparison_vs_v12_baseline": {
+    "match3_quad_p10_31": {
+      "v12_P_emit": 1.0,
+      "v12_clear_R": 0.879,
+      "v13_P_emit": 1.0,
+      "v13_clear_R": 0.888,
+      "d_clear_R": 0.009
+    },
+    "match3_quad_p8_87": {
+      "v12_P_emit": 1.0,
+      "v12_clear_R": 0.846,
+      "v13_P_emit": 0.992,
+      "v13_clear_R": 0.904,
+      "d_clear_R": 0.058
+    }
+  },
+  "decision": {
+    "promote": true,
+    "reason": "10-epoch Mac@560 specialty. P10 clear_R 0.879\u21920.888; P8 0.846\u21920.904; P_emit \u22650.99. Promoted product ball_checkpoint to v13_residual_snaps. Landmarks/L2 closed. Catch@1288 optional follow-up; holdout caches not yet rebuilt.",
+    "train": "mac_mps_560_epochs_255_to_264",
+    "product_weights": "models/v13_residual_snaps/post_train/checkpoint.pth",
+    "prior_weights": "models/v12_hard_snaps/post_train/checkpoint.pth"
+  }
+}

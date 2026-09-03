@@ -1,0 +1,611 @@
+{
+  "note": "FN diagnosis only \u2014 no hull/checkpoint changes. Proxy clear = any cam side\u226525 and conf\u22650.30. Fuse = F1+F2+F0+F3 product path.",
+  "baseline_pre_f0_proxy_R": 0.525,
+  "cache_dir": "reports/eval_match3/pitchmap_gallery_holdout/det_cache_v13",
+  "totals": {
+    "n_clear_proxy": 298,
+    "n_clear_emit": 266,
+    "clear_ball_proxy_R": 0.893,
+    "fn_buckets": {
+      "focus_map_fail": 6,
+      "mapped_conf_below_emit": 26
+    }
+  },
+  "systemic_vs_clip": {
+    "systemic": [
+      {
+        "key": "mapped_conf_below_emit|P10|-",
+        "tag": "mapped_conf_below_emit",
+        "cam": "P10",
+        "reason": null,
+        "n_caches": 4,
+        "caches": [
+          "det_cache_rand_t00166.0s_thr010.json",
+          "det_cache_rand_t00519.7s_thr010.json",
+          "det_cache_rand_t00552.8s_thr010.json",
+          "det_cache_rand_t01767.3s_thr010.json"
+        ]
+      },
+      {
+        "key": "mapped_conf_below_emit|P6|-",
+        "tag": "mapped_conf_below_emit",
+        "cam": "P6",
+        "reason": null,
+        "n_caches": 2,
+        "caches": [
+          "det_cache_rand_t00166.0s_thr010.json",
+          "det_cache_rand_t00552.8s_thr010.json"
+        ]
+      }
+    ],
+    "clip_specific": [
+      {
+        "key": "focus_map_fail|P_Goal1|low_support",
+        "tag": "focus_map_fail",
+        "cam": "P_Goal1",
+        "reason": "low_support",
+        "n_caches": 1,
+        "caches": [
+          "det_cache_rand_t01767.3s_thr010.json"
+        ]
+      },
+      {
+        "key": "mapped_conf_below_emit|P_Goal1|-",
+        "tag": "mapped_conf_below_emit",
+        "cam": "P_Goal1",
+        "reason": null,
+        "n_caches": 1,
+        "caches": [
+          "det_cache_rand_t01767.3s_thr010.json"
+        ]
+      }
+    ]
+  },
+  "per_cache": [
+    {
+      "cache": "det_cache_rand_t00166.0s_thr010.json",
+      "n": 299,
+      "n_clear_proxy": 123,
+      "n_clear_emit": 104,
+      "clear_ball_proxy_R": 0.846,
+      "fn_buckets": {
+        "mapped_conf_below_emit": 19
+      },
+      "fn_by_tag_cam_reason": {
+        "mapped_conf_below_emit|P10|-": 17,
+        "mapped_conf_below_emit|P6|-": 2
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 14,
+        "020_049": 5,
+        "lt020": 0,
+        "none": 0
+      },
+      "sample_fn": [
+        {
+          "i": 238,
+          "focus": "P6",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.34738245606422424,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.34738245606422424,
+            "side": 26.538604736328125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 240,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.6123677492141724,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.6123677492141724,
+            "side": 30.88507080078125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 242,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.3426695466041565,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.3426695466041565,
+            "side": 30.2525634765625,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 244,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.3620013892650604,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.3620013892650604,
+            "side": 29.7322998046875,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 246,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.3505215644836426,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.3505215644836426,
+            "side": 29.53558349609375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 248,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5789079070091248,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.5789079070091248,
+            "side": 30.0390625,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 250,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7424281239509583,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.7424281239509583,
+            "side": 31.037445068359375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 252,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7709197998046875,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.7709197998046875,
+            "side": 31.0413818359375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 254,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7720639705657959,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.7720639705657959,
+            "side": 30.070068359375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 256,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7583967447280884,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.7583967447280884,
+            "side": 30.38232421875,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 258,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7493943572044373,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.7493943572044373,
+            "side": 31.360595703125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 260,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.751898467540741,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.751898467540741,
+            "side": 30.73779296875,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 262,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7104176878929138,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.7104176878929138,
+            "side": 31.3709716796875,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 264,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5201072692871094,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.5201072692871094,
+            "side": 33.33966064453125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 266,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5169164538383484,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.5169164538383484,
+            "side": 32.049072265625,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 268,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5562812089920044,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.5562812089920044,
+            "side": 31.752777099609375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    },
+    {
+      "cache": "det_cache_rand_t00519.7s_thr010.json",
+      "n": 299,
+      "n_clear_proxy": 1,
+      "n_clear_emit": 0,
+      "clear_ball_proxy_R": 0.0,
+      "fn_buckets": {
+        "mapped_conf_below_emit": 1
+      },
+      "fn_by_tag_cam_reason": {
+        "mapped_conf_below_emit|P10|-": 1
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 1,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      },
+      "sample_fn": [
+        {
+          "i": 114,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.654715895652771,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.654715895652771,
+            "side": 28.73760986328125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    },
+    {
+      "cache": "det_cache_rand_t00552.8s_thr010.json",
+      "n": 299,
+      "n_clear_proxy": 82,
+      "n_clear_emit": 78,
+      "clear_ball_proxy_R": 0.951,
+      "fn_buckets": {
+        "mapped_conf_below_emit": 4
+      },
+      "fn_by_tag_cam_reason": {
+        "mapped_conf_below_emit|P10|-": 3,
+        "mapped_conf_below_emit|P6|-": 1
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 4,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      },
+      "sample_fn": [
+        {
+          "i": 16,
+          "focus": "P6",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5607964992523193,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.5607964992523193,
+            "side": 32.669189453125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 72,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.6994947195053101,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.6994947195053101,
+            "side": 36.70501708984375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 238,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.6090125441551208,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.6090125441551208,
+            "side": 33.13531494140625,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 240,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5591309070587158,
+            "n_mapped": 3
+          },
+          "focus_raw": {
+            "conf": 0.5591309070587158,
+            "side": 34.8927001953125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    },
+    {
+      "cache": "det_cache_rand_t00821.8s_thr010.json",
+      "n": 299,
+      "n_clear_proxy": 2,
+      "n_clear_emit": 2,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "fn_by_tag_cam_reason": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      },
+      "sample_fn": []
+    },
+    {
+      "cache": "det_cache_rand_t01767.3s_thr010.json",
+      "n": 299,
+      "n_clear_proxy": 90,
+      "n_clear_emit": 82,
+      "clear_ball_proxy_R": 0.911,
+      "fn_buckets": {
+        "focus_map_fail": 6,
+        "mapped_conf_below_emit": 2
+      },
+      "fn_by_tag_cam_reason": {
+        "focus_map_fail|P_Goal1|low_support": 6,
+        "mapped_conf_below_emit|P10|-": 1,
+        "mapped_conf_below_emit|P_Goal1|-": 1
+      },
+      "focus_conf_on_fn": {
+        "ge080": 6,
+        "050_079": 2,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      },
+      "sample_fn": [
+        {
+          "i": 0,
+          "focus": "P_Goal1",
+          "tag": "focus_map_fail",
+          "detail": {
+            "reason": "low_support",
+            "conf": 0.8742945790290833
+          },
+          "focus_raw": {
+            "conf": 0.8742945790290833,
+            "side": 46.480712890625,
+            "pass_thr": true,
+            "pass_emit": true
+          }
+        },
+        {
+          "i": 2,
+          "focus": "P_Goal1",
+          "tag": "focus_map_fail",
+          "detail": {
+            "reason": "low_support",
+            "conf": 0.8789017200469971
+          },
+          "focus_raw": {
+            "conf": 0.8789017200469971,
+            "side": 48.0377197265625,
+            "pass_thr": true,
+            "pass_emit": true
+          }
+        },
+        {
+          "i": 4,
+          "focus": "P_Goal1",
+          "tag": "focus_map_fail",
+          "detail": {
+            "reason": "low_support",
+            "conf": 0.8650981783866882
+          },
+          "focus_raw": {
+            "conf": 0.8650981783866882,
+            "side": 45.06146240234375,
+            "pass_thr": true,
+            "pass_emit": true
+          }
+        },
+        {
+          "i": 6,
+          "focus": "P_Goal1",
+          "tag": "focus_map_fail",
+          "detail": {
+            "reason": "low_support",
+            "conf": 0.8704991936683655
+          },
+          "focus_raw": {
+            "conf": 0.8704991936683655,
+            "side": 47.0091552734375,
+            "pass_thr": true,
+            "pass_emit": true
+          }
+        },
+        {
+          "i": 8,
+          "focus": "P_Goal1",
+          "tag": "focus_map_fail",
+          "detail": {
+            "reason": "low_support",
+            "conf": 0.8724145889282227
+          },
+          "focus_raw": {
+            "conf": 0.8724145889282227,
+            "side": 49.95477294921875,
+            "pass_thr": true,
+            "pass_emit": true
+          }
+        },
+        {
+          "i": 10,
+          "focus": "P_Goal1",
+          "tag": "focus_map_fail",
+          "detail": {
+            "reason": "low_support",
+            "conf": 0.8522397875785828
+          },
+          "focus_raw": {
+            "conf": 0.8522397875785828,
+            "side": 48.84173583984375,
+            "pass_thr": true,
+            "pass_emit": true
+          }
+        },
+        {
+          "i": 132,
+          "focus": "P_Goal1",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7760584950447083,
+            "n_mapped": 2
+          },
+          "focus_raw": {
+            "conf": 0.7760584950447083,
+            "side": 36.06756591796875,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 278,
+          "focus": "P10",
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.756677508354187,
+            "n_mapped": 4
+          },
+          "focus_raw": {
+            "conf": 0.756677508354187,
+            "side": 25.935943603515625,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    }
+  ]
+}

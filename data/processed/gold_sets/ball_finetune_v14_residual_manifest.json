@@ -1,0 +1,545 @@
+{
+  "seed": 42,
+  "recipe": "v14_residual_fn_conf_after_v13",
+  "resume_from": "models/v12_hard_snaps/post_train/checkpoint.pth",
+  "train": {
+    "images": 709,
+    "annotations": 714,
+    "by_source": {
+      "hard_blur_0": 102,
+      "v12_anchor_train": 199,
+      "residual_p8": 46,
+      "residual_p10": 56,
+      "hard_blur_1": 102,
+      "tiny_paste_0": 102,
+      "tiny_paste_1": 102
+    }
+  },
+  "valid": {
+    "images": 39,
+    "annotations": 39,
+    "by_source": {
+      "v12_anchor_valid": 39
+    }
+  },
+  "raw_counts": {
+    "residual_fn": 102,
+    "residual_p8": 46,
+    "residual_p10": 56,
+    "residual_p9": 0,
+    "hard_blur": 204,
+    "tiny_paste": 204,
+    "v12_anchor_train": 199,
+    "v12_anchor_valid": 39
+  },
+  "strips": [
+    {
+      "pack": "match3_quad_p10_31",
+      "focus": "P10",
+      "det_cache": "reports/eval_match3/improve_eng_loop/v13_residual_det_cache/det_cache_quad_P10_t00031.0s_v13_thr010.json",
+      "n_residual_train": 56,
+      "n_holdout_120_194": 54,
+      "bands_all_gt": {
+        "050_079": 39,
+        "020_049": 8,
+        "lt020": 9,
+        "no_det": 158,
+        "ge080": 58
+      },
+      "bands_train": {
+        "050_079": 8,
+        "020_049": 0,
+        "lt020": 0,
+        "no_det": 48
+      }
+    },
+    {
+      "pack": "match3_quad_p8_87",
+      "focus": "P8",
+      "det_cache": "reports/eval_match3/improve_eng_loop/v13_residual_det_cache/det_cache_quad_P8_t00087.0s_v13_thr010.json",
+      "n_residual_train": 46,
+      "n_holdout_120_194": 38,
+      "bands_all_gt": {
+        "050_079": 61,
+        "020_049": 11,
+        "lt020": 10,
+        "no_det": 32,
+        "ge080": 178
+      },
+      "bands_train": {
+        "050_079": 16,
+        "020_049": 0,
+        "lt020": 0,
+        "no_det": 30
+      }
+    },
+    {
+      "pack": "match3_quad_p9",
+      "skipped": "missing_pack"
+    }
+  ],
+  "hard": {
+    "hard_copies": 2,
+    "tiny_pastes_per_frame": 2,
+    "tiny_sides": [
+      8,
+      10,
+      12,
+      14,
+      16,
+      18
+    ],
+    "applied_to": "residual_items_only"
+  },
+  "conf_policy": {
+    "emit_conf": 0.8,
+    "soft_pref": [
+      0.5,
+      0.79
+    ],
+    "soft_wide": [
+      0.2,
+      0.8
+    ],
+    "include_no_det": true,
+    "m3_train_max": 119,
+    "held_out_frames": "120\u2013194"
+  },
+  "v12_anchor_root": "/Volumes/LaCie/Projects/Soccer project data/ball_finetune_v12_hard",
+  "bbox_tight": {
+    "side_px": 24,
+    "note": "Primary COCO boxes stay gold xywh; bbox_tight is center square for optional experiments",
+    "n_train_rows": 714,
+    "n_valid_rows": 39,
+    "items_sample": [
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0074.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 74,
+        "focus_conf": 0.7881461381912231,
+        "bbox": [
+          677.1090087890625,
+          435.9206237792969,
+          35.84783935546875,
+          31.157440185546875
+        ],
+        "bbox_tight": [
+          683.0329284667969,
+          439.4993438720703,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0076.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 76,
+        "focus_conf": 0.7735002636909485,
+        "bbox": [
+          703.4208374023438,
+          411.90325927734375,
+          35.93798828125,
+          27.681304931640625
+        ],
+        "bbox_tight": [
+          709.3898315429688,
+          413.74391174316406,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0078.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 78,
+        "focus_conf": 0.7930644750595093,
+        "bbox": [
+          730.8416748046875,
+          388.0768737792969,
+          36.9786376953125,
+          30.395660400390625
+        ],
+        "bbox_tight": [
+          737.3309936523438,
+          391.2747039794922,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0080.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 80,
+        "focus_conf": 0.7861858606338501,
+        "bbox": [
+          755.328857421875,
+          366.6263427734375,
+          40.250244140625,
+          30.125091552734375
+        ],
+        "bbox_tight": [
+          763.4539794921875,
+          369.6888885498047,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0082.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 82,
+        "focus_conf": 0.7906832695007324,
+        "bbox": [
+          782.6129150390625,
+          347.800048828125,
+          33.6640625,
+          31.7630615234375
+        ],
+        "bbox_tight": [
+          787.4449462890625,
+          351.68157958984375,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0084.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 84,
+        "focus_conf": 0.7844342589378357,
+        "bbox": [
+          807.1873779296875,
+          330.6295471191406,
+          36.9879150390625,
+          28.147552490234375
+        ],
+        "bbox_tight": [
+          813.6813354492188,
+          332.7033233642578,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0086.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 86,
+        "focus_conf": 0.7824140191078186,
+        "bbox": [
+          827.9241333007812,
+          314.6324157714844,
+          31.40582275390625,
+          26.48944091796875
+        ],
+        "bbox_tight": [
+          831.6270446777344,
+          315.87713623046875,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p10_31_0106.jpg",
+        "source": "residual_p10",
+        "pack": "match3_quad_p10_31",
+        "frame": 106,
+        "focus_conf": 0.7974883913993835,
+        "bbox": [
+          971.8643188476562,
+          192.99368286132812,
+          30.32843017578125,
+          26.483993530273438
+        ],
+        "bbox_tight": [
+          975.0285339355469,
+          194.23567962646484,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0001.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 1,
+        "focus_conf": 0.735040009021759,
+        "bbox": [
+          1163.6363636363635,
+          298.9341692789968,
+          30.094043887147336,
+          26.081504702194366
+        ],
+        "bbox_tight": [
+          1166.6833855799373,
+          299.974921630094,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0002.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 2,
+        "focus_conf": 0.7681201696395874,
+        "bbox": [
+          1157.617554858934,
+          298.9341692789968,
+          32.10031347962399,
+          28.08777429467085
+        ],
+        "bbox_tight": [
+          1161.6677115987459,
+          300.9780564263323,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0003.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 3,
+        "focus_conf": 0.7903627753257751,
+        "bbox": [
+          1151.5987460815045,
+          292.91536050156736,
+          36.11285266457685,
+          32.10031347962382
+        ],
+        "bbox_tight": [
+          1157.655172413793,
+          296.9655172413793,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0004.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 4,
+        "focus_conf": 0.7627962827682495,
+        "bbox": [
+          1155.6112852664576,
+          300.9404388714733,
+          32.100313479623765,
+          28.08777429467085
+        ],
+        "bbox_tight": [
+          1159.6614420062695,
+          302.9843260188087,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0006.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 6,
+        "focus_conf": 0.7880107164382935,
+        "bbox": [
+          1149.592476489028,
+          284.8902821316614,
+          32.100313479623765,
+          36.11285266457679
+        ],
+        "bbox_tight": [
+          1153.64263322884,
+          290.9467084639498,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0007.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 7,
+        "focus_conf": 0.7923530340194702,
+        "bbox": [
+          1127.5235109717867,
+          284.8902821316614,
+          32.10031347962399,
+          30.094043887147336
+        ],
+        "bbox_tight": [
+          1131.5736677115988,
+          287.9373040752351,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0052.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 52,
+        "focus_conf": 0.7944955825805664,
+        "bbox": [
+          977.130859375,
+          319.9500732421875,
+          30.53631591796875,
+          27.82666015625
+        ],
+        "bbox_tight": [
+          980.3990173339844,
+          321.8634033203125,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0060.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 60,
+        "focus_conf": 0.7901333570480347,
+        "bbox": [
+          977.0532915360501,
+          353.10344827586204,
+          32.100313479623765,
+          36.11285266457679
+        ],
+        "bbox_tight": [
+          981.103448275862,
+          359.1598746081504,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0069.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 69,
+        "focus_conf": 0.7983212471008301,
+        "bbox": [
+          993.103448275862,
+          351.09717868338555,
+          34.10658307210031,
+          36.11285266457679
+        ],
+        "bbox_tight": [
+          998.1567398119121,
+          357.153605015674,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0070.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 70,
+        "focus_conf": 0.788019061088562,
+        "bbox": [
+          993.103448275862,
+          353.10344827586204,
+          30.094043887147336,
+          36.11285266457679
+        ],
+        "bbox_tight": [
+          996.1504702194356,
+          359.1598746081504,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0071.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 71,
+        "focus_conf": 0.7898483872413635,
+        "bbox": [
+          991.0971786833854,
+          349.09090909090907,
+          32.10031347962388,
+          38.11912225705328
+        ],
+        "bbox_tight": [
+          995.1473354231973,
+          356.1504702194357,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      },
+      {
+        "split": "residual_raw",
+        "file_name": "match3_quad_p8_87_0072.jpg",
+        "source": "residual_p8",
+        "pack": "match3_quad_p8_87",
+        "frame": 72,
+        "focus_conf": 0.7949104309082031,
+        "bbox": [
+          998.25830078125,
+          359.5540466308594,
+          30.2535400390625,
+          26.641021728515625
+        ],
+        "bbox_tight": [
+          1001.3850708007812,
+          360.8745574951172,
+          24.0,
+          24.0
+        ],
+        "side_px": 24
+      }
+    ]
+  },
+  "held_out": "Match3 M1 frames 120\u2013194 (same as v11); not written to train",
+  "notes": [
+    "Thin residual specialty after v13 promote (leftover P8/P10 soft conf + no_det under v13 caches).",
+    "Resume from v13_residual; short epoch budget (see configs/finetune_v14_residual_mac.yaml).",
+    "Hard blur / tiny paste only on residual strip items (2 copies each).",
+    "v12_hard train subset anchors medium balls so specialty does not collapse AP.",
+    "Do not include holdout gallery frames."
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "goals": {
+    "P_emit": 0.9,
+    "clear_ball_R": 0.8,
+    "emit_conf": 0.8
+  },
+  "strips": [
+    {
+      "pack": "match3_quad_p10_31",
+      "focus_cam": "P10",
+      "det_cache": "reports/eval_match3/quad_pitchmap_gallery/det_cache/det_cache_quad_P10_t00031.0s_thr010.json",
+      "stride": 2,
+      "n_clear": 109,
+      "n_clear_emit": 106,
+      "clear_ball_R": 0.972,
+      "poc_pass_clear_R": true,
+      "fn_buckets": {
+        "mapped_conf_below_emit": 3
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 2,
+        "020_049": 0,
+        "lt020": 1,
+        "none": 0
+      },
+      "sample_fn": [
+        {
+          "i": 44,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7702566385269165,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.7702566385269165,
+            "side": 28.77911376953125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 210,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.18591874837875366,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.18591874837875366,
+            "side": 7.741943359375,
+            "pass_thr": false,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 232,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.5338171124458313,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.5338171124458313,
+            "side": 20.7403564453125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    },
+    {
+      "pack": "match3_quad_p8_87",
+      "focus_cam": "P8",
+      "det_cache": "reports/eval_match3/quad_pitchmap_gallery/det_cache/det_cache_quad_P8_t00087.0s_stride1_thr010.json",
+      "stride": 1,
+      "n_clear": 272,
+      "n_clear_emit": 233,
+      "clear_ball_R": 0.857,
+      "poc_pass_clear_R": true,
+      "fn_buckets": {
+        "no_det_focus": 28,
+        "mapped_conf_below_emit": 10,
+        "focus_conf_below_emit": 1
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 1,
+        "020_049": 1,
+        "lt020": 9,
+        "none": 28
+      },
+      "sample_fn": [
+        {
+          "i": 1,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 2,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 3,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 4,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 5,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 6,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 7,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 24,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 25,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 26,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 27,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 29,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        }
+      ]
+    }
+  ],
+  "quad_caches": [
+    {
+      "cache": "det_cache_quad_P10_t00031.0s_thr010.json",
+      "focus_cam": "P10",
+      "n_clear_proxy": 88,
+      "n_clear_emit": 88,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      }
+    },
+    {
+      "cache": "det_cache_quad_P8_t00087.0s_stride1_thr010.json",
+      "focus_cam": "P8",
+      "n_clear_proxy": 189,
+      "n_clear_emit": 189,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      }
+    },
+    {
+      "cache": "det_cache_quad_P8_t00087.0s_thr010.json",
+      "focus_cam": "P8",
+      "n_clear_proxy": 94,
+      "n_clear_emit": 94,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      }
+    },
+    {
+      "cache": "det_cache_quad_P9_t00559.2s_thr010.json",
+      "focus_cam": "P9",
+      "n_clear_proxy": 148,
+      "n_clear_emit": 137,
+      "clear_ball_proxy_R": 0.926,
+      "fn_buckets": {
+        "focus_map_fail": 7,
+        "no_det_focus": 4
+      },
+      "focus_conf_on_fn": {
+        "ge080": 5,
+        "050_079": 0,
+        "020_049": 2,
+        "lt020": 0,
+        "none": 4
+      }
+    },
+    {
+      "cache": "det_cache_quad_P9_t00655.3s_thr010.json",
+      "focus_cam": "P9",
+      "n_clear_proxy": 45,
+      "n_clear_emit": 45,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      }
+    }
+  ],
+  "recommendations": [
+    "Detection gap: 6 FN frames have focus conf 0.20\u20130.79 \u2014 need stronger checkpoint or SAHI on quad cams (do not lower emit 0.80).",
+    "Mapping gap: 7 FN frames fail hull/off-pitch on focus cam \u2014 check L1 landmarks / hull_image_points.",
+    "No focus det on 32 FN frames \u2014 ball not detected on quad cam at thr 0.20."
+  ]
+}

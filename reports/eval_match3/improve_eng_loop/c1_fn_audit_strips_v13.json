@@ -1,0 +1,230 @@
+{
+  "note": "Post-v13 strip FN audit (product fuse). Labels = human clear; proxy = side>=25.",
+  "cache_dir": "reports/eval_match3/improve_eng_loop/v13_residual_det_cache",
+  "proxy_rows": [
+    {
+      "cache": "det_cache_quad_P10_t00031.0s_v13_thr010.json",
+      "focus_cam": "P10",
+      "n_clear_proxy": 113,
+      "n_clear_emit": 113,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      }
+    },
+    {
+      "cache": "det_cache_quad_P8_t00087.0s_v13_thr010.json",
+      "focus_cam": "P8",
+      "n_clear_proxy": 240,
+      "n_clear_emit": 240,
+      "clear_ball_proxy_R": 1.0,
+      "fn_buckets": {},
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 0,
+        "lt020": 0,
+        "none": 0
+      }
+    }
+  ],
+  "label_rows": [
+    {
+      "pack": "match3_quad_p10_31",
+      "focus_cam": "P10",
+      "det_cache": "reports/eval_match3/improve_eng_loop/v13_residual_det_cache/det_cache_quad_P10_t00031.0s_v13_thr010.json",
+      "stride": 2,
+      "n_clear": 109,
+      "n_clear_emit": 108,
+      "clear_ball_R": 0.991,
+      "poc_pass_clear_R": true,
+      "fn_buckets": {
+        "mapped_conf_below_emit": 1
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 0,
+        "020_049": 1,
+        "lt020": 0,
+        "none": 0
+      },
+      "sample_fn": [
+        {
+          "i": 210,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.21087244153022766,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.21087244153022766,
+            "side": 8.03228759765625,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    },
+    {
+      "pack": "match3_quad_p8_87",
+      "focus_cam": "P8",
+      "det_cache": "reports/eval_match3/improve_eng_loop/v13_residual_det_cache/det_cache_quad_P8_t00087.0s_v13_thr010.json",
+      "stride": 1,
+      "n_clear": 272,
+      "n_clear_emit": 249,
+      "clear_ball_R": 0.915,
+      "poc_pass_clear_R": true,
+      "fn_buckets": {
+        "no_det_focus": 7,
+        "mapped_conf_below_emit": 16,
+        "emit_fp": 2
+      },
+      "focus_conf_on_fn": {
+        "ge080": 0,
+        "050_079": 3,
+        "020_049": 8,
+        "lt020": 5,
+        "none": 7
+      },
+      "sample_fn": [
+        {
+          "i": 24,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 25,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 26,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 27,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 29,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 176,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.7071049213409424,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.7071049213409424,
+            "side": 27.90899658203125,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 177,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.2653222978115082,
+            "n_mapped": 3
+          },
+          "focus": {
+            "conf": 0.2653222978115082,
+            "side": 26.2821044921875,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 189,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.10189651697874069,
+            "n_mapped": 3
+          },
+          "focus": {
+            "conf": 0.10189651697874069,
+            "side": 29.5435791015625,
+            "pass_thr": false,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 190,
+          "tag": "no_det_focus",
+          "detail": {
+            "focus": "P8"
+          },
+          "focus": null
+        },
+        {
+          "i": 191,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.12532033026218414,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.12532033026218414,
+            "side": 13.94873046875,
+            "pass_thr": false,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 192,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.17919425666332245,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.17919425666332245,
+            "side": 14.61627197265625,
+            "pass_thr": false,
+            "pass_emit": false
+          }
+        },
+        {
+          "i": 193,
+          "tag": "mapped_conf_below_emit",
+          "detail": {
+            "focus_conf": 0.3277854919433594,
+            "n_mapped": 2
+          },
+          "focus": {
+            "conf": 0.3277854919433594,
+            "side": 15.999359130859375,
+            "pass_thr": true,
+            "pass_emit": false
+          }
+        }
+      ]
+    }
+  ]
+}

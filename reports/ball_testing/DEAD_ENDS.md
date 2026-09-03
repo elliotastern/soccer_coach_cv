@@ -26,6 +26,7 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | **ghost_conf 0.45→0.80** | holdout/P10 A/B | **Skipped** — no gate-safe win | See `reports/eval_match3/improve_eng_loop/ghost_conf_ab.json` |
 | **AGREE_M shrink** 4→3.0/2.5 | holdout agree **0.343→0.337/0.321**; proxy held | **Skipped** — agree fell; product stays 4.0 | `agree_m_ab.json` |
 | **H-first 3D+UKF re-A/B** (same calibs) | hybrid parity clear_R **0.892** agree **0.343**; UKF clear_R **0.809** | **No product change** — still parity / UKF kills recall | `fuse3d_ab.json` + `h_consistency/` |
+| **v13 residual 1-epoch only** (Mac MPS @560) | P10 clear_R **0.879→0.866**; P8 **0.846→0.860**; P_emit **1.0** | **No promote** — too short / P10 regress | Superseded by 10-epoch promote |
 
 ## Worked (keep)
 
@@ -37,12 +38,16 @@ Living ledger. After any failed A/B, add one row. Numbers live under `reports/ev
 | Other-cam ≥0.80 on clear FNs | **0/28** — residual is map/det, not fuse drop |
 | L1 white-line re-click P8/P9 (≤18 px; hull preserved) | RT ≤ 0.15; P10 clear_R **0.876→0.879**; P8/holdout flat; strip P held |
 | **3D + smart hybrid** (`pick_3d_hybrid`: 3D when agree, else F0–F3) | Holdout clear_R **0.892** (parity); agree **0.343** (parity); P10 strip held; **promote_3d=true** | Opt-in via `fuse.mode: triangulate_3d`; default stays `pitch_merge` · `fuse3d_ab.json` |
+| **v13 residual 10-epoch** (Mac MPS @560; Catch down; no new landmarks) | P10 clear_R **0.879→0.888**; P8 **0.846→0.904**; P_emit ≥**0.99** | **Promoted** product `ball_checkpoint` → `v13_residual_snaps` · `ab_v13_residual_vs_v12.json` |
 
 ## Residual (not fixed)
 
 - Clip-specific `focus_map_fail` (e.g. P_Goal1 low_support on t1767) — do **not** hull for one seed.
-- Systemic `mapped_conf_below_emit` on **P6** (2 holdout caches, small n) — only if holdout regresses later.
+- Systemic holdout `mapped_conf_below_emit` on **P10/P6** (soft conf 0.50–0.79 majority) — detector specialty next; **do not train on holdout gallery**.
+- Strip leftovers under v13: P8 soft/no_det (~23 label FNs); P10 essentially done (1 FN).
+- Extra landmarks / L2 — **closed** (user: no unlabeled marks left in FOV). Do not invent mid-pitch points.
+- Holdout gallery rebuilt under v13 (`det_cache_v13/`): proxy R **0.892→0.893**, gate held · `ab_v13_holdout_score.json`.
 
 See [CLEAR_BALL_FRONT.md](CLEAR_BALL_FRONT.md) · [HOLDOUT_BASELINE.md](HOLDOUT_BASELINE.md).
 
-- H-consistency baseline: holdout pairwise map span median **~13 m** → improve landmarks/auto-H before shrinking agree (`h_consistency/`).
+- H-consistency baseline: holdout pairwise map span median **~13 m** — fuse hyperparams / inventing landmarks will not fix; detector + existing H only.

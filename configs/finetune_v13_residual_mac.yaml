@@ -1,0 +1,47 @@
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+dataset:
+  coco_train_path: /Volumes/LaCie/Projects/Soccer project data/ball_finetune_v13_residual/train
+  coco_val_path: /Volumes/LaCie/Projects/Soccer project data/ball_finetune_v13_residual/valid
+  yolo_train_path: /Volumes/LaCie/Projects/Soccer project data/ball_finetune_v13_residual/train
+  yolo_val_path: /Volumes/LaCie/Projects/Soccer project data/ball_finetune_v13_residual/valid
+  ball_class_id: 1
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: false
+  prefetch_factor: 1
+  persistent_workers: false
+training:
+  epochs: 265
+  batch_size: 1
+  grad_accum_steps: 4
+  learning_rate: 4.0e-05
+  encoder_learning_rate: 2.5e-05
+  weight_decay: 0.0001
+  resolution: 560
+  amp: false
+  mixed_precision: false
+  num_workers: 0
+  device: mps
+  multi_scale: false
+  expanded_scales: false
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+output:
+  output_dir: /Volumes/LaCie/Projects/Soccer Coach CV/models
+  save_every_epochs: 1
+checkpoint:
+  resume_from: /Volumes/LaCie/Projects/Soccer Coach CV/models/v12_hard_snaps/post_train/checkpoint.pth
+  save_dir: models/v13_residual_snaps

@@ -22,7 +22,35 @@ OUT = ROOT / "reports/eval_match3/improve_eng_loop/holdout_other_cam_funnel.json
 
 
 def main() -> int:
-    paths = sorted(CACHE_DIR.glob("det_cache_rand_*_thr010.json"))
+    import argparse
+
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=CACHE_DIR,
+        help="holdout det_cache folder (v12 or det_cache_v13)",
+    )
+    p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="output JSON (default: holdout_other_cam_funnel.json)",
+    )
+    args = p.parse_args()
+    cache_dir = args.cache_dir
+    if not cache_dir.is_absolute():
+        cache_dir = ROOT / cache_dir
+    out_path = args.out
+    if out_path is None:
+        out_path = OUT
+        if "v13" in str(cache_dir):
+            out_path = OUT.with_name("holdout_other_cam_funnel_v13.json")
+    elif not out_path.is_absolute():
+        out_path = ROOT / out_path
+    paths = sorted(cache_dir.glob("det_cache_rand_*_thr010.json"))
+    if not paths:
+        raise SystemExit(f"no caches in {cache_dir}")
     calibs = {c: v for c, v in ((c, load_calib(c)) for c in CAMS) if v}
     tot_clear_fn = 0
     other_ge080 = 0
@@ -74,19 +102,22 @@ def main() -> int:
             "Clear FNs where ≥1 non-focus cam maps at conf≥0.80. "
             "High frac → fuse/wiring issue; low → real map/det residual."
         ),
+        "cache_dir": str(cache_dir.relative_to(ROOT))
+        if cache_dir.is_relative_to(ROOT)
+        else str(cache_dir),
         "n_clear_fn": tot_clear_fn,
         "n_with_other_ge080_mapped": other_ge080,
         "frac": frac,
         "by_other_cam": dict(sorted(by_cam.items())),
         "samples": samples,
     }
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=2), encoding="utf-8")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(
         f"clear_fn={tot_clear_fn} other_ge080={other_ge080} frac={frac} "
         f"by_cam={dict(by_cam)}"
     )
-    print(f"wrote {OUT}")
+    print(f"wrote {out_path}")
     return 0
 
 

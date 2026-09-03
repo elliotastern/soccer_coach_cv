@@ -866,7 +866,7 @@ def render_synced_frame_review(
     dets = []
     if dets_enabled:
         player_ckpt = str(repo / "models/people_after_100_epochs.pth")
-        ball_ckpt = str(repo / "models/v12_hard_snaps/post_train/checkpoint.pth")
+        ball_ckpt = str(repo / "models/v13_residual_snaps/post_train/checkpoint.pth")
         cache_key = (frame_id, float(det_thr), str(video_path), "nms_v4")
         try:
             if st.session_state.get("verify_det_key") != cache_key:
@@ -945,7 +945,7 @@ def render_synced_frame_review(
         if key in cache:
             return cache[key]
         player_ckpt = str(repo / "models/people_after_100_epochs.pth")
-        ball_ckpt = str(repo / "models/v12_hard_snaps/post_train/checkpoint.pth")
+        ball_ckpt = str(repo / "models/v13_residual_snaps/post_train/checkpoint.pth")
         detector = _load_verify_detector(
             player_ckpt, ball_ckpt, float(det_thr), nms_ver="v4"
         )

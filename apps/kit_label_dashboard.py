@@ -41,7 +41,7 @@ DEFAULT_OUT = ROOT / "data/output/match_4_5min"
 DEFAULT_RAW = ROOT / "data/raw/Match 3"
 FISHEYE = frozenset({"P7", "P8", "P9", "P10"})
 PLAYER_CKPT = ROOT / "models/people_after_100_epochs.pth"
-BALL_CKPT = ROOT / "models/v12_hard_snaps/post_train/checkpoint.pth"
+BALL_CKPT = ROOT / "models/v13_residual_snaps/post_train/checkpoint.pth"
 
 
 def list_raw_videos(raw_dir: Path) -> dict[str, Path]:

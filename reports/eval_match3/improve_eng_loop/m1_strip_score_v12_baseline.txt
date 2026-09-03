@@ -1,0 +1,8 @@
+match3_quad_p10_31: P_emit=1.0 clear_ball_R=0.879 (stride=2) emit=219 clear=224 pass_P=True pass_R=True
+  product_F0 P=1.0 clear_R=0.879
+match3_quad_p8_87: P_emit=1.0 clear_ball_R=0.846 (stride=1) emit=248 clear=272 pass_P=True pass_R=True
+  product_F0 P=1.0 clear_R=0.846
+random: clear_ball_proxy_R=0.625 agree_among_emit=0.135 emit=475/1495
+random_holdout: clear_ball_proxy_R=0.892 agree_among_emit=0.342 emit=552/1495
+quad: clear_ball_proxy_R=0.954 agree_among_emit=0.356 emit=1080/1495
+wrote /Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/improve_eng_loop/m1_provisional.json

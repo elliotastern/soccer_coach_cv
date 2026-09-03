@@ -3,7 +3,7 @@
     "plan": 10.0,
     "t1_wire": 10.0,
     "l1_calib": 10.0,
-    "l2_overlap": 10.0,
+    "l2_overlap": 6.0,
     "h1_support": 10.0,
     "c1_fn": 10.0,
     "c2_det": 9.0,
@@ -21,7 +21,8 @@
       "L1 DLT on P8/P9/P_Goal1"
     ],
     "l2_overlap": [
-      "L2 P1/P6 center overlap \u22655"
+      "P1 RT > 0.15",
+      "P6 RT > 0.15"
     ],
     "h1_support": [
       "H1 MIN_SUPPORT=0.20 (holdout A/B promote)"
@@ -46,5 +47,7 @@
     ]
   },
   "pass": 9.0,
-  "fails": []
+  "fails": [
+    "l2_overlap=6.0 ['P1 RT > 0.15', 'P6 RT > 0.15']"
+  ]
 }
