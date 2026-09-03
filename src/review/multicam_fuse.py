@@ -35,6 +35,74 @@ def _is_ball_det(d) -> bool:
     return name == "ball" or int(getattr(d, "class_id", -1)) == 1
 
 
+def filter_bag_balls_to_emit(
+    bag: dict,
+    ball_meta: dict | None,
+    *,
+    apply_undistort: bool = True,
+    agree_m: float | None = None,
+) -> dict:
+    """Keep player dets; keep ball dets only if they back the product fuse emit.
+
+    A ball backs the emit when its mapped pitch xy is within agree_m of emit xy
+    (or it is on emit['cam'] when mapping is unavailable). No emit → strip all balls.
+    Blurry real balls that still fuse stay visible; ghost top-1s that failed fuse do not.
+    """
+    from src.mapping.match3_xy import AGREE_M, load_calib, map_ball_box
+    from src.review.frame_sync import keep_top1_ball
+
+    lim = float(AGREE_M if agree_m is None else agree_m)
+    emit_xy = None
+    emit_cam = ""
+    if ball_meta:
+        xy = ball_meta.get("xy")
+        if xy is not None and len(xy) >= 2:
+            emit_xy = (float(xy[0]), float(xy[1]))
+        emit_cam = str(ball_meta.get("cam") or "")
+
+    out: dict = {}
+    for key, val in bag.items():
+        if not isinstance(key, str):
+            out[key] = val
+            continue
+        if key.endswith("__wh") or key.endswith("__bgr"):
+            out[key] = val
+            continue
+        cam = key
+        dets = list(val or [])
+        players = [d for d in dets if not _is_ball_det(d)]
+        balls = [d for d in dets if _is_ball_det(d)]
+        kept: list = []
+        if emit_xy is not None and balls:
+            calib = load_calib(cam)
+            wh = bag.get(f"{cam}__wh")
+            for d in balls:
+                if calib is None:
+                    if cam == emit_cam:
+                        kept.append(d)
+                    continue
+                mapped = map_ball_box(
+                    calib,
+                    d.bbox,
+                    float(d.confidence),
+                    frame_wh=wh,
+                    apply_undistort=apply_undistort,
+                )
+                if mapped is None:
+                    if cam == emit_cam:
+                        kept.append(d)
+                    continue
+                mxy = mapped["xy"]
+                dist = (
+                    (float(mxy[0]) - emit_xy[0]) ** 2
+                    + (float(mxy[1]) - emit_xy[1]) ** 2
+                ) ** 0.5
+                if dist <= lim or cam == emit_cam:
+                    kept.append(d)
+        out[cam] = players + keep_top1_ball(kept)
+    return out
+
+
 def player_det_ok(d, *, min_conf: float = PLAYER_MIN_CONF) -> bool:
     """Keep person-like boxes for mosaic draw + pitch map."""
     if _is_ball_det(d):

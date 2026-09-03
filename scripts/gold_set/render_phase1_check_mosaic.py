@@ -36,6 +36,7 @@ from src.review.frame_sync import keep_top1_ball  # noqa: E402
 from src.mapping.fuse_config import load_fuse_config  # noqa: E402
 from src.review.cam_mosaic import fill_fuse_cams_for_pitch  # noqa: E402
 from src.review.multicam_fuse import fuse_live_dets_for_pitch  # noqa: E402
+from src.review.multicam_fuse import filter_bag_balls_to_emit  # noqa: E402
 from src.review.pitch1_panel import draw_pitch1_ball_panel  # noqa: E402
 from src.perception.team_core import (  # noqa: E402
     find_kit_ref_under,
@@ -184,9 +185,11 @@ def draw_events_bar(width: int, t_s: float, recent: list[dict], flash: str | Non
     return bar
 
 
-def pick_best_ball_cam(bag: dict) -> str:
-    """Highest-conf ball among cams present in bag (all eight when fuse bag is filled)."""
+def pick_best_ball_cam(bag: dict, prefer_cam: str | None = None) -> str:
+    """Highest-conf ball among cams in bag; prefer fused emit cam when it still has a ball."""
     order = ("P10", "P9", "P7", "P8", "P1", "P6", "P_Goal1", "P_Goal2")
+    if prefer_cam and any(_is_ball_det(d) for d in (bag.get(prefer_cam) or [])):
+        return prefer_cam
     best_cam = None
     best_conf = -1.0
     for cam in order:
@@ -197,7 +200,7 @@ def pick_best_ball_cam(bag: dict) -> str:
             if conf > best_conf:
                 best_conf = conf
                 best_cam = cam
-    return best_cam or "P10"
+    return best_cam or prefer_cam or "P10"
 
 
 def render_cam_panel(
@@ -213,6 +216,8 @@ def render_cam_panel(
     grid_h: int,
     *,
     bag_already_filled: bool = False,
+    prefer_ball_cam: str | None = None,
+    reuse_bag_dets: bool = False,
 ) -> np.ndarray:
     if layout == "mosaic":
         return mosaic_quads_coach(
@@ -234,8 +239,10 @@ def render_cam_panel(
             detect_fn=detect_fn,
             apply_defish=apply_defish,
         )
-    best = pick_best_ball_cam(bag)
+    best = pick_best_ball_cam(bag, prefer_cam=prefer_ball_cam)
     rotate = best in QUAD_ROTATE_180
+    # reuse_bag_dets: do not re-detect (would reintroduce ghost BALL overlays)
+    tile_detect = None if reuse_bag_dets else detect_fn
     tile = _tile(
         vids,
         best,
@@ -243,7 +250,7 @@ def render_cam_panel(
         tile_w * 2,
         tile_h * 2,
         dets_by_cam=bag,
-        detect_fn=detect_fn,
+        detect_fn=tile_detect,
         rotate_180=rotate,
         apply_defish=apply_defish,
     )
@@ -361,6 +368,7 @@ def main() -> int:
     for i, fr in enumerate(frames):
         bag = {}
         bag_filled = False
+        mosaic = None
         if events_only:
             mosaic_quads_coach(
                 vids,
@@ -373,7 +381,7 @@ def main() -> int:
             )
             bag_filled = True
         elif args.layout == "best_ball" and use_full_fuse_bag:
-            # Detect all fuse cams once: pick best-ball view + pitch fuse share the bag.
+            # Detect all fuse cams once for pitch fuse + best-ball view.
             fill_fuse_cams_for_pitch(
                 vids,
                 fr,
@@ -384,19 +392,6 @@ def main() -> int:
                 single_ball=False,
             )
             bag_filled = True
-            mosaic = render_cam_panel(
-                args.layout,
-                vids,
-                fr,
-                bag,
-                detect_fn,
-                apply_defish,
-                tile_w,
-                tile_h,
-                grid_w,
-                grid_h,
-                bag_already_filled=True,
-            )
         else:
             mosaic = render_cam_panel(
                 args.layout,
@@ -442,6 +437,32 @@ def main() -> int:
         ball_prev_emit = live.get("ball_prev_emit")
         ball_gap = int(live.get("ball_frames_since_emit") or 0)
         ball_static = live.get("ball_static_state")
+        # Draw BALL only when it backs product fuse (blurry OK if still emitted).
+        if args.layout == "best_ball" and use_full_fuse_bag and not events_only:
+            draw_bag = filter_bag_balls_to_emit(
+                bag,
+                live.get("ball_meta"),
+                apply_undistort=apply_undistort,
+            )
+            prefer = None
+            meta = live.get("ball_meta") or {}
+            if meta.get("cam"):
+                prefer = str(meta["cam"])
+            mosaic = render_cam_panel(
+                args.layout,
+                vids,
+                fr,
+                draw_bag,
+                detect_fn,
+                apply_defish,
+                tile_w,
+                tile_h,
+                grid_w,
+                grid_h,
+                bag_already_filled=True,
+                prefer_ball_cam=prefer,
+                reuse_bag_dets=True,
+            )
         players = live["players"]
         ball = live["ball_xy"]
         if ball is not None:
