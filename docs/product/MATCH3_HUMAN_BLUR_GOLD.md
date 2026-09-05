@@ -31,11 +31,24 @@ PYTHONPATH=. python3 scripts/gold_set/export_match3_human_blur_gold.py
 # then commit JSON under match3_human_blur_gold/ + source pack labels.json (not frames/)
 ```
 
-## Use
+## Ckpt A/B on this bank (report-only, 2026-09-04)
 
-- **Do** score soft/blur residual A/Bs against `human_labels.json` (or filter `blurry` / `streaky`).
-- **Do** keep pack `labels.json` + export JSON on GitHub.
-- **Don’t** treat seed-only soft dets as gold.
-- **Don’t** expect this alone to replace Match1/2 CVAT train gold; it is a Match 3 soft/blur human bank.
+Script: `scripts/gold_set/ab_match3_human_blur_gold_ckpts.py`  
+Report: `reports/eval_match3/improve_eng_loop/ab_match3_human_blur_gold_ckpts.json`
+
+Scored v12 / v14–v22 (v13 weights missing on Catch) at thr **0.10**, recall @ IoU≥0.30 / center≤20px on **339** human boxes.
+
+| ckpt | all R@0.30 | blurry R@0.30 (n=119) | streaky R@0.30 (n=36) | clear R@0.30 |
+|------|----------:|----------------------:|----------------------:|-------------:|
+| v12 | 0.826 | **1.000** | 0.722 | 0.994 |
+| v14 | 0.799 | 0.983 | 0.722 | 0.975 |
+| v15 | 0.829 | 1.000 | 0.722 | 0.994 |
+| **v16** | 0.823 | **1.000** | 0.722 | 0.988 |
+| v17–v19 | ~0.82–0.83 | 1.000 | 0.722 | ~0.988 |
+| v20 | **0.835** | 1.000 | 0.722 | 0.994 |
+| v21 | 0.829 | 1.000 | 0.722 | 0.988 |
+| v22 | 0.814 | 1.000 | 0.722 | 0.988 |
+
+**Read:** low-Laplacian “blurry” boxes are already **solved** by product v16 (and peers). The shared miss pool is **streaky** (~28% miss, same across versions). Residuals v17–v22 do **not** lift streak recall here; v20 is a tiny overall bump only. Not a promote signal — keep v16 until streak-specific gold + train changes.
 
 Registry: [VALIDATED_GOLD_REGISTRY.md](VALIDATED_GOLD_REGISTRY.md) · M1 UI: [MATCH3_M1_STRIP.md](MATCH3_M1_STRIP.md)
