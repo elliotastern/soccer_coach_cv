@@ -43,6 +43,14 @@ Spec detail: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
 |---|---|---|---|
 | `match3_quad_p10_31` | P10 | **Human-reviewed** frames 0–194 (`labels.json`) | Product M1 eval. Train mix v11 uses **≤119 stride 2 only**; **120–194 held out**. |
 
+## Match 3 — human blur / soft session (2026-09-04)
+
+| Pack | Status | Notes |
+|---|---|---|
+| `match3_human_blur_gold` | **Human-only export** | `gold/human_labels.json` — only `human_conf` boxes (**133** as of export). Seed/prelabel excluded. Frames stay local. |
+| `match3_quad_p9_655` | Partial human | P9 @ 10:55; 32 human boxes in export |
+| `match3_blur_p1_soft1500` | Partial human | soft-harvest P1; 101 human boxes in export |
+
 ## Continuous → TrackNet sequence pack
 
 Dense Top Left 300 (P10/P7/Cam4plus) + Match3 P10 M1 are exported as consecutive `(prev, mid, next)` triplets for a TrackNet/VballNet side test:

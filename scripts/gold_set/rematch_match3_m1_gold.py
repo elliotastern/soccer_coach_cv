@@ -22,6 +22,8 @@ def rematch_frame(seed: dict, calib: dict) -> dict:
         seed["clear"] = False
         seed["empty"] = True
         seed["gold_xy"] = None
+        seed["gold_support"] = None
+        seed.pop("gold_xy_source", None)
         return seed
     b = balls[0]
     box = (float(b["x"]), float(b["y"]), float(b["w"]), float(b["h"]))
@@ -31,8 +33,11 @@ def rematch_frame(seed: dict, calib: dict) -> dict:
     seed["empty"] = False
     seed["clear"] = side >= CLEAR_SIDE
     seed["seed_side"] = side
-    seed["gold_xy"] = None if hit is None else [hit["xy"][0], hit["xy"][1]]
-    seed["gold_support"] = None if hit is None else hit["support"]
+    if hit is not None:
+        seed["gold_xy"] = [hit["xy"][0], hit["xy"][1]]
+        seed["gold_support"] = hit["support"]
+        seed["gold_xy_source"] = calib.get("camera") or "focus"
+    # Focus H may not span FOV (e.g. P9 midfield). Keep prior other-cam gold_xy.
     return seed
 
 

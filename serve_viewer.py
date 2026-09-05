@@ -429,6 +429,30 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
         if self.path.split('?', 1)[0] in (
+            '/match3-m1-p9',
+            '/match3-m1-p9/',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match3_quad_p9_655/review/index.html',
+            )
+            self.end_headers()
+            return
+
+        if self.path.split('?', 1)[0] in (
+            '/match3-m1-blur',
+            '/match3-m1-blur/',
+            '/match3-m1-p7-blur',
+        ):
+            self.send_response(302)
+            self.send_header(
+                'Location',
+                '/data/processed/gold_sets/match3_blur_p7_1237/review/index.html',
+            )
+            self.end_headers()
+            return
+        if self.path.split('?', 1)[0] in (
             '/match3-fisheye',
             '/match3-fisheye/',
             '/match3_fisheye',
@@ -500,6 +524,35 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
                 self.wfile.write(str(e).encode())
+            return
+        if self.path.split('?', 1)[0] == '/match3_landmark_load':
+            try:
+                from urllib.parse import parse_qs, urlparse
+
+                qs = parse_qs(urlparse(self.path).query)
+                cam = (qs.get('cam') or qs.get('camera') or [''])[0]
+                gold = str(SCRIPT_DIR / 'scripts' / 'gold_set')
+                if gold not in sys.path:
+                    sys.path.insert(0, gold)
+                import importlib
+                import match3_landmarks as lm
+
+                lm = importlib.reload(lm)
+                result = lm.load_saved_clicks_for_ui(str(cam))
+                body = json.dumps(result).encode()
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Cache-Control', 'no-store')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception as e:
+                body = json.dumps({'ok': False, 'error': str(e)}).encode()
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
             return
         if self.path.split('?', 1)[0] in (
             '/phase1-handover',
@@ -1066,6 +1119,8 @@ def main():
     print(f"Match3 M1 hub:   http://127.0.0.1:{port}/match3-m1")
     print(f"  P10 strip:     http://127.0.0.1:{port}/match3-m1-p10")
     print(f"  P8 strip:      http://127.0.0.1:{port}/match3-m1-p8")
+    print(f"  P9 strip:      http://127.0.0.1:{port}/match3-m1-p9")
+    print(f"  blur P7:       http://127.0.0.1:{port}/match3-m1-blur")
     print(f"Match3 fisheye: http://127.0.0.1:{port}/match3-fisheye")
     print(f"Phase 1 handover: http://127.0.0.1:{port}/phase1-handover")
     print(f"landmark_marker: http://127.0.0.1:{port}/landmark_marker")

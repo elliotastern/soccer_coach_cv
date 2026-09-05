@@ -45,6 +45,8 @@ label{{display:block;margin:.4rem 0 .2rem;color:var(--muted);font-size:.85rem}}
       <button id="prev">Prev</button>
       <button id="next">Next</button>
       <button id="clearOnly">Next clear</button>
+      <button id="softOnly">Next soft</button>
+      <button id="streakOnly">Next streak</button>
     </div>
     <div class="row">
       <button id="clearBox" class="danger">Clear box</button>
@@ -151,6 +153,20 @@ document.getElementById('clearOnly').onclick=()=>{{
   }}
   setStatus('no later clear frame','warn');
 }};
+document.getElementById('softOnly').onclick=()=>{{
+  for(let k=i+1;k<labels.frames.length;k++){{
+    const s=(labels.frames[k].cams||{{}})[FOCUS]||{{}};
+    if(s.soft_seed || (s.gt_balls&&s.gt_balls.length && !s.clear)){{show(k);return;}}
+  }}
+  setStatus('no later soft frame','warn');
+}};
+document.getElementById('streakOnly').onclick=()=>{{
+  for(let k=i+1;k<labels.frames.length;k++){{
+    const s=(labels.frames[k].cams||{{}})[FOCUS]||{{}};
+    if(s.streaky || s.blur_priority){{show(k);return;}}
+  }}
+  setStatus('no later streak frame','warn');
+}};
 document.getElementById('save').onclick=async ()=>{{
   setStatus('saving…');
   const res=await fetch('/save_match3_m1_labels',{{
@@ -230,13 +246,27 @@ def main() -> int:
     p.add_argument(
         "--packs",
         nargs="+",
-        default=["match3_quad_p10_31", "match3_quad_p8_87"],
+        default=[
+            "match3_quad_p10_31",
+            "match3_quad_p8_87",
+            "match3_quad_p9_655",
+            "match3_blur_p1_soft1500",
+            "match3_blur_p7_1237",
+        ],
     )
+    p.add_argument("--pack", help="single pack (also rebuilds hub with defaults + this)")
     args = p.parse_args()
-    for pack in args.packs:
-        path = write_pack(pack)
-        print(f"wrote {path}")
-    hub = write_hub(args.packs)
+    packs = list(args.packs)
+    if args.pack:
+        if args.pack not in packs:
+            packs.append(args.pack)
+        write_pack(args.pack)
+        print(f"wrote {GOLD / args.pack / 'review' / 'index.html'}")
+    else:
+        for pack in packs:
+            path = write_pack(pack)
+            print(f"wrote {path}")
+    hub = write_hub(packs)
     print(f"hub {hub}")
     return 0
 

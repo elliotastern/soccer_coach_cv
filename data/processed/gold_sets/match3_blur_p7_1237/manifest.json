@@ -1,0 +1,16 @@
+{
+  "pack": "match3_blur_p7_1237",
+  "focus_cam": "P7",
+  "clock": "20:37-20:42",
+  "n_frames": 299,
+  "n_clear": 0,
+  "n_gold_xy": 11,
+  "n_soft_seed": 11,
+  "labels": "labels.json",
+  "review": "review/index.html",
+  "source": "reports/eval_match3/pitchmap_gallery/source/rand_t01237.3s_P7.mp4",
+  "provisional": true,
+  "n_blur_priority": 11,
+  "role": "fast_pass_blur",
+  "n_streaky": 5
+}

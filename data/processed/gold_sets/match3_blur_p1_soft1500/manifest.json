@@ -1,0 +1,17 @@
+{
+  "pack": "match3_blur_p1_soft1500",
+  "focus_cam": "P1",
+  "clock": "soft ~25:00 (5s window)",
+  "n_frames": 299,
+  "n_clear": 0,
+  "n_gold_xy": 95,
+  "n_soft_seed": 24,
+  "labels": "labels.json",
+  "review": "review/index.html",
+  "source": "reports/eval_match3/soft_harvest_gallery/source/soft_t01500.0s_P1.mp4",
+  "provisional": false,
+  "n_blur_priority": 24,
+  "role": "fast_pass_blur",
+  "n_streaky": 3,
+  "human_reviewed": true
+}

@@ -52,12 +52,21 @@ def extract_frames(video: Path, dest: Path, n: int) -> list[str]:
     return names
 
 
-def seed_frame(rows, calib) -> dict:
+def seed_frame(rows, calib, accept_conf=ACCEPT_CONF, soft_seed_conf=None, soft_side=None) -> dict:
     if not rows:
         return {"gt_balls": [], "empty": True, "clear": False, "gold_xy": None}
     box, conf, side = rows[0]
-    clear = float(side) >= CLEAR_SIDE and float(conf) >= ACCEPT_CONF
-    if not clear:
+    conf_f = float(conf)
+    side_f = float(side)
+    clear = side_f >= CLEAR_SIDE and conf_f >= float(accept_conf)
+    soft_min_side = CLEAR_SIDE if soft_side is None else float(soft_side)
+    soft = (
+        soft_seed_conf is not None
+        and (not clear)
+        and side_f >= soft_min_side
+        and conf_f >= float(soft_seed_conf)
+    )
+    if not clear and not soft:
         return {
             "gt_balls": [],
             "empty": True,
@@ -65,11 +74,11 @@ def seed_frame(rows, calib) -> dict:
             "gold_xy": None,
             "prelabel": {
                 "bbox": list(box),
-                "conf": float(conf),
-                "side": float(side),
+                "conf": conf_f,
+                "side": side_f,
             },
         }
-    hit = map_ball_box(calib, box, float(conf), frame_wh=(DETECT_W, 1080))
+    hit = map_ball_box(calib, box, conf_f, frame_wh=(DETECT_W, 1080))
     return {
         "gt_balls": [
             {
@@ -80,11 +89,17 @@ def seed_frame(rows, calib) -> dict:
             }
         ],
         "empty": False,
-        "clear": True,
+        "clear": bool(clear),
         "gold_xy": None if hit is None else [hit["xy"][0], hit["xy"][1]],
         "gold_support": None if hit is None else hit["support"],
-        "seed_conf": float(conf),
-        "seed_side": float(side),
+        "seed_conf": conf_f,
+        "seed_side": side_f,
+        "soft_seed": bool(soft),
+        "prelabel": {
+            "bbox": list(box),
+            "conf": conf_f,
+            "side": side_f,
+        },
     }
 
 
@@ -95,13 +110,38 @@ def parse_args():
     p.add_argument("--pack", required=True, help="pack folder name under gold_sets")
     p.add_argument("--clock", required=True, help="e.g. 1:27-1:32")
     p.add_argument("--max-frames", type=int, default=300)
+    p.add_argument(
+        "--source-dir",
+        type=Path,
+        default=QUAD_SRC,
+        help="dir with {stem}_{cam}.mp4",
+    )
+    p.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=QUAD_CACHE,
+        help="dir with det_cache_{stem}_thr010.json",
+    )
+    p.add_argument("--accept-conf", type=float, default=ACCEPT_CONF)
+    p.add_argument(
+        "--soft-seed-conf",
+        type=float,
+        default=None,
+        help="also seed gt boxes at this conf (clear=false) for blur/soft review",
+    )
+    p.add_argument(
+        "--soft-side",
+        type=float,
+        default=None,
+        help="min side px for soft seeds (default = clear side 25)",
+    )
     return p.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    cache = QUAD_CACHE / f"det_cache_{args.stem}_thr010.json"
-    video = QUAD_SRC / f"{args.stem}_{args.focus}.mp4"
+    cache = args.cache_dir / f"det_cache_{args.stem}_thr010.json"
+    video = args.source_dir / f"{args.stem}_{args.focus}.mp4"
     out = ROOT / "data/processed/gold_sets" / args.pack
     if not cache.is_file():
         raise FileNotFoundError(cache)
@@ -120,14 +160,23 @@ def main() -> int:
     frames = []
     n_clear = 0
     n_gold = 0
+    n_soft = 0
     for i in range(n):
         cam_payload = {}
         for cam in CAMS:
             rows = (dets.get(cam) or [None] * n)[i] or []
             if cam == args.focus:
-                seed = seed_frame(rows, calib)
+                seed = seed_frame(
+                    rows,
+                    calib,
+                    accept_conf=args.accept_conf,
+                    soft_seed_conf=args.soft_seed_conf,
+                    soft_side=args.soft_side,
+                )
                 if seed["clear"]:
                     n_clear += 1
+                if seed.get("soft_seed"):
+                    n_soft += 1
                 if seed.get("gold_xy"):
                     n_gold += 1
                 cam_payload[cam] = seed
@@ -148,14 +197,16 @@ def main() -> int:
         "focus_cam": args.focus,
         "stem": args.stem,
         "clock": args.clock,
-        "source": str(video.relative_to(ROOT)).replace("\\", "/"),
-        "det_cache": str(cache.relative_to(ROOT)).replace("\\", "/"),
+        "source": str(video.resolve().relative_to(ROOT.resolve())).replace("\", "/"),
+        "det_cache": str(cache.resolve().relative_to(ROOT.resolve())).replace("\", "/"),
         "detect_wh": [DETECT_W, 1080],
         "n_frames": n,
         "n_clear": n_clear,
         "n_gold_xy": n_gold,
+        "n_soft_seed": n_soft,
         "seed": {
-            "accept_conf": ACCEPT_CONF,
+            "accept_conf": float(args.accept_conf),
+            "soft_seed_conf": args.soft_seed_conf,
             "clear_side": CLEAR_SIDE,
             "note": (
                 f"PROVISIONAL — {args.focus} clear dets mapped via {args.focus} H; "
@@ -175,6 +226,7 @@ def main() -> int:
                 "n_frames": n,
                 "n_clear": n_clear,
                 "n_gold_xy": n_gold,
+                "n_soft_seed": n_soft,
                 "labels": "labels.json",
                 "review": "review/index.html",
                 "source": payload["source"],
@@ -198,7 +250,7 @@ def main() -> int:
         encoding="utf-8",
     )
     print(
-        f"wrote {out}: frames={n} clear={n_clear} gold_xy={n_gold}"
+        f"wrote {out}: frames={n} clear={n_clear} soft_seed={n_soft} gold_xy={n_gold}"
     )
     return 0
 

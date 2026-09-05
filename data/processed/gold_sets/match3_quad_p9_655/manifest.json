@@ -1,0 +1,14 @@
+{
+  "pack": "match3_quad_p9_655",
+  "focus_cam": "P9",
+  "clock": "10:55-11:00",
+  "n_frames": 299,
+  "n_clear": 56,
+  "n_gold_xy": 44,
+  "labels": "labels.json",
+  "review": "review/index.html",
+  "source": "reports/eval_match3/quad_pitchmap_gallery/source/quad_P9_t00655.3s_P9.mp4",
+  "provisional": false,
+  "gold_xy_note": "Focus P9 H does not span midfield feet; gold_xy seeded from best other-cam map when focus map fails. Confirm P9 boxes; Save keeps other-cam gold if focus still fails.",
+  "human_reviewed": true
+}
