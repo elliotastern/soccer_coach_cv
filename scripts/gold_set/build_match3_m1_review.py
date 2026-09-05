@@ -38,19 +38,20 @@ label{{display:block;margin:.4rem 0 .2rem;color:var(--muted);font-size:.85rem}}
   <div><div class="stage"><canvas id="cv" width="1920" height="1080"></canvas></div></div>
   <aside>
     <h1>Match3 M1 · {focus}</h1>
-    <p class="muted">{pack} · {clock}. Drag box · Clear · Save rematches gold_xy. <a href="/match3-m1">All strips</a></p>
+    <p class="muted">{pack} · {clock}. Confirm box (Enter/C) · Drag to fix · Clear · Save. <a href="/match3-m1">All strips</a></p>
     <label>Frame</label>
     <input id="idx" type="number" min="0" max="298" value="0" style="width:100%"/>
     <div class="row">
-      <button id="prev">Prev</button>
-      <button id="next">Next</button>
-      <button id="clearOnly">Next clear</button>
-      <button id="softOnly">Next soft</button>
-      <button id="streakOnly">Next streak</button>
+      <button type="button" id="prev">Prev</button>
+      <button type="button" id="next">Next</button>
+      <button type="button" id="clearOnly">Next clear</button>
+      <button type="button" id="softOnly">Next soft</button>
+      <button type="button" id="streakOnly">Next streak</button>
     </div>
     <div class="row">
-      <button id="clearBox" class="danger">Clear box</button>
-      <button id="save" class="primary">Save labels</button>
+      <button type="button" id="confirmBox" class="primary">Confirm box</button>
+      <button type="button" id="clearBox" class="danger">Clear box</button>
+      <button type="button" id="save">Save labels</button>
     </div>
     <div id="meta"></div>
     <div id="status" class="muted"></div>
@@ -60,8 +61,9 @@ label{{display:block;margin:.4rem 0 .2rem;color:var(--muted);font-size:.85rem}}
 const W=1920,H=1080, FOCUS="{focus}";
 const cv=document.getElementById('cv');
 const ctx=cv.getContext('2d');
-let labels=null, img=new Image(), i=0, drag=null, dirty=false;
+let labels=null, img=new Image(), i=0, drag=null, dirty=false, loadGen=0;
 const status=document.getElementById('status');
+const idxEl=document.getElementById('idx');
 
 function seed(){{
   const cams=labels.frames[i].cams;
@@ -70,17 +72,27 @@ function seed(){{
 function setStatus(t,cls){{status.className=cls||'muted';status.textContent=t;}}
 
 async function load(){{
-  labels=await (await fetch('../labels.json')).json();
-  document.getElementById('idx').max=labels.frames.length-1;
+  try{{
+    const res=await fetch('../labels.json',{{cache:'no-store'}});
+    if(!res.ok) throw new Error('labels HTTP '+res.status);
+    labels=await res.json();
+  }}catch(err){{
+    setStatus('failed to load labels.json — is serve_viewer up?','warn');
+    return;
+  }}
+  idxEl.max=labels.frames.length-1;
   show(0);
 }}
 
 function draw(){{
   ctx.clearRect(0,0,W,H);
-  if(img.complete) ctx.drawImage(img,0,0,W,H);
-  const g=(seed().gt_balls||[])[0];
+  if(img && img.naturalWidth) ctx.drawImage(img,0,0,W,H);
+  if(!labels) return;
+  const s=seed();
+  const g=(s.gt_balls||[])[0];
   if(g){{
-    ctx.strokeStyle='#3ddc97'; ctx.lineWidth=3;
+    ctx.strokeStyle=s.human_conf!=null ? '#3ddc97' : '#8ec8ff';
+    ctx.lineWidth=3;
     ctx.strokeRect(g.x,g.y,g.w,g.h);
   }}
   if(drag){{
@@ -90,19 +102,34 @@ function draw(){{
 }}
 
 function show(n){{
-  i=Math.max(0,Math.min(labels.frames.length-1,n|0));
-  document.getElementById('idx').value=i;
+  if(!labels) return;
+  i=Math.max(0,Math.min(labels.frames.length-1,Number(n)||0));
+  idxEl.value=String(i);
+  meta();
   const fr=labels.frames[i];
-  img.onload=()=>{{draw(); meta();}};
-  img.src='frames/'+fr.file;
-  if(img.complete) {{draw(); meta();}}
+  const gen=++loadGen;
+  const next=new Image();
+  next.onload=()=>{{
+    if(gen!==loadGen) return;
+    img=next;
+    draw();
+    meta();
+  }};
+  next.onerror=()=>{{
+    if(gen!==loadGen) return;
+    setStatus('frame load failed: '+fr.file+' (viewer down?)','warn');
+  }};
+  next.src='frames/'+fr.file;
 }}
 
 function meta(){{
+  if(!labels) return;
   const s=seed();
   const xy=s.gold_xy;
+  const conf=s.human_conf!=null ? 'yes' : 'no';
   document.getElementById('meta').innerHTML=
-    `<div>clear=<b>${{!!s.clear}}</b> empty=<b>${{!!s.empty}}</b></div>`+
+    `<div>frame <b>${{i}}</b>/${{labels.frames.length-1}} · clear=<b>${{!!s.clear}}</b> empty=<b>${{!!s.empty}}</b></div>`+
+    `<div>human confirm=<b>${{conf}}</b></div>`+
     `<div>gold_xy=<code>${{xy?xy.map(v=>Number(v).toFixed(2)).join(', '):'null'}}</code></div>`+
     `<div class="muted">${{labels.frames[i].file}}${{dirty?' · unsaved':''}}</div>`;
 }}
@@ -113,6 +140,22 @@ function canvasPos(e){{
     x:(e.clientX-r.left)*(W/r.width),
     y:(e.clientY-r.top)*(H/r.height)
   }};
+}}
+
+function confirmCurrentBox(){{
+  const s=seed();
+  const g=(s.gt_balls||[])[0];
+  if(!g){{
+    setStatus('no box to confirm — draw one first','warn');
+    return;
+  }}
+  s.empty=false;
+  s.clear=Math.min(g.w,g.h)>=25;
+  s.human_conf=1.0;
+  dirty=true;
+  draw();
+  meta();
+  setStatus('box confirmed — Save when ready','ok');
 }}
 
 cv.addEventListener('mousedown',e=>{{
@@ -138,14 +181,17 @@ window.addEventListener('mouseup',()=>{{
   drag=null; draw(); meta();
 }});
 
+document.getElementById('confirmBox').onclick=()=>confirmCurrentBox();
 document.getElementById('clearBox').onclick=()=>{{
   const s=seed();
   s.gt_balls=[]; s.empty=true; s.clear=false; s.gold_xy=null;
+  delete s.human_conf;
   dirty=true; draw(); meta(); setStatus('cleared','warn');
 }};
 document.getElementById('prev').onclick=()=>show(i-1);
 document.getElementById('next').onclick=()=>show(i+1);
-document.getElementById('idx').onchange=e=>show(+e.target.value);
+idxEl.addEventListener('change',e=>show(+e.target.value));
+idxEl.addEventListener('input',e=>show(+e.target.value));
 document.getElementById('clearOnly').onclick=()=>{{
   for(let k=i+1;k<labels.frames.length;k++){{
     const s=(labels.frames[k].cams||{{}})[FOCUS]||{{}};
@@ -179,8 +225,10 @@ document.getElementById('save').onclick=async ()=>{{
   setStatus(`saved clear=${{body.n_clear}} gold_xy=${{body.n_gold_xy}}`,'ok');
 }};
 window.addEventListener('keydown',e=>{{
-  if(e.key==='ArrowLeft') show(i-1);
-  if(e.key==='ArrowRight') show(i+1);
+  if(e.target && (e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA')) return;
+  if(e.key==='ArrowLeft'){{ e.preventDefault(); show(i-1); }}
+  if(e.key==='ArrowRight'){{ e.preventDefault(); show(i+1); }}
+  if(e.key==='Enter' || e.key==='c' || e.key==='C'){{ e.preventDefault(); confirmCurrentBox(); }}
   if(e.key==='s' && (e.metaKey||e.ctrlKey)){{e.preventDefault();document.getElementById('save').click();}}
 }});
 load();

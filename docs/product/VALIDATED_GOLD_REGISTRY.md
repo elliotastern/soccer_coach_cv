@@ -47,9 +47,10 @@ Spec detail: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
 
 | Pack | Status | Notes |
 |---|---|---|
-| `match3_human_blur_gold` | **Human-only export** | `gold/human_labels.json` — only `human_conf` boxes (**133** as of export). Seed/prelabel excluded. Frames stay local. |
+| `match3_human_blur_gold` | **Human-only export** | `gold/human_labels.json` — only `human_conf` boxes (**176** as of export). Seed/prelabel excluded. Frames stay local. |
 | `match3_quad_p9_655` | Partial human | P9 @ 10:55; 32 human boxes in export |
 | `match3_blur_p1_soft1500` | Partial human | soft-harvest P1; 101 human boxes in export |
+| `match3_blur_p1_250` | Partial human | soft_t00250 P1; added to human export |
 
 ## Continuous → TrackNet sequence pack
 

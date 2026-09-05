@@ -1,10 +1,11 @@
 {
   "role": "human_only_blur_session",
-  "rule": "only frames with human_conf (drag)",
-  "n": 133,
+  "rule": "only frames with human_conf (drag or Confirm box)",
+  "n": 176,
   "by_pack": {
     "match3_quad_p9_655": 32,
-    "match3_blur_p1_soft1500": 101
+    "match3_blur_p1_soft1500": 101,
+    "match3_blur_p1_250": 43
   },
   "items": [
     {
@@ -25,7 +26,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -45,7 +47,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -65,7 +68,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -85,7 +89,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -105,7 +110,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -125,7 +131,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -145,7 +152,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -165,7 +173,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -185,7 +194,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -205,7 +215,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -225,7 +236,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -245,7 +257,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -265,7 +278,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -285,7 +299,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -305,7 +320,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -325,7 +341,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -345,7 +362,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -365,7 +383,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -385,7 +404,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -405,7 +425,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": true
     },
     {
       "pack": "match3_quad_p9_655",
@@ -425,7 +446,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -445,7 +467,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -465,7 +488,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -485,7 +509,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -505,7 +530,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -525,7 +551,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -545,7 +572,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -565,7 +593,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -585,7 +614,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -605,7 +635,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -628,7 +659,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_quad_p9_655",
@@ -651,7 +683,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -671,7 +704,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -691,7 +725,8 @@
       "gold_xy": null,
       "aspect": 1.489,
       "streaky": true,
-      "soft_seed": true
+      "soft_seed": true,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -711,7 +746,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -731,7 +767,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -751,7 +788,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -771,7 +809,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -791,7 +830,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -811,7 +851,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -831,7 +872,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -851,7 +893,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -871,7 +914,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -891,7 +935,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -911,7 +956,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -931,7 +977,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -951,7 +998,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -971,7 +1019,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -991,7 +1040,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1011,7 +1061,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1031,7 +1082,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1051,7 +1103,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1071,7 +1124,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1091,7 +1145,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1111,7 +1166,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1131,7 +1187,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1151,7 +1208,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1171,7 +1229,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1191,7 +1250,8 @@
       "gold_xy": null,
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1214,7 +1274,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1237,7 +1298,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1260,7 +1322,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1283,7 +1346,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1306,7 +1370,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1329,7 +1394,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1352,7 +1418,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1375,7 +1442,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1398,7 +1466,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1421,7 +1490,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1444,7 +1514,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1467,7 +1538,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1490,7 +1562,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1513,7 +1586,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1536,7 +1610,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1559,7 +1634,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1582,7 +1658,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1605,7 +1682,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1628,7 +1706,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1651,7 +1730,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1674,7 +1754,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1697,7 +1778,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1720,7 +1802,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1743,7 +1826,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1766,7 +1850,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1789,7 +1874,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1812,7 +1898,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1835,7 +1922,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1858,7 +1946,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1881,7 +1970,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1904,7 +1994,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1927,7 +2018,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1950,7 +2042,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1973,7 +2066,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -1996,7 +2090,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2019,7 +2114,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2042,7 +2138,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2065,7 +2162,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2088,7 +2186,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2111,7 +2210,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2134,7 +2234,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2157,7 +2258,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2180,7 +2282,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2203,7 +2306,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2226,7 +2330,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2249,7 +2354,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2272,7 +2378,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2295,7 +2402,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2318,7 +2426,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2341,7 +2450,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2364,7 +2474,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2387,7 +2498,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2410,7 +2522,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2433,7 +2546,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2456,7 +2570,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2479,7 +2594,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2502,7 +2618,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2525,7 +2642,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2548,7 +2666,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2571,7 +2690,8 @@
       ],
       "aspect": 1.431,
       "streaky": true,
-      "soft_seed": true
+      "soft_seed": true,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2594,7 +2714,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2617,7 +2738,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2640,7 +2762,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2663,7 +2786,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2686,7 +2810,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2709,7 +2834,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2732,7 +2858,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2755,7 +2882,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2778,7 +2906,8 @@
       ],
       "aspect": 1.158,
       "streaky": null,
-      "soft_seed": true
+      "soft_seed": true,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2801,7 +2930,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2824,7 +2954,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2847,7 +2978,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2870,7 +3002,8 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
     },
     {
       "pack": "match3_blur_p1_soft1500",
@@ -2893,7 +3026,1040 @@
       ],
       "aspect": null,
       "streaky": null,
-      "soft_seed": null
+      "soft_seed": null,
+      "clear": false
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 120,
+      "file": "match3_blur_p1_250__0120.jpg",
+      "src_file": "0120.jpg",
+      "gt_balls": [
+        {
+          "x": 614.2098388671875,
+          "y": 691.5531616210938,
+          "w": 36.31121826171875,
+          "h": 28.14581298828125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -8.180549947527608,
+        -7.690795117623349
+      ],
+      "aspect": 1.29,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 121,
+      "file": "match3_blur_p1_250__0121.jpg",
+      "src_file": "0121.jpg",
+      "gt_balls": [
+        {
+          "x": 617.6704573886042,
+          "y": 695.615661193785,
+          "w": 35.149905998737154,
+          "h": 35.15011357453159
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -8.468838196272134,
+        -7.764264819628997
+      ],
+      "aspect": null,
+      "streaky": null,
+      "soft_seed": null,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 122,
+      "file": "match3_blur_p1_250__0122.jpg",
+      "src_file": "0122.jpg",
+      "gt_balls": [
+        {
+          "x": 620.5238037109375,
+          "y": 701.9671020507812,
+          "w": 37.6973876953125,
+          "h": 30.74462890625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -8.513659687702692,
+        -7.807747106632809
+      ],
+      "aspect": 1.226,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 123,
+      "file": "match3_blur_p1_250__0123.jpg",
+      "src_file": "0123.jpg",
+      "gt_balls": [
+        {
+          "x": 625.3117413013731,
+          "y": 704.785256039315,
+          "w": 38.206419563844634,
+          "h": 35.15011357453159
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -8.693433109882177,
+        -7.881162274150623
+      ],
+      "aspect": null,
+      "streaky": null,
+      "soft_seed": null,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 125,
+      "file": "match3_blur_p1_250__0125.jpg",
+      "src_file": "0125.jpg",
+      "gt_balls": [
+        {
+          "x": 632.953025214142,
+          "y": 718.5396483076099,
+          "w": 33.6216492161833,
+          "h": 32.09358195935499
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -8.958291104580388,
+        -7.970408782862282
+      ],
+      "aspect": null,
+      "streaky": null,
+      "soft_seed": null,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 126,
+      "file": "match3_blur_p1_250__0126.jpg",
+      "src_file": "0126.jpg",
+      "gt_balls": [
+        {
+          "x": 634.7089233398438,
+          "y": 722.80712890625,
+          "w": 38.032470703125,
+          "h": 33.51116943359375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -9.095344914564965,
+        -8.0264132780087
+      ],
+      "aspect": 1.135,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 127,
+      "file": "match3_blur_p1_250__0127.jpg",
+      "src_file": "0127.jpg",
+      "gt_balls": [
+        {
+          "x": 639.0660523443572,
+          "y": 729.2375089607283,
+          "w": 36.678162781290894,
+          "h": 36.67837938211994
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -9.327721230088587,
+        -8.094891900512117
+      ],
+      "aspect": null,
+      "streaky": null,
+      "soft_seed": null,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 128,
+      "file": "match3_blur_p1_250__0128.jpg",
+      "src_file": "0128.jpg",
+      "gt_balls": [
+        {
+          "x": 639.65234375,
+          "y": 730.3335571289062,
+          "w": 41.7191162109375,
+          "h": 36.63519287109375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -9.349186166224717,
+        -8.124560892769283
+      ],
+      "aspect": 1.139,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 130,
+      "file": "match3_blur_p1_250__0130.jpg",
+      "src_file": "0130.jpg",
+      "gt_balls": [
+        {
+          "x": 648.7438354492188,
+          "y": 743.7781372070312,
+          "w": 37.88818359375,
+          "h": 32.93798828125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -9.5759061033112,
+        -8.220603715722651
+      ],
+      "aspect": 1.15,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 132,
+      "file": "match3_blur_p1_250__0132.jpg",
+      "src_file": "0132.jpg",
+      "gt_balls": [
+        {
+          "x": 654.5956420898438,
+          "y": 752.7029418945312,
+          "w": 40.36810302734375,
+          "h": 34.3408203125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -9.812529733619721,
+        -8.316413407808804
+      ],
+      "aspect": 1.176,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 134,
+      "file": "match3_blur_p1_250__0134.jpg",
+      "src_file": "0134.jpg",
+      "gt_balls": [
+        {
+          "x": 658.6878662109375,
+          "y": 765.2232666015625,
+          "w": 41.87060546875,
+          "h": 30.56085205078125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -10.010983787488636,
+        -8.386845363783198
+      ],
+      "aspect": 1.37,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 136,
+      "file": "match3_blur_p1_250__0136.jpg",
+      "src_file": "0136.jpg",
+      "gt_balls": [
+        {
+          "x": 662.4365844726562,
+          "y": 773.3059692382812,
+          "w": 46.8160400390625,
+          "h": 37.15545654296875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -10.339979898721225,
+        -8.487566686487554
+      ],
+      "aspect": 1.26,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 138,
+      "file": "match3_blur_p1_250__0138.jpg",
+      "src_file": "0138.jpg",
+      "gt_balls": [
+        {
+          "x": 668.7312622070312,
+          "y": 782.4324340820312,
+          "w": 46.60894775390625,
+          "h": 37.8695068359375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -10.5531930996581,
+        -8.56951192641373
+      ],
+      "aspect": 1.231,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 140,
+      "file": "match3_blur_p1_250__0140.jpg",
+      "src_file": "0140.jpg",
+      "gt_balls": [
+        {
+          "x": 674.449462890625,
+          "y": 791.294921875,
+          "w": 47.6494140625,
+          "h": 37.400634765625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -10.73094901505813,
+        -8.645774611134751
+      ],
+      "aspect": 1.274,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 142,
+      "file": "match3_blur_p1_250__0142.jpg",
+      "src_file": "0142.jpg",
+      "gt_balls": [
+        {
+          "x": 679.8296508789062,
+          "y": 803.6945190429688,
+          "w": 46.86846923828125,
+          "h": 38.4842529296875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.017713059102952,
+        -8.727247833273319
+      ],
+      "aspect": 1.218,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 144,
+      "file": "match3_blur_p1_250__0144.jpg",
+      "src_file": "0144.jpg",
+      "gt_balls": [
+        {
+          "x": 685.17724609375,
+          "y": 815.2410278320312,
+          "w": 48.02923583984375,
+          "h": 37.2528076171875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.22998053334327,
+        -8.804443533311433
+      ],
+      "aspect": 1.289,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 146,
+      "file": "match3_blur_p1_250__0146.jpg",
+      "src_file": "0146.jpg",
+      "gt_balls": [
+        {
+          "x": 690.9974975585938,
+          "y": 822.9090576171875,
+          "w": 47.8349609375,
+          "h": 37.09002685546875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.380325514875897,
+        -8.870473110877938
+      ],
+      "aspect": 1.29,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 148,
+      "file": "match3_blur_p1_250__0148.jpg",
+      "src_file": "0148.jpg",
+      "gt_balls": [
+        {
+          "x": 694.2998046875,
+          "y": 830.9016723632812,
+          "w": 49.5760498046875,
+          "h": 37.48736572265625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.54898900876047,
+        -8.926544158576837
+      ],
+      "aspect": 1.322,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 150,
+      "file": "match3_blur_p1_250__0150.jpg",
+      "src_file": "0150.jpg",
+      "gt_balls": [
+        {
+          "x": 700.2552490234375,
+          "y": 839.950927734375,
+          "w": 48.817138671875,
+          "h": 38.160400390625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.740587593347408,
+        -8.996084514529139
+      ],
+      "aspect": 1.279,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 152,
+      "file": "match3_blur_p1_250__0152.jpg",
+      "src_file": "0152.jpg",
+      "gt_balls": [
+        {
+          "x": 705.4942016601562,
+          "y": 843.87548828125,
+          "w": 50.07147216796875,
+          "h": 39.51275634765625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.839759469404425,
+        -9.054504043675388
+      ],
+      "aspect": 1.267,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 154,
+      "file": "match3_blur_p1_250__0154.jpg",
+      "src_file": "0154.jpg",
+      "gt_balls": [
+        {
+          "x": 707.8189086914062,
+          "y": 851.5733032226562,
+          "w": 50.90814208984375,
+          "h": 39.71453857421875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -11.994106254214161,
+        -9.096353463925878
+      ],
+      "aspect": 1.282,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 156,
+      "file": "match3_blur_p1_250__0156.jpg",
+      "src_file": "0156.jpg",
+      "gt_balls": [
+        {
+          "x": 717.5010986328125,
+          "y": 861.05078125,
+          "w": 48.254638671875,
+          "h": 39.431396484375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -12.164923324485978,
+        -9.18229417930733
+      ],
+      "aspect": 1.224,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 158,
+      "file": "match3_blur_p1_250__0158.jpg",
+      "src_file": "0158.jpg",
+      "gt_balls": [
+        {
+          "x": 718.3292846679688,
+          "y": 869.6341552734375,
+          "w": 51.96270751953125,
+          "h": 37.33441162109375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -12.2878320534669,
+        -9.218694481088283
+      ],
+      "aspect": 1.392,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 160,
+      "file": "match3_blur_p1_250__0160.jpg",
+      "src_file": "0160.jpg",
+      "gt_balls": [
+        {
+          "x": 725.9044799804688,
+          "y": 880.9423828125,
+          "w": 51.49700927734375,
+          "h": 41.99981689453125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -12.584211878838147,
+        -9.312047433911616
+      ],
+      "aspect": 1.226,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 162,
+      "file": "match3_blur_p1_250__0162.jpg",
+      "src_file": "0162.jpg",
+      "gt_balls": [
+        {
+          "x": 731.0235595703125,
+          "y": 887.06787109375,
+          "w": 56.15081787109375,
+          "h": 42.6295166015625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -12.702106363364045,
+        -9.381958493879965
+      ],
+      "aspect": 1.317,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 164,
+      "file": "match3_blur_p1_250__0164.jpg",
+      "src_file": "0164.jpg",
+      "gt_balls": [
+        {
+          "x": 736.776123046875,
+          "y": 894.5286865234375,
+          "w": 53.21923828125,
+          "h": 41.81048583984375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -12.820410272150534,
+        -9.428318093470244
+      ],
+      "aspect": 1.273,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 166,
+      "file": "match3_blur_p1_250__0166.jpg",
+      "src_file": "0166.jpg",
+      "gt_balls": [
+        {
+          "x": 748.2459106445312,
+          "y": 903.01904296875,
+          "w": 44.694580078125,
+          "h": 39.10302734375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -12.918306265889997,
+        -9.492981725039503
+      ],
+      "aspect": 1.143,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 168,
+      "file": "match3_blur_p1_250__0168.jpg",
+      "src_file": "0168.jpg",
+      "gt_balls": [
+        {
+          "x": 749.6788330078125,
+          "y": 913.0266723632812,
+          "w": 51.30670166015625,
+          "h": 39.90679931640625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -13.109210460230955,
+        -9.550766530209883
+      ],
+      "aspect": 1.286,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 170,
+      "file": "match3_blur_p1_250__0170.jpg",
+      "src_file": "0170.jpg",
+      "gt_balls": [
+        {
+          "x": 755.170654296875,
+          "y": 923.96240234375,
+          "w": 49.9271240234375,
+          "h": 37.0225830078125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -13.247829180303658,
+        -9.602086036882614
+      ],
+      "aspect": 1.349,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 172,
+      "file": "match3_blur_p1_250__0172.jpg",
+      "src_file": "0172.jpg",
+      "gt_balls": [
+        {
+          "x": 761.7254028320312,
+          "y": 930.2700805664062,
+          "w": 50.31976318359375,
+          "h": 40.1885986328125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -13.40747347675584,
+        -9.66931303144702
+      ],
+      "aspect": 1.252,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 174,
+      "file": "match3_blur_p1_250__0174.jpg",
+      "src_file": "0174.jpg",
+      "gt_balls": [
+        {
+          "x": 770.2080078125,
+          "y": 940.061767578125,
+          "w": 46.14306640625,
+          "h": 40.2073974609375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -13.571053613153445,
+        -9.733791389068841
+      ],
+      "aspect": 1.148,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 176,
+      "file": "match3_blur_p1_250__0176.jpg",
+      "src_file": "0176.jpg",
+      "gt_balls": [
+        {
+          "x": 774.2482299804688,
+          "y": 949.718505859375,
+          "w": 49.2872314453125,
+          "h": 38.40777587890625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -13.699756486144851,
+        -9.788112025854574
+      ],
+      "aspect": 1.283,
+      "streaky": null,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 178,
+      "file": "match3_blur_p1_250__0178.jpg",
+      "src_file": "0178.jpg",
+      "gt_balls": [
+        {
+          "x": 781.358642578125,
+          "y": 960.7250366210938,
+          "w": 51.61468505859375,
+          "h": 37.7615966796875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -13.866163108881146,
+        -9.864709701964522
+      ],
+      "aspect": 1.367,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 180,
+      "file": "match3_blur_p1_250__0180.jpg",
+      "src_file": "0180.jpg",
+      "gt_balls": [
+        {
+          "x": 784.5380859375,
+          "y": 968.7446899414062,
+          "w": 54.9134521484375,
+          "h": 39.23394775390625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.019445624922058,
+        -9.91524904563848
+      ],
+      "aspect": 1.4,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 182,
+      "file": "match3_blur_p1_250__0182.jpg",
+      "src_file": "0182.jpg",
+      "gt_balls": [
+        {
+          "x": 792.6588134765625,
+          "y": 978.5709228515625,
+          "w": 54.20166015625,
+          "h": 38.65789794921875
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.163360417307274,
+        -9.98435620260008
+      ],
+      "aspect": 1.402,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 184,
+      "file": "match3_blur_p1_250__0184.jpg",
+      "src_file": "0184.jpg",
+      "gt_balls": [
+        {
+          "x": 798.0928344726562,
+          "y": 984.7081298828125,
+          "w": 54.06268310546875,
+          "h": 39.95458984375
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.278565394697738,
+        -10.033366247223402
+      ],
+      "aspect": 1.353,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 186,
+      "file": "match3_blur_p1_250__0186.jpg",
+      "src_file": "0186.jpg",
+      "gt_balls": [
+        {
+          "x": 802.4827270507812,
+          "y": 994.0126342773438,
+          "w": 57.68072509765625,
+          "h": 40.33966064453125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.42771796572335,
+        -10.09118834100013
+      ],
+      "aspect": 1.43,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 188,
+      "file": "match3_blur_p1_250__0188.jpg",
+      "src_file": "0188.jpg",
+      "gt_balls": [
+        {
+          "x": 812.3594360351562,
+          "y": 1004.6326904296875,
+          "w": 52.34423828125,
+          "h": 38.759765625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.563437728978748,
+        -10.153790071516031
+      ],
+      "aspect": 1.35,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 190,
+      "file": "match3_blur_p1_250__0190.jpg",
+      "src_file": "0190.jpg",
+      "gt_balls": [
+        {
+          "x": 821.6448974609375,
+          "y": 1014.8282470703125,
+          "w": 51.97265625,
+          "h": 38.3594970703125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.707114643823548,
+        -10.229135216889942
+      ],
+      "aspect": 1.355,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 192,
+      "file": "match3_blur_p1_250__0192.jpg",
+      "src_file": "0192.jpg",
+      "gt_balls": [
+        {
+          "x": 826.0604858398438,
+          "y": 1024.7333984375,
+          "w": 56.14593505859375,
+          "h": 37.3536376953125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.837793015432142,
+        -10.285200216871143
+      ],
+      "aspect": 1.503,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 194,
+      "file": "match3_blur_p1_250__0194.jpg",
+      "src_file": "0194.jpg",
+      "gt_balls": [
+        {
+          "x": 837.0509643554688,
+          "y": 1034.9359130859375,
+          "w": 51.42779541015625,
+          "h": 35.609619140625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -14.957864655554726,
+        -10.35367113759547
+      ],
+      "aspect": 1.444,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 196,
+      "file": "match3_blur_p1_250__0196.jpg",
+      "src_file": "0196.jpg",
+      "gt_balls": [
+        {
+          "x": 845.2367553710938,
+          "y": 1041.3927001953125,
+          "w": 50.775146484375,
+          "h": 36.7120361328125
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -15.063804581114733,
+        -10.41510792251964
+      ],
+      "aspect": 1.383,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 198,
+      "file": "match3_blur_p1_250__0198.jpg",
+      "src_file": "0198.jpg",
+      "gt_balls": [
+        {
+          "x": 849.4564819335938,
+          "y": 1049.9111328125,
+          "w": 51.97174072265625,
+          "h": 32.6256103515625
+        }
+      ],
+      "human_conf": 1,
+      "gold_xy": [
+        -15.12517349793063,
+        -10.452170646398194
+      ],
+      "aspect": 1.593,
+      "streaky": true,
+      "soft_seed": false,
+      "clear": true
     }
   ]
 }

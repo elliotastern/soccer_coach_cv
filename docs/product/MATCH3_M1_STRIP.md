@@ -8,11 +8,11 @@ Human-confirm focus-cam ball boxes, then Save (rematches `gold_xy`).
 | `match3_quad_p8_87` | **P8** | 1:27–1:32 | http://127.0.0.1:8877/match3-m1-p8 |
 | `match3_quad_p9_655` | **P9** | 10:55–11:00 | http://127.0.0.1:8877/match3-m1-p9 |
 | `match3_blur_p1_soft1500` | **P1** | soft ~25:00 | (prior soft session) |
-| `match3_blur_p7_1237` | **P7** | 20:37–20:42 | http://127.0.0.1:8877/match3-m1-blur |
+| `match3_blur_p1_250` | **P1** | 4:10–4:15 | http://127.0.0.1:8877/match3-m1-blur |
 
 P9 pack is provisional: focus H does not span midfield feet, so `gold_xy` is seeded from the best other-cam map when P9 map fails. Confirm/correct **P9 boxes** + clear; Save keeps other-cam gold_xy if focus still fails.
 
-Blur pack (`match3_blur_p7_1237`): fast ball travel · soft-seeds · use **Next soft**. Viewer default port for labeling is **8877** when 8080 is the handover server.
+Blur pack (`match3_blur_p1_250`): fast ball travel · soft-seeds · use **Next soft**. Viewer default port for labeling is **8877** when 8080 is the handover server.
 
 Human-only export: `match3_human_blur_gold` (JSON in git; frames local).
 
