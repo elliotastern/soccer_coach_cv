@@ -1,9 +1,9 @@
 {
-  "n": 176,
+  "n": 207,
   "by_pack": {
     "match3_quad_p9_655": 32,
     "match3_blur_p1_soft1500": 101,
-    "match3_blur_p1_250": 43
+    "match3_blur_p1_250": 74
   },
   "items": [
     {
@@ -14,8 +14,8 @@
       "src_file": "0001.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -33,8 +33,8 @@
       "src_file": "0003.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.042,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -52,8 +52,8 @@
       "src_file": "0005.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.087,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -71,8 +71,8 @@
       "src_file": "0007.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.1,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -90,8 +90,8 @@
       "src_file": "0009.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.045,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -109,8 +109,8 @@
       "src_file": "0011.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.048,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -128,8 +128,8 @@
       "src_file": "0013.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.095,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -147,8 +147,8 @@
       "src_file": "0015.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.143,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -166,8 +166,8 @@
       "src_file": "0017.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -185,8 +185,8 @@
       "src_file": "0019.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.143,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -204,8 +204,8 @@
       "src_file": "0077.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.533,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -223,8 +223,8 @@
       "src_file": "0078.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.222,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -242,8 +242,8 @@
       "src_file": "0079.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.467,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -261,8 +261,8 @@
       "src_file": "0086.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.067,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -280,8 +280,8 @@
       "src_file": "0087.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -299,8 +299,8 @@
       "src_file": "0089.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.062,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -318,8 +318,8 @@
       "src_file": "0090.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.059,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -337,8 +337,8 @@
       "src_file": "0095.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.125,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -356,8 +356,8 @@
       "src_file": "0097.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.286,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -375,8 +375,8 @@
       "src_file": "0098.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -394,8 +394,8 @@
       "src_file": "0182.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.267,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -413,8 +413,8 @@
       "src_file": "0183.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.286,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -432,8 +432,8 @@
       "src_file": "0184.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -451,8 +451,8 @@
       "src_file": "0185.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.214,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -470,8 +470,8 @@
       "src_file": "0186.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -489,8 +489,8 @@
       "src_file": "0187.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.25,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -508,8 +508,8 @@
       "src_file": "0188.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.267,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -527,8 +527,8 @@
       "src_file": "0189.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -546,8 +546,8 @@
       "src_file": "0190.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.462,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -565,8 +565,8 @@
       "src_file": "0191.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.062,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -587,8 +587,8 @@
         24.240709647647094,
         16.8557950341126
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.071,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -609,8 +609,8 @@
         25.40677835831301,
         14.968456469233633
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.2,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -628,8 +628,8 @@
       "src_file": "0065.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.462,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -647,8 +647,8 @@
       "src_file": "0066.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": 1.489,
-      "streaky": true,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": true,
       "clear": false,
       "bbox": {
@@ -666,8 +666,8 @@
       "src_file": "0067.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -685,8 +685,8 @@
       "src_file": "0069.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.273,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -704,8 +704,8 @@
       "src_file": "0070.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -723,8 +723,8 @@
       "src_file": "0071.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -742,8 +742,8 @@
       "src_file": "0072.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.071,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -761,8 +761,8 @@
       "src_file": "0073.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -780,8 +780,8 @@
       "src_file": "0075.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -799,8 +799,8 @@
       "src_file": "0076.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.187,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -818,8 +818,8 @@
       "src_file": "0077.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -837,8 +837,8 @@
       "src_file": "0078.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -856,8 +856,8 @@
       "src_file": "0079.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -875,8 +875,8 @@
       "src_file": "0080.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.071,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -894,8 +894,8 @@
       "src_file": "0081.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -913,8 +913,8 @@
       "src_file": "0082.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -932,8 +932,8 @@
       "src_file": "0083.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.143,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -951,8 +951,8 @@
       "src_file": "0085.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -970,8 +970,8 @@
       "src_file": "0086.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -989,8 +989,8 @@
       "src_file": "0087.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1008,8 +1008,8 @@
       "src_file": "0088.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1027,8 +1027,8 @@
       "src_file": "0089.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1046,8 +1046,8 @@
       "src_file": "0090.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1065,8 +1065,8 @@
       "src_file": "0091.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.083,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1084,8 +1084,8 @@
       "src_file": "0092.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1103,8 +1103,8 @@
       "src_file": "0093.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.4,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1122,8 +1122,8 @@
       "src_file": "0094.jpg",
       "human_conf": 1,
       "gold_xy": null,
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1144,8 +1144,8 @@
         24.180602281243115,
         7.433546700999174
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1166,8 +1166,8 @@
         23.804116624574778,
         7.264625737000208
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1188,8 +1188,8 @@
         23.43525853128246,
         7.083757257755832
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1210,8 +1210,8 @@
         22.518945277224443,
         6.710693743248257
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.062,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1232,8 +1232,8 @@
         22.711278996747165,
         6.728756026125876
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1254,8 +1254,8 @@
         21.647304125974767,
         6.267109131435666
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1276,8 +1276,8 @@
         21.483884026541823,
         6.141879021877806
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1298,8 +1298,8 @@
         20.621638668123435,
         5.822084266079265
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.125,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1320,8 +1320,8 @@
         20.125209763163163,
         5.59222663376693
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1342,8 +1342,8 @@
         19.305803545138577,
         5.274908425209462
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1364,8 +1364,8 @@
         19.477780874985353,
         5.287662567251852
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1386,8 +1386,8 @@
         18.525599339094867,
         4.889227564883601
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1408,8 +1408,8 @@
         18.209523299517635,
         4.789458127197659
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.455,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1430,8 +1430,8 @@
         17.45269370050341,
         4.456291788145266
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.071,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1452,8 +1452,8 @@
         17.153925975091042,
         4.335733900654284
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1474,8 +1474,8 @@
         16.724398688081482,
         4.094915522127324
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1496,8 +1496,8 @@
         16.431359189293868,
         3.990469285028071
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.417,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1518,8 +1518,8 @@
         15.424954724448714,
         3.664398362451751
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.25,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1540,8 +1540,8 @@
         15.291143992027585,
         3.584069508443142
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1562,8 +1562,8 @@
         14.613981203002437,
         3.2849114434811924
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.25,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1584,8 +1584,8 @@
         14.616329094307197,
         3.2729027502956667
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1606,8 +1606,8 @@
         13.957022472998249,
         2.9818055915551684
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1628,8 +1628,8 @@
         14.222827500828018,
         3.075868649593825
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1650,8 +1650,8 @@
         14.760680993566847,
         3.279079741540457
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.4,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1672,8 +1672,8 @@
         15.46089957807997,
         3.481367395818932
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.083,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1694,8 +1694,8 @@
         15.900977675156721,
         3.551283578321721
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1716,8 +1716,8 @@
         16.18789736476649,
         3.652162232429689
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1738,8 +1738,8 @@
         17.221406622570864,
         3.995298180736974
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.083,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1760,8 +1760,8 @@
         17.52065775020294,
         4.113965937390615
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.154,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1782,8 +1782,8 @@
         18.30949191301886,
         4.287976740102863
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1804,8 +1804,8 @@
         18.62113916233306,
         4.410756922983591
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.167,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1826,8 +1826,8 @@
         19.271113452909866,
         4.582108284572357
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.083,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1848,8 +1848,8 @@
         19.756806378021786,
         4.772706851234152
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1870,8 +1870,8 @@
         19.931269914872058,
         4.784030591523244
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1892,8 +1892,8 @@
         20.264594002957466,
         4.900123922943805
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1914,8 +1914,8 @@
         21.12516089090905,
         5.149206476362258
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1936,8 +1936,8 @@
         21.649753327132508,
         5.324150021828597
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.083,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1958,8 +1958,8 @@
         22.015094636975036,
         5.392258350824253
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.2,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -1980,8 +1980,8 @@
         22.54206359921032,
         5.641440010772496
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2002,8 +2002,8 @@
         23.09601973887094,
         5.811433761595831
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2024,8 +2024,8 @@
         23.28586882900744,
         5.854794100877486
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2046,8 +2046,8 @@
         23.85979819181393,
         6.000690753263485
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2068,8 +2068,8 @@
         23.868508342409747,
         5.958234480075011
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.077,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2090,8 +2090,8 @@
         24.44482991355122,
         6.149409698960409
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.1,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2112,8 +2112,8 @@
         25.228757129016955,
         6.419757576512417
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.125,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2134,8 +2134,8 @@
         25.035335903383746,
         6.329880116600274
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2156,8 +2156,8 @@
         25.23174615117726,
         6.4052892646442805
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2178,8 +2178,8 @@
         25.438439402553765,
         6.437643638432586
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.4,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2200,8 +2200,8 @@
         25.643484885553693,
         6.484775055058345
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.091,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2222,8 +2222,8 @@
         26.46508112723831,
         6.735459824778991
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2244,8 +2244,8 @@
         26.462014453313756,
         6.7502123021518985
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2266,8 +2266,8 @@
         26.670822836082067,
         6.8139760262938855
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.1,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2288,8 +2288,8 @@
         27.305682756036248,
         7.007842921234019
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2310,8 +2310,8 @@
         27.30880316939625,
         6.992895600547531
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.143,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2332,8 +2332,8 @@
         27.520161802082473,
         7.073338293330757
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.429,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2354,8 +2354,8 @@
         27.51389382475372,
         7.103330637565886
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2376,8 +2376,8 @@
         27.517027767028935,
         7.088334687421013
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.125,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2398,8 +2398,8 @@
         27.305682756036248,
         7.007842921234019
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.1,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2420,8 +2420,8 @@
         27.517027767028935,
         7.088334687421013
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.286,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2442,8 +2442,8 @@
         27.520161802082473,
         7.073338293330757
       ],
-      "aspect": 1.431,
-      "streaky": true,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": true,
       "clear": false,
       "bbox": {
@@ -2464,8 +2464,8 @@
         27.520161802082473,
         7.073338293330756
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.25,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2486,8 +2486,8 @@
         27.52329592991847,
         7.058341455275403
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2508,8 +2508,8 @@
         27.52956446395428,
         7.028346447190541
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2530,8 +2530,8 @@
         26.88721434883251,
         6.84846721119915
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.1,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2552,8 +2552,8 @@
         26.676982813380356,
         6.784374172754863
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.375,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2574,8 +2574,8 @@
         27.095749650437128,
         6.927888886022
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.111,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2596,8 +2596,8 @@
         26.877934380994347,
         6.893014991644093
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.125,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2618,8 +2618,8 @@
         23.686547922533677,
         5.857692653846957
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.444,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2640,8 +2640,8 @@
         22.932969709735882,
         5.642941345982777
       ],
-      "aspect": 1.158,
-      "streaky": null,
+      "aspect": 1.3,
+      "streaky": false,
       "soft_seed": true,
       "clear": false,
       "bbox": {
@@ -2662,8 +2662,8 @@
         22.742562468830943,
         5.614404883150493
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.1,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2684,8 +2684,8 @@
         22.396249264108224,
         5.405981296416315
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.182,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2706,8 +2706,8 @@
         25.438439402553765,
         6.437643638432586
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2728,8 +2728,8 @@
         25.634441160643124,
         6.528461739647052
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.25,
+      "streaky": false,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2750,8 +2750,8 @@
         25.429434161438483,
         6.481188992890568
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.429,
+      "streaky": true,
       "soft_seed": null,
       "clear": false,
       "bbox": {
@@ -2773,7 +2773,7 @@
         -7.690795117623349
       ],
       "aspect": 1.29,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -2794,8 +2794,8 @@
         -8.468838196272134,
         -7.764264819628997
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -2817,7 +2817,7 @@
         -7.807747106632809
       ],
       "aspect": 1.226,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -2838,8 +2838,8 @@
         -8.693433109882177,
         -7.881162274150623
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.087,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -2860,8 +2860,8 @@
         -8.958291104580388,
         -7.970408782862282
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.048,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -2883,7 +2883,7 @@
         -8.0264132780087
       ],
       "aspect": 1.135,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -2904,8 +2904,8 @@
         -9.327721230088587,
         -8.094891900512117
       ],
-      "aspect": null,
-      "streaky": null,
+      "aspect": 1.0,
+      "streaky": false,
       "soft_seed": null,
       "clear": true,
       "bbox": {
@@ -2927,7 +2927,7 @@
         -8.124560892769283
       ],
       "aspect": 1.139,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -2935,6 +2935,28 @@
         "y": 730.3335571289062,
         "w": 41.7191162109375,
         "h": 36.63519287109375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 129,
+      "file": "match3_blur_p1_250__0129.jpg",
+      "src_file": "0129.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -9.579214183186672,
+        -8.186221252228835
+      ],
+      "aspect": 1.136,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 646.7073362571261,
+        "y": 738.4071038062582,
+        "w": 33.6216492161833,
+        "h": 38.20664518970841
       }
     },
     {
@@ -2949,7 +2971,7 @@
         -8.220603715722651
       ],
       "aspect": 1.15,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -2957,6 +2979,28 @@
         "y": 743.7781372070312,
         "w": 37.88818359375,
         "h": 32.93798828125
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 131,
+      "file": "match3_blur_p1_250__0131.jpg",
+      "src_file": "0131.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -9.751408967968402,
+        -8.276906713816684
+      ],
+      "aspect": 1.167,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 649.7638498222337,
+        "y": 747.5766986517882,
+        "w": 42.79118991150597,
+        "h": 36.678379382120056
       }
     },
     {
@@ -2971,7 +3015,7 @@
         -8.316413407808804
       ],
       "aspect": 1.176,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -2979,6 +3023,28 @@
         "y": 752.7029418945312,
         "w": 40.36810302734375,
         "h": 34.3408203125
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 133,
+      "file": "match3_blur_p1_250__0133.jpg",
+      "src_file": "0133.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -10.032465836297607,
+        -8.358245232589649
+      ],
+      "aspect": 1.0,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 655.8768769524488,
+        "y": 756.7462934973182,
+        "w": 39.73467634639849,
+        "h": 39.73491099729665
       }
     },
     {
@@ -3006,6 +3072,28 @@
     {
       "pack": "match3_blur_p1_250",
       "focus_cam": "P1",
+      "frame_i": 135,
+      "file": "match3_blur_p1_250__0135.jpg",
+      "src_file": "0135.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -10.374831181695942,
+        -8.460494463412552
+      ],
+      "aspect": 1.077,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 661.989904082664,
+        "y": 768.972419958025,
+        "w": 39.73467634639837,
+        "h": 42.79144261247325
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
       "frame_i": 136,
       "file": "match3_blur_p1_250__0136.jpg",
       "src_file": "0136.jpg",
@@ -3015,7 +3103,7 @@
         -8.487566686487554
       ],
       "aspect": 1.26,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3023,6 +3111,28 @@
         "y": 773.3059692382812,
         "w": 46.8160400390625,
         "h": 37.15545654296875
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 137,
+      "file": "match3_blur_p1_250__0137.jpg",
+      "src_file": "0137.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -10.506390178600604,
+        -8.517457870146297
+      ],
+      "aspect": 1.125,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 668.1029312128792,
+        "y": 776.6137489959666,
+        "w": 36.67816278129078,
+        "h": 41.263176804885006
       }
     },
     {
@@ -3037,7 +3147,7 @@
         -8.56951192641373
       ],
       "aspect": 1.231,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3045,6 +3155,28 @@
         "y": 782.4324340820312,
         "w": 46.60894775390625,
         "h": 37.8695068359375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 139,
+      "file": "match3_blur_p1_250__0139.jpg",
+      "src_file": "0139.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -10.633537455476608,
+        -8.591753614314364
+      ],
+      "aspect": 1.143,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 677.2724719082019,
+        "y": 787.3116096490849,
+        "w": 32.09339243362945,
+        "h": 36.678379382120056
       }
     },
     {
@@ -3059,7 +3191,7 @@
         -8.645774611134751
       ],
       "aspect": 1.274,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3067,6 +3199,28 @@
         "y": 791.294921875,
         "w": 47.6494140625,
         "h": 37.400634765625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 141,
+      "file": "match3_blur_p1_250__0141.jpg",
+      "src_file": "0141.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -10.924993305508714,
+        -8.695538350973473
+      ],
+      "aspect": 1.13,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 683.385499038417,
+        "y": 798.0094703022032,
+        "w": 35.14990599873704,
+        "h": 39.73491099729665
       }
     },
     {
@@ -3081,7 +3235,7 @@
         -8.727247833273319
       ],
       "aspect": 1.218,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3089,6 +3243,28 @@
         "y": 803.6945190429688,
         "w": 46.86846923828125,
         "h": 38.4842529296875
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 143,
+      "file": "match3_blur_p1_250__0143.jpg",
+      "src_file": "0143.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -11.081562315727947,
+        -8.766500240185376
+      ],
+      "aspect": 1.227,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 686.4420126035245,
+        "y": 811.7638625704982,
+        "w": 41.26293312895223,
+        "h": 33.62184776694335
       }
     },
     {
@@ -3103,7 +3279,7 @@
         -8.804443533311433
       ],
       "aspect": 1.289,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3111,6 +3287,28 @@
         "y": 815.2410278320312,
         "w": 48.02923583984375,
         "h": 37.2528076171875
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 145,
+      "file": "match3_blur_p1_250__0145.jpg",
+      "src_file": "0145.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -11.303450330958228,
+        -8.82824810332117
+      ],
+      "aspect": 1.037,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 689.4985261686321,
+        "y": 814.8203941856749,
+        "w": 42.79118991150597,
+        "h": 41.263176804885006
       }
     },
     {
@@ -3125,7 +3323,7 @@
         -8.870473110877938
       ],
       "aspect": 1.29,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3133,6 +3331,28 @@
         "y": 822.9090576171875,
         "w": 47.8349609375,
         "h": 37.09002685546875
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 147,
+      "file": "match3_blur_p1_250__0147.jpg",
+      "src_file": "0147.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -11.549986187171502,
+        -8.910633094200053
+      ],
+      "aspect": 1.0,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 695.6115532988473,
+        "y": 825.5182548387933,
+        "w": 42.79118991150597,
+        "h": 42.79144261247325
       }
     },
     {
@@ -3147,7 +3367,7 @@
         -8.926544158576837
       ],
       "aspect": 1.322,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3155,6 +3375,28 @@
         "y": 830.9016723632812,
         "w": 49.5760498046875,
         "h": 37.48736572265625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 149,
+      "file": "match3_blur_p1_250__0149.jpg",
+      "src_file": "0149.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -11.667540287966487,
+        -8.974121505204879
+      ],
+      "aspect": 1.04,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 703.2528372116162,
+        "y": 836.2161154919115,
+        "w": 39.73467634639837,
+        "h": 38.20664518970841
       }
     },
     {
@@ -3169,7 +3411,7 @@
         -8.996084514529139
       ],
       "aspect": 1.279,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3177,6 +3419,28 @@
         "y": 839.950927734375,
         "w": 48.817138671875,
         "h": 38.160400390625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 151,
+      "file": "match3_blur_p1_250__0151.jpg",
+      "src_file": "0151.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -11.84738249700393,
+        -9.034037126401946
+      ],
+      "aspect": 1.0,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 707.8376075592776,
+        "y": 843.8574445298532,
+        "w": 39.73467634639837,
+        "h": 39.734910997296765
       }
     },
     {
@@ -3191,7 +3455,7 @@
         -9.054504043675388
       ],
       "aspect": 1.267,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3204,23 +3468,67 @@
     {
       "pack": "match3_blur_p1_250",
       "focus_cam": "P1",
+      "frame_i": 153,
+      "file": "match3_blur_p1_250__0153.jpg",
+      "src_file": "0153.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -11.99141131576524,
+        -9.105891622685254
+      ],
+      "aspect": 1.04,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 715.4788914720465,
+        "y": 851.498773567795,
+        "w": 38.206419563844634,
+        "h": 39.73491099729665
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
       "frame_i": 154,
       "file": "match3_blur_p1_250__0154.jpg",
       "src_file": "0154.jpg",
       "human_conf": 1,
       "gold_xy": [
-        -11.994106254214161,
-        -9.096353463925878
+        -12.049088586603132,
+        -9.131000668969685
       ],
-      "aspect": 1.282,
-      "streaky": null,
+      "aspect": 1.083,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
-        "x": 707.8189086914062,
-        "y": 851.5733032226562,
-        "w": 50.90814208984375,
-        "h": 39.71453857421875
+        "x": 718.5354050371541,
+        "y": 854.5553051829716,
+        "w": 36.67816278129078,
+        "h": 39.73491099729665
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 155,
+      "file": "match3_blur_p1_250__0155.jpg",
+      "src_file": "0155.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -12.10459915340422,
+        -9.167235217208415
+      ],
+      "aspect": 1.042,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 721.5919186022617,
+        "y": 860.6683684133249,
+        "w": 38.206419563844634,
+        "h": 36.678379382120056
       }
     },
     {
@@ -3235,7 +3543,7 @@
         -9.18229417930733
       ],
       "aspect": 1.224,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3243,6 +3551,28 @@
         "y": 861.05078125,
         "w": 48.254638671875,
         "h": 39.431396484375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 157,
+      "file": "match3_blur_p1_250__0157.jpg",
+      "src_file": "0157.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -12.219478985527493,
+        -9.211182492553052
+      ],
+      "aspect": 1.304,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 721.5919186022617,
+        "y": 868.3096974512665,
+        "w": 45.84770347661356,
+        "h": 35.1501135745317
       }
     },
     {
@@ -3270,6 +3600,28 @@
     {
       "pack": "match3_blur_p1_250",
       "focus_cam": "P1",
+      "frame_i": 159,
+      "file": "match3_blur_p1_250__0159.jpg",
+      "src_file": "0159.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -12.450493864936512,
+        -9.270072808394737
+      ],
+      "aspect": 1.038,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 727.7049457324767,
+        "y": 875.9510264892083,
+        "w": 41.26293312895223,
+        "h": 39.73491099729665
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
       "frame_i": 160,
       "file": "match3_blur_p1_250__0160.jpg",
       "src_file": "0160.jpg",
@@ -3279,7 +3631,7 @@
         -9.312047433911616
       ],
       "aspect": 1.226,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3287,6 +3639,28 @@
         "y": 880.9423828125,
         "w": 51.49700927734375,
         "h": 41.99981689453125
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 161,
+      "file": "match3_blur_p1_250__0161.jpg",
+      "src_file": "0161.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -12.645628413775823,
+        -9.340586542243988
+      ],
+      "aspect": 1.037,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 733.8179728626919,
+        "y": 883.59235552715,
+        "w": 41.26293312895223,
+        "h": 42.79144261247325
       }
     },
     {
@@ -3301,7 +3675,7 @@
         -9.381958493879965
       ],
       "aspect": 1.317,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3309,6 +3683,28 @@
         "y": 887.06787109375,
         "w": 56.15081787109375,
         "h": 42.6295166015625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 163,
+      "file": "match3_blur_p1_250__0163.jpg",
+      "src_file": "0163.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -12.753442151426185,
+        -9.39362989370668
+      ],
+      "aspect": 1.038,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 739.930999992907,
+        "y": 891.2336845650916,
+        "w": 39.73467634639849,
+        "h": 41.263176804885006
       }
     },
     {
@@ -3323,7 +3719,7 @@
         -9.428318093470244
       ],
       "aspect": 1.273,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3331,6 +3727,28 @@
         "y": 894.5286865234375,
         "w": 53.21923828125,
         "h": 41.81048583984375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 165,
+      "file": "match3_blur_p1_250__0165.jpg",
+      "src_file": "0165.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -12.885627939763154,
+        -9.46601774928395
+      ],
+      "aspect": 1.038,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 747.5722839056759,
+        "y": 898.8750136030333,
+        "w": 39.73467634639849,
+        "h": 41.263176804885006
       }
     },
     {
@@ -3345,7 +3763,7 @@
         -9.492981725039503
       ],
       "aspect": 1.143,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3353,6 +3771,28 @@
         "y": 903.01904296875,
         "w": 44.694580078125,
         "h": 39.10302734375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 167,
+      "file": "match3_blur_p1_250__0167.jpg",
+      "src_file": "0167.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.183431865516045,
+        -9.54711855262433
+      ],
+      "aspect": 1.231,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 753.6853110358911,
+        "y": 908.0446084485633,
+        "w": 39.73467634639837,
+        "h": 48.904505842826666
       }
     },
     {
@@ -3367,7 +3807,7 @@
         -9.550766530209883
       ],
       "aspect": 1.286,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3375,6 +3815,28 @@
         "y": 913.0266723632812,
         "w": 51.30670166015625,
         "h": 39.90679931640625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 169,
+      "file": "match3_blur_p1_250__0169.jpg",
+      "src_file": "0169.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.31149507473733,
+        -9.611908045280694
+      ],
+      "aspect": 1.0,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 758.2700813835525,
+        "y": 920.2707349092699,
+        "w": 44.31944669405982,
+        "h": 44.319708420061716
       }
     },
     {
@@ -3389,7 +3851,7 @@
         -9.602086036882614
       ],
       "aspect": 1.349,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3397,6 +3859,28 @@
         "y": 923.96240234375,
         "w": 49.9271240234375,
         "h": 37.0225830078125
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 171,
+      "file": "match3_blur_p1_250__0171.jpg",
+      "src_file": "0171.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.493193803609916,
+        -9.671705858264076
+      ],
+      "aspect": 1.179,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 764.3831085137676,
+        "y": 924.855532332035,
+        "w": 42.79118991150597,
+        "h": 50.43277165041491
       }
     },
     {
@@ -3411,7 +3895,7 @@
         -9.66931303144702
       ],
       "aspect": 1.252,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3419,6 +3903,28 @@
         "y": 930.2700805664062,
         "w": 50.31976318359375,
         "h": 40.1885986328125
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 173,
+      "file": "match3_blur_p1_250__0173.jpg",
+      "src_file": "0173.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.511898554543906,
+        -9.72246456287931
+      ],
+      "aspect": 1.038,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 772.0243924265366,
+        "y": 937.0816587927416,
+        "w": 41.26293312895223,
+        "h": 39.73491099729665
       }
     },
     {
@@ -3433,7 +3939,7 @@
         -9.733791389068841
       ],
       "aspect": 1.148,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3441,6 +3947,28 @@
         "y": 940.061767578125,
         "w": 46.14306640625,
         "h": 40.2073974609375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 175,
+      "file": "match3_blur_p1_250__0175.jpg",
+      "src_file": "0175.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.714683584839321,
+        -9.794313743716668
+      ],
+      "aspect": 1.0,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 776.6091627741979,
+        "y": 943.1947220230949,
+        "w": 45.84770347661356,
+        "h": 45.84797422765007
       }
     },
     {
@@ -3455,7 +3983,7 @@
         -9.788112025854574
       ],
       "aspect": 1.283,
-      "streaky": null,
+      "streaky": false,
       "soft_seed": false,
       "clear": true,
       "bbox": {
@@ -3463,6 +3991,28 @@
         "y": 949.718505859375,
         "w": 49.2872314453125,
         "h": 38.40777587890625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 177,
+      "file": "match3_blur_p1_250__0177.jpg",
+      "src_file": "0177.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.941919568372445,
+        -9.85218488789216
+      ],
+      "aspect": 1.091,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 776.6091627741979,
+        "y": 952.3643168686249,
+        "w": 55.01724417193623,
+        "h": 50.43277165041502
       }
     },
     {
@@ -3490,6 +4040,28 @@
     {
       "pack": "match3_blur_p1_250",
       "focus_cam": "P1",
+      "frame_i": 179,
+      "file": "match3_blur_p1_250__0179.jpg",
+      "src_file": "0179.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -13.986082418249703,
+        -9.899372838829743
+      ],
+      "aspect": 1.154,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 787.3069602520744,
+        "y": 966.1187091369198,
+        "w": 45.84770347661356,
+        "h": 39.734910997296765
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
       "frame_i": 180,
       "file": "match3_blur_p1_250__0180.jpg",
       "src_file": "0180.jpg",
@@ -3507,6 +4079,28 @@
         "y": 968.7446899414062,
         "w": 54.9134521484375,
         "h": 39.23394775390625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 181,
+      "file": "match3_blur_p1_250__0181.jpg",
+      "src_file": "0181.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -14.104969297313266,
+        -9.9598240972164
+      ],
+      "aspect": 1.192,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 793.4199873822895,
+        "y": 973.7600381748616,
+        "w": 47.375960259167414,
+        "h": 39.73491099729665
       }
     },
     {
@@ -3534,6 +4128,28 @@
     {
       "pack": "match3_blur_p1_250",
       "focus_cam": "P1",
+      "frame_i": 183,
+      "file": "match3_blur_p1_250__0183.jpg",
+      "src_file": "0183.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -14.272201831933373,
+        -10.024940297163129
+      ],
+      "aspect": 1.111,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 801.0612712950584,
+        "y": 982.9296330203915,
+        "w": 45.84770347661356,
+        "h": 41.263176804885006
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
       "frame_i": 184,
       "file": "match3_blur_p1_250__0184.jpg",
       "src_file": "0184.jpg",
@@ -3551,6 +4167,28 @@
         "y": 984.7081298828125,
         "w": 54.06268310546875,
         "h": 39.95458984375
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 185,
+      "file": "match3_blur_p1_250__0185.jpg",
+      "src_file": "0185.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -14.434319021375947,
+        -10.104234655797633
+      ],
+      "aspect": 1.154,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 813.2873255554888,
+        "y": 989.0426962507449,
+        "w": 39.73467634639837,
+        "h": 45.847974227649956
       }
     },
     {
@@ -3578,6 +4216,28 @@
     {
       "pack": "match3_blur_p1_250",
       "focus_cam": "P1",
+      "frame_i": 187,
+      "file": "match3_blur_p1_250__0187.jpg",
+      "src_file": "0187.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -14.570687047552543,
+        -10.174818225879802
+      ],
+      "aspect": 1.207,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 814.8155823380425,
+        "y": 999.7405569038632,
+        "w": 53.48898738938249,
+        "h": 44.3197084200616
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
       "frame_i": 188,
       "file": "match3_blur_p1_250__0188.jpg",
       "src_file": "0188.jpg",
@@ -3595,6 +4255,28 @@
         "y": 1004.6326904296875,
         "w": 52.34423828125,
         "h": 38.759765625
+      }
+    },
+    {
+      "pack": "match3_blur_p1_250",
+      "focus_cam": "P1",
+      "frame_i": 189,
+      "file": "match3_blur_p1_250__0189.jpg",
+      "src_file": "0189.jpg",
+      "human_conf": 1,
+      "gold_xy": [
+        -14.709369646202067,
+        -10.21947724728277
+      ],
+      "aspect": 1.296,
+      "streaky": false,
+      "soft_seed": null,
+      "clear": true,
+      "bbox": {
+        "x": 819.4003526857039,
+        "y": 1011.9666833645699,
+        "w": 53.48898738938249,
+        "h": 41.263176804885006
       }
     },
     {

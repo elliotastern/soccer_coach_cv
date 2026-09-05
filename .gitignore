@@ -188,6 +188,10 @@ data/**
 !data/processed/gold_sets/match3_blur_p1_250/README.md
 !data/processed/gold_sets/match3_blur_p1_250/manifest.json
 !data/processed/gold_sets/match3_blur_p1_250/labels.json
+!data/processed/gold_sets/match3_blur_p1_1100/
+!data/processed/gold_sets/match3_blur_p1_1100/README.md
+!data/processed/gold_sets/match3_blur_p1_1100/manifest.json
+!data/processed/gold_sets/match3_blur_p1_1100/labels.json
 !data/processed/gold_sets/match3_blur_p7_1237/
 !data/processed/gold_sets/match3_blur_p7_1237/README.md
 !data/processed/gold_sets/match3_blur_p7_1237/manifest.json

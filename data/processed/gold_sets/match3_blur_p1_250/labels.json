@@ -10,8 +10,8 @@
     1080
   ],
   "n_frames": 299,
-  "n_clear": 70,
-  "n_gold_xy": 92,
+  "n_clear": 101,
+  "n_gold_xy": 123,
   "n_soft_seed": 24,
   "seed": {
     "accept_conf": 0.55,
@@ -7864,11 +7864,24 @@
       "file": "0129.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 646.7073362571261,
+              "y": 738.4071038062582,
+              "w": 33.6216492161833,
+              "h": 38.20664518970841
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -9.579214183186672,
+            -8.186221252228835
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 33.6216492161833,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -7985,11 +7998,24 @@
       "file": "0131.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 649.7638498222337,
+              "y": 747.5766986517882,
+              "w": 42.79118991150597,
+              "h": 36.678379382120056
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -9.751408967968402,
+            -8.276906713816684
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 36.678379382120056,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8106,11 +8132,24 @@
       "file": "0133.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 655.8768769524488,
+              "y": 756.7462934973182,
+              "w": 39.73467634639849,
+              "h": 39.73491099729665
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -10.032465836297607,
+            -8.358245232589649
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73467634639849,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8238,11 +8277,24 @@
       "file": "0135.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 661.989904082664,
+              "y": 768.972419958025,
+              "w": 39.73467634639837,
+              "h": 42.79144261247325
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -10.374831181695942,
+            -8.460494463412552
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73467634639837,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8359,11 +8411,24 @@
       "file": "0137.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 668.1029312128792,
+              "y": 776.6137489959666,
+              "w": 36.67816278129078,
+              "h": 41.263176804885006
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -10.506390178600604,
+            -8.517457870146297
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 36.67816278129078,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8480,11 +8545,24 @@
       "file": "0139.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 677.2724719082019,
+              "y": 787.3116096490849,
+              "w": 32.09339243362945,
+              "h": 36.678379382120056
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -10.633537455476608,
+            -8.591753614314364
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 32.09339243362945,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8610,11 +8688,24 @@
       "file": "0141.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 683.385499038417,
+              "y": 798.0094703022032,
+              "w": 35.14990599873704,
+              "h": 39.73491099729665
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -10.924993305508714,
+            -8.695538350973473
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 35.14990599873704,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8740,11 +8831,24 @@
       "file": "0143.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 686.4420126035245,
+              "y": 811.7638625704982,
+              "w": 41.26293312895223,
+              "h": 33.62184776694335
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -11.081562315727947,
+            -8.766500240185376
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 33.62184776694335,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8852,11 +8956,24 @@
       "file": "0145.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 689.4985261686321,
+              "y": 814.8203941856749,
+              "w": 42.79118991150597,
+              "h": 41.263176804885006
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -11.303450330958228,
+            -8.82824810332117
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 41.263176804885006,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -8991,11 +9108,24 @@
       "file": "0147.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 695.6115532988473,
+              "y": 825.5182548387933,
+              "w": 42.79118991150597,
+              "h": 42.79144261247325
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -11.549986187171502,
+            -8.910633094200053
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 42.79118991150597,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9104,11 +9234,24 @@
       "file": "0149.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 703.2528372116162,
+              "y": 836.2161154919115,
+              "w": 39.73467634639837,
+              "h": 38.20664518970841
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -11.667540287966487,
+            -8.974121505204879
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 38.20664518970841,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9225,11 +9368,24 @@
       "file": "0151.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 707.8376075592776,
+              "y": 843.8574445298532,
+              "w": 39.73467634639837,
+              "h": 39.734910997296765
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -11.84738249700393,
+            -9.034037126401946
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73467634639837,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9346,11 +9502,24 @@
       "file": "0153.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 715.4788914720465,
+              "y": 851.498773567795,
+              "w": 38.206419563844634,
+              "h": 39.73491099729665
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -11.99141131576524,
+            -9.105891622685254
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 38.206419563844634,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9382,21 +9551,21 @@
         "P1": {
           "gt_balls": [
             {
-              "x": 707.8189086914062,
-              "y": 851.5733032226562,
-              "w": 50.90814208984375,
-              "h": 39.71453857421875
+              "x": 718.5354050371541,
+              "y": 854.5553051829716,
+              "w": 36.67816278129078,
+              "h": 39.73491099729665
             }
           ],
           "empty": false,
           "clear": true,
           "gold_xy": [
-            -11.994106254214161,
-            -9.096353463925878
+            -12.049088586603132,
+            -9.131000668969685
           ],
           "gold_support": 1.0,
           "seed_conf": 0.9318737387657166,
-          "seed_side": 39.71453857421875,
+          "seed_side": 36.67816278129078,
           "soft_seed": false,
           "prelabel": {
             "bbox": [
@@ -9476,11 +9645,24 @@
       "file": "0155.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 721.5919186022617,
+              "y": 860.6683684133249,
+              "w": 38.206419563844634,
+              "h": 36.678379382120056
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -12.10459915340422,
+            -9.167235217208415
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 36.678379382120056,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9606,11 +9788,24 @@
       "file": "0157.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 721.5919186022617,
+              "y": 868.3096974512665,
+              "w": 45.84770347661356,
+              "h": 35.1501135745317
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -12.219478985527493,
+            -9.211182492553052
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 35.1501135745317,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9720,11 +9915,24 @@
       "file": "0159.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 727.7049457324767,
+              "y": 875.9510264892083,
+              "w": 41.26293312895223,
+              "h": 39.73491099729665
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -12.450493864936512,
+            -9.270072808394737
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73491099729665,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9841,11 +10049,24 @@
       "file": "0161.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 733.8179728626919,
+              "y": 883.59235552715,
+              "w": 41.26293312895223,
+              "h": 42.79144261247325
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -12.645628413775823,
+            -9.340586542243988
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 41.26293312895223,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -9981,11 +10202,24 @@
       "file": "0163.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 739.930999992907,
+              "y": 891.2336845650916,
+              "w": 39.73467634639849,
+              "h": 41.263176804885006
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -12.753442151426185,
+            -9.39362989370668
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73467634639849,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10111,11 +10345,24 @@
       "file": "0165.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 747.5722839056759,
+              "y": 898.8750136030333,
+              "w": 39.73467634639849,
+              "h": 41.263176804885006
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -12.885627939763154,
+            -9.46601774928395
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73467634639849,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10250,11 +10497,24 @@
       "file": "0167.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 753.6853110358911,
+              "y": 908.0446084485633,
+              "w": 39.73467634639837,
+              "h": 48.904505842826666
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.183431865516045,
+            -9.54711855262433
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73467634639837,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10371,11 +10631,24 @@
       "file": "0169.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 758.2700813835525,
+              "y": 920.2707349092699,
+              "w": 44.31944669405982,
+              "h": 44.319708420061716
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.31149507473733,
+            -9.611908045280694
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 44.31944669405982,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10502,11 +10775,24 @@
       "file": "0171.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 764.3831085137676,
+              "y": 924.855532332035,
+              "w": 42.79118991150597,
+              "h": 50.43277165041491
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.493193803609916,
+            -9.671705858264076
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 42.79118991150597,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10632,11 +10918,24 @@
       "file": "0173.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 772.0243924265366,
+              "y": 937.0816587927416,
+              "w": 41.26293312895223,
+              "h": 39.73491099729665
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.511898554543906,
+            -9.72246456287931
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73491099729665,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10771,11 +11070,24 @@
       "file": "0175.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 776.6091627741979,
+              "y": 943.1947220230949,
+              "w": 45.84770347661356,
+              "h": 45.84797422765007
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.714683584839321,
+            -9.794313743716668
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 45.84770347661356,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -10883,11 +11195,24 @@
       "file": "0177.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 776.6091627741979,
+              "y": 952.3643168686249,
+              "w": 55.01724417193623,
+              "h": 50.43277165041502
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.941919568372445,
+            -9.85218488789216
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 50.43277165041502,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -11006,11 +11331,24 @@
       "file": "0179.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 787.3069602520744,
+              "y": 966.1187091369198,
+              "w": 45.84770347661356,
+              "h": 39.734910997296765
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -13.986082418249703,
+            -9.899372838829743
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.734910997296765,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -11129,11 +11467,24 @@
       "file": "0181.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 793.4199873822895,
+              "y": 973.7600381748616,
+              "w": 47.375960259167414,
+              "h": 39.73491099729665
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -14.104969297313266,
+            -9.9598240972164
+          ],
+          "gold_support": 1.0,
+          "human_conf": 1,
+          "seed_side": 39.73491099729665,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -11243,11 +11594,24 @@
       "file": "0183.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 801.0612712950584,
+              "y": 982.9296330203915,
+              "w": 45.84770347661356,
+              "h": 41.263176804885006
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -14.272201831933373,
+            -10.024940297163129
+          ],
+          "gold_support": 0.9751887714592885,
+          "human_conf": 1,
+          "seed_side": 41.263176804885006,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -11357,11 +11721,24 @@
       "file": "0185.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 813.2873255554888,
+              "y": 989.0426962507449,
+              "w": 39.73467634639837,
+              "h": 45.847974227649956
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -14.434319021375947,
+            -10.104234655797633
+          ],
+          "gold_support": 0.9122776978298615,
+          "human_conf": 1,
+          "seed_side": 39.73467634639837,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -11480,11 +11857,24 @@
       "file": "0187.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 814.8155823380425,
+              "y": 999.7405569038632,
+              "w": 53.48898738938249,
+              "h": 44.3197084200616
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -14.570687047552543,
+            -10.174818225879802
+          ],
+          "gold_support": 0.8581375063592515,
+          "human_conf": 1,
+          "seed_side": 44.3197084200616,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
@@ -11612,11 +12002,24 @@
       "file": "0189.jpg",
       "cams": {
         "P1": {
-          "gt_balls": [],
-          "empty": true,
-          "clear": false,
-          "gold_xy": null,
-          "gold_support": null
+          "gt_balls": [
+            {
+              "x": 819.4003526857039,
+              "y": 1011.9666833645699,
+              "w": 53.48898738938249,
+              "h": 41.263176804885006
+            }
+          ],
+          "empty": false,
+          "clear": true,
+          "gold_xy": [
+            -14.709369646202067,
+            -10.21947724728277
+          ],
+          "gold_support": 0.8055102565476764,
+          "human_conf": 1,
+          "seed_side": 41.263176804885006,
+          "gold_xy_source": "P1"
         },
         "P6": {
           "prelabel": null
