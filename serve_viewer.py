@@ -448,7 +448,7 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(302)
             self.send_header(
                 'Location',
-                '/data/processed/gold_sets/match3_blur_p1_1100/review/index.html',
+                '/data/processed/gold_sets/match3_blur_p1_1300/review/index.html',
             )
             self.end_headers()
             return

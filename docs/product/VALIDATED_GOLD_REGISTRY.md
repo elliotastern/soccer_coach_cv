@@ -2,7 +2,7 @@
 
 **Purpose:** Single checklist of every human-validated ball (and related) label pack so we do not lose corrected boxes.  
 **Rule:** Canonical labels live in `gold/annotations.xml` only. Never treat `prelabels/` as GT.  
-**Last updated:** 2026-08-19
+**Last updated:** 2026-09-04
 
 After any editor **Save**, re-run checksums (below) and push `gold/annotations.xml` to GitHub.
 
@@ -47,10 +47,12 @@ Spec detail: [MATCH2_4QUAD_TOP_LEFT_300.md](MATCH2_4QUAD_TOP_LEFT_300.md).
 
 | Pack | Status | Notes |
 |---|---|---|
-| `match3_human_blur_gold` | **Human-only export** | `gold/human_labels.json` — only `human_conf` boxes (**176** as of export). Seed/prelabel excluded. Frames stay local. |
-| `match3_quad_p9_655` | Partial human | P9 @ 10:55; 32 human boxes in export |
-| `match3_blur_p1_soft1500` | Partial human | soft-harvest P1; 101 human boxes in export |
-| `match3_blur_p1_250` | Partial human | soft_t00250 P1; added to human export |
+| `match3_human_blur_gold` | **Human-only export (locked)** | `gold/human_labels.json` — **n=339** (streaky=36, blurry≈119). Spec: [MATCH3_HUMAN_BLUR_GOLD.md](MATCH3_HUMAN_BLUR_GOLD.md). Frames local. |
+| `match3_blur_p1_1300` | **Human** (primary blur) | soft_t01300 P1 · 21:40–21:45 · **132** human / ~119 low-lap |
+| `match3_blur_p1_250` | Human | soft_t00250 P1 · 74 human |
+| `match3_blur_p1_soft1500` | Human | soft_t01500 P1 · 101 human |
+| `match3_quad_p9_655` | Partial human | P9 @ 10:55 · 32 human |
+| `match3_blur_p1_1100` | Opened | soft_t01100 · little/no human yet |
 
 ## Continuous → TrackNet sequence pack
 

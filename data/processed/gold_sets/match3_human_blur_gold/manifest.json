@@ -1,10 +1,15 @@
 {
   "pack": "match3_human_blur_gold",
-  "n_human": 207,
+  "n_human": 339,
+  "n_streaky": 36,
+  "n_blurry": 119,
+  "n_clear": 160,
   "by_pack": {
     "match3_quad_p9_655": 32,
     "match3_blur_p1_soft1500": 101,
-    "match3_blur_p1_250": 74
+    "match3_blur_p1_250": 74,
+    "match3_blur_p1_1300": 132
   },
-  "frames_local": true
+  "frames_local": true,
+  "note": "JSON tracked in git; frames/ local only"
 }

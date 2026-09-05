@@ -8,13 +8,13 @@ Human-confirm focus-cam ball boxes, then Save (rematches `gold_xy`).
 | `match3_quad_p8_87` | **P8** | 1:27–1:32 | http://127.0.0.1:8877/match3-m1-p8 |
 | `match3_quad_p9_655` | **P9** | 10:55–11:00 | http://127.0.0.1:8877/match3-m1-p9 |
 | `match3_blur_p1_soft1500` | **P1** | soft ~25:00 | (prior soft session) |
-| `match3_blur_p1_1100` | **P1** | 18:20–18:25 | http://127.0.0.1:8877/match3-m1-blur |
+| `match3_blur_p1_1300` | **P1** | 21:40–21:45 | http://127.0.0.1:8877/match3-m1-blur |
 
 P9 pack is provisional: focus H does not span midfield feet, so `gold_xy` is seeded from the best other-cam map when P9 map fails. Confirm/correct **P9 boxes** + clear; Save keeps other-cam gold_xy if focus still fails.
 
-Blur pack (`match3_blur_p1_1100`): fast ball travel · soft-seeds · use **Next soft**. Viewer default port for labeling is **8877** when 8080 is the handover server.
+Blur pack (`match3_blur_p1_1300`): motion-blur / soft ball on P1; use **Confirm box** / **Next soft**. Viewer port **8877**.
 
-Human-only export: `match3_human_blur_gold` (JSON in git; frames local).
+Human-only export (do not lose): `match3_human_blur_gold` + [MATCH3_HUMAN_BLUR_GOLD.md](MATCH3_HUMAN_BLUR_GOLD.md) (JSON in git; frames local).
 
 **Hub:** `python3 serve_viewer.py --port 8877` → http://127.0.0.1:8877/match3-m1  
 **Rebuild review UI:** `python3 scripts/gold_set/build_match3_m1_review.py --pack <pack>`  
