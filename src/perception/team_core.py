@@ -43,12 +43,17 @@ FISHEYE_CAMS = frozenset({"P7", "P8", "P9", "P10"})
 FISHEYE_EDGE_FRAC = 0.20
 MAHALANOBIS_CHI2 = 9.21  # p ~ 0.01 for 3 kit dims
 USE_CIEDE2000_KIT = False  # A/B via TEAM_USE_CIEDE2000=1 env
-# Undershirt A/B winner: sample center 50%×50% of torso crop (skip sleeve/collar).
+# Undershirt A/B: hard center 50×50 (fallback when annulus off).
 JERSEY_CENTER_FRAC = 0.50
-# Dual-color rescue: center crop with both blue+white high → white kit (undershirt).
+# N1 product: zero-weight outer 30% ring (r > 0.70); matches ideas10 annulus30.
+JERSEY_ANNULUS_OUTER = 0.30
+# Dual-color rescue: both blue+white high → white kit (undershirt).
 DUAL_COLOR_FRAC = 0.35
-USE_JERSEY_CENTER = True
+USE_JERSEY_ANNULUS = True
+USE_JERSEY_CENTER = True  # used only when USE_JERSEY_ANNULUS is False
 USE_DUAL_TO_WHITE = True
+# N2: median of last N jersey features before assign (anti-flicker).
+MEDIAN_FEAT_LEN = 5
 
 _BOX_CACHE: dict | None = None
 _CAM_XY_CACHE: dict[str, tuple[float, float]] | None = None
@@ -221,10 +226,63 @@ def _center_crop_frac(crop: np.ndarray, frac: float) -> np.ndarray:
     return crop[y0:y1, x0:x1]
 
 
+def _xy_norm_grid(h: int, w: int) -> tuple[np.ndarray, np.ndarray]:
+    yy, xx = np.mgrid[0:h, 0:w]
+    cx, cy = (w - 1) * 0.5, (h - 1) * 0.5
+    xn = ((xx - cx) / max(cx, 1.0)).astype(np.float32)
+    yn = ((yy - cy) / max(cy, 1.0)).astype(np.float32)
+    return xn, yn
+
+
+def _annulus_keep_weight(h: int, w: int, outer_frac: float = JERSEY_ANNULUS_OUTER) -> np.ndarray:
+    """1 inside r<=(1-outer), 0 on outer ring — matches ideas10 annulus30."""
+    xn, yn = _xy_norm_grid(h, w)
+    r = np.sqrt(xn * xn + yn * yn)
+    r_max = max(0.15, min(1.0 - float(outer_frac), 0.95))
+    return (r <= r_max).astype(np.float32)
+
+
+def _feat_from_hsv_keep(
+    hsv: np.ndarray, keep: np.ndarray, wgt: np.ndarray | None = None
+) -> Optional[np.ndarray]:
+    """Weighted jersey feature; unweighted if wgt is None (legacy center path)."""
+    if wgt is None:
+        ww = keep.astype(np.float32)
+    else:
+        ww = wgt.astype(np.float32) * keep.astype(np.float32)
+    mass = float(ww.sum())
+    if mass < 18.0 or float(keep.mean()) < MIN_JERSEY_FRAC:
+        return None
+    h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
+    blue = keep & (h >= 85) & (h <= 145) & (s >= 35)
+    purple = keep & (h >= 125) & (h <= 170) & (s >= 30)
+    white = keep & (s <= 55) & (v >= 125)
+    yellow = keep & (h >= 12) & (h <= 40) & (s >= 45) & (v >= 60)
+    n = max(mass, 1e-6)
+    hist, _ = np.histogram(
+        h.astype(np.float32), bins=HUE_BINS, range=(0.0, 180.0), weights=ww
+    )
+    hist = hist.astype(np.float32)
+    hist = hist / (float(hist.sum()) + 1e-6)
+    bp = blue | purple
+    base = np.array(
+        [
+            float((bp.astype(np.float32) * ww).sum() / n),
+            float((white.astype(np.float32) * ww).sum() / n),
+            float((yellow.astype(np.float32) * ww).sum() / n),
+            float((s.astype(np.float32) * ww).sum() / n),
+            float((v.astype(np.float32) * ww).sum() / n),
+        ],
+        dtype=np.float32,
+    )
+    return np.concatenate([base, hist])
+
+
 def jersey_feature(crop: np.ndarray) -> Optional[np.ndarray]:
     if crop is None or crop.size == 0:
         return None
-    if USE_JERSEY_CENTER:
+    # Annulus wins over hard center crop (A/B used full torso + r<=0.70 mask).
+    if not USE_JERSEY_ANNULUS and USE_JERSEY_CENTER:
         crop = _center_crop_frac(crop, JERSEY_CENTER_FRAC)
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
     keep = _adaptive_non_green(hsv)
@@ -233,30 +291,13 @@ def jersey_feature(crop: np.ndarray) -> Optional[np.ndarray]:
         whiteish = (hsv[:, :, 1] <= 55) & (hsv[:, :, 2] >= 125)
         if float(whiteish.mean()) < 0.45:
             return None
+    if USE_JERSEY_ANNULUS:
+        wgt = _annulus_keep_weight(crop.shape[0], crop.shape[1], JERSEY_ANNULUS_OUTER)
+        return _feat_from_hsv_keep(hsv, keep, wgt)
     frac = float(keep.mean())
     if frac < MIN_JERSEY_FRAC or int(keep.sum()) < 18:
         return None
-    h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
-    blue = keep & (h >= 85) & (h <= 145) & (s >= 35)
-    purple = keep & (h >= 125) & (h <= 170) & (s >= 30)
-    white = keep & (s <= 55) & (v >= 125)
-    yellow = keep & (h >= 12) & (h <= 40) & (s >= 45) & (v >= 60)
-    n = float(max(int(keep.sum()), 1))
-    hues = h[keep].astype(np.float32)
-    hist, _ = np.histogram(hues, bins=HUE_BINS, range=(0.0, 180.0))
-    hist = hist.astype(np.float32)
-    hist = hist / (float(hist.sum()) + 1e-6)
-    base = np.array(
-        [
-            float((blue | purple).sum()) / n,
-            float(white.sum()) / n,
-            float(yellow.sum()) / n,
-            float(s[keep].mean()),
-            float(v[keep].mean()),
-        ],
-        dtype=np.float32,
-    )
-    return np.concatenate([base, hist])
+    return _feat_from_hsv_keep(hsv, keep, None)
 
 
 def _lock_labels(centroids: np.ndarray) -> np.ndarray:

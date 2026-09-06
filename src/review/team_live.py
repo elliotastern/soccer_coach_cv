@@ -29,6 +29,7 @@ from src.perception.team_core import (
     fit_team_centroids,
     jersey_feature,
     load_centroids,
+    MEDIAN_FEAT_LEN,
     torso_crop,
     tracklet_median_feature,
     which_goal_box,
@@ -51,7 +52,7 @@ STICKY_FLIP_CONF = 0.78
 VOTE_LEN = 9
 VOTE_MIN = 4
 HIST_LEN = 4
-FEAT_HIST_LEN = 8
+FEAT_HIST_LEN = MEDIAN_FEAT_LEN  # N2: median of last 5 feats before assign
 TRAJ_GATE_M = 4.5
 TRACKLET_COLOR_CONF = 0.55
 TRACKLET_VOTE_MIN = 4
@@ -740,18 +741,32 @@ class TeamSession:
             self.centroids, self.radius = fit
         labs = []
         for j, i in enumerate(idxs):
-            xy = player_pts[i].get("xy")
+            p = player_pts[i]
+            xy = p.get("xy")
             pos = (float(xy[0]), float(xy[1])) if xy is not None else None
+            # N2: assign from median of last 5 track feats (single-frame on birth).
+            old_hist: list[np.ndarray] = []
+            if xy is not None:
+                for q in self.prev:
+                    if _dist_xy(xy, q["xy"]) <= STICKY_M:
+                        old_hist = list(q.get("feat_hist") or [])
+                        break
+            hist = (old_hist + [feats[j]])[-FEAT_HIST_LEN:]
+            assign_feat = feats[j]
+            if len(hist) >= 2:
+                med = tracklet_median_feature(hist)
+                if med is not None:
+                    assign_feat = med
             tid, conf = assign_feature(
-                feats[j],
+                assign_feat,
                 self.centroids,
                 self.radius,
                 pos,
                 kit_mode=self.kit_mode,
                 strategy=self.strategy,
             )
-            player_pts[i]["team"] = int(tid)
-            player_pts[i]["team_conf"] = float(conf)
+            p["team"] = int(tid)
+            p["team_conf"] = float(conf)
             labs.append(int(tid))
         self._tracklet_color_label(player_pts, idxs)
         self._ema(feats, labs)

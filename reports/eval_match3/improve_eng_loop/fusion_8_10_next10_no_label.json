@@ -1,0 +1,100 @@
+{
+  "ts": "2026-09-06T07:30:00Z",
+  "baseline": {
+    "fusion_overall": 8.0,
+    "ball_fuse": 9.0,
+    "kit_on_fuse": 6.5,
+    "match4_quad_kit_consensus_ceiling": 7.7
+  },
+  "constraint": "no_human_labeling_no_user_intervention",
+  "excluded": [
+    "human_kit_ref_8503",
+    "catch_p1_p6_batch",
+    "player_merge_soften",
+    "polarity_flip",
+    "specialty_ball_rfdetr"
+  ],
+  "ranked": [
+    {
+      "rank": 1,
+      "id": "N1",
+      "title": "Productize annulus_zero_30 into jersey_feature (keep sticky/vote)",
+      "conf": 9.5,
+      "est_kit_lift": [0.5, 1.0],
+      "why": "theories5 winner T1_annulus_sticky=70.2; product still center50-only"
+    },
+    {
+      "rank": 2,
+      "id": "N2",
+      "title": "Median-5 feature buffer per track before assign",
+      "conf": 9.0,
+      "est_kit_lift": [0.3, 0.7],
+      "why": "ideas10 median5_sticky ranked #1 on undershirt stress"
+    },
+    {
+      "rank": 3,
+      "id": "N3",
+      "title": "Fuse-then-color: assign team on merged cluster from multi-cam crops",
+      "conf": 8.5,
+      "est_kit_lift": [0.5, 1.0],
+      "why": "52% Match4 frames have cam share spread >0.35; color after merge"
+    },
+    {
+      "rank": 4,
+      "id": "N4",
+      "title": "Auto white seed bank from dual-color center crops then freeze fit",
+      "conf": 8.5,
+      "est_kit_lift": [0.5, 1.5],
+      "why": "replaces human kit-ref; ~23% crops dual-color undershirt"
+    },
+    {
+      "rank": 5,
+      "id": "N5",
+      "title": "Hard-drop fisheye-edge kit crops from centroid fit",
+      "conf": 8.0,
+      "est_kit_lift": [0.2, 0.5],
+      "why": "T2 soft P10 downweight ≈ baseline; P10 still 74/26 blue"
+    },
+    {
+      "rank": 6,
+      "id": "N6",
+      "title": "Center-vs-edge veto: outer much bluer → center-only fracs",
+      "conf": 8.0,
+      "est_kit_lift": [0.2, 0.4],
+      "why": "ideas10 center_vs_edge_vote / edge_blue_ignore high retain"
+    },
+    {
+      "rank": 7,
+      "id": "N7",
+      "title": "Gated dual_to_white: only if center white≥blue else sticky",
+      "conf": 7.5,
+      "est_kit_lift": [0.1, 0.4],
+      "why": "cut false-white flicker from hard dual returns"
+    },
+    {
+      "rank": 8,
+      "id": "N8",
+      "title": "Birth wait: unsure until age≥3 or ≥2 cams agree",
+      "conf": 7.5,
+      "est_kit_lift": [0.1, 0.4],
+      "why": "T5 hard agelock failed; soft birth wait is different lever"
+    },
+    {
+      "rank": 9,
+      "id": "N9",
+      "title": "Match3→Match4 auto centroid transfer via HSV affine / hist match",
+      "conf": 7.0,
+      "est_kit_lift": [0.0, 1.0],
+      "why": "unlock Match4 without labels; lighting mismatch risk"
+    },
+    {
+      "rank": 10,
+      "id": "N10",
+      "title": "Ball-proximal majority lock for possession carrier team",
+      "conf": 6.5,
+      "est_kit_lift": [0.0, 0.3],
+      "why": "event/team consistency; thin kit-consensus lift"
+    }
+  ],
+  "next_eng_loop": ["N1+N2 A/B + Ali re-render", "N3 fuse path", "N4 freeze A/B", "N5-N8 residual", "N9/N10 last"]
+}

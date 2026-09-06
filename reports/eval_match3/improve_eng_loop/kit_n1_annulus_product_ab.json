@@ -1,0 +1,53 @@
+{
+  "ts": "2026-09-06T07:37:29.204141+00:00",
+  "gate": {
+    "score_delta_min": 0.5,
+    "retain_drop_max": 0.02
+  },
+  "product_flags": {
+    "USE_JERSEY_ANNULUS": true,
+    "JERSEY_ANNULUS_OUTER": 0.3,
+    "USE_JERSEY_CENTER": true
+  },
+  "parity_vs_ideas10_annulus30": {
+    "n_compared": 79,
+    "n_matched_bw": 79,
+    "max_abs_bw": 0.0,
+    "pass": true
+  },
+  "n_rows": 2899,
+  "n_tracks": 528,
+  "baseline_center_sticky": {
+    "name": "baseline_center_sticky",
+    "pct0": 59.45,
+    "pct1": 40.55,
+    "off50": 9.45,
+    "mean_frame_off": 0.1118,
+    "bad_frame_frac": 0.2611,
+    "retain_stress": 0.8912,
+    "flip_rate": 0.1039,
+    "balance": 0.6822,
+    "coverage": 0.9476,
+    "n0": 1633,
+    "n1": 1114,
+    "score": 69.45
+  },
+  "T1_annulus_sticky": {
+    "name": "T1_annulus_sticky",
+    "pct0": 58.99,
+    "pct1": 41.01,
+    "off50": 8.99,
+    "mean_frame_off": 0.1131,
+    "bad_frame_frac": 0.2667,
+    "retain_stress": 0.8848,
+    "flip_rate": 0.0955,
+    "balance": 0.6953,
+    "coverage": 0.9538,
+    "n0": 1631,
+    "n1": 1134,
+    "score": 70.21
+  },
+  "score_delta": 0.76,
+  "retain_drop": 0.0064,
+  "worked": true
+}
