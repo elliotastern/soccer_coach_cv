@@ -1,0 +1,40 @@
+{
+  "ts": "2026-09-06T07:55:25.982405+00:00",
+  "cache": "/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/team_id_strategy_grid/m4_90s_det_plain.json",
+  "kit": "/Volumes/LaCie/Projects/Soccer Coach CV/data/output/match_4_5min/P10-match4/team_centroids.json",
+  "gate": {
+    "nongray_multi_delta_min": 0.05,
+    "off50_worse_max_pp": 1.0
+  },
+  "baseline_vote": {
+    "fuse_then_color": false,
+    "n_frames": 90,
+    "n0": 631,
+    "n1": 611,
+    "gray": 0,
+    "pct0": 50.81,
+    "pct1": 49.19,
+    "off50": 9.52,
+    "n_multi_cam_clusters": 119,
+    "n_multi_nongray": 118,
+    "nongray_multi_rate": 0.9916,
+    "coverage": 1.0
+  },
+  "N3_fuse_then_color": {
+    "fuse_then_color": true,
+    "n_frames": 90,
+    "n0": 698,
+    "n1": 544,
+    "gray": 0,
+    "pct0": 56.2,
+    "pct1": 43.8,
+    "off50": 10.94,
+    "n_multi_cam_clusters": 119,
+    "n_multi_nongray": 119,
+    "nongray_multi_rate": 1.0,
+    "coverage": 1.0
+  },
+  "nongray_multi_delta": 0.0084,
+  "off50_delta": 1.42,
+  "worked": false
+}

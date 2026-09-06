@@ -28,11 +28,71 @@ PLAYER_GHOST_CONF = 0.55
 PLAYER_LIVE_SOLO_CONF = 0.40
 PLAYER_LIVE_GHOST_CONF = 0.35
 MATCH3_CAMS = ("P1", "P6", "P7", "P8", "P9", "P10", "P_Goal1", "P_Goal2")
+# N10: lock possession carrier team to majority of ball-proximal labeled players.
+# Off by default — A/B kit_n10_ball_prox_ab; opt-in for experiments.
+USE_BALL_PROX_TEAM_LOCK = False
+BALL_PROX_CARRIER_M = 3.0
+BALL_PROX_MAJORITY_M = 8.0
 
 
 def _is_ball_det(d) -> bool:
     name = str(getattr(d, "class_name", "") or "").lower()
     return name == "ball" or int(getattr(d, "class_id", -1)) == 1
+
+
+def lock_carrier_team_ball_majority(
+    players: list[tuple],
+    ball_xy: tuple[float, float] | None,
+    *,
+    carrier_m: float = BALL_PROX_CARRIER_M,
+    majority_m: float = BALL_PROX_MAJORITY_M,
+) -> tuple[list[tuple], dict]:
+    """Set nearest ball carrier's team to majority of labeled players near ball.
+
+    Does not recolor the rest of the roster — only the possession carrier.
+    """
+    meta = {
+        "locked": False,
+        "carrier_i": -1,
+        "carrier_dist": None,
+        "maj": -1,
+        "n_prox": 0,
+        "agree_before": None,
+    }
+    if not players or ball_xy is None:
+        return players, meta
+    bx, by = float(ball_xy[0]), float(ball_xy[1])
+
+    def _d(p) -> float:
+        return float(((float(p[0]) - bx) ** 2 + (float(p[1]) - by) ** 2) ** 0.5)
+
+    labeled = [(i, p, _d(p)) for i, p in enumerate(players) if int(p[2]) >= 0]
+    if not labeled:
+        return players, meta
+    labeled.sort(key=lambda t: t[2])
+    ci, carrier, cd = labeled[0]
+    meta["carrier_i"] = ci
+    meta["carrier_dist"] = round(cd, 3)
+    if cd > float(carrier_m):
+        return players, meta
+    prox = [int(p[2]) for _, p, d in labeled if d <= float(majority_m)]
+    meta["n_prox"] = len(prox)
+    if len(prox) < 2:
+        return players, meta
+    n0 = prox.count(0)
+    n1 = prox.count(1)
+    if n0 == n1:
+        return players, meta
+    maj = 0 if n0 > n1 else 1
+    meta["maj"] = maj
+    cur = int(carrier[2])
+    meta["agree_before"] = cur == maj
+    if cur == maj:
+        return players, meta
+    out = list(players)
+    out[ci] = (float(carrier[0]), float(carrier[1]), maj, int(carrier[3]))
+    meta["locked"] = True
+    return out, meta
 
 
 def filter_bag_balls_to_emit(
@@ -244,6 +304,50 @@ def _weighted_team_vote(cl: list[dict]) -> int:
     return 0 if w0 > w1 else 1
 
 
+def _team_from_cluster_feats(cl: list[dict], centroids, radius) -> int:
+    """N3: median jersey feats across cams → one assign (fuse-then-color)."""
+    from src.perception.team_core import assign_feature, tracklet_median_feature
+
+    if centroids is None or radius is None:
+        return -1
+    feats = []
+    for c in cl:
+        f = c.get("feat")
+        if f is None:
+            continue
+        feats.append(f)
+    if len(feats) < 2:
+        return -1
+    med = tracklet_median_feature(feats)
+    if med is None:
+        return -1
+    best = max(cl, key=lambda c: float(c.get("conf", 0.0)))
+    xy = best.get("xy")
+    pos = (float(xy[0]), float(xy[1])) if xy is not None else None
+    tid, _conf = assign_feature(med, centroids, radius, pos)
+    return int(tid)
+
+
+def _cluster_team(
+    cl: list[dict],
+    *,
+    centroids=None,
+    radius=None,
+    fuse_then_color: bool = False,
+) -> int:
+    """Prefer fuse-then-color on multi-cam feats; else weighted label vote."""
+    if (
+        fuse_then_color
+        and len(cl) >= 2
+        and centroids is not None
+        and radius is not None
+    ):
+        feat_team = _team_from_cluster_feats(cl, centroids, radius)
+        if feat_team >= 0:
+            return feat_team
+    return _weighted_team_vote(cl)
+
+
 def _cluster_consensus_stats(clusters: list[list[dict]], eligible: list[list[dict]]) -> dict:
     """Multi-cam agreement stats for one fused frame."""
     n_multi = sum(1 for cl in eligible if len(cl) >= 2)
@@ -279,8 +383,17 @@ def _fuse_player_clusters(
     max_players: int = 0,
     solo_team_conf: float = 0.0,
     return_stats: bool = False,
-) -> list[tuple[float, float, int, int]] | tuple[list, list[str]] | tuple[list, list[str], dict]:
-    """Max-conf xy per cluster; drop weak solos / ghosts far from strong anchors."""
+    return_support: bool = False,
+    centroids=None,
+    radius=None,
+    fuse_then_color: bool = False,
+) -> list[tuple[float, float, int, int]] | tuple:
+    """Max-conf xy per cluster; drop weak solos / ghosts far from strong anchors.
+
+    ``fuse_then_color`` (N3) is off by default — A/B failed retain/balance gate
+    (``kit_n3_fuse_then_color_ab``); opt-in for experiments.
+    ``return_support``: also return per-fused cam-agree counts (N8 birth wait).
+    """
     eligible: list[list[dict]] = []
     for cl in clusters:
         best = max(cl, key=lambda c: c["conf"])
@@ -296,8 +409,20 @@ def _fuse_player_clusters(
             "n_labeled_multi": 0,
             "n_conflict_gray": 0,
         }
-        if return_stats:
+        if include_cam and return_stats and return_support:
+            return [], [], empty, []
+        if include_cam and return_stats:
             return [], [], empty
+        if include_cam and return_support:
+            return [], [], []
+        if include_cam:
+            return [], []
+        if return_stats and return_support:
+            return [], empty, []
+        if return_support:
+            return [], []
+        if return_stats:
+            return [], empty
         return []
     eligible.sort(key=lambda cl: max(c["conf"] for c in cl), reverse=True)
     if max_players > 0:
@@ -309,6 +434,7 @@ def _fuse_player_clusters(
     ]
     fused = []
     fused_cams: list[str] = []
+    supports: list[int] = []
     for i, cl in enumerate(eligible):
         best = max(cl, key=lambda c: c["conf"])
         if len(cl) == 1 and float(best["conf"]) < ghost_conf and strong_xy:
@@ -317,22 +443,39 @@ def _fuse_player_clusters(
             )
             if min(_dist(best["xy"], s) for s in strong_xy) > lim:
                 continue
-        # Team vote: weighted consensus; conflict → gray
+        # N3 fuse-then-color when multi-cam feats + centroids; else label vote.
         if len(cl) == 1 and solo_team_conf > 0 and float(best["conf"]) < solo_team_conf:
             team = -1
         else:
-            team = _weighted_team_vote(cl)
+            team = _cluster_team(
+                cl,
+                centroids=centroids,
+                radius=radius,
+                fuse_then_color=fuse_then_color,
+            )
         pid = int(best["pid"]) if len(cl) == 1 and int(best.get("pid", -1)) >= 0 else 20_000 + i
         fused.append(
             (float(best["xy"][0]), float(best["xy"][1]), int(team), pid)
         )
+        if team >= 0:
+            supports.append(sum(1 for c in cl if int(c.get("team", -1)) == team))
+        else:
+            supports.append(0)
         if include_cam:
             fused_cams.append(str(best.get("cam", "")))
     stats = _cluster_consensus_stats(clusters, eligible)
+    if include_cam and return_stats and return_support:
+        return fused, fused_cams, stats, supports
     if include_cam and return_stats:
         return fused, fused_cams, stats
+    if include_cam and return_support:
+        return fused, fused_cams, supports
     if include_cam:
         return fused, fused_cams
+    if return_stats and return_support:
+        return fused, stats, supports
+    if return_support:
+        return fused, supports
     if return_stats:
         return fused, stats
     return fused
@@ -552,6 +695,7 @@ def fuse_live_dets_for_pitch(
     ball_frames_since_emit: int = 0,
     ball_static_state: dict | None = None,
     frame_id: int = 0,
+    fuse_then_color: bool = False,
 ) -> dict:
     """Map live RF-DETR boxes (same as mosaic) onto Pitch 1 and merge cams.
 
@@ -654,46 +798,48 @@ def fuse_live_dets_for_pitch(
         "n_conflict_gray": 0,
     }
     if player_pts:
+        cents = getattr(team_session, "centroids", None) if team_session else None
+        rad = getattr(team_session, "radius", None) if team_session else None
         clusters = _cluster_players(
             player_pts,
             merge_m=merge_m,
             soft_m=soft_m,
             color_gate=bool(color_gate_soft),
         )
+        fuse_kw = dict(
+            merge_m=merge_m,
+            solo_conf=solo,
+            ghost_conf=ghost,
+            max_players=FUSE_MAX_PLAYERS,
+            solo_team_conf=SOLO_TEAM_CONF,
+            centroids=cents,
+            radius=rad,
+            fuse_then_color=bool(fuse_then_color),
+        )
         if debug_cam:
-            players, player_cams, consensus_stats = _fuse_player_clusters(
+            players, player_cams, consensus_stats, cam_support = _fuse_player_clusters(
                 clusters,
-                merge_m=merge_m,
-                solo_conf=solo,
-                ghost_conf=ghost,
                 include_cam=True,
-                max_players=FUSE_MAX_PLAYERS,
-                solo_team_conf=SOLO_TEAM_CONF,
                 return_stats=True,
+                return_support=True,
+                **fuse_kw,
             )
         elif fuse_stats:
-            players, consensus_stats = _fuse_player_clusters(
+            players, consensus_stats, cam_support = _fuse_player_clusters(
                 clusters,
-                merge_m=merge_m,
-                solo_conf=solo,
-                ghost_conf=ghost,
-                max_players=FUSE_MAX_PLAYERS,
-                solo_team_conf=SOLO_TEAM_CONF,
                 return_stats=True,
+                return_support=True,
+                **fuse_kw,
             )
         else:
-            players = _fuse_player_clusters(
-                clusters,
-                merge_m=merge_m,
-                solo_conf=solo,
-                ghost_conf=ghost,
-                max_players=FUSE_MAX_PLAYERS,
-                solo_team_conf=SOLO_TEAM_CONF,
+            players, cam_support = _fuse_player_clusters(
+                clusters, return_support=True, **fuse_kw
             )
     else:
         players = []
+        cam_support = []
     if team_session is not None and players:
-        players = team_session.stabilize_fused(players)
+        players = team_session.stabilize_fused(players, cam_support=cam_support)
 
     ball_xy = None
     ball_meta = None
@@ -720,10 +866,15 @@ def fuse_live_dets_for_pitch(
         ball_meta = emit
     # No raw max-conf fallback: product drop (incl. static ghost) must stay dropped.
 
+    ball_prox_meta = {"locked": False}
+    if USE_BALL_PROX_TEAM_LOCK and ball_xy is not None and players:
+        players, ball_prox_meta = lock_carrier_team_ball_majority(players, ball_xy)
+
     out = {
         "players": players,
         "ball_xy": ball_xy,
         "ball_meta": ball_meta,
+        "ball_prox": ball_prox_meta,
         "n_cams": len(used),
         "cams": sorted(used),
         "source": "live",

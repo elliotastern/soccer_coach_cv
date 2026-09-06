@@ -23,10 +23,14 @@ from src.perception.team_core import (
     TEAM_ASSIGN_CONF,
     TEAM_MIN_CROPS,
     TEAM_MIN_CROPS_AUTO,
+    USE_AUTO_DUAL_SEED,
+    USE_FISHEYE_EDGE_DROP,
     assign_feature,
     assign_from_feature,
+    fit_auto_dual_seed_centroids,
     fit_match_centroids,
     fit_team_centroids,
+    is_fisheye_edge_crop,
     jersey_feature,
     load_centroids,
     MEDIAN_FEAT_LEN,
@@ -64,6 +68,11 @@ AUTO_BALANCE_MIN = 60
 AUTO_BALANCE_LO = 0.35
 AUTO_BALANCE_HI = 0.65
 AUTO_BALANCE_COOLDOWN = 45
+# N8: keep fused birth gray until age≥3 or ≥2 cams agree (no hard age lock).
+# Off by default — A/B kit_n8_birth_wait_ab; opt-in for experiments.
+USE_BIRTH_WAIT = False
+BIRTH_WAIT_MIN_AGE = 3
+BIRTH_WAIT_MIN_CAMS = 2
 
 
 def _dist_xy(a, b) -> float:
@@ -360,6 +369,30 @@ class TeamSession:
         self.seed_centroids(*loaded, from_kit_ref=is_kit_ref(path))
         return True
 
+    def seed_transferred_centroids(
+        self,
+        src_centroids: np.ndarray,
+        src_radius: float,
+        src_feats: list,
+        dst_feats: list,
+    ) -> bool:
+        """N9: adapt source-match centroids into current lighting; freeze like kit-ref."""
+        from src.perception.team_core import (
+            USE_MATCH_CENTROID_TRANSFER,
+            transfer_match_centroids,
+        )
+
+        if not USE_MATCH_CENTROID_TRANSFER:
+            self.seed_centroids(src_centroids, src_radius, from_kit_ref=True)
+            return True
+        fit = transfer_match_centroids(
+            src_centroids, src_feats, dst_feats, src_radius=src_radius
+        )
+        if fit is None:
+            return False
+        self.seed_centroids(*fit, from_kit_ref=True)
+        return True
+
     @staticmethod
     def _flip_team(tid: int) -> int:
         if tid == 0:
@@ -577,6 +610,7 @@ class TeamSession:
     def stabilize_fused(
         self,
         players: list[tuple[float, float, int, int]],
+        cam_support: list[int] | None = None,
     ) -> list[tuple[float, float, int, int]]:
         no_gray = bool(self.strategy.no_gray)
         use_traj = bool(self.strategy.use_traj_vote) or no_gray
@@ -590,8 +624,9 @@ class TeamSession:
                 "votes": [int(p[2])],
                 "xy_hist": [(float(p[0]), float(p[1]))],
                 "team_conf": 0.55,
+                "cam_support": int(cam_support[i]) if cam_support and i < len(cam_support) else 1,
             }
-            for p in players
+            for i, p in enumerate(players)
         ]
         sticky_m = TRAJ_GATE_M if use_traj else min(STICKY_M, 2.8)
         used_prev: set[int] = set()
@@ -605,9 +640,17 @@ class TeamSession:
                 d = _match_cost(c["xy"], q) if use_traj else _dist_xy(c["xy"], q["xy"])
                 if d <= best:
                     best, near, near_i = d, q, i
+            support = int(c.get("cam_support", 1))
             if near is None:
                 c["pid"] = self._next_stable_pid
                 self._next_stable_pid += 1
+                # N8 birth wait: gray until multi-cam agree (age 0).
+                if (
+                    USE_BIRTH_WAIT
+                    and not no_gray
+                    and support < BIRTH_WAIT_MIN_CAMS
+                ):
+                    c["team"] = -1
                 continue
             used_prev.add(near_i)
             near["matched"] = True
@@ -645,6 +688,15 @@ class TeamSession:
             hist = list(near.get("xy_hist") or [near["xy"]])
             c["xy_hist"] = (hist + [c["xy"]])[-HIST_LEN:]
             c["age"] = age + 1
+            # N8: stay gray while young + solo-cam until age≥3 (no hard flip lock).
+            if (
+                USE_BIRTH_WAIT
+                and not no_gray
+                and prior < 0
+                and int(c["age"]) < BIRTH_WAIT_MIN_AGE
+                and support < BIRTH_WAIT_MIN_CAMS
+            ):
+                c["team"] = -1
         held = []
         for q in self.prev_fused:
             if q.get("matched"):
@@ -717,13 +769,21 @@ class TeamSession:
             from src.perception.team_core import team_vote_weight
 
             p["crop_valid"] = True
+            p["frame_wh"] = wh
             p["team_weight"] = team_vote_weight(
                 cam, bbox, wh, pos_xy, True
             )
             p["feat"] = feat
             feats.append(feat)
             idxs.append(i)
-        for feat in feats:
+        for j, i in enumerate(idxs):
+            feat = feats[j]
+            p = player_pts[i]
+            # N5: exclude fisheye-edge crops from centroid fit bank only.
+            if USE_FISHEYE_EDGE_DROP and is_fisheye_edge_crop(
+                p.get("cam"), p.get("bbox"), p.get("frame_wh")
+            ):
+                continue
             self._feat_bank.append(feat)
         if self.centroids is None or self.radius is None or self.strategy.per_frame_only:
             if len(self._feat_bank) < self.min_crops and not self.strategy.per_frame_only:
@@ -731,14 +791,24 @@ class TeamSession:
             bank = feats if self.strategy.per_frame_only else self._feat_bank
             if len(bank) < (TEAM_MIN_CROPS if self.strategy.per_frame_only else self.min_crops):
                 return player_pts
-            fit = fit_match_centroids(
-                bank,
-                min_crops=TEAM_MIN_CROPS if self.strategy.per_frame_only else self.min_crops,
-                kit_mode=self.kit_mode,
-            )
-            if fit is None:
-                return player_pts
-            self.centroids, self.radius = fit
+            # N4: prefer auto dual→white / blue seed bank, freeze like kit-ref.
+            if (
+                USE_AUTO_DUAL_SEED
+                and not self.strategy.per_frame_only
+                and self.centroids is None
+            ):
+                dual_fit = fit_auto_dual_seed_centroids(bank)
+                if dual_fit is not None:
+                    self.seed_centroids(*dual_fit, from_kit_ref=True)
+            if self.centroids is None or self.radius is None:
+                fit = fit_match_centroids(
+                    bank,
+                    min_crops=TEAM_MIN_CROPS if self.strategy.per_frame_only else self.min_crops,
+                    kit_mode=self.kit_mode,
+                )
+                if fit is None:
+                    return player_pts
+                self.centroids, self.radius = fit
         labs = []
         for j, i in enumerate(idxs):
             p = player_pts[i]
@@ -769,11 +839,13 @@ class TeamSession:
             p["team_conf"] = float(conf)
             labs.append(int(tid))
         self._tracklet_color_label(player_pts, idxs)
-        self._ema(feats, labs)
+        if not self.from_kit_ref:
+            self._ema(feats, labs)
         old_prev = self.prev
         self._sticky(player_pts)
         self._birth_balance(player_pts, old_prev)
-        self._maybe_rebalance_auto(player_pts)
+        if not self.from_kit_ref:
+            self._maybe_rebalance_auto(player_pts)
         self.prev = []
         for p in player_pts:
             if p.get("xy") is None:

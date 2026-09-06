@@ -54,6 +54,24 @@ USE_JERSEY_CENTER = True  # used only when USE_JERSEY_ANNULUS is False
 USE_DUAL_TO_WHITE = True
 # N2: median of last N jersey features before assign (anti-flicker).
 MEDIAN_FEAT_LEN = 5
+# N4: auto dual-color → white seed bank, then freeze centroids (no human kit-ref).
+# Off by default — A/B failed score gate (kit_n4_auto_dual_seed_ab); opt-in for experiments.
+USE_AUTO_DUAL_SEED = False
+AUTO_DUAL_SEED_MIN = 5
+BLUE_SEED_MARGIN = 0.08  # blue must beat white by this for T0 seed
+# N5: hard-drop fisheye-periphery crops from centroid *fit* (assign still uses them).
+# Off by default — A/B failed score gate (kit_n5_fisheye_drop_ab); opt-in for experiments.
+USE_FISHEYE_EDGE_DROP = False
+# N6: if outer ring much bluer than core, use core-only feats (undershirt sleeves).
+# Off by default — A/B failed flips gate (kit_n6_center_edge_ab); opt-in for experiments.
+USE_CENTER_EDGE_VETO = False
+EDGE_BLUE_DELTA = 0.18
+# N7: dual→white only when white≥blue (avoid false-white when blue dominates dual).
+# Off by default — A/B failed score/flips (kit_n7_gated_dual_ab); opt-in for experiments.
+USE_GATED_DUAL_TO_WHITE = False
+# N9: Match3→Match4 centroid transfer via per-dim HSV/hist affine (no human labels).
+# Off by default — A/B kit_n9_centroid_transfer_ab; opt-in for experiments.
+USE_MATCH_CENTROID_TRANSFER = False
 
 _BOX_CACHE: dict | None = None
 _CAM_XY_CACHE: dict[str, tuple[float, float]] | None = None
@@ -99,6 +117,17 @@ def fisheye_center_weight(cam: str | None, bbox, frame_wh: tuple[int, int] | Non
         return 1.0
     t = (r - (1.0 - FISHEYE_EDGE_FRAC)) / max(FISHEYE_EDGE_FRAC, 1e-3)
     return float(max(0.0, 1.0 - t * t))
+
+
+def is_fisheye_edge_crop(
+    cam: str | None,
+    bbox,
+    frame_wh: tuple[int, int] | None,
+) -> bool:
+    """True if P7–P10 detection sits in the outer FISHEYE_EDGE_FRAC ring."""
+    if cam not in FISHEYE_CAMS or frame_wh is None or bbox is None:
+        return False
+    return fisheye_radial_norm(bbox, frame_wh) >= 1.0 - FISHEYE_EDGE_FRAC
 
 
 def cam_to_player_m(cam: str | None, xy: tuple[float, float]) -> float:
@@ -291,8 +320,21 @@ def jersey_feature(crop: np.ndarray) -> Optional[np.ndarray]:
         whiteish = (hsv[:, :, 1] <= 55) & (hsv[:, :, 2] >= 125)
         if float(whiteish.mean()) < 0.45:
             return None
+    hgt, wdt = crop.shape[:2]
+    xn, yn = _xy_norm_grid(hgt, wdt)
+    r = np.sqrt(xn * xn + yn * yn)
+    # N6: outer much bluer than core → sleeves/undershirt; trust core only.
+    if USE_CENTER_EDGE_VETO:
+        f_core = _feat_from_hsv_keep(hsv, keep, (r <= 0.45).astype(np.float32))
+        f_edge = _feat_from_hsv_keep(hsv, keep, (r >= 0.65).astype(np.float32))
+        if (
+            f_core is not None
+            and f_edge is not None
+            and float(f_edge[0] - f_core[0]) > EDGE_BLUE_DELTA
+        ):
+            return f_core
     if USE_JERSEY_ANNULUS:
-        wgt = _annulus_keep_weight(crop.shape[0], crop.shape[1], JERSEY_ANNULUS_OUTER)
+        wgt = _annulus_keep_weight(hgt, wdt, JERSEY_ANNULUS_OUTER)
         return _feat_from_hsv_keep(hsv, keep, wgt)
     frac = float(keep.mean())
     if frac < MIN_JERSEY_FRAC or int(keep.sum()) < 18:
@@ -430,8 +472,11 @@ def assign_feature(
         soft_nudge = bool(strategy.soft_pixel_nudge)
     blue, white, yellow = float(feature[0]), float(feature[1]), float(feature[2])
     light = white + yellow
-    # Dual undershirt hint only — soft conf so session sticky/vote can hold identity.
-    if USE_DUAL_TO_WHITE and blue >= DUAL_COLOR_FRAC and white >= DUAL_COLOR_FRAC:
+    # Dual undershirt hint — soft conf so session sticky/vote can hold identity.
+    dual = blue >= DUAL_COLOR_FRAC and white >= DUAL_COLOR_FRAC
+    if USE_GATED_DUAL_TO_WHITE:
+        dual = dual and white >= blue
+    if USE_DUAL_TO_WHITE and dual:
         pixel = (1, 0.58)
     else:
         pixel = _pixel_team(
@@ -450,6 +495,8 @@ def assign_feature(
     if no_gray:
         out_tid, out_conf = int(tid), max(conf, 0.45)
         dual_white = blue >= DUAL_COLOR_FRAC and white >= DUAL_COLOR_FRAC
+        if USE_GATED_DUAL_TO_WHITE:
+            dual_white = dual_white and white >= blue
         if (soft_nudge or use_px) and pixel is not None and not pixel_agree:
             ptid, pconf = int(pixel[0]), float(pixel[1])
             strong_white = white >= white_f and white >= blue + 0.06
@@ -512,6 +559,114 @@ def centroids_from_labeled(
     if sep < 0.12:
         return None
     return cents, max(radius, 0.08)
+
+
+def is_dual_color_feat(feat: np.ndarray) -> bool:
+    """Both blue and white fracs high — undershirt / mixed torso."""
+    return float(feat[0]) >= DUAL_COLOR_FRAC and float(feat[1]) >= DUAL_COLOR_FRAC
+
+
+def is_blue_seed_feat(feat: np.ndarray) -> bool:
+    """Clear blue-dominant crop for Team 0 seed (not dual)."""
+    b, w = float(feat[0]), float(feat[1])
+    if is_dual_color_feat(feat):
+        return False
+    return b >= DUAL_COLOR_FRAC and b >= w + BLUE_SEED_MARGIN
+
+
+def is_white_seed_feat(feat: np.ndarray) -> bool:
+    """Dual-color or strong white for Team 1 seed."""
+    if is_dual_color_feat(feat):
+        return True
+    b, w = float(feat[0]), float(feat[1])
+    return w >= DUAL_COLOR_FRAC and w >= b + BLUE_SEED_MARGIN
+
+
+def fit_auto_dual_seed_centroids(
+    feats: list[np.ndarray],
+    min_per_team: int = AUTO_DUAL_SEED_MIN,
+) -> tuple[np.ndarray, float] | None:
+    """N4: T0=blue-dom seeds, T1=dual+white seeds → freeze-ready centroids."""
+    t0 = [f for f in feats if f is not None and is_blue_seed_feat(f)]
+    t1 = [f for f in feats if f is not None and is_white_seed_feat(f)]
+    if len(t0) < min_per_team or len(t1) < min_per_team:
+        return None
+    # Cap bags so one side doesn't dominate the mean.
+    rng = np.random.RandomState(0)
+    if len(t0) > 200:
+        t0 = [t0[i] for i in rng.choice(len(t0), 200, replace=False)]
+    if len(t1) > 200:
+        t1 = [t1[i] for i in rng.choice(len(t1), 200, replace=False)]
+    return centroids_from_labeled({0: t0, 1: t1})
+
+
+def feat_bank_moments(
+    feats: list[np.ndarray],
+) -> tuple[np.ndarray, np.ndarray] | None:
+    """Mean / std of a jersey-feature bank (per dim)."""
+    clean = [np.asarray(f, np.float32) for f in feats if f is not None]
+    if len(clean) < 8:
+        return None
+    x = np.stack(clean, axis=0)
+    mu = x.mean(axis=0).astype(np.float32)
+    sig = np.maximum(x.std(axis=0).astype(np.float32), 1e-3)
+    return mu, sig
+
+
+def transfer_centroids_affine(
+    src_centroids: np.ndarray,
+    src_mu: np.ndarray,
+    src_sig: np.ndarray,
+    dst_mu: np.ndarray,
+    dst_sig: np.ndarray,
+) -> np.ndarray:
+    """Map source-match centroids into dest feature space (HSV + hue hist).
+
+    Per-dim: x' = (x - μ_s) * (σ_d / σ_s) + μ_d, then re-lock Team0=bluer.
+    """
+    scale = dst_sig / src_sig
+    out = (np.asarray(src_centroids, np.float32) - src_mu) * scale + dst_mu
+    return _lock_labels(out.astype(np.float32))
+
+
+def radius_from_feats(
+    feats: list[np.ndarray],
+    centroids: np.ndarray,
+) -> float:
+    """Outlier radius from dest bank vs transferred centroids."""
+    clean = [np.asarray(f, np.float32) for f in feats if f is not None]
+    if not clean:
+        return 0.12
+    dmin = [
+        min(feature_distance(f, centroids[0]), feature_distance(f, centroids[1]))
+        for f in clean
+    ]
+    return max(float(np.median(dmin) * OUTLIER_MEDIAN_MULT + 1e-3), 0.08)
+
+
+def transfer_match_centroids(
+    src_centroids: np.ndarray,
+    src_feats: list[np.ndarray],
+    dst_feats: list[np.ndarray],
+    src_radius: float | None = None,
+) -> tuple[np.ndarray, float] | None:
+    """N9: adapt source-match centroids to dest lighting via HSV/hist affine."""
+    src_m = feat_bank_moments(src_feats)
+    dst_m = feat_bank_moments(dst_feats)
+    if src_m is None or dst_m is None:
+        return None
+    cents = transfer_centroids_affine(
+        src_centroids, src_m[0], src_m[1], dst_m[0], dst_m[1]
+    )
+    sep = float(np.linalg.norm(cents[0, :KIT_DIM] - cents[1, :KIT_DIM]))
+    if sep < 0.12:
+        return None
+    rad = radius_from_feats(dst_feats, cents)
+    if src_radius is not None:
+        # Blend transferred radius with source scale of mean σ ratio.
+        scale = float(np.mean(dst_m[1][:KIT_DIM] / src_m[1][:KIT_DIM]))
+        rad = max(rad, float(src_radius) * max(scale, 0.5))
+    return cents, rad
 
 
 def kit_feat_preview_bgr(feat: np.ndarray) -> np.ndarray:

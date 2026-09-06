@@ -15,10 +15,10 @@
 | 4 | N4 | **Auto white seed bank** from dual-color center crops → freeze fit | 8.5 | +0.5–1.5 | replaces human kit-ref; dual≈23% of crops |
 | 5 | N5 | **Hard-drop fisheye-edge** kit crops from centroid fit (not soft weight) | 8.0 | +0.2–0.5 | T2 soft P10 weight ≈noop; P10 still 74/26 |
 | 6 | N6 | **Center-vs-edge veto**: outer≪center blue → center-only fracs | 8.0 | +0.2–0.4 | ideas10 #3/#8 high retain |
-| 7 | N7 | **Gated dual_to_white**: only if center white≥blue; else sticky | 7.5 | cut false-white flicker | kit_hold dual thrash risk |
-| 8 | N8 | **Birth wait**: unsure until age≥3 or ≥2 cams agree (no age lock flip) | 7.5 | fewer wrong births | T5 hard agelock failed; soft wait ≠ that |
-| 9 | N9 | **Match3→Match4 auto centroid transfer** (HSV affine / hist match) | 7.0 | unlock M4 without labels | speculative; lighting risk |
-| 10 | N10 | **Ball-proximal majority lock** for possession carrier team | 6.5 | event/team consistency | secondary; thin consensus lift |
+| 7 | N7 | **Gated dual_to_white**: only if center white≥blue; else sticky | 7.5 | **FAIL** score −17.5 / flips↑ (off) | `kit_n7_gated_dual_ab` |
+| 8 | N8 | **Birth wait**: unsure until age≥3 or ≥2 cams agree (no age lock flip) | 7.5 | **FAIL** score −1.3 / flips↑ (off) | `kit_n8_birth_wait_ab` |
+| 9 | N9 | **Match3→Match4 auto centroid transfer** (HSV affine / hist match) | 7.0 | **FAIL** ≈T1 (Δ −0.02, off) | `kit_n9_centroid_transfer_ab` |
+| 10 | N10 | **Ball-proximal majority lock** for possession carrier team | 6.5 | **FAIL** composite flat (off) | `kit_n10_ball_prox_ab` |
 
 ## Do not put in the top 10
 

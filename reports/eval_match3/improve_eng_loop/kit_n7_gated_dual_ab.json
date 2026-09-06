@@ -1,0 +1,61 @@
+{
+  "ts": "2026-09-06T08:40:35.738502+00:00",
+  "gate": {
+    "score_delta_min": 0.3,
+    "retain_drop_max": 0.02,
+    "flip_rate_lte_baseline": true
+  },
+  "n_rows": 2899,
+  "n_tracks": 528,
+  "baseline_ungated_dual": {
+    "gated": false,
+    "n_dual": 701,
+    "n_dual_white_ge_blue": 304,
+    "pct0": 58.99,
+    "pct1": 41.01,
+    "off50": 8.99,
+    "mean_frame_off": 0.1131,
+    "retain_stress": 0.8848,
+    "flip_rate": 0.0955,
+    "balance": 0.6953,
+    "coverage": 0.9538,
+    "n0": 1631,
+    "n1": 1134,
+    "score": 70.21
+  },
+  "N7_gated_dual": {
+    "gated": true,
+    "n_dual": 701,
+    "n_dual_white_ge_blue": 304,
+    "pct0": 66.81,
+    "pct1": 33.19,
+    "off50": 16.81,
+    "mean_frame_off": 0.171,
+    "retain_stress": 0.9457,
+    "flip_rate": 0.1115,
+    "balance": 0.4967,
+    "coverage": 0.9469,
+    "n0": 1834,
+    "n1": 911,
+    "score": 52.75
+  },
+  "T1_apply_strategy_ref": {
+    "name": "T1_annulus_sticky",
+    "pct0": 58.99,
+    "pct1": 41.01,
+    "off50": 8.99,
+    "mean_frame_off": 0.1131,
+    "bad_frame_frac": 0.2667,
+    "retain_stress": 0.8848,
+    "flip_rate": 0.0955,
+    "balance": 0.6953,
+    "coverage": 0.9538,
+    "n0": 1631,
+    "n1": 1134,
+    "score": 70.21
+  },
+  "score_delta": -17.46,
+  "retain_drop": -0.0609,
+  "flips_ok": false,
+  "worked": false
+}

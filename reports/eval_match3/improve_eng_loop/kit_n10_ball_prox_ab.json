@@ -1,0 +1,77 @@
+{
+  "ts": "2026-09-06T08:51:21.550772+00:00",
+  "cache": "/Volumes/LaCie/Projects/Soccer Coach CV/reports/eval_match3/team_id_strategy_grid/m4_90s_det_plain.json",
+  "kit": "/Volumes/LaCie/Projects/Soccer Coach CV/data/output/match_4_5min/P10-match4/team_centroids.json",
+  "gate": {
+    "composite_delta_min": 0.3,
+    "off50_worse_max_pp": 1.0,
+    "sticky_drop_max": 0.02
+  },
+  "baseline": {
+    "lock": false,
+    "n_frames": 120,
+    "n_ball_frames": 17,
+    "n_locks": 0,
+    "n_carrier_scored": 5,
+    "carrier_agree": 0.4,
+    "pct0": 48.73,
+    "pct1": 51.27,
+    "off50": 10.74,
+    "sticky_keep": 0.947,
+    "scores": {
+      "consensus": 8.3,
+      "balanced": 10.0,
+      "flickering": 9.73,
+      "composite": 9.4,
+      "sticky_keep": 0.947,
+      "swing_rate": 0.0
+    },
+    "metrics": {
+      "n_frames": 120,
+      "mean_blue_share": 0.4895,
+      "collapse_frac": 0.0,
+      "both3_frac": 1.0,
+      "balanced_frac": 0.9917,
+      "mean_players": 13.0833,
+      "multcam_frac": 0.2319,
+      "agree_frac": 0.9345,
+      "conflict_gray_frac": 0.0119
+    }
+  },
+  "N10_ball_prox_lock": {
+    "lock": true,
+    "n_frames": 120,
+    "n_ball_frames": 17,
+    "n_locks": 3,
+    "n_carrier_scored": 5,
+    "carrier_agree": 1.0,
+    "pct0": 48.54,
+    "pct1": 51.46,
+    "off50": 10.98,
+    "sticky_keep": 0.942,
+    "scores": {
+      "consensus": 8.3,
+      "balanced": 10.0,
+      "flickering": 9.71,
+      "composite": 9.39,
+      "sticky_keep": 0.942,
+      "swing_rate": 0.0
+    },
+    "metrics": {
+      "n_frames": 120,
+      "mean_blue_share": 0.487,
+      "collapse_frac": 0.0,
+      "both3_frac": 0.9917,
+      "balanced_frac": 0.9833,
+      "mean_players": 13.0833,
+      "multcam_frac": 0.2319,
+      "agree_frac": 0.9345,
+      "conflict_gray_frac": 0.0119
+    }
+  },
+  "composite_delta": -0.01,
+  "off50_delta": 0.24,
+  "sticky_drop": 0.005,
+  "carrier_agree_delta": 0.6,
+  "worked": false
+}
