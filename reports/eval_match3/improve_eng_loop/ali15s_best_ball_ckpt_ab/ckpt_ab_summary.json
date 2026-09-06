@@ -1,0 +1,39 @@
+{
+  "clip": "ali_handover_ex_start2390_as_start0_15s_stride4_best_ball_ghost_p7",
+  "raw_dir": "reports/eval_match3/improve_eng_loop/ali15s_match3_shorts",
+  "rows": [
+    {
+      "tag": "v16",
+      "ball_frame_frac": 1.0,
+      "n_emits": 3,
+      "path": "reports/eval_match3/improve_eng_loop/ali15s_best_ball_ckpt_ab/coach_best_ball_ali15s_v16.mp4",
+      "duration_s": 15.0
+    },
+    {
+      "tag": "v26",
+      "ball_frame_frac": 1.0,
+      "n_emits": 4,
+      "path": "reports/eval_match3/improve_eng_loop/ali15s_best_ball_ckpt_ab/coach_best_ball_ali15s_v26.mp4",
+      "duration_s": 15.0
+    },
+    {
+      "tag": "v28",
+      "ball_frame_frac": 1.0,
+      "n_emits": 7,
+      "path": "reports/eval_match3/improve_eng_loop/ali15s_best_ball_ckpt_ab/coach_best_ball_ali15s_v28.mp4",
+      "duration_s": 15.0
+    },
+    {
+      "tag": "v29",
+      "ball_frame_frac": 1.0,
+      "n_emits": 5,
+      "path": "reports/eval_match3/improve_eng_loop/ali15s_best_ball_ckpt_ab/coach_best_ball_ali15s_v29.mp4",
+      "duration_s": 15.0
+    }
+  ],
+  "human_visual": {
+    "date": "2026-09-05",
+    "note": "15 second Ali-handover best_ball test looks significantly better with v16; v26, v28, v29 are somewhat similar to each other (and not as good as v16).",
+    "product_stays": "v16"
+  }
+}

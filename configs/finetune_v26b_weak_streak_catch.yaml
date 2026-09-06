@@ -1,0 +1,53 @@
+# v26b: resume v26 weak-seed ckpt @315 → 330 (same pack, no recipe change).
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+dataset:
+  coco_train_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v26_streak_holdout/train
+  coco_val_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v26_streak_holdout/valid
+  yolo_train_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v26_streak_holdout/train
+  yolo_val_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v26_streak_holdout/valid
+  ball_class_id: 1
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: true
+  prefetch_factor: 1
+  persistent_workers: false
+
+training:
+  epochs: 330
+  batch_size: 4
+  grad_accum_steps: 4
+  learning_rate: 0.00002
+  encoder_learning_rate: 0.000015
+  weight_decay: 0.0001
+  resolution: 560
+  amp: true
+  mixed_precision: true
+  num_workers: 2
+  device: cuda
+  multi_scale: false
+  expanded_scales: false
+
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+
+output:
+  output_dir: /home/catch/soccer_coach_cv/models
+  save_every_epochs: 1
+
+checkpoint:
+  resume_from: /home/catch/soccer_coach_cv/models/v26_streak_holdout_snaps/post_train/checkpoint.pth
+  save_dir: models/v26b_weak_streak_snaps

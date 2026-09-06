@@ -1,0 +1,29 @@
+{
+  "clip": "t087_start5220_15s_stride4_best_ball",
+  "rows": [
+    {
+      "tag": "v16",
+      "ball_frame_frac": 1.0,
+      "n_emits": 4,
+      "path": "reports/eval_match3/improve_eng_loop/match4_15s_ckpt_ab/coach_best_ball_15s_t087_v16.mp4"
+    },
+    {
+      "tag": "v26",
+      "ball_frame_frac": 1.0,
+      "n_emits": 4,
+      "path": "reports/eval_match3/improve_eng_loop/match4_15s_ckpt_ab/coach_best_ball_15s_t087_v26.mp4"
+    },
+    {
+      "tag": "v28",
+      "ball_frame_frac": 1.0,
+      "n_emits": 4,
+      "path": "reports/eval_match3/improve_eng_loop/match4_15s_ckpt_ab/coach_best_ball_15s_t087_v28.mp4"
+    },
+    {
+      "tag": "v29",
+      "ball_frame_frac": 1.0,
+      "n_emits": 4,
+      "path": "reports/eval_match3/improve_eng_loop/match4_15s_ckpt_ab/coach_best_ball_15s_t087_v29.mp4"
+    }
+  ]
+}

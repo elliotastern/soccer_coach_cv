@@ -154,8 +154,8 @@ COACH_CORNER = {
 DetectFn = Callable[[str, np.ndarray], list]
 
 
-def match3_videos(repo_root: Path) -> dict[str, Path]:
-    folder = repo_root / "data/raw/Match 3"
+def match3_videos(repo_root: Path, raw_dir: Path | None = None) -> dict[str, Path]:
+    folder = raw_dir if raw_dir is not None else (repo_root / "data/raw/Match 3")
     if not folder.is_dir():
         return {}
     try:

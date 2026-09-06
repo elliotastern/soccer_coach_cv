@@ -1,0 +1,51 @@
+{
+  "goal": "without human intervention: ball detection including blurry → ≥9/10",
+  "definition_split": {
+    "product_X": "P_emit≥0.80 + clear_R≥0.80 + blurry held — ALREADY PASS under v16 (strips clear_R=1.0, holdout≈0.987, blurry_R30=1.0) → ≥9.5/10",
+    "specialty_X": "human-gold all_R30≥0.90 with blurry held — BEST 0.859 (v26); soft 0.73 / streaky 0.83 block 9/10"
+  },
+  "rank": [
+    {
+      "n": 1,
+      "lever": "Freeze product ball at v16 — declare product X ≥9/10 done",
+      "overfit": false,
+      "why": "Blurry solved; clear/P_emit product gates already pass. Further weak-harvest specialty does not move product and failed specialty gate repeatedly.",
+      "status": "EXECUTE_STOP"
+    },
+    {
+      "n": 2,
+      "lever": "Human Confirm on P7 streak queue → leave-N-out specialty (only path to specialty 9/10)",
+      "overfit": false_if_leave_N_out,
+      "blocked_by": "requires user intervention — excluded from this loop"
+    },
+    {
+      "n": 3,
+      "lever": "Match-4 soft specialty holding out Match-3 soft+streaky",
+      "overfit": false,
+      "status": "SKIP — same weak-label class as v20/v28/v29; hard misses not in detector candidates"
+    },
+    {
+      "n": 4,
+      "lever": "v16+v26 dual-ckpt vote",
+      "overfit": false,
+      "status": "SKIP — streaky ceiling ≈0.83 < 0.861"
+    },
+    {
+      "n": 5,
+      "lever": "Mosaic static-ghost / soft-hold hygiene",
+      "overfit": false,
+      "status": "SKIP — precision/mosaic only, not blur/soft recall"
+    }
+  ],
+  "already_dead": [
+    "product prior-crop redetect",
+    "v26/v27 Match-3 weak streak",
+    "v28 Match-4 elong det",
+    "v29 Match-4 optical-flow",
+    "temporal prior specialty",
+    "topk/SAHI/border pad on hard misses"
+  ],
+  "loop_prompt": "IF goal=product_X: STOP success (v16). IF goal=specialty_all_R30≥0.90: STOP blocked — next node requires human Confirm (rank#2). Do NOT start another RF-DETR weak-harvest epoch. Never lower EMIT_CONF / widen agree / train-on-eval streaky / soft1500 miss-core synth.",
+  "product_checkpoint": "models/v16_residual_snaps/post_train/checkpoint.pth",
+  "best_report_only_specialty": "v26 @ streaky 0.8302 / all 0.8589 (not promote)"
+}

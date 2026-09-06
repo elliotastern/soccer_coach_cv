@@ -1,0 +1,54 @@
+# v25 real streak crop aug — Catch RTX 5090 (resume v16 @300 → 315, ~15 epochs @560).
+# Dominant: real human streak pastes. Gate: streaky R on match3_human_blur_gold.
+model:
+  architecture: detr
+  backbone: resnet50
+  num_classes: 1
+  pretrained: true
+  hidden_dim: 256
+  nheads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  rfdetr_size: base
+  remap_mscoco_category: false
+
+dataset:
+  coco_train_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v25_streak_real_aug/train
+  coco_val_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v25_streak_real_aug/valid
+  yolo_train_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v25_streak_real_aug/train
+  yolo_val_path: /home/catch/soccer_coach_cv/datasets/ball_finetune_v25_streak_real_aug/valid
+  ball_class_id: 1
+  category_name: ball
+  category_id: 0
+  use_combined_dataset: false
+  pin_memory: true
+  prefetch_factor: 1
+  persistent_workers: false
+
+training:
+  epochs: 315
+  batch_size: 4
+  grad_accum_steps: 4
+  learning_rate: 0.00003
+  encoder_learning_rate: 0.00002
+  weight_decay: 0.0001
+  resolution: 560
+  amp: true
+  mixed_precision: true
+  num_workers: 2
+  device: cuda
+  multi_scale: false
+  expanded_scales: false
+
+augmentation:
+  motion_blur: true
+  jpeg_compression: true
+  horizontal_flip: true
+
+output:
+  output_dir: /home/catch/soccer_coach_cv/models
+  save_every_epochs: 1
+
+checkpoint:
+  resume_from: /home/catch/soccer_coach_cv/models/v16_residual_snaps/post_train/checkpoint.pth
+  save_dir: models/v25_streak_real_aug_snaps

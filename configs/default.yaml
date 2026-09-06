@@ -10,7 +10,7 @@ detection:
   player_class_id: 0
   ball_class_id: 1
   player_checkpoint: models/people_after_100_epochs.pth
-  ball_checkpoint: models/v14_residual_snaps/post_train/checkpoint.pth
+  ball_checkpoint: models/v16_residual_snaps/post_train/checkpoint.pth
   enhance_ball: true
   use_sahi: false
   use_kalman: true
@@ -43,7 +43,9 @@ mapping:
 fuse:
   mode: pitch_merge
   ukf_enabled: false
-  cams: quad
+  # A/B 2026-09-04: all >> quad on holdout clear_R (+0.16) and agree (+0.26); strips pass.
+  # See reports/eval_match3/improve_eng_loop/ab_fuse_cams_quad_vs_all.json
+  cams: all
   fallback_pitch_merge: true
   reproj_max_px:
     P7: 48

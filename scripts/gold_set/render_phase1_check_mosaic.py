@@ -132,6 +132,18 @@ def parse_args():
         default=None,
         help="Override configs/default.yaml fuse.cams (all = eight cams in pitch fuse bag)",
     )
+    p.add_argument(
+        "--ball-checkpoint",
+        type=Path,
+        default=None,
+        help="Override configs/default.yaml detection.ball_checkpoint",
+    )
+    p.add_argument(
+        "--raw-dir",
+        type=Path,
+        default=None,
+        help="Override data/raw/Match 3 video folder (e.g. short Ali clip extracts)",
+    )
     return p.parse_args()
 
 
@@ -288,18 +300,30 @@ def main() -> int:
     n_match = int(round(args.match_sec * args.src_fps))
     end = args.start + n_match - 1
     frames = list(range(args.start, end + 1, args.stride))
-    vids = match3_videos(ROOT)
+    vids = match3_videos(
+        ROOT,
+        raw_dir=(args.raw_dir if args.raw_dir is None or args.raw_dir.is_absolute() else (ROOT / args.raw_dir)),
+    )
+    if not vids:
+        raise SystemExit(f"no videos in raw-dir={args.raw_dir}")
     cfg_path = ROOT / "configs/default.yaml"
     cfg = {}
     if cfg_path.is_file():
         cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
-    ball_ckpt = str(
-        ROOT
-        / (
-            ((cfg.get("detection") or {}).get("ball_checkpoint"))
-            or "models/v14_residual_snaps/post_train/checkpoint.pth"
+    if args.ball_checkpoint is not None:
+        ball_ckpt = str(
+            args.ball_checkpoint
+            if args.ball_checkpoint.is_absolute()
+            else (ROOT / args.ball_checkpoint)
         )
-    )
+    else:
+        ball_ckpt = str(
+            ROOT
+            / (
+                ((cfg.get("detection") or {}).get("ball_checkpoint"))
+                or "models/v14_residual_snaps/post_train/checkpoint.pth"
+            )
+        )
     player_ckpt = str(
         ROOT
         / (

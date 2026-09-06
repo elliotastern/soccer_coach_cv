@@ -130,7 +130,9 @@ Bounded try after blur autopsy (`blur_autopsy_soft_fns.json`: streak 30% / soft_
 | P10 / P8 P_emit · clear_R | 1.0 / 1.0 | 1.0 / 1.0 |
 | Holdout proxy R | **0.987** | **0.983** |
 
-**Gates held**, no clear_R lift (holdout −0.004) → **no promote**. Keep **v16**. Freeze thin soft/blur residual arc; do not start v23. Evidence: `ab_v22_blur_residual_vs_v16.json`.
+**Gates held**, no clear_R lift (holdout −0.004) → **no promote**. Keep **v16**. Freeze thin soft/blur residual harvest arc (v17–v22 style). Evidence: `ab_v22_blur_residual_vs_v16.json`.
+
+**Note (2026-09-04):** “do not start v23” above meant another soft residual. **v23 human-gold synth** is a different arc: variations of `match3_human_blur_gold` (no new labels), gated on **streaky R** (baseline 0.722), not product clear_R. See `MATCH3_HUMAN_BLUR_GOLD.md` / `build_ball_finetune_v23_human_blur_synth.py`.
 
 ## P1 near-touch hull expand — promoted (2026-09-04)
 
@@ -145,3 +147,57 @@ Kickoff best-ball miss autopsy (`kickoff_miss_autopsy.json`): many 0.90 gaps wer
 ## Human blur gold ckpt sweep (2026-09-04) — report only
 
 `ab_match3_human_blur_gold_ckpts.json`: v12/v14–v22 on 339 human boxes. Blurry (lap) subset R@0.30 ≈ **1.0** for v16+. Streaky R@0.30 stuck at **0.722** for all versions. No promote; product stays v16. See `docs/product/MATCH3_HUMAN_BLUR_GOLD.md`.
+
+## v23b streak-heavy — no promote (2026-09-05)
+
+Human blur gold streaky R@0.30: v16=0.7222 → v23=0.75 → v23b=0.7222. Gate ≥0.80 or ≥baseline+0.05 (0.772): fail. Keep **v16**. Evidence: `reports/eval_match3/improve_eng_loop/ab_match3_human_blur_gold_ckpts.json`.
+
+## v24 miss-core mild-streak — no promote (2026-09-05)
+
+Human blur gold streaky R@0.30: v16=0.7222 → v23=0.75 → v23b=0.7222 → v24=0.7222. Gate ≥0.80 or ≥0.772: fail. Autopsy: same hard core (10 shared misses; wrong-object dets). Keep **v16**. No-new-label synth arc (v23/v23b/v24) exhausted — next needs **new streaky human labels** (or Match-4 streak harvest), not more synth of the same 9.
+
+## v25 real-streak paste — no promote (2026-09-05)
+
+Frozen bank **n=404 / streaky=53**. v16 re-baseline streaky R@0.30 = **0.8113**. v25 Catch train (real crop paste + elong + mild k) → streaky **0.8113** (flat; identical 10-miss set). Blurry held at 1.0; soft 0.721→0.726. Absolute ≥0.80 but **no lift vs baseline+0.05**. Autopsy: `streaky_autopsy_v25_flat.json` (8 bad_box / 2 no_det; soft1500×8 + P9×2). Keep **v16**. Do not re-synth soft1500 miss cores. Next: new streak morphology labels (1100 leftover / P7_1162) then rebuild — not another no-new-label specialty.
+
+## v26 weak-seed streak (no human) — no promote (2026-09-05)
+
+Weak seed donors from P7_1162/627/1100/soft1500 (**n=35**); held out all human-gold streaky from train. Streaky R@0.30 **0.8113→0.8302** (+0.019; fixed P9__0190). Gate max(0.85, baseline+0.05)=**0.861** fail. Blurry/clear held. Autopsy: `streaky_autopsy_v26_weak.json` (9 shared soft1500+P9 misses remain). Keep **v16**. Next: v27 expand weak pool (all blur packs, n≈48) + heavier paste.
+
+## v27 weak expand — no promote (2026-09-05)
+
+All `match3_blur_*` weak streak (**n=48**) + blur-priority seeds + heavier paste. Streaky R@0.30 **0.8113** (regress vs v26; same 10-miss set as v16). Mild-synth on blur-priority diluted signal. Keep **v16**; best no-human specialty remains **v26 @ 0.8302**. Autopsy: `streaky_autopsy_v27_weak.json`.
+
+## v26b resume (+15 ep) — no promote (2026-09-05)
+
+Resume v26@315→330 same weak pack. Streaky **0.8302** (flat vs v26); clear 0.9949→0.9898. Gate 0.861 fail. **Confidence: no-human specialty train dead-end for streaky ≥0.85** — remaining 9 misses are soft1500/P9 hard cores unchanged by weak-seed paste/elong/extra epochs. Keep **v16**. Unblock = new morphology (human Confirm on P7 queue) or non-train residual (not more RF-DETR specialty).
+
+## Streaky hard-miss inference A/B (2026-09-05) — no promote
+
+9 shared soft1500/P9 misses after v26:
+- **Top-k thr0.05 / SAHI**: true ball **0/9** in candidate set (`streaky_hard_miss_topk_v16.json`)
+- **Border reflect pad 96**: hard **1/9**; streaky R **0.8113 flat** (`streaky_border_pad_ab.json`)
+- **GT crop-zoom**: **3/9** (needs GT; not deployable) (`streaky_hard_miss_cropzoom_v26.json`)
+- **Map-prior crop** (gold_xy→pixel): **2/5** of soft1500 misses with gold_xy (`streaky_map_prior_crop_ab.json`)
+
+Read: detector does not see these balls full-frame; pad/SAHI insufficient; map-prior crop is the only no-human residual with signal. Next eng-loop: product fuse map-prior crop redetect A/B on strips/holdout (kill if P_emit/clear_R regress).
+
+### Follow-up (same day) — prior crop is mostly circular for specialty gold
+
+v26 + **same-frame gold_xy** crop → streaky **0.8679** (looks like gate pass) but gold_xy is rematched from the human box → **invalid specialty promote**. Honest **temporal** prior (prev fullframe hit → crop) → **0.8491** (+1 vs 0.8302), still &lt; 0.861. Reports: `ab_streaky_map_prior_crop_v26.json`, `ab_streaky_temporal_prior_v26.json`. Keep **v16**. No further no-human detector specialty; product temporal-crop optional later.
+
+## Product prior-crop redetect (strips) — no promote (2026-09-05)
+
+v16 product fuse on P10/P8 strips: **clear_R=1.0**, silent_clear=0 both packs — no FN room for temporal/other-cam crop inject. `ab_prior_crop_product.json`. Keep **v16**. Next no-human lever: Match-4 elong weak streak specialty (v28) with Match-3 human streaky held out.
+
+## v28 Match-4 elong streak holdout — no promote (2026-09-05)
+
+120 mapped elong weak seeds from `soft_harvest_match4` (asp≥1.40, in-bounds); Match-3 human streaky held out. Catch train 300→315. Specialty: streaky R@0.30 **0.8113** (flat vs v16; **below v26 0.8302**). Blurry 1.0. Gate 0.861 fail. `ab_match3_human_blur_gold_ckpts_v16_v26_v28.json`. Keep **v16**. Match-4 elong weak = same dead-end class as Match-3 weak (v27) for specialty streaky — does not clear 0.85 without new human morphology.
+
+## v29 Match-4 optical-flow streak holdout — no promote (2026-09-05)
+
+OF + frame-diff elongated in-bounds seeds (10 stems → 150). Hold out Match-3 human streaky. Specialty streaky **0.8113** flat vs v16 (blurry 1.0). Gate fail. `ab_match3_human_blur_gold_ckpts_v16_v26_v29.json`. Keep **v16**. **Confidence: no-human Match-4 weak harvest (elong or OF) does not beat v26@0.830 or clear 0.861.** Unblock = human Confirm morphology.
+
+## Ali 15s best_ball visual — keep v16 (2026-09-05)
+
+Human review of `ali15s_best_ball_ckpt_ab` (Match-3 Ali-handover span, best_ball + P7 ghost): **v16 looks significantly better**; **v26 / v28 / v29 are somewhat similar** to each other and not as good as v16. Metric ball_frac was 1.0 for all four; emit counts alone do not override the visual. Product stays **v16**.
