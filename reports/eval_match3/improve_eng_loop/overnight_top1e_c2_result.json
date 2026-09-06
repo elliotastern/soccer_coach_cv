@@ -1,0 +1,31 @@
+{
+  "top1": "c2_v14_refresh_p9_t655",
+  "status": "pass_9plus",
+  "why_score": 9.5,
+  "prompt_score": 9.5,
+  "fix_score": 10.0,
+  "results": {
+    "winner": "v14_plain",
+    "quad_clear_R": "0.542→0.982",
+    "P9_t655_proxy_R": 0.915,
+    "P9_t559_proxy_R": 1.0,
+    "c2_det": 10.0,
+    "eng_loop_fails": ["l2_overlap=6.0"]
+  },
+  "bugs_fixed": [
+    "score_c2 read per_stem from totals (always empty) — now from variant row",
+    "score_c2 accepts v14_plain as winner"
+  ],
+  "subgoals": [
+    {"id": 1, "status": "pass_9plus"},
+    {"id": 2, "status": "pass_9plus"},
+    {"id": 3, "status": "pass_9plus"},
+    {"id": 4, "status": "pass_9plus"},
+    {"id": 5, "status": "pass_9plus"},
+    {"id": 6, "status": "pass_9plus"},
+    {"id": 7, "status": "pass_9plus"},
+    {"id": 8, "status": "skipped_not_needed"},
+    {"id": 9, "status": "skipped_not_needed"},
+    {"id": 10, "status": "pass_9plus_product_goals_still_10"}
+  ]
+}

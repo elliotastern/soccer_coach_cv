@@ -1,0 +1,29 @@
+{
+  "top1": "color_gated_soft_merge_kit",
+  "status": "promoted",
+  "why_score": 9.2,
+  "prompt_score": 9.3,
+  "fix_score": 9.5,
+  "holdout_ab": {
+    "baseline_hold_consensus": 6.68,
+    "best_hold_consensus": 7.01,
+    "lift": 0.33,
+    "soft_m": 3.2
+  },
+  "full_kit_ref_after_promote": {
+    "consensus": 7.35,
+    "composite": 9.1,
+    "multcam_frac": 0.178,
+    "agree_frac": 0.815,
+    "vs_v4_consensus": "7.1 → 7.35",
+    "vs_v4_composite": "9.01 → 9.1"
+  },
+  "product": {
+    "PLAYER_MERGE_M_LIVE": 2.2,
+    "PLAYER_MERGE_SOFT_M_LIVE": 3.2,
+    "color_gate_soft_default": true,
+    "file": "src/review/multicam_fuse.py"
+  },
+  "eng_loop": "all 10",
+  "remaining": "consensus still <9; needs higher multcam_frac via extra cams when Catch is up"
+}

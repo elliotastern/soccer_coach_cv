@@ -142,6 +142,24 @@ On Catch: `ls ~/soccer_exchange/to_catch/`
 | `Connection refused` port 22 | `sudo apt install openssh-server && sudo systemctl start ssh` |
 | Password prompt | Paste pub key into Catch `authorized_keys` (step 3A) |
 | `catch-soccer` not found | Add `~/.ssh/config` or `export CATCH_SSH_TARGET=catch@100.x.x.x` |
+| SSH **times out** to `100.113.134.41` | Almost always **Tailscale VPN down on the Mac** (not a bad SSH key). See below. |
+| `Failed to load preferences` / `Tailscale is stopped` | Open **Tailscale.app** → Connect / log in. Quit + reopen if stuck. |
+| `open Tailscale.app` → executable missing | Reinstall from [tailscale.com/download/mac](https://tailscale.com/download/mac). |
+
+### Tailscale down (2026-09-05 incident)
+
+When Tailscale is stopped, macOS routes Catch’s `100.x` IP over the **LAN** (`en1` → home gateway) instead of the tunnel (`utun*`). Ping/SSH then time out even if Catch’s PC is on.
+
+**Quick check (Terminal.app):**
+
+```bash
+bash scripts/diagnose_catch_tailscale.sh
+```
+
+Healthy: `route -n get 100.113.134.41` shows **`interface: utun…`** and `ssh … catch@100.113.134.41 'echo ok'` prints `ok`.  
+Unhealthy: interface is **`en…`** → open Tailscale and Connect, then re-run the script.
+
+Do **not** rotate the soccer Catch SSH key for timeouts — fix Tailscale first.
 
 ---
 

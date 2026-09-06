@@ -1,0 +1,27 @@
+{
+  "top1": "mutual_nearest_color_soft_extend",
+  "status": "promoted",
+  "why_score": 9.3,
+  "prompt_score": 9.4,
+  "fix_score": 9.5,
+  "holdout": {
+    "base_hold_consensus": 7.01,
+    "best": "mutual_4.5",
+    "hold_consensus": 7.42,
+    "lift": 0.41,
+    "hold_mfc": 0.203
+  },
+  "product": {
+    "PLAYER_MERGE_SOFT_M_LIVE": 4.5,
+    "mode": "mutual_nearest_same_team_cross_cam_solos"
+  },
+  "full_kit_ref_after_promote": {
+    "consensus": 7.73,
+    "composite": 9.21,
+    "multcam_frac": 0.219,
+    "agree_frac": 0.847,
+    "vs_v5": "consensus 7.35→7.73; composite 9.1→9.21"
+  },
+  "eng_loop": "all 10",
+  "remaining": "kit consensus still <9 until multcam_frac rises via extra cams (Catch)"
+}

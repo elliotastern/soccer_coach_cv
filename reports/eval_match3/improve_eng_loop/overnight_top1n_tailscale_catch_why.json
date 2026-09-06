@@ -1,0 +1,20 @@
+{
+  "top1": "start_tailscale_then_catch_match4_fullcam_kit",
+  "overfit": "low — infrastructure unlock only; product path already proven on Match3 full6 (cons≥9.11); no merge/H/emit change",
+  "why_score": 9.7,
+  "why": "Eng-loop only fail is match4_kit=7.7 (quad mfc ceiling). Match3 full6 freeze already proves kit≥9 needs P1/P6. Catch SSH times out because Mac Tailscale is STOPPED (not a fusion bug). Top-1: start Tailscale → SSH Catch → git pull → CAMS include P1/P6 → 5min batch with kit-ref → score hold consensus≥9 → update match4_kit.",
+  "prompt_score": 9.6,
+  "prompt": "1) sudo/tailscale up on Mac; confirm catch in status. 2) ssh catch@100.113.134.41. 3) cd ~/soccer_coach_cv && git pull && source venv. 4) Ensure kit-ref team_centroids.json. 5) bash scripts/run_batch_match4_5min_fullcam_kit.sh in tmux. 6) Build/score kit hold with frozen kit-ref; pass consensus≥9 and mfc≥0.30. 7) Pull artifacts; re-run eng_loop match4_kit≥9. Hard nos: widen merge, invent landmarks, lower emit.",
+  "subgoals": [
+    "confirm Tailscale stopped is root cause",
+    "tailscale up + catch peer visible",
+    "SSH catch OK",
+    "verify Match4 raw has P1/P6 (or cam-mapped)",
+    "kit-ref present",
+    "start fullcam 5min batch in tmux",
+    "monitor first chunk",
+    "score kit hold ≥9",
+    "pull + eng_loop match4_kit≥9",
+    "status update"
+  ]
+}

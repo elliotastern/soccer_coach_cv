@@ -1,0 +1,23 @@
+{
+  "rank": 1,
+  "title": "Human re-click P1/P6 worst existing landmarks",
+  "overfit": "medium — mitigate with strip+holdout kill-switches and backup calibs",
+  "why_score": 9.7,
+  "why": "Auto paths exhausted. Live fit residuals: P1 max 1.12 m (right_box_18_near), P6 max 2.43 m (left_box_18_far). Eng-loop l2_overlap reads these (now via landmark_roundtrip_m). No unlabeled FOV marks left to invent. Human nudge of existing IDs is the only remaining L2 path.",
+  "prompt_score": 9.6,
+  "prompt": "Landmark dashboard: defished P1/P6 stills. Nudge worst existing names only (see OVERNIGHT_STATUS brief). Refit H with backup. Rematch gold. Kill-switch P_emit>=0.80 and holdout proxy>=0.884. Re-score eng_loop until l2_overlap>=9 or restore backup.",
+  "subgoals": [
+    "worst residual list locked",
+    "dashboard stills open defished",
+    "P1 nudges only listed names",
+    "P6 nudges only listed names",
+    "refit + backup",
+    "write roundtrip_max_m",
+    "rematch strip gold",
+    "strip P_emit kill-switch",
+    "holdout proxy kill-switch",
+    "eng_loop l2_overlap >=9"
+  ],
+  "blocked_on": "human landmark clicks (cannot auto overnight)",
+  "status": "why_and_prompt_9plus_awaiting_human"
+}

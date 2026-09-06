@@ -34,6 +34,15 @@ Human spec: [CATCH_REMOTE_COMPUTE.md](docs/product/CATCH_REMOTE_COMPUTE.md) · S
 4. Start job in **tmux** (detach survives disconnect).
 5. **Pull** artifacts: `bash scripts/pull_from_catch.sh` or rsync from `~/soccer_exchange/from_catch/`.
 
+### Cursor agent sandbox / allowlist
+
+Tailscale SSH to Catch is **blocked inside the default sandbox** (`Operation not permitted` on `100.113.134.41:22`). Allowlisted in:
+
+- `~/.cursor/permissions.json` — `ssh` / `rsync` / `scp` / `tmux` + Catch autoRun allow
+- `~/.cursor/cli-config.json` + project [`.cursor/cli.json`](../cli.json) — `networkAllowlist` includes `100.113.134.41`
+
+When running Catch SSH/rsync from the agent Shell tool, still request **`required_permissions: ["all"]`** (or `full_network`) so the sandbox does not strip Tailscale routes.
+
 Match 4 **raw MP4s** live on Catch (`data/raw/Match 3` → Match 4 folder). Prefer running batch/mosaic **there** — avoids multi-hour Mac MPS runs.
 
 ## Do / don't

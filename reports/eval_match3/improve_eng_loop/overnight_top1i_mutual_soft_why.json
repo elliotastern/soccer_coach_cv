@@ -1,0 +1,20 @@
+{
+  "top1": "mutual_nearest_color_soft_extend",
+  "overfit": "low_if_mutual_nearest_and_holdout",
+  "why_score": 9.3,
+  "why": "Kit consensus 7.35 still <9; mfc≈0.18 caps consensus ~8.4 even at perfect agree. Catch down so no new cams. Near-miss sample shows same-team pairs beyond 3.2 m (3.2–4.0 ratio 1.8; 4.0–5.0 ratio 3.1) but many are likely teammates not multi-cam duplicates. Extending soft_m without a uniqueness gate would overfit. Mutual-nearest cross-cam + same-team soft absorb is the low-overfit residual.",
+  "prompt_score": 9.4,
+  "prompt": "A/B soft_m ∈ {3.6,4.0,4.5} with color gate AND mutual-nearest cross-cam constraint (each point is the other's nearest eligible cross-cam neighbor within soft_m). Baseline = product soft 3.2. Promote only if hold consensus +≥0.3 and hold mfc rises without collapse spike / mean_players drop >1.5. Kill-switch eng_loop stays all ≥9. Do not blind-widen merge_m.",
+  "subgoals": [
+    "near-miss bins beyond 3.2",
+    "why teammate risk documented",
+    "implement mutual-nearest gate",
+    "baseline product soft 3.2 hold",
+    "soft 3.6 mutual hold",
+    "soft 4.0 mutual hold",
+    "soft 4.5 mutual hold",
+    "promote gate",
+    "wire product if promote",
+    "full kit eval + eng_loop"
+  ]
+}

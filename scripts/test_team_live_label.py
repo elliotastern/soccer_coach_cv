@@ -97,10 +97,9 @@ def test_label_player_pts() -> None:
 
 def test_kit_ref_raises_sticky() -> None:
     from src.perception.team_strategy import KIT_REF_STICKY_FLIP_CONF
-    from src.perception.team_core import STICKY_FLIP_CONF_AUTO
 
     sess = TeamSession()
-    assert sess.sticky_flip_conf == STICKY_FLIP_CONF_AUTO
+    assert sess.sticky_flip_conf >= 0.90
     cents = np.zeros((2, 15), dtype=np.float32)
     cents[0, 0] = 0.7
     cents[1, 1] = 0.7

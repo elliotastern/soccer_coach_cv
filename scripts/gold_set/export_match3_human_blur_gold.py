@@ -15,6 +15,10 @@ PACKS = [
     "match3_blur_p1_250",
     "match3_blur_p1_1100",
     "match3_blur_p1_1300",
+    # P7 streak queues (opened for post-v24 labeling)
+    "match3_blur_p7_1162",
+    "match3_blur_p7_627",
+    "match3_blur_p7_1237",
 ]
 
 

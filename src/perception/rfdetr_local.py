@@ -34,7 +34,8 @@ def _patch_rfdetr_imports() -> None:
         sys.modules[name] = module
         return module
 
-    if "tensorflow" not in sys.modules:
+    # peft→tensorflow hang is macOS-specific; keep real TF/TB on Linux (Catch).
+    if sys.platform == "darwin" and "tensorflow" not in sys.modules:
         class _GFile:
             @staticmethod
             def join(*parts):
@@ -47,12 +48,15 @@ def _patch_rfdetr_imports() -> None:
         stub("tensorflow_probability")
         stub("tensorflow_text")
 
-    if "torch.utils.tensorboard" not in sys.modules:
+    if sys.platform == "darwin" and "torch.utils.tensorboard" not in sys.modules:
         class SummaryWriter:
             def __init__(self, *args, **kwargs):
                 pass
 
             def add_scalar(self, *args, **kwargs):
+                pass
+
+            def flush(self):
                 pass
 
             def close(self):

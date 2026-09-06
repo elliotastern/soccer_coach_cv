@@ -1,0 +1,20 @@
+{
+  "top1": "kit_centroid_polarity_tune_select",
+  "overfit": "low — polarity chosen on tune half only; hold untouched; no merge/H/emit change; Catch still blocked for Match4 product",
+  "why_score": 9.5,
+  "why": "Fusion eng-loop is all 10. Kit consensus ≥9 is locked on full6 (two windows). Catch still down for Match4 P1/P6. Window B full6 consensus is already 9.31 but composite 8.95 because mean_blue_share≈0.26 (outside 0.35–0.65) tanks balanced. Unsupervised fit has arbitrary team0/team1 polarity; product kit-ref labeling sets polarity correctly (Match4 balanced=10). Top-1: on tune half, evaluate fitted centroids vs swapped; keep polarity with tune mean_blue in [0.35,0.65] (or closest to 0.5); freeze that polarity on hold. Pass if hold consensus stays ≥9.0 and hold composite ≥9.0 on window B (and A does not regress below 9 consensus).",
+  "prompt_score": 9.4,
+  "prompt": "Using m3_40f full6 wB cache: fit centroids on tune. Score tune mean_blue for polarity0 and polarity1 (swap centroids). Select polarity on tune only. Freeze on hold. Compare vs baseline auto polarity. Promote helper into ab_match3_fullcam_kit_consensus / team seed path only if B hold composite ≥9 and consensus ≥9 and A hold consensus stays ≥9. No PLAYER_MERGE change. Eng-loop must stay all ≥9.",
+  "subgoals": [
+    "confirm B composite gap = mean_blue outside band",
+    "implement polarity swap helper",
+    "select polarity on tune half",
+    "score hold B both polarities + selected",
+    "kill-switch consensus ≥9",
+    "kill-switch composite ≥9",
+    "replay on window A freeze cache",
+    "promote or no-promote decision",
+    "eng_loop still all 10",
+    "status: Catch remains product Top-1 for Match4"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "subgoal": "1c_h_auto_existing",
+  "title": "Auto refine P1/P6 H on existing landmark IDs only",
+  "why_score": 9.7,
+  "why": "l2_overlap fails because P1/P6 fit residuals (H·image vs labeled pitch) are 1.12 m / 2.43 m, not missing center or missing landmark count. Seed white-line snap matches <4 points; cold RANSAC reports near-zero RT but only 4 shared mislabeled names (circular fit). Snap-to-line on existing clicks barely moves RT; dropping 4 worst points still leaves max RT 0.20/0.67 > 0.15. Inventing mid-pitch marks is locked closed. Therefore overnight auto-H cannot reach L1 0.15 — only human re-click of the worst existing IDs can.",
+  "prompt_score": 9.6,
+  "prompt": "Do not promote auto-H/cold/snap/drop for P1/P6. Log DEAD_ENDS. Next actionable H path: human re-click brief (existing names only) then refit + strip/holdout kill-switch. Meanwhile keep product on v14; kit lift needs cam coverage not merge widen.",
+  "fix_needed": false,
+  "status": "pass_9plus_dead_end_no_promote",
+  "evidence": [
+    "reports/eval_match3/improve_eng_loop/h_consistency/pitch1_auto_h.json",
+    "reports/eval_match3/improve_eng_loop/h_consistency/snap_drop_h_ab.json",
+    "reports/eval_match3/improve_eng_loop/h_consistency/per_point_rt_why.json"
+  ]
+}

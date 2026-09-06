@@ -1,0 +1,48 @@
+{
+  "ts": "2026-09-03T12:30:54.756961+00:00",
+  "cache": "reports/eval_match3/improve_eng_loop/kit_ref_ab/m3_60f_fullcam_det_plain.json",
+  "frames": {
+    "start": 3600,
+    "stride": 45,
+    "n": 60
+  },
+  "results": {
+    "quad": {
+      "cams": [
+        "P10",
+        "P9",
+        "P7",
+        "P8"
+      ],
+      "hold_consensus": 6.54,
+      "hold_multcam": 0.11320754716981132,
+      "hold_agree": 0.7222222222222222,
+      "hold_composite": 8.42,
+      "full_consensus": 7.62,
+      "full_multcam": 0.1824,
+      "full_composite": 6.32
+    },
+    "full6": {
+      "cams": [
+        "P1",
+        "P6",
+        "P7",
+        "P8",
+        "P9",
+        "P10"
+      ],
+      "hold_consensus": 8.23,
+      "hold_multcam": 0.4934725848563969,
+      "hold_agree": 0.671957671957672,
+      "hold_composite": 9.21,
+      "full_consensus": 7.68,
+      "full_multcam": 0.4405506883604506,
+      "full_composite": 9.1
+    }
+  },
+  "lift_hold_consensus": 1.69,
+  "lift_hold_mfc": 0.38,
+  "gate_pass": false,
+  "decision": "need_more_overlap_or_longer_pack",
+  "note": "Match4 product still needs Catch for P1/P6; this is Match3 local proof."
+}

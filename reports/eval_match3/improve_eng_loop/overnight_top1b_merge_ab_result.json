@@ -1,0 +1,36 @@
+{
+  "subgoal": "1b_merge_holdout",
+  "title": "Holdout-gated PLAYER_MERGE_M_LIVE sweep for kit consensus",
+  "why_score": 9.6,
+  "why": "Widen merge lifts tune consensus/multcam but hold consensus only +0.15 (6.68\u21926.83 at 3.2m) \u2014 below +0.3 promote bar. Classic smoke/tune overfit. Ceiling is cross-cam H span (~2.3\u201315 m solo gaps), not fuse wiring.",
+  "prompt_score": 9.5,
+  "fix_needed": false,
+  "status": "pass_9plus_dead_end_no_promote",
+  "decision": "no_promote",
+  "rows": [
+    {
+      "merge_m": 2.2,
+      "hold_consensus": 6.68,
+      "hold_multcam": 0.14141856392294222,
+      "tune_consensus": 7.15
+    },
+    {
+      "merge_m": 2.5,
+      "hold_consensus": 6.77,
+      "hold_multcam": 0.16392714349178142,
+      "tune_consensus": 7.23
+    },
+    {
+      "merge_m": 2.8,
+      "hold_consensus": 6.79,
+      "hold_multcam": 0.19010889292196007,
+      "tune_consensus": 7.36
+    },
+    {
+      "merge_m": 3.2,
+      "hold_consensus": 6.83,
+      "hold_multcam": 0.22077922077922077,
+      "tune_consensus": 7.54
+    }
+  ]
+}

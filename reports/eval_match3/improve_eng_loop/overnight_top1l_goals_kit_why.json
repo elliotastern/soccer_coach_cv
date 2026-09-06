@@ -1,0 +1,20 @@
+{
+  "top1": "match3_goals_in_kit_fuse",
+  "overfit": "low — real Goal1/Goal2 cams + calibs already in product MATCH3_CAMS; holdout freeze; no merge retune; Catch still down for Match4",
+  "why_score": 9.4,
+  "why": "Fusion eng-loop is all 10. Kit consensus ≥9 is locked on full6 (P1+P6+quad) for two windows. Match4 product kit remains 7.73 until Catch. Product fuse list already includes P_Goal1/P_Goal2 but the kit gate never scored them. Window B full6 composite is 8.95 (under 9) while consensus is 9.31 — goals may raise multcam/both3/composite. Top-1: extend window B (and A if needed) with Goal dets only; tune-fit→freeze full6 vs full8; promote goals into kit gate only if hold consensus stays ≥9 and composite improves ≥+0.2 or reaches ≥9 without hurting agree.",
+  "prompt_score": 9.3,
+  "prompt": "Reuse kit_ref_ab window B frames. Detect only P_Goal1/P_Goal2; merge into cache. Fit centroids on tune half with full8; freeze hold. Compare full6 vs full8. Pass promote if full8 hold_consensus≥9.0 and (hold_composite≥9.0 or composite lift≥0.2 vs full6) and agree does not drop >0.05. Else lock goals as optional/non-blocking. No PLAYER_MERGE change. Eng-loop must stay all ≥9.",
+  "subgoals": [
+    "confirm Goal videos+calibs load in match3_videos/map",
+    "why B composite <9 (balanced/flicker vs mfc)",
+    "extend wB cache with Goal dets only",
+    "full6 vs full8 freeze hold scores",
+    "kill-switch: consensus ≥9 full8",
+    "promote or optional decision",
+    "repeat on window A if promote",
+    "update kit_fusion_gate_locked.json",
+    "eng_loop still all 10",
+    "status + Catch still top remaining product step"
+  ]
+}

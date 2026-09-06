@@ -1,0 +1,78 @@
+{
+  "ts": "2026-09-03T12:07:42.573928+00:00",
+  "baseline_v4_full_consensus": 7.1,
+  "baseline_v4_mfc": 0.2239084753677329,
+  "baseline_v4_composite": 9.01,
+  "prior_hold_consensus_merge22": 6.68,
+  "rows": [
+    {
+      "merge_m": 2.2,
+      "tune_consensus": 6.93,
+      "hold_consensus": 6.77,
+      "full_consensus": 6.75,
+      "tune_multcam": 0.13971880492091387,
+      "hold_multcam": 0.14078947368421052,
+      "full_multcam": 0.14025460930640912,
+      "full_agree": 0.7323943661971831,
+      "full_composite": 8.95,
+      "hold_collapse": 0.10555555555555556,
+      "hold_mean_players": 14.25
+    },
+    {
+      "merge_m": 2.5,
+      "tune_consensus": 6.98,
+      "hold_consensus": 6.87,
+      "full_consensus": 6.78,
+      "tune_multcam": 0.1752252252252252,
+      "hold_multcam": 0.1627389951089373,
+      "full_multcam": 0.16894159767285746,
+      "full_agree": 0.713907284768212,
+      "full_composite": 8.96,
+      "hold_collapse": 0.10555555555555556,
+      "hold_mean_players": 14.055555555555555
+    },
+    {
+      "merge_m": 2.8,
+      "tune_consensus": 7.04,
+      "hold_consensus": 6.9,
+      "full_consensus": 6.83,
+      "tune_multcam": 0.2047970479704797,
+      "hold_multcam": 0.1885766092475068,
+      "full_multcam": 0.19661636945587563,
+      "full_agree": 0.6976744186046512,
+      "full_composite": 8.97,
+      "hold_collapse": 0.1,
+      "hold_mean_players": 13.838888888888889
+    },
+    {
+      "merge_m": 3.2,
+      "tune_consensus": 7.23,
+      "hold_consensus": 6.93,
+      "full_consensus": 6.98,
+      "tune_multcam": 0.25096339113680155,
+      "hold_multcam": 0.22439478584729983,
+      "full_multcam": 0.23745265151515152,
+      "full_agree": 0.6839481555333998,
+      "full_composite": 9.01,
+      "hold_collapse": 0.1388888888888889,
+      "hold_mean_players": 13.572222222222223
+    }
+  ],
+  "best_hold": {
+    "merge_m": 3.2,
+    "tune_consensus": 7.23,
+    "hold_consensus": 6.93,
+    "full_consensus": 6.98,
+    "tune_multcam": 0.25096339113680155,
+    "hold_multcam": 0.22439478584729983,
+    "full_multcam": 0.23745265151515152,
+    "full_agree": 0.6839481555333998,
+    "full_composite": 9.01,
+    "hold_collapse": 0.1388888888888889,
+    "hold_mean_players": 13.572222222222223
+  },
+  "full_lift_at_22": -0.35,
+  "hold_lift_best": 0.25,
+  "decision": "no_promote",
+  "note": "After P7-P10 constrained nudge; kit still Match4 quad-only"
+}

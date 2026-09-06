@@ -1,0 +1,20 @@
+{
+  "top1": "color_gated_soft_merge_kit",
+  "overfit": "low_if_holdout_gated",
+  "why_score": 9.2,
+  "why": "Fusion eng-loop is all 10. Kit consensus 7.1 is limited by multcam_frac≈0.22 (ceiling ~8.6 without more cams). Blind merge_m widen failed holdout. On a 30-frame sample, same-team near-misses in (2.2,3.2] m outnumber diff-team 15:8 (ratio 1.875) — so color-gated soft merge is a low-overfit residual lever while Catch is down.",
+  "prompt_score": 9.3,
+  "prompt": "A/B color-gated soft merge: hard cluster at 2.2 m; absorb cross-cam solos up to soft_m only if same non-gray team. Tune/hold split on m4_90s cache. Promote only if hold consensus +≥0.3 vs baseline_2.2 without collapse/mean_players health fail. Do not change product default until promote. Do not invent landmarks.",
+  "subgoals": [
+    "near-miss same vs diff count",
+    "why+prompt ≥9",
+    "implement color-gated cluster (A/B only)",
+    "baseline hold consensus",
+    "soft_m 2.5 hold",
+    "soft_m 2.8 hold",
+    "soft_m 3.2 hold",
+    "promote gate",
+    "wire product only if promote",
+    "DEAD_ENDS if no promote"
+  ]
+}

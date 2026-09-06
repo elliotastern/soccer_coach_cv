@@ -85,7 +85,11 @@ def detect_stem(model, src: Path, stem: str, out_cache: Path, stride: int) -> di
         out[cam] = out[cam][:n]
     out_cache.parent.mkdir(parents=True, exist_ok=True)
     cache_dump_n(out_cache, out, n)
-    return {"stem": stem, "n_frames": n, "cache": str(out_cache.relative_to(ROOT))}
+    try:
+        cache_s = str(out_cache.resolve().relative_to(ROOT))
+    except ValueError:
+        cache_s = str(out_cache)
+    return {"stem": stem, "n_frames": n, "cache": cache_s}
 
 
 def score_dir(cache_dir: Path) -> dict:

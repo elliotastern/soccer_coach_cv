@@ -10,13 +10,13 @@
     1080
   ],
   "n_frames": 299,
-  "n_clear": 32,
+  "n_clear": 44,
   "n_gold_xy": 78,
   "n_soft_seed": 46,
   "seed": {
     "accept_conf": 0.55,
     "soft_seed_conf": 0.12,
-    "clear_side": 25.0,
+    "clear_side": 25,
     "note": "PROVISIONAL \u2014 P1 clear dets mapped via P1 H; human-correct before final",
     "blur_note": "soft_t01100 P1 \u2014 many low-Laplacian ball crops (true soft/blur)"
   },
@@ -39,7 +39,8 @@
             ],
             "conf": 0.3778925836086273,
             "side": 12.820556640625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -99,7 +100,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -138,7 +140,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.828095721280869,
             -8.237371950812467
@@ -213,7 +215,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -252,7 +255,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.814188098972975,
             -8.222192435255138
@@ -327,7 +330,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -370,7 +374,8 @@
             ],
             "conf": 0.21155765652656555,
             "side": 12.8863525390625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -421,7 +426,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -464,7 +470,8 @@
             ],
             "conf": 0.2759171426296234,
             "side": 12.246826171875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -524,7 +531,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -567,7 +575,8 @@
             ],
             "conf": 0.29710206389427185,
             "side": 12.174072265625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -618,7 +627,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -661,7 +671,8 @@
             ],
             "conf": 0.21453511714935303,
             "side": 12.80712890625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -721,7 +732,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -764,7 +776,8 @@
             ],
             "conf": 0.21822813153266907,
             "side": 12.97607421875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -833,7 +846,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -872,7 +886,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.796177331037867,
             -8.269250746385662
@@ -965,7 +979,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1008,7 +1023,8 @@
             ],
             "conf": 0.24575157463550568,
             "side": 12.9185791015625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1068,7 +1084,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1111,7 +1128,8 @@
             ],
             "conf": 0.19678813219070435,
             "side": 12.729248046875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1180,7 +1198,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1219,7 +1238,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.759177176873509,
             -8.282236406794375
@@ -1293,7 +1312,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1336,7 +1356,8 @@
             ],
             "conf": 0.22289550304412842,
             "side": 11.8372802734375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1387,7 +1408,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1430,7 +1452,8 @@
             ],
             "conf": 0.2846071720123291,
             "side": 12.3564453125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1490,7 +1513,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1533,7 +1557,8 @@
             ],
             "conf": 0.30511194467544556,
             "side": 12.6572265625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1584,7 +1609,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1627,7 +1653,8 @@
             ],
             "conf": 0.3468412458896637,
             "side": 12.9586181640625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1678,7 +1705,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1791,7 +1819,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1914,7 +1943,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -1957,7 +1987,8 @@
             ],
             "conf": 0.28574514389038086,
             "side": 12.3441162109375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2017,7 +2048,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2060,7 +2092,8 @@
             ],
             "conf": 0.34121713042259216,
             "side": 12.843505859375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2120,7 +2153,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2163,7 +2197,8 @@
             ],
             "conf": 0.3404608964920044,
             "side": 12.7213134765625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2223,7 +2258,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2266,7 +2302,8 @@
             ],
             "conf": 0.40661701560020447,
             "side": 13.0457763671875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2317,7 +2354,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2360,7 +2398,8 @@
             ],
             "conf": 0.37064775824546814,
             "side": 12.8931884765625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": {
@@ -2438,7 +2477,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2481,7 +2521,8 @@
             ],
             "conf": 0.3285693824291229,
             "side": 13.089111328125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2541,7 +2582,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2584,7 +2626,8 @@
             ],
             "conf": 0.3639303147792816,
             "side": 12.4173583984375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2644,7 +2687,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2687,7 +2731,8 @@
             ],
             "conf": 0.2922225892543793,
             "side": 13.0328369140625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2747,7 +2792,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2790,7 +2836,8 @@
             ],
             "conf": 0.30768996477127075,
             "side": 13.296630859375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2859,7 +2906,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -2898,7 +2946,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.95100781720589,
             -8.3290863026353
@@ -2981,7 +3029,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3020,7 +3069,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.98890630663178,
             -8.336375511846624
@@ -3121,7 +3170,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3261,7 +3311,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3304,7 +3355,8 @@
             ],
             "conf": 0.19381114840507507,
             "side": 11.9395751953125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3364,7 +3416,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3486,7 +3539,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3626,7 +3680,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3757,7 +3812,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3879,7 +3935,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -3992,7 +4049,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4031,7 +4089,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.76742099572901,
             -8.247264247179215
@@ -4123,7 +4181,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4162,7 +4221,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.706010225830711,
             -8.237274140533343
@@ -4254,7 +4313,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4377,7 +4437,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4416,7 +4477,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.75454495660225,
             -8.245604729591713
@@ -4499,7 +4560,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4542,7 +4604,8 @@
             ],
             "conf": 0.2374451905488968,
             "side": 12.23046875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4602,7 +4665,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4645,7 +4709,8 @@
             ],
             "conf": 0.23389850556850433,
             "side": 11.2025146484375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4714,7 +4779,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4757,7 +4823,8 @@
             ],
             "conf": 0.16233545541763306,
             "side": 10.80029296875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4808,7 +4875,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4851,7 +4919,8 @@
             ],
             "conf": 0.13871806859970093,
             "side": 11.1412353515625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4902,7 +4971,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -4945,7 +5015,8 @@
             ],
             "conf": 0.11755373328924179,
             "side": 11.417236328125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5005,7 +5076,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5048,7 +5120,8 @@
             ],
             "conf": 0.11688284575939178,
             "side": 19.06646728515625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5108,7 +5181,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5151,7 +5225,8 @@
             ],
             "conf": 0.11477924138307571,
             "side": 19.408599853515625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5202,7 +5277,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5245,7 +5321,8 @@
             ],
             "conf": 0.17732910811901093,
             "side": 11.8780517578125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5305,7 +5382,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5348,7 +5426,8 @@
             ],
             "conf": 0.17064271867275238,
             "side": 12.7080078125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5426,7 +5505,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5469,7 +5549,8 @@
             ],
             "conf": 0.2680071294307709,
             "side": 12.8304443359375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5556,7 +5637,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5595,7 +5677,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -13.798866152834574,
             -8.26083623096989
@@ -5686,7 +5768,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5729,7 +5812,8 @@
             ],
             "conf": 0.18914534151554108,
             "side": 13.8907470703125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5789,7 +5873,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5822,7 +5907,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": {
@@ -5918,7 +6004,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -5951,7 +6038,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6029,7 +6117,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6072,7 +6161,8 @@
             ],
             "conf": 0.43965256214141846,
             "side": 7.17901611328125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": {
@@ -6150,7 +6240,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6193,7 +6284,8 @@
             ],
             "conf": 0.19920197129249573,
             "side": 12.196044921875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6253,7 +6345,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6296,7 +6389,8 @@
             ],
             "conf": 0.1771325021982193,
             "side": 17.944091796875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": {
@@ -6347,7 +6441,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6386,7 +6481,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -11.2343973466186,
             -10.937424593635015
@@ -6478,7 +6573,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6521,7 +6617,8 @@
             ],
             "conf": 0.1703796237707138,
             "side": 12.926025390625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6590,7 +6687,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6721,7 +6819,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6764,7 +6863,8 @@
             ],
             "conf": 0.1228669136762619,
             "side": 13.0709228515625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": {
@@ -6833,7 +6933,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6876,7 +6977,8 @@
             ],
             "conf": 0.12335115671157837,
             "side": 12.951171875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6936,7 +7038,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -6979,7 +7082,8 @@
             ],
             "conf": 0.23290111124515533,
             "side": 12.9815673828125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7039,7 +7143,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7082,7 +7187,8 @@
             ],
             "conf": 0.1756681352853775,
             "side": 12.971435546875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7133,7 +7239,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7176,7 +7283,8 @@
             ],
             "conf": 0.15883056819438934,
             "side": 12.115966796875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7245,7 +7353,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7358,7 +7467,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7401,7 +7511,8 @@
             ],
             "conf": 0.2161099761724472,
             "side": 12.1439208984375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7452,7 +7563,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7495,7 +7607,8 @@
             ],
             "conf": 0.18604964017868042,
             "side": 12.101806640625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7546,7 +7659,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7589,7 +7703,8 @@
             ],
             "conf": 0.17816205322742462,
             "side": 12.3525390625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7649,7 +7764,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7771,7 +7887,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7884,7 +8001,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -7997,7 +8115,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8110,7 +8229,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8172,7 +8292,8 @@
           "lap_var": 3.42,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8241,7 +8362,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8303,7 +8425,8 @@
           "lap_var": 2.85,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8363,7 +8486,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8425,7 +8549,8 @@
           "lap_var": 3.75,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8476,7 +8601,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8538,7 +8664,8 @@
           "lap_var": 7.03,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8589,7 +8716,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8651,7 +8779,8 @@
           "lap_var": 4.3,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8702,7 +8831,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8764,7 +8894,8 @@
           "lap_var": 4.72,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8824,7 +8955,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8886,7 +9018,8 @@
           "lap_var": 13.78,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -8937,7 +9070,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -8997,7 +9131,8 @@
           },
           "aspect": 1.228,
           "lap_var": 58.73,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9057,7 +9192,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9119,7 +9255,8 @@
           "lap_var": 8.28,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9179,7 +9316,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9241,7 +9379,8 @@
           "lap_var": 9.8,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9292,7 +9431,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9351,10 +9491,11 @@
             "side": 27.18243408203125
           },
           "aspect": 1.158,
-          "lap_var": 22.0,
+          "lap_var": 22,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9414,7 +9555,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9476,7 +9618,8 @@
           "lap_var": 10.4,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9536,7 +9679,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9598,7 +9742,8 @@
           "lap_var": 6.01,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9658,7 +9803,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9720,7 +9866,8 @@
           "lap_var": 18.35,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9780,7 +9927,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9842,7 +9990,8 @@
           "lap_var": 12.92,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9884,7 +10033,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -9946,7 +10096,8 @@
           "lap_var": 11.72,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -9997,7 +10148,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10059,7 +10211,8 @@
           "lap_var": 31.34,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10110,7 +10263,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10172,7 +10326,8 @@
           "lap_var": 7.73,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10223,7 +10378,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10285,7 +10441,8 @@
           "lap_var": 25.7,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10327,7 +10484,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10389,7 +10547,8 @@
           "lap_var": 9.61,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10440,7 +10599,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10502,7 +10662,8 @@
           "lap_var": 11.68,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10553,7 +10714,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10615,7 +10777,8 @@
           "lap_var": 11.51,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10675,7 +10838,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10737,7 +10901,8 @@
           "lap_var": 18.97,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10788,7 +10953,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10850,7 +11016,8 @@
           "lap_var": 10.64,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -10910,7 +11077,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -10972,7 +11140,8 @@
           "lap_var": 11.18,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11023,7 +11192,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11085,7 +11255,8 @@
           "lap_var": 6.32,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11136,7 +11307,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11198,7 +11370,8 @@
           "lap_var": 2.8,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11258,7 +11431,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11320,7 +11494,8 @@
           "lap_var": 10.95,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11371,7 +11546,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11433,7 +11609,8 @@
           "lap_var": 13.95,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11484,7 +11661,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11546,7 +11724,8 @@
           "lap_var": 5.47,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11597,7 +11776,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11659,7 +11839,8 @@
           "lap_var": 8.26,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11710,7 +11891,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11772,7 +11954,8 @@
           "lap_var": 17.58,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11832,7 +12015,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -11894,7 +12078,8 @@
           "lap_var": 6.43,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -11945,7 +12130,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12007,7 +12193,8 @@
           "lap_var": 12.83,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -12058,7 +12245,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12101,7 +12289,8 @@
             ],
             "conf": 0.4218135476112366,
             "side": 11.5523681640625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12152,7 +12341,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12274,7 +12464,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12336,7 +12527,8 @@
           "lap_var": 6.2,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -12396,7 +12588,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12439,7 +12632,8 @@
             ],
             "conf": 0.6102550029754639,
             "side": 17.676116943359375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12481,7 +12675,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12524,7 +12719,8 @@
             ],
             "conf": 0.6025664210319519,
             "side": 16.40185546875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12575,7 +12771,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12706,7 +12903,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12749,7 +12947,8 @@
             ],
             "conf": 0.3353509306907654,
             "side": 12.24560546875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12809,7 +13008,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12852,7 +13052,8 @@
             ],
             "conf": 0.2645864486694336,
             "side": 12.4794921875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12894,7 +13095,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12937,7 +13139,8 @@
             ],
             "conf": 0.4071471691131592,
             "side": 12.1614990234375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -12997,7 +13200,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13119,7 +13323,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13162,7 +13367,8 @@
             ],
             "conf": 0.35798004269599915,
             "side": 11.8304443359375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13222,7 +13428,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13265,7 +13472,8 @@
             ],
             "conf": 0.34269702434539795,
             "side": 12.47216796875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13316,7 +13524,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13359,7 +13568,8 @@
             ],
             "conf": 0.28684157133102417,
             "side": 16.680450439453125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13437,7 +13647,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13480,7 +13691,8 @@
             ],
             "conf": 0.29440194368362427,
             "side": 11.045166015625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13540,7 +13752,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13583,7 +13796,8 @@
             ],
             "conf": 0.28971973061561584,
             "side": 11.4659423828125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13634,7 +13848,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13677,7 +13892,8 @@
             ],
             "conf": 0.32600104808807373,
             "side": 11.9542236328125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13719,7 +13935,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13841,7 +14058,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13884,7 +14102,8 @@
             ],
             "conf": 0.3735107481479645,
             "side": 11.08935546875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -13944,7 +14163,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14066,7 +14286,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14128,7 +14349,8 @@
           "lap_var": 6.11,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -14170,7 +14392,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14233,7 +14456,8 @@
           "blurry": true,
           "streaky": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -14284,7 +14508,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14346,7 +14571,8 @@
           "lap_var": 10.12,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -14397,7 +14623,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14459,7 +14686,8 @@
           "lap_var": 13.84,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -14519,7 +14747,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14581,7 +14810,8 @@
           "lap_var": 9.45,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -14641,7 +14871,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14703,7 +14934,8 @@
           "lap_var": 26.19,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -14754,7 +14986,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14797,7 +15030,8 @@
             ],
             "conf": 0.47245752811431885,
             "side": 11.5718994140625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14848,7 +15082,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14891,7 +15126,8 @@
             ],
             "conf": 0.6979458332061768,
             "side": 17.75177001953125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14942,7 +15178,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -14985,7 +15222,8 @@
             ],
             "conf": 0.5599890351295471,
             "side": 11.248046875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15045,7 +15283,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15088,7 +15327,8 @@
             ],
             "conf": 0.5380846261978149,
             "side": 11.46533203125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15130,7 +15370,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15174,7 +15415,7 @@
             16.31293829745435,
             -14.849512268061616
           ],
-          "gold_support": 1.0,
+          "gold_support": 1,
           "seed_conf": 0.33265626430511475,
           "seed_side": 19.014060020446777,
           "soft_seed": true,
@@ -15243,7 +15484,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15286,7 +15528,8 @@
             ],
             "conf": 0.5233896374702454,
             "side": 11.83447265625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15328,7 +15571,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15450,7 +15694,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15493,7 +15738,8 @@
             ],
             "conf": 0.360181987285614,
             "side": 10.560546875
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15544,7 +15790,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15587,7 +15834,8 @@
             ],
             "conf": 0.28600645065307617,
             "side": 15.991363525390625
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15647,7 +15895,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15690,7 +15939,8 @@
             ],
             "conf": 0.2986351549625397,
             "side": 10.802490234375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15741,7 +15991,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15784,7 +16035,8 @@
             ],
             "conf": 0.4394152760505676,
             "side": 11.1898193359375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15844,7 +16096,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -15883,7 +16136,7 @@
             }
           ],
           "empty": false,
-          "clear": false,
+          "clear": true,
           "gold_xy": [
             -0.3038488980199264,
             -6.184269760120871
@@ -15957,7 +16210,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16079,7 +16333,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16141,7 +16396,8 @@
           "lap_var": 11.99,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -16201,7 +16457,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16244,7 +16501,8 @@
             ],
             "conf": 0.2781025171279907,
             "side": 10.1282958984375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16295,7 +16553,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16357,7 +16616,8 @@
           "lap_var": 8.51,
           "blurry": true,
           "blur_priority": true,
-          "gold_xy_source": "P1"
+          "gold_xy_source": "P1",
+          "human_conf": 1
         },
         "P6": {
           "prelabel": null
@@ -16408,7 +16668,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16451,7 +16712,8 @@
             ],
             "conf": 0.33988115191459656,
             "side": 10.91845703125
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16511,7 +16773,8 @@
           "gt_balls": [],
           "empty": true,
           "clear": false,
-          "gold_xy": null
+          "gold_xy": null,
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16554,7 +16817,8 @@
             ],
             "conf": 0.4843803346157074,
             "side": 11.6224365234375
-          }
+          },
+          "gold_support": null
         },
         "P6": {
           "prelabel": null
@@ -16676,5 +16940,6 @@
     288,
     290,
     294
-  ]
+  ],
+  "human_reviewed": true
 }

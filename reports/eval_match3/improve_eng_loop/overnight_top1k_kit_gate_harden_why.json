@@ -1,0 +1,20 @@
+{
+  "top1": "harden_match3_fullcam_kit_gate",
+  "overfit": "low — second held window; no Match4 merge retune; real end cams",
+  "why_score": 9.6,
+  "why": "Fusion eng-loop is all 10. Match4 quad kit consensus 7.73 is math-capped (mfc≈0.22→ceiling~8.6). Match3 full-cam + tune-freeze already hit hold consensus 9.11 on window A (fr3600). Catch is still down so Match4 cannot add P1/P6. Remaining risk is single-window overfit of the proof. Top-1: replicate on a disjoint Match3 window; if hold consensus stays ≥9, lock scripts/ab_match3_fullcam_kit_consensus.py + freeze path as the product fusion kit gate until Catch returns.",
+  "prompt_score": 9.5,
+  "prompt": "Rebuild or extend Match3 fullcam det cache on a disjoint start (e.g. START_FR=9000). Score quad vs full6 with tune-fit→freeze. Pass if hold consensus ≥9.0 and mfc ≥0.30. Then write product gate JSON + short runbook. Do not change PLAYER_MERGE_* . Do not invent landmarks.",
+  "subgoals": [
+    "window A result locked (9.11)",
+    "pick disjoint window B",
+    "build/reuse dets for B",
+    "quad vs full6 online",
+    "tune-freeze hold on B",
+    "why if B fails",
+    "gate_pass both windows",
+    "lock product kit gate artifact",
+    "runbook for Catch Match4",
+    "eng_loop still all 10"
+  ]
+}

@@ -48,6 +48,12 @@ PRODUCT_FUSE_KW = dict(
     ghost_prune=True,
     ghost_conf=GHOST_CONF,
 )
+PRODUCT_HOLD_KW = dict(
+    **PRODUCT_FUSE_KW,
+    soft_hold_renew=True,
+    soft_hold_min_conf=0.55,
+    soft_hold_min_support=0.50,
+)
 
 
 def map_active(dets, i, cams, calibs):
@@ -64,16 +70,17 @@ def map_active(dets, i, cams, calibs):
     return active, mapped
 
 
-def product_fuse_frame(mapped, prev, gap):
-    """F1/F2/F3 + F0 hold — same path as product strips / fn_audit."""
-    fresh = fuse_balls(mapped, **PRODUCT_FUSE_KW)
-    if fresh is not None:
-        return fresh, fresh, 0
-    gap += 1
-    held = fuse_balls_with_hold(
-        prev, [], gap, hold_max_gap=HOLD_MAX_GAP, **PRODUCT_FUSE_KW
+def product_fuse_frame(mapped, prev, gap, st=None, frame_id: int = 0):
+    """Product live fuse: F0–F3 + hold/renew + P7-scoped static ghost."""
+    from src.mapping.ball_static_ghost import new_static_ghost_state
+    from src.mapping.fuse_product import fuse_ball_product
+
+    if st is None:
+        st = new_static_ghost_state()
+    emit, prev, gap, _ukf, st = fuse_ball_product(
+        mapped, prev, gap, frame_id=int(frame_id), static_state=st
     )
-    return held, prev, gap
+    return emit, prev, gap, st
 
 
 def score_cache(path: Path) -> dict:
@@ -84,6 +91,7 @@ def score_cache(path: Path) -> dict:
     clear = clear_emit = emit = agree = mapped_ge2 = hold_emit = 0
     prev = None
     gap = 0
+    st = None
     for i in range(n):
         active, mapped = map_active(dets, i, cams, calibs)
         is_clear = any(
@@ -92,7 +100,7 @@ def score_cache(path: Path) -> dict:
         )
         if len(mapped) >= 2:
             mapped_ge2 += 1
-        fused, prev, gap = product_fuse_frame(mapped, prev, gap)
+        fused, prev, gap, st = product_fuse_frame(mapped, prev, gap, st, frame_id=i)
         did_emit = fused is not None
         if did_emit:
             emit += 1
@@ -115,7 +123,7 @@ def score_cache(path: Path) -> dict:
         "clear_emit": clear_emit,
         "clear_ball_proxy_R": None if clear == 0 else round(clear_emit / clear, 3),
         "agree_among_emit": None if emit == 0 else round(agree / emit, 3),
-        "fuse": "F1+F2+F0+F3",
+        "fuse": "F1+F2+F0+F3+ghost_p7",
     }
 
 
@@ -162,6 +170,7 @@ def _score_strip_product_hold(labels, dets, calibs, focus: str) -> dict:
     errs = []
     prev = None
     gap = 0
+    st = None
     for fr in labels["frames"]:
         i = int(fr["i"])
         seed = (fr.get("cams") or {}).get(focus) or {}
@@ -170,7 +179,7 @@ def _score_strip_product_hold(labels, dets, calibs, focus: str) -> dict:
         if is_clear:
             clear += 1
         _, mapped = map_active(dets, i, [c for c in CAMS if c in dets], calibs)
-        fused, prev, gap = product_fuse_frame(mapped, prev, gap)
+        fused, prev, gap, st = product_fuse_frame(mapped, prev, gap, st, frame_id=i)
         if fused is None or gold is None:
             continue
         emit += 1

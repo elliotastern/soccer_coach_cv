@@ -25,6 +25,11 @@ PLAYER_MIN_SUPPORT = 0.10
 P8_LOWER_ZONE_Y = 350.0
 # F3: drop weak maps that disagree with the max-conf anchor (ghost prune).
 GHOST_CONF = 0.45
+# Solo emit: min hull support on strict cams only. Promoted all-cam 0.50 then scoped
+# to P7 (ab_solo_min_support_scope.json): P10 clear_R 0.914→0.953, P_emit 1.0 held.
+# P7 ballcaps scrape conf≥0.80 at support~0.43; P10 edge balls legitimately sit ~0.25–0.35.
+SOLO_MIN_SUPPORT = 0.50
+SOLO_STRICT_CAMS = frozenset({"P7"})
 # F4: drop maps whose foot pixel disagrees with back-project of fused pitch xy.
 REPROJ_MAX_PX_BALL = 48.0
 REPROJ_MAX_PX_PLAYER = 64.0
@@ -490,20 +495,60 @@ def prune_ghost_maps(
     return kept if kept else [anchor]
 
 
+def prune_low_support_far(
+    rows: list[dict],
+    *,
+    enabled: bool = True,
+    support_min: float = 0.50,
+    agree_m: float | None = None,
+) -> list[dict]:
+    """Drop low-hull maps that disagree with the max-weight seed (ballcap corners).
+
+    A/B 2026-09-04: P10 clear_R +0.009, holdout flat, P_emit held
+    (`ab_hold_conflict_veto.json` lowsup). Emit-eligible far maps are kept.
+    """
+    if not enabled or len(rows) < 2:
+        return rows
+    seed = max(rows, key=lambda r: float(r["weight"]))
+    floor = float(support_min)
+    kept = [
+        r
+        for r in rows
+        if _near(seed, r, agree_m=agree_m)
+        or float(r.get("support") or 0.0) >= floor
+        or float(r["conf"]) >= EMIT_CONF
+    ]
+    return kept if kept else [seed]
+
+
 def _solo_emit(rows: list[dict]) -> dict | None:
-    """Emit highest-conf row if it clears EMIT_CONF (never average)."""
+    """Emit highest-conf row if it clears EMIT_CONF (never average).
+
+    SOLO_MIN_SUPPORT on SOLO_STRICT_CAMS (P7) rejects ballcap solos that scrape
+    conf ≥ 0.80 at support ~0.43. Cascade to the next ≥EMIT_CONF candidate so a
+    P7 ballcap does not shadow a real ≥0.80 map on another cam.
+    Other cams keep low-hull edge balls. Multi-cam agree path is unchanged.
+    """
     if not rows:
         return None
-    best = max(rows, key=lambda r: float(r["conf"]))
-    if float(best["conf"]) < EMIT_CONF:
-        return None
-    return {
-        "xy": best["xy"],
-        "conf": float(best["conf"]),
-        "cam": best["cam"],
-        "n": 1,
-        "agree": False,
-    }
+    ranked = sorted(rows, key=lambda r: float(r["conf"]), reverse=True)
+    for best in ranked:
+        if float(best["conf"]) < EMIT_CONF:
+            break
+        cam = str(best.get("cam") or "")
+        if cam in SOLO_STRICT_CAMS and float(best.get("support") or 0.0) < float(
+            SOLO_MIN_SUPPORT
+        ):
+            continue
+        return {
+            "xy": best["xy"],
+            "conf": float(best["conf"]),
+            "cam": best["cam"],
+            "n": 1,
+            "agree": False,
+            "support": float(best.get("support") or 0.0),
+        }
+    return None
 
 
 def fuse_balls(
@@ -513,6 +558,8 @@ def fuse_balls(
     solo_max_conf: bool = True,
     ghost_prune: bool = True,
     ghost_conf: float = GHOST_CONF,
+    low_support_far_prune: bool = True,
+    low_support_min: float = 0.50,
     reproj_prune: bool = False,
     reproj_max_px: float = REPROJ_MAX_PX_BALL,
     reproj_min_n: int = 2,
@@ -525,6 +572,7 @@ def fuse_balls(
     through to solo instead of silent drop.
     F2 solo_max_conf: solo uses max conf among candidates, not weight seed only.
     F3 ghost_prune: drop weak maps that disagree with the max-conf anchor.
+    F3b low_support_far_prune: drop low-hull maps far from max-weight seed.
     F4 reproj_prune: drop maps whose foot pixel disagrees with median reproject.
     Soft F4 reproj_agree_gate: never drop maps; demote agree→solo if reproj fails.
     agree_m: optional A/B override; product default remains AGREE_M (4.0).
@@ -540,6 +588,12 @@ def fuse_balls(
     )
     valid = prune_ghost_maps(
         valid, enabled=ghost_prune, ghost_conf=ghost_conf, agree_m=agree_m
+    )
+    valid = prune_low_support_far(
+        valid,
+        enabled=low_support_far_prune,
+        support_min=low_support_min,
+        agree_m=agree_m,
     )
     valid.sort(key=lambda r: r["weight"], reverse=True)
     seed = valid[0]
@@ -567,7 +621,43 @@ def fuse_balls(
 
 
 # Detect-tick hold (F0): re-emit last good fuse across silent ticks. Not Phase-2 fusion.
-HOLD_MAX_GAP = 4
+# A/B 2026-09-04 (v16+F3c): hold 8→24 strip clear_R → **1.0 / 1.0**, P_emit **1.0**;
+# holdout clear flat 0.987 (`ab_hold_max_gap_v16.json`).
+HOLD_MAX_GAP = 24
+# F0b soft-hold renew: after hold expires, keep emitting prev conf if a high-support
+# soft map still agrees (≤ AGREE_M). Promoted 2026-09-04 (ab_soft_hold_renew.json):
+# holdout clear 0.978→0.993; strip P_emit flat; clear_R +0.004.
+SOFT_HOLD_RENEW = True
+SOFT_HOLD_MIN_CONF = 0.55
+SOFT_HOLD_MIN_SUPPORT = 0.50
+
+
+def _soft_hold_confirm(
+    prev_emit: dict,
+    cur_mapped: list[dict],
+    *,
+    soft_min_conf: float,
+    soft_min_support: float,
+    agree_m: float,
+) -> dict | None:
+    """Best soft map that agrees with prev (high support); else None."""
+    px, py = prev_emit["xy"]
+    best = None
+    best_conf = -1.0
+    for row in cur_mapped:
+        conf = float(row.get("conf") or 0.0)
+        if conf < soft_min_conf:
+            continue
+        if float(row.get("support") or 0.0) < soft_min_support:
+            continue
+        xy = row.get("xy")
+        if xy is None:
+            continue
+        if float(np.hypot(float(xy[0]) - float(px), float(xy[1]) - float(py))) > agree_m:
+            continue
+        if conf > best_conf:
+            best, best_conf = row, conf
+    return best
 
 
 def fuse_balls_with_hold(
@@ -579,20 +669,32 @@ def fuse_balls_with_hold(
     solo_max_conf: bool = True,
     ghost_prune: bool = True,
     ghost_conf: float = GHOST_CONF,
+    low_support_far_prune: bool = True,
+    low_support_min: float = 0.50,
     reproj_prune: bool = False,
     reproj_max_px: float = REPROJ_MAX_PX_BALL,
     reproj_min_n: int = 2,
     reproj_agree_gate: bool = False,
     agree_m: float | None = None,
     hold_max_gap: int = HOLD_MAX_GAP,
+    soft_hold_renew: bool = SOFT_HOLD_RENEW,
+    soft_hold_min_conf: float = SOFT_HOLD_MIN_CONF,
+    soft_hold_min_support: float = SOFT_HOLD_MIN_SUPPORT,
 ) -> dict | None:
-    """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap."""
+    """Fuse current maps; if silent, hold prev when conf ≥ EMIT_CONF and gap ≤ hold_max_gap.
+
+    Optional soft_hold_renew: after hold expires, re-emit prev conf (soft xy) when a
+    high-support soft map still agrees with prev — not Phase-2 fusion.
+    """
+    radius = float(AGREE_M if agree_m is None else agree_m)
     cur = fuse_balls(
         cur_mapped,
         soft_dual_fallback=soft_dual_fallback,
         solo_max_conf=solo_max_conf,
         ghost_prune=ghost_prune,
         ghost_conf=ghost_conf,
+        low_support_far_prune=low_support_far_prune,
+        low_support_min=low_support_min,
         reproj_prune=reproj_prune,
         reproj_max_px=reproj_max_px,
         reproj_min_n=reproj_min_n,
@@ -605,13 +707,34 @@ def fuse_balls_with_hold(
         return None
     if float(prev_emit.get("conf") or 0.0) < EMIT_CONF:
         return None
-    if frames_since_emit > hold_max_gap:
+    if frames_since_emit <= hold_max_gap:
+        return {
+            "xy": prev_emit["xy"],
+            "conf": float(prev_emit["conf"]),
+            "cam": prev_emit["cam"],
+            "n": int(prev_emit.get("n") or 1),
+            "agree": False,
+            "hold": True,
+            "support": float(prev_emit.get("support") or 0.0),
+        }
+    if not soft_hold_renew:
+        return None
+    soft = _soft_hold_confirm(
+        prev_emit,
+        cur_mapped,
+        soft_min_conf=soft_hold_min_conf,
+        soft_min_support=soft_hold_min_support,
+        agree_m=radius,
+    )
+    if soft is None:
         return None
     return {
-        "xy": prev_emit["xy"],
+        "xy": soft["xy"],
         "conf": float(prev_emit["conf"]),
-        "cam": prev_emit["cam"],
+        "cam": soft.get("cam", prev_emit["cam"]),
         "n": int(prev_emit.get("n") or 1),
         "agree": False,
         "hold": True,
+        "soft_renew": True,
+        "support": float(soft.get("support") or prev_emit.get("support") or 0.0),
     }

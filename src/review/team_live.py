@@ -48,13 +48,15 @@ HOLD_MAX_GAP = 2
 HOLD_M = 3.0
 STICKY_M = 4.0
 STICKY_FLIP_CONF = 0.78
-VOTE_LEN = 5
-VOTE_MIN = 2
+VOTE_LEN = 9
+VOTE_MIN = 4
 HIST_LEN = 4
-FEAT_HIST_LEN = 4
+FEAT_HIST_LEN = 8
 TRAJ_GATE_M = 4.5
 TRACKLET_COLOR_CONF = 0.55
-TRACKLET_VOTE_MIN = 3
+TRACKLET_VOTE_MIN = 4
+# Require this many agreeing votes before a sticky flip (anti-flicker).
+STICKY_FLIP_STREAK = 3
 PIXEL_NUDGE_MARGIN = 0.12
 PIXEL_NUDGE_MIN_CONF = 0.68
 AUTO_BALANCE_MIN = 60
@@ -452,12 +454,62 @@ class TeamSession:
             if new_t < 0:
                 p["team"] = prior
                 p["team_conf"] = max(conf, 0.45)
-            elif new_t != prior and (no_gray or conf < self.sticky_flip_conf):
-                if no_gray and conf >= self.sticky_flip_conf:
-                    continue
-                p["team"] = prior
-                if no_gray:
+                continue
+            if new_t == prior:
+                continue
+            # Hold prior unless new label is strong AND recent history agrees (anti-flicker).
+            hist = [int(t) for t in (near.get("team_hist") or []) if int(t) >= 0]
+            hist = (hist + [new_t])[-FEAT_HIST_LEN:]
+            streak = 0
+            for t in reversed(hist):
+                if t == new_t:
+                    streak += 1
+                else:
+                    break
+            allow = conf >= self.sticky_flip_conf and streak >= STICKY_FLIP_STREAK
+            if no_gray:
+                if not allow:
+                    p["team"] = prior
                     p["team_conf"] = max(conf, 0.55)
+                continue
+            if conf < self.sticky_flip_conf or not allow:
+                p["team"] = prior
+
+    def _birth_balance(self, player_pts: list[dict], old_prev: list[dict]) -> None:
+        """Nudge only brand-new detections toward 50/50 — never recolor sticky tracks."""
+        if not bool(self.strategy.no_gray):
+            return
+        births = []
+        for p in player_pts:
+            xy = p.get("xy")
+            if xy is None or int(p.get("team", -1)) < 0:
+                continue
+            near = False
+            for q in old_prev:
+                if _dist_xy(xy, q["xy"]) <= STICKY_M:
+                    near = True
+                    break
+            if not near:
+                births.append(p)
+        if not births:
+            return
+        labeled = [p for p in player_pts if int(p.get("team", -1)) >= 0]
+        n0 = sum(1 for p in labeled if int(p["team"]) == 0)
+        n1 = sum(1 for p in labeled if int(p["team"]) == 1)
+        if n0 + n1 < 6:
+            return
+        share0 = n0 / (n0 + n1)
+        if 0.42 <= share0 <= 0.58:
+            return
+        maj = 0 if share0 > 0.58 else 1
+        min_team = 1 - maj
+        cand = [p for p in births if int(p["team"]) == maj]
+        cand.sort(key=lambda p: float(p.get("team_conf", 0.5)))
+        need = abs(n0 - n1) // 2
+        for p in cand[: max(1, min(need, 3))]:
+            if float(p.get("team_conf", 0.5)) <= 0.72:
+                p["team"] = min_team
+                p["team_conf"] = 0.55
 
     def _tracklet_color_label(
         self,
@@ -562,12 +614,27 @@ class TeamSession:
             self._next_stable_pid = max(self._next_stable_pid, c["pid"] + 1)
             prior_votes = list(near.get("votes") or [])
             prior = int(near.get("team", -1))
+            age = int(near.get("age", 0))
             obs = int(c["team"])
             if obs < 0 and prior >= 0:
                 obs = prior
             votes = (prior_votes + [obs])[-VOTE_LEN:]
             c["votes"] = votes
             voted = _vote_mode(votes)
+            if prior >= 0 and age >= 2:
+                streak = 0
+                for v in reversed(votes):
+                    if int(v) == voted and voted >= 0:
+                        streak += 1
+                    else:
+                        break
+                if voted != prior and streak < 5:
+                    voted = prior
+            elif prior >= 0 and voted >= 0 and voted != prior:
+                n_new = sum(1 for v in votes if int(v) == voted)
+                n_old = sum(1 for v in votes if int(v) == prior)
+                if n_new < max(VOTE_MIN, n_old + 1):
+                    voted = prior
             if voted >= 0:
                 c["team"] = voted
             elif no_gray:
@@ -576,6 +643,7 @@ class TeamSession:
                 c["team"] = prior
             hist = list(near.get("xy_hist") or [near["xy"]])
             c["xy_hist"] = (hist + [c["xy"]])[-HIST_LEN:]
+            c["age"] = age + 1
         held = []
         for q in self.prev_fused:
             if q.get("matched"):
@@ -604,8 +672,7 @@ class TeamSession:
         out_dicts = soft_cap_goal_box_duplicates(cur + held)
         if self.strategy.use_skew_cap and self.kit_mode == KIT_MODE_AUTO and not no_gray:
             soft_cap_frame_team_skew(out_dicts)
-        if no_gray:
-            _nudge_frame_skew_flips(out_dicts)
+        # no_gray: do NOT run _nudge_frame_skew_flips — it recolors players every frame.
         if not no_gray:
             apply_goal_box_prior(out_dicts)
         if no_gray:
@@ -688,9 +755,10 @@ class TeamSession:
             labs.append(int(tid))
         self._tracklet_color_label(player_pts, idxs)
         self._ema(feats, labs)
-        self._sticky(player_pts)
-        self._maybe_rebalance_auto(player_pts)
         old_prev = self.prev
+        self._sticky(player_pts)
+        self._birth_balance(player_pts, old_prev)
+        self._maybe_rebalance_auto(player_pts)
         self.prev = []
         for p in player_pts:
             if p.get("xy") is None:

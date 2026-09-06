@@ -210,6 +210,16 @@ def test_p6_hull_image_points_expand() -> None:
         raise AssertionError("P6 expanded hull should cover near-touch ball zone")
 
 
+def test_p1_hull_image_points_expand() -> None:
+    rec = load_calib("P1")
+    hull = rec.get("hull_image_points") or []
+    if len(hull) <= len(rec["image_points"]):
+        raise AssertionError("P1 hull_image_points should expand toward near touch")
+    # Kickoff P1 clear balls (4K→1080) lived around py~950–1040, px~40–520
+    if hull_support(200.0, 1020.0, hull) < MIN_SUPPORT:
+        raise AssertionError("P1 expanded hull should cover near-touch ball zone")
+
+
 def test_p7_hull_image_points_expand() -> None:
     rec = load_calib("P7")
     hull = rec.get("hull_image_points") or []
@@ -429,6 +439,92 @@ def test_f0_hold() -> None:
         raise AssertionError("hold must require prev conf >= EMIT_CONF")
 
 
+def test_f0b_soft_hold_renew() -> None:
+    """After hold expires, high-support soft near prev renews; low-support ghost does not."""
+    prev = {
+        "xy": (-10.5, 10.4),
+        "conf": 0.90,
+        "cam": "P10",
+        "n": 1,
+        "agree": False,
+    }
+    soft = {
+        "cam": "P10",
+        "xy": (-10.6, 10.1),
+        "conf": 0.76,
+        "support": 1.0,
+        "weight": 0.76,
+    }
+    ghost = {
+        "cam": "P7",
+        "xy": (-20.1, -16.2),
+        "conf": 0.77,
+        "support": 0.43,
+        "weight": 0.33,
+    }
+    gap = HOLD_MAX_GAP + 5
+    ok = fuse_balls_with_hold(
+        prev, [soft, ghost], gap, soft_hold_renew=True, soft_hold_min_conf=0.55
+    )
+    if ok is None or not ok.get("soft_renew"):
+        raise AssertionError(f"soft renew failed {ok}")
+    if abs(ok["xy"][0] - soft["xy"][0]) > 1e-6:
+        raise AssertionError(f"renew should use soft xy {ok}")
+    if float(ok["conf"]) < 0.89:
+        raise AssertionError(f"renew must keep prev emit conf {ok}")
+    no = fuse_balls_with_hold(
+        prev, [ghost], gap, soft_hold_renew=True, soft_hold_min_conf=0.55
+    )
+    if no is not None:
+        raise AssertionError(f"low-support far ghost must not renew {no}")
+    off = fuse_balls_with_hold(prev, [soft], gap, soft_hold_renew=False)
+    if off is not None:
+        raise AssertionError(f"default soft renew off {off}")
+
+
+def test_solo_min_support_blocks_ballcap() -> None:
+    """P7 low-hull ballcap blocked; P10 low-hull edge ball still solos."""
+    from src.mapping.match3_xy import SOLO_MIN_SUPPORT, SOLO_STRICT_CAMS, fuse_balls
+
+    if SOLO_MIN_SUPPORT < 0.50:
+        raise AssertionError(f"SOLO_MIN_SUPPORT {SOLO_MIN_SUPPORT}")
+    if "P7" not in SOLO_STRICT_CAMS:
+        raise AssertionError(f"SOLO_STRICT_CAMS {SOLO_STRICT_CAMS}")
+    ballcap = {
+        "cam": "P7",
+        "xy": (-20.1, -16.2),
+        "conf": 0.81,
+        "support": 0.43,
+        "weight": 0.35,
+    }
+    if fuse_balls([ballcap]) is not None:
+        raise AssertionError("P7 ballcap solo must be blocked")
+    edge = {
+        "cam": "P10",
+        "xy": (-1.1, 15.5),
+        "conf": 0.85,
+        "support": 0.28,
+        "weight": 0.24,
+    }
+    ok_edge = fuse_balls([edge])
+    if ok_edge is None or ok_edge["cam"] != "P10":
+        raise AssertionError(f"P10 edge solo must emit {ok_edge}")
+    real = {
+        "cam": "P10",
+        "xy": (-10.0, 10.0),
+        "conf": 0.85,
+        "support": 1.0,
+        "weight": 0.85,
+    }
+    ok = fuse_balls([real])
+    if ok is None or ok["cam"] != "P10":
+        raise AssertionError(f"high-support solo failed {ok}")
+    # Cascade: P7 ballcap must not shadow a real ≥0.80 map on another cam
+    shadowed = fuse_balls([ballcap, real])
+    if shadowed is None or shadowed["cam"] != "P10":
+        raise AssertionError(f"cascade past P7 ballcap failed {shadowed}")
+
+
 def test_f3_ghost_prune() -> None:
     """Weak far ghost must not join / derail; strong far cam kept."""
     if GHOST_CONF > 0.50:
@@ -464,6 +560,34 @@ def test_f3_ghost_prune() -> None:
     both = prune_ghost_maps([anchor, near])
     if len(both) != 2:
         raise AssertionError(f"near weak should keep {both}")
+
+
+def test_f3b_low_support_far_prune() -> None:
+    """Low-hull far ballcap must not seed when a high-support map exists."""
+    from src.mapping.match3_xy import prune_low_support_far
+
+    real = {
+        "cam": "P10",
+        "xy": (-10.0, 10.0),
+        "conf": 0.76,
+        "support": 1.0,
+        "weight": 0.76,
+    }
+    ballcap = {
+        "cam": "P7",
+        "xy": (-20.0, -16.0),
+        "conf": 0.77,
+        "support": 0.43,
+        "weight": 0.33,
+    }
+    pruned = prune_low_support_far([real, ballcap])
+    if len(pruned) != 1 or pruned[0]["cam"] != "P10":
+        raise AssertionError(f"F3b should drop P7 ballcap {pruned}")
+    # Emit-eligible far map kept
+    strong = {**ballcap, "conf": 0.90, "weight": 0.39}
+    keep = prune_low_support_far([real, strong])
+    if len(keep) != 2:
+        raise AssertionError(f"emit-eligible far should keep {keep}")
 
 
 def test_reproj_roundtrip_low_err() -> None:
@@ -586,6 +710,7 @@ def main() -> int:
     test_p8_h_player_dual_homography()
     test_p8_hull_image_points_expand()
     test_p6_hull_image_points_expand()
+    test_p1_hull_image_points_expand()
     test_p10_hull_image_points_expand()
     test_fuse_agree()
     test_fuse_no_midpoint()
@@ -595,7 +720,10 @@ def main() -> int:
     test_f1_soft_dual_fallback()
     test_f2_solo_max_conf()
     test_f0_hold()
+    test_f0b_soft_hold_renew()
+    test_solo_min_support_blocks_ballcap()
     test_f3_ghost_prune()
+    test_f3b_low_support_far_prune()
     test_reproj_roundtrip_low_err()
     test_f4_solo_unchanged()
     test_f4_drops_far_ghost()

@@ -1,0 +1,70 @@
+{
+  "ts": "2026-09-03T12:14:22.672375+00:00",
+  "base_m": 2.2,
+  "near_miss_why": "kit_ref_ab/color_gate_near_miss_why.json",
+  "rows": [
+    {
+      "variant": "baseline_2.2",
+      "soft_m": null,
+      "tune_consensus": 7.15,
+      "hold_consensus": 6.68,
+      "tune_multcam": 0.14348398420359806,
+      "hold_multcam": 0.14141856392294222,
+      "hold_agree": 0.718266253869969,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 8.89,
+      "hold_mean_players": 14.28888888888889
+    },
+    {
+      "variant": "color_soft_2.5",
+      "soft_m": 2.5,
+      "tune_consensus": 7.28,
+      "hold_consensus": 6.81,
+      "tune_multcam": 0.15575221238938053,
+      "hold_multcam": 0.1498901098901099,
+      "hold_agree": 0.7331378299120235,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 8.93,
+      "hold_mean_players": 14.183333333333334
+    },
+    {
+      "variant": "color_soft_2.8",
+      "soft_m": 2.8,
+      "tune_consensus": 7.44,
+      "hold_consensus": 6.9,
+      "tune_multcam": 0.17114695340501793,
+      "hold_multcam": 0.15694076038903626,
+      "hold_agree": 0.7436619718309859,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 8.95,
+      "hold_mean_players": 14.116666666666667
+    },
+    {
+      "variant": "color_soft_3.2",
+      "soft_m": 3.2,
+      "tune_consensus": 7.61,
+      "hold_consensus": 7.01,
+      "tune_multcam": 0.1897810218978102,
+      "hold_multcam": 0.16600088770528185,
+      "hold_agree": 0.7566844919786097,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 8.99,
+      "hold_mean_players": 14.016666666666667
+    }
+  ],
+  "best": {
+    "variant": "color_soft_3.2",
+    "soft_m": 3.2,
+    "tune_consensus": 7.61,
+    "hold_consensus": 7.01,
+    "tune_multcam": 0.1897810218978102,
+    "hold_multcam": 0.16600088770528185,
+    "hold_agree": 0.7566844919786097,
+    "hold_collapse": 0.10555555555555556,
+    "hold_composite": 8.99,
+    "hold_mean_players": 14.016666666666667
+  },
+  "hold_lift": 0.33,
+  "decision": "promote",
+  "promote_rule": "hold consensus +\u22650.3 vs baseline_2.2; collapse/mean_players health"
+}

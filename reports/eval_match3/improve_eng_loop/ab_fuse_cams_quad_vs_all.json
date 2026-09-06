@@ -1,0 +1,227 @@
+{
+  "ts": "2026-09-04T03:25:17.692552+00:00",
+  "product_default": "quad",
+  "candidate": "all",
+  "holdout_gate": 0.884,
+  "holdout": {
+    "quad": {
+      "det_dir": "reports/eval_match3/pitchmap_gallery_holdout/det_cache_v13",
+      "n_caches": 5,
+      "clear_frames": 277,
+      "clear_emit": 235,
+      "clear_ball_proxy_R": 0.848,
+      "agree_among_emit": 0.0,
+      "rows": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "cam_set": "quad",
+          "n": 299,
+          "emit": 208,
+          "agree": 0,
+          "clear_frames": 108,
+          "clear_emit": 99,
+          "clear_ball_proxy_R": 0.917,
+          "agree_among_emit": 0.0
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "cam_set": "quad",
+          "n": 299,
+          "emit": 108,
+          "agree": 0,
+          "clear_frames": 1,
+          "clear_emit": 0,
+          "clear_ball_proxy_R": 0.0,
+          "agree_among_emit": 0.0
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "cam_set": "quad",
+          "n": 299,
+          "emit": 154,
+          "agree": 0,
+          "clear_frames": 76,
+          "clear_emit": 73,
+          "clear_ball_proxy_R": 0.961,
+          "agree_among_emit": 0.0
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "cam_set": "quad",
+          "n": 299,
+          "emit": 18,
+          "agree": 0,
+          "clear_frames": 1,
+          "clear_emit": 0,
+          "clear_ball_proxy_R": 0.0,
+          "agree_among_emit": 0.0
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "cam_set": "quad",
+          "n": 299,
+          "emit": 201,
+          "agree": 0,
+          "clear_frames": 91,
+          "clear_emit": 63,
+          "clear_ball_proxy_R": 0.692,
+          "agree_among_emit": 0.0
+        }
+      ]
+    },
+    "all": {
+      "det_dir": "reports/eval_match3/pitchmap_gallery_holdout/det_cache_v13",
+      "n_caches": 5,
+      "clear_frames": 277,
+      "clear_emit": 271,
+      "clear_ball_proxy_R": 0.978,
+      "agree_among_emit": 0.23,
+      "rows": [
+        {
+          "cache": "det_cache_rand_t00166.0s_thr010.json",
+          "cam_set": "all",
+          "n": 299,
+          "emit": 249,
+          "agree": 72,
+          "clear_frames": 108,
+          "clear_emit": 105,
+          "clear_ball_proxy_R": 0.972,
+          "agree_among_emit": 0.289
+        },
+        {
+          "cache": "det_cache_rand_t00519.7s_thr010.json",
+          "cam_set": "all",
+          "n": 299,
+          "emit": 108,
+          "agree": 0,
+          "clear_frames": 1,
+          "clear_emit": 0,
+          "clear_ball_proxy_R": 0.0,
+          "agree_among_emit": 0.0
+        },
+        {
+          "cache": "det_cache_rand_t00552.8s_thr010.json",
+          "cam_set": "all",
+          "n": 299,
+          "emit": 231,
+          "agree": 46,
+          "clear_frames": 76,
+          "clear_emit": 74,
+          "clear_ball_proxy_R": 0.974,
+          "agree_among_emit": 0.199
+        },
+        {
+          "cache": "det_cache_rand_t00821.8s_thr010.json",
+          "cam_set": "all",
+          "n": 299,
+          "emit": 71,
+          "agree": 3,
+          "clear_frames": 1,
+          "clear_emit": 1,
+          "clear_ball_proxy_R": 1.0,
+          "agree_among_emit": 0.042
+        },
+        {
+          "cache": "det_cache_rand_t01767.3s_thr010.json",
+          "cam_set": "all",
+          "n": 299,
+          "emit": 279,
+          "agree": 95,
+          "clear_frames": 91,
+          "clear_emit": 91,
+          "clear_ball_proxy_R": 1.0,
+          "agree_among_emit": 0.341
+        }
+      ]
+    }
+  },
+  "strips": {
+    "match3_quad_p10_31": {
+      "quad": {
+        "pack": "match3_quad_p10_31",
+        "cam_set": "quad",
+        "cache": "reports/eval_match3/improve_eng_loop/v14_residual_det_cache/det_cache_quad_P10_t00031.0s_v14_thr010.json",
+        "P_emit": 0.915,
+        "clear_ball_R": 0.733,
+        "n_clear": 232,
+        "n_emit_scored": 199,
+        "tp": 182,
+        "fp": 17,
+        "agree_among_emit": 0.0,
+        "err_median_m": 0.15,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": false,
+        "stride": 2
+      },
+      "all": {
+        "pack": "match3_quad_p10_31",
+        "cam_set": "all",
+        "cache": "reports/eval_match3/improve_eng_loop/v14_residual_det_cache/det_cache_quad_P10_t00031.0s_v14_thr010.json",
+        "P_emit": 0.956,
+        "clear_ball_R": 0.931,
+        "n_clear": 232,
+        "n_emit_scored": 250,
+        "tp": 239,
+        "fp": 11,
+        "agree_among_emit": 0.38,
+        "err_median_m": 0.331,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true,
+        "stride": 2
+      }
+    },
+    "match3_quad_p8_87": {
+      "quad": {
+        "pack": "match3_quad_p8_87",
+        "cam_set": "quad",
+        "cache": "reports/eval_match3/improve_eng_loop/v14_residual_det_cache/det_cache_quad_P8_t00087.0s_v14_thr010.json",
+        "P_emit": 0.985,
+        "clear_ball_R": 0.915,
+        "n_clear": 272,
+        "n_emit_scored": 271,
+        "tp": 267,
+        "fp": 4,
+        "agree_among_emit": 0.0,
+        "err_median_m": 0.059,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true,
+        "stride": 1
+      },
+      "all": {
+        "pack": "match3_quad_p8_87",
+        "cam_set": "all",
+        "cache": "reports/eval_match3/improve_eng_loop/v14_residual_det_cache/det_cache_quad_P8_t00087.0s_v14_thr010.json",
+        "P_emit": 0.989,
+        "clear_ball_R": 0.941,
+        "n_clear": 272,
+        "n_emit_scored": 278,
+        "tp": 275,
+        "fp": 3,
+        "agree_among_emit": 0.723,
+        "err_median_m": 0.136,
+        "poc_pass_P_emit": true,
+        "poc_pass_clear_R": true,
+        "stride": 1
+      }
+    }
+  },
+  "deltas": {
+    "holdout_d_clear_R": 0.13,
+    "holdout_d_agree": 0.23,
+    "strips": {
+      "match3_quad_p10_31": {
+        "d_P_emit": 0.041,
+        "d_clear_R": 0.198,
+        "d_agree": 0.38
+      },
+      "match3_quad_p8_87": {
+        "d_P_emit": 0.004,
+        "d_clear_R": 0.026,
+        "d_agree": 0.723
+      }
+    }
+  },
+  "kills": [],
+  "promote_candidate": true,
+  "decision": "promote_cams_all"
+}

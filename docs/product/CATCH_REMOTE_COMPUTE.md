@@ -43,6 +43,8 @@ Host catch-soccer
     IdentitiesOnly yes
 ```
 
+If SSH **times out**, Tailscale is usually stopped on the Mac — not a bad key. Run `bash scripts/diagnose_catch_tailscale.sh` or open Tailscale → Connect. Details: [CATCH_MAC_FILE_SYNC.md](CATCH_MAC_FILE_SYNC.md#tailscale-down-2026-09-05-incident).
+
 ```bash
 ssh catch-soccer
 ```

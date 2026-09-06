@@ -1,0 +1,58 @@
+{
+  "ts": "2026-09-03T12:43:23.204093+00:00",
+  "window": "B",
+  "results": {
+    "quad": {
+      "hold_consensus": 8.23,
+      "hold_balanced": 7.87,
+      "hold_flickering": 9.33,
+      "hold_multcam": 0.18930041152263374,
+      "hold_agree": 0.9565217391304348,
+      "hold_composite": 8.49,
+      "both3_frac": 0.65,
+      "collapse_frac": 0.25,
+      "mean_blue_share": 0.25390002154708036,
+      "goal_map_ok": 0,
+      "goal_map_try": 0
+    },
+    "full6": {
+      "hold_consensus": 9.31,
+      "hold_balanced": 8.33,
+      "hold_flickering": 9.27,
+      "hold_multcam": 0.4357142857142857,
+      "hold_agree": 0.9262295081967213,
+      "hold_composite": 8.95,
+      "both3_frac": 0.95,
+      "collapse_frac": 0.0,
+      "mean_blue_share": 0.26154987513346645,
+      "goal_map_ok": 0,
+      "goal_map_try": 0
+    },
+    "full8": {
+      "hold_consensus": 9.53,
+      "hold_balanced": 8.15,
+      "hold_flickering": 9.28,
+      "hold_multcam": 0.46785714285714286,
+      "hold_agree": 0.9389312977099237,
+      "hold_composite": 8.96,
+      "both3_frac": 0.85,
+      "collapse_frac": 0.0,
+      "mean_blue_share": 0.23525095045992878,
+      "goal_map_ok": 34,
+      "goal_map_try": 49
+    }
+  },
+  "promote": false,
+  "decision": "goals_optional_non_blocking",
+  "gates": {
+    "cons_ok": true,
+    "comp_ok": false,
+    "agree_ok": true
+  },
+  "delta_full8_minus_full6": {
+    "consensus": 0.22,
+    "composite": 0.01,
+    "mfc": 0.0321,
+    "agree": 0.0127
+  }
+}

@@ -17,16 +17,16 @@ from src.review.multicam_fuse import (  # noqa: E402
 )
 
 
-def test_fuse_cams_quad_default() -> None:
+def test_fuse_cams_all_default() -> None:
     cams = fuse_cams_list(default_fuse_config())
-    if cams != ["P7", "P8", "P9", "P10"]:
-        raise AssertionError(f"quad default wrong {cams}")
-
-
-def test_fuse_cams_all() -> None:
-    cams = fuse_cams_list({**default_fuse_config(), "cams": "all"})
     if len(cams) != 8 or "P1" not in cams or "P_Goal2" not in cams:
-        raise AssertionError(f"all cams wrong {cams}")
+        raise AssertionError(f"all default wrong {cams}")
+
+
+def test_fuse_cams_quad_explicit() -> None:
+    cams = fuse_cams_list({**default_fuse_config(), "cams": "quad"})
+    if cams != ["P7", "P8", "P9", "P10"]:
+        raise AssertionError(f"quad explicit wrong {cams}")
 
 
 def test_sibling_ball_rows_skip_current() -> None:
@@ -118,8 +118,8 @@ def test_hybrid_fallback_recovers_solo() -> None:
 
 
 def main() -> int:
-    test_fuse_cams_quad_default()
-    test_fuse_cams_all()
+    test_fuse_cams_all_default()
+    test_fuse_cams_quad_explicit()
     test_sibling_ball_rows_skip_current()
     test_merge_live_prefers_current_cam()
     test_hybrid_prefers_2d_when_3d_solo()

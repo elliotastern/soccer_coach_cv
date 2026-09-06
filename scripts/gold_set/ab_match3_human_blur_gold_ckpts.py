@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Report-only: score ball ckpts v12–v22 on match3_human_blur_gold (box IoU / center).
+"""Report-only: score ball ckpts on match3_human_blur_gold (box IoU / center).
 
-Not a promote gate. Product checkpoint remains v16 until a dedicated blur residual wins
-on this bank without killing clear-strip A/B.
+Specialty gate for v23: streaky R_iou30 vs v16 baseline 0.722 (target ≥0.80).
+Product promote still requires ab_v23_human_blur_synth_vs_v16 kill gates.
 """
 from __future__ import annotations
 
@@ -42,6 +42,42 @@ CKPT_CANDIDATES = {
     "v20": ["models/v20_residual_snaps/post_train/checkpoint.pth", "models/v20_residual_snaps/checkpoint.pth"],
     "v21": ["models/v21_residual_snaps/post_train/checkpoint.pth", "models/v21_residual_snaps/checkpoint.pth"],
     "v22": ["models/v22_blur_residual_snaps/post_train/checkpoint.pth", "models/v22_blur_residual_snaps/checkpoint.pth"],
+    "v23": [
+        "models/v23_human_blur_synth_snaps/post_train/checkpoint.pth",
+        "models/v23_human_blur_synth_snaps/checkpoint.pth",
+    ],
+    "v23b": [
+        "models/v23b_streak_heavy_snaps/post_train/checkpoint.pth",
+        "models/v23b_streak_heavy_snaps/checkpoint.pth",
+    ],
+    "v24": [
+        "models/v24_miss_core_snaps/post_train/checkpoint.pth",
+        "models/v24_miss_core_snaps/checkpoint.pth",
+    ],
+    "v25": [
+        "models/v25_streak_real_aug_snaps/post_train/checkpoint.pth",
+        "models/v25_streak_real_aug_snaps/checkpoint.pth",
+    ],
+    "v26": [
+        "models/v26_streak_holdout_snaps/post_train/checkpoint.pth",
+        "models/v26_streak_holdout_snaps/checkpoint.pth",
+    ],
+    "v26b": [
+        "models/v26b_weak_streak_snaps/post_train/checkpoint.pth",
+        "models/v26b_weak_streak_snaps/checkpoint.pth",
+    ],
+    "v27": [
+        "models/v27_weak_streak_snaps/post_train/checkpoint.pth",
+        "models/v27_weak_streak_snaps/checkpoint.pth",
+    ],
+    "v28": [
+        "models/v28_m4_streak_holdout_snaps/post_train/checkpoint.pth",
+        "models/v28_m4_streak_holdout_snaps/checkpoint.pth",
+    ],
+    "v29": [
+        "models/v29_m4_of_streak_holdout_snaps/post_train/checkpoint.pth",
+        "models/v29_m4_of_streak_holdout_snaps/checkpoint.pth",
+    ],
 }
 
 

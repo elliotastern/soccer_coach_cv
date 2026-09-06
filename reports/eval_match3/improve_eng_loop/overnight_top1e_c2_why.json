@@ -1,0 +1,20 @@
+{
+  "top1": "c2_v14_refresh_p9_t655",
+  "overfit": "low",
+  "why_score": 9.5,
+  "why": "c2_det=9 because eng_loop still scores a stale v10/v12 funnel: winner v12_plain and P9 t655 proxy R below 0.80 under that winner. Product ball_checkpoint is already v14; P8/P10 v14 strip caches already show clear_R≈0.98. Gap is measurement lag + unknown P9 t655 under v14 — not fuse wiring.",
+  "prompt_score": 9.5,
+  "prompt": "Add v14_plain to C2 funnel; reuse P8/P10 v14 caches; detect only P9 stems; merge with prior variants; update score_c2 to accept v14_plain; re-score eng_loop. If P9 t655 still <0.80: FN-audit why (conf vs map) then specialty residual excluding holdout — do not lower EMIT or invent landmarks.",
+  "subgoals": [
+    {"id": 1, "title": "Confirm stale c2 winner + P9 gate", "status": "pass_why"},
+    {"id": 2, "title": "Wire v14_plain + reuse P8/P10 caches", "status": "in_progress"},
+    {"id": 3, "title": "Detect P9 t559 under v14", "status": "pending"},
+    {"id": 4, "title": "Detect P9 t655 under v14", "status": "pending"},
+    {"id": 5, "title": "Merge funnel JSON + pick winner", "status": "pending"},
+    {"id": 6, "title": "score_c2 accepts v14_plain", "status": "pending"},
+    {"id": 7, "title": "eng_loop c2_det >=9 (target 10)", "status": "pending"},
+    {"id": 8, "title": "If P9<0.80: FN bucket why >=9", "status": "pending"},
+    {"id": 9, "title": "If needed: specialty fix gated A/B", "status": "pending"},
+    {"id": 10, "title": "Kill-switch: strips/holdout not regress", "status": "pending"}
+  ]
+}

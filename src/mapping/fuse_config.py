@@ -20,7 +20,7 @@ def load_fuse_config(cfg_path: Path | None = None) -> dict:
     return {
         "mode": str(fuse.get("mode", "pitch_merge")),
         "ukf_enabled": bool(fuse.get("ukf_enabled", False)),
-        "cams": str(fuse.get("cams", "quad")),
+        "cams": str(fuse.get("cams", "all")),
         "reproj_max_px": dict(fuse.get("reproj_max_px") or {}),
         "fallback_pitch_merge": bool(fuse.get("fallback_pitch_merge", True)),
     }
@@ -30,7 +30,7 @@ def default_fuse_config() -> dict:
     return {
         "mode": "pitch_merge",
         "ukf_enabled": False,
-        "cams": "quad",
+        "cams": "all",
         "reproj_max_px": {},
         "fallback_pitch_merge": True,
     }

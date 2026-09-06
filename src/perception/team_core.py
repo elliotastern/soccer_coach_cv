@@ -43,6 +43,12 @@ FISHEYE_CAMS = frozenset({"P7", "P8", "P9", "P10"})
 FISHEYE_EDGE_FRAC = 0.20
 MAHALANOBIS_CHI2 = 9.21  # p ~ 0.01 for 3 kit dims
 USE_CIEDE2000_KIT = False  # A/B via TEAM_USE_CIEDE2000=1 env
+# Undershirt A/B winner: sample center 50%×50% of torso crop (skip sleeve/collar).
+JERSEY_CENTER_FRAC = 0.50
+# Dual-color rescue: center crop with both blue+white high → white kit (undershirt).
+DUAL_COLOR_FRAC = 0.35
+USE_JERSEY_CENTER = True
+USE_DUAL_TO_WHITE = True
 
 _BOX_CACHE: dict | None = None
 _CAM_XY_CACHE: dict[str, tuple[float, float]] | None = None
@@ -200,9 +206,26 @@ def feature_distance(fa: np.ndarray, fb: np.ndarray) -> float:
     return kit_d + 0.35 * hist_d
 
 
+def _center_crop_frac(crop: np.ndarray, frac: float) -> np.ndarray:
+    """Keep central frac×frac of torso (hard_center_50 undershirt A/B)."""
+    h, w = crop.shape[:2]
+    if h < 8 or w < 8:
+        return crop
+    fx = max(0.15, min(float(frac), 1.0))
+    x0 = int(w * (0.5 - fx * 0.5))
+    x1 = int(w * (0.5 + fx * 0.5))
+    y0 = int(h * (0.5 - fx * 0.5))
+    y1 = int(h * (0.5 + fx * 0.5))
+    if x1 - x0 < 4 or y1 - y0 < 4:
+        return crop
+    return crop[y0:y1, x0:x1]
+
+
 def jersey_feature(crop: np.ndarray) -> Optional[np.ndarray]:
     if crop is None or crop.size == 0:
         return None
+    if USE_JERSEY_CENTER:
+        crop = _center_crop_frac(crop, JERSEY_CENTER_FRAC)
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
     keep = _adaptive_non_green(hsv)
     std = float(crop.std())
@@ -364,11 +387,15 @@ def assign_feature(
         pixel_agree = strategy.pixel_cluster_agree
         no_gray = bool(strategy.no_gray)
         soft_nudge = bool(strategy.soft_pixel_nudge)
-    pixel = _pixel_team(
-        feature, mode, use_pixels=use_px, blue_frac=blue_f, white_frac=white_f,
-    )
     blue, white, yellow = float(feature[0]), float(feature[1]), float(feature[2])
     light = white + yellow
+    # Dual undershirt hint only — soft conf so session sticky/vote can hold identity.
+    if USE_DUAL_TO_WHITE and blue >= DUAL_COLOR_FRAC and white >= DUAL_COLOR_FRAC:
+        pixel = (1, 0.58)
+    else:
+        pixel = _pixel_team(
+            feature, mode, use_pixels=use_px, blue_frac=blue_f, white_frac=white_f,
+        )
     if pixel is not None and not pixel_agree and not no_gray:
         return pixel
     dists = np.array([feature_distance(feature, c) for c in centroids])
@@ -381,15 +408,17 @@ def assign_feature(
     )
     if no_gray:
         out_tid, out_conf = int(tid), max(conf, 0.45)
+        dual_white = blue >= DUAL_COLOR_FRAC and white >= DUAL_COLOR_FRAC
         if (soft_nudge or use_px) and pixel is not None and not pixel_agree:
             ptid, pconf = int(pixel[0]), float(pixel[1])
             strong_white = white >= white_f and white >= blue + 0.06
             strong_blue = blue >= blue_f and blue >= light + 0.06
             can_nudge = margin < PIXEL_NUDGE_MARGIN and pconf >= PIXEL_NUDGE_MIN_CONF
-            white_rescue = ptid == 1 and strong_white and margin < 0.22
+            white_rescue = ptid == 1 and (strong_white or dual_white) and margin < 0.28
             if ptid != out_tid and (can_nudge or white_rescue):
-                if ptid == 1 and strong_white:
-                    out_tid, out_conf = ptid, max(pconf, out_conf * 0.9)
+                if ptid == 1 and (strong_white or dual_white):
+                    # Strong enough to win track *birth*; below 0.92 sticky flip gate.
+                    out_tid, out_conf = ptid, 0.70 if dual_white else min(0.62, max(pconf, out_conf * 0.85))
                 elif ptid == 0 and strong_blue and can_nudge:
                     out_tid, out_conf = ptid, max(pconf, out_conf * 0.9)
             elif ptid == out_tid:

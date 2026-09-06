@@ -1,0 +1,17 @@
+{
+  "top1": "quad_constrained_nudge_for_kit_mfc",
+  "why_score": 9.6,
+  "prompt_score": 9.5,
+  "fix_score": 9.5,
+  "status": "pass_9plus_dead_end_restored",
+  "decision": "restore_no_promote",
+  "evidence": {
+    "ball_kill_switch": "passed while nudged (strips/holdout/eng_loop)",
+    "kit_full_consensus": "7.1 → 6.75",
+    "kit_mfc_at_22": "0.224 → 0.140",
+    "hold_lift_best": 0.25,
+    "promote_bar": "+0.3 hold consensus or ≥9"
+  },
+  "conclusion": "Tightening P7–P10 landmark RT by constrained nudge does not raise Match4 kit multcam_frac; it reduced it. Kit consensus≥9 needs more overlapping cams (P1/P6/goals) when Catch is up — not further H polish on quad-only.",
+  "restored": true
+}

@@ -1,0 +1,20 @@
+{
+  "top1": "quad_constrained_nudge_for_kit_mfc",
+  "overfit": "low_if_kill_switched",
+  "why_score": 9.6,
+  "why": "Eng-loop fusion is already all 10. Remaining goal gap is kit consensus 7.1. Formula caps consensus at ~8.6 while multcam_frac≈0.22; need mfc↑. Blind merge_m widen failed holdout. Kit fuse maps Match4 quad through Match3 P7–P10 H — those cams still have RT 0.50–0.73 m. Constrained nudge (existing IDs, 12–20 px) can hit RT≤0.15 and may shrink cross-cam player gaps → higher mfc without inventing landmarks or Catch.",
+  "prompt_score": 9.5,
+  "prompt": "Apply min-disp constrained nudge to P7/P8/P9/P10 with backups. Rematch strip gold. Kill-switch: strip P_emit≥0.80, holdout ball proxy≥0.884, eng_loop stays ≥9. Then Match4 tune/hold kit A/B: promote only if hold consensus +≥0.3 or hold consensus≥9. Else restore quad calibs and DEAD_ENDS.",
+  "subgoals": [
+    "baseline P7-P10 RT",
+    "min-disp L1 candidates",
+    "why mfc ceiling documented",
+    "apply nudge + backup",
+    "rematch strip gold",
+    "ball strip kill-switch",
+    "holdout ball kill-switch",
+    "eng_loop still all ≥9",
+    "kit holdout consensus A/B",
+    "promote or restore"
+  ]
+}

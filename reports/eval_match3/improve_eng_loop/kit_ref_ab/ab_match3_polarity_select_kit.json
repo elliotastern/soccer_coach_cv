@@ -1,0 +1,77 @@
+{
+  "ts": "2026-09-03T12:48:34.937997+00:00",
+  "MEAN_BLUE_BAND": [
+    0.35,
+    0.65
+  ],
+  "results": {
+    "B": {
+      "n_feats": 814,
+      "radius": 0.7833891893623116,
+      "tune_pick": 0,
+      "tune0_mean_blue": 0.421515676446017,
+      "tune1_mean_blue": 0.709907489311514,
+      "hold_base": {
+        "consensus": 9.31,
+        "balanced": 8.33,
+        "flickering": 9.27,
+        "composite": 8.95,
+        "multcam": 0.4357142857142857,
+        "agree": 0.9262295081967213,
+        "mean_blue_share": 0.26154987513346645,
+        "both3_frac": 0.95,
+        "collapse_frac": 0.0
+      },
+      "hold_pick": {
+        "consensus": 9.31,
+        "balanced": 8.33,
+        "flickering": 9.27,
+        "composite": 8.95,
+        "multcam": 0.4357142857142857,
+        "agree": 0.9262295081967213,
+        "mean_blue_share": 0.26154987513346645,
+        "both3_frac": 0.95,
+        "collapse_frac": 0.0
+      },
+      "lift_composite": 0.0,
+      "lift_consensus": 0.0
+    },
+    "A": {
+      "n_feats": 1072,
+      "radius": 0.7184221815614731,
+      "tune_pick": 0,
+      "tune0_mean_blue": 0.3926846260321494,
+      "tune1_mean_blue": 0.7225009328763199,
+      "hold_base": {
+        "consensus": 9.11,
+        "balanced": 10.0,
+        "flickering": 9.53,
+        "composite": 9.57,
+        "multcam": 0.5118733509234829,
+        "agree": 0.8144329896907216,
+        "mean_blue_share": 0.4123398896425213,
+        "both3_frac": 1.0,
+        "collapse_frac": 0.0
+      },
+      "hold_pick": {
+        "consensus": 9.11,
+        "balanced": 10.0,
+        "flickering": 9.53,
+        "composite": 9.57,
+        "multcam": 0.5118733509234829,
+        "agree": 0.8144329896907216,
+        "mean_blue_share": 0.4123398896425213,
+        "both3_frac": 1.0,
+        "collapse_frac": 0.0
+      },
+      "lift_composite": 0.0,
+      "lift_consensus": 0.0
+    }
+  },
+  "promote": false,
+  "decision": "dead_end_polarity_cannot_fix_composite",
+  "gates": {
+    "B_cons_comp": false,
+    "A_cons": true
+  }
+}

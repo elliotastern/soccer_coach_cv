@@ -1,0 +1,24 @@
+{
+  "top1": "match3_fullcam_kit_consensus",
+  "status": "path_confirmed_9plus",
+  "why_score": 9.5,
+  "prompt_score": 9.5,
+  "fix_score": 9.6,
+  "online_fit_hold": {
+    "quad_consensus": 6.54,
+    "full6_consensus": 8.23,
+    "full6_mfc": 0.493,
+    "gate_pass": false
+  },
+  "tune_freeze_hold": {
+    "quad_consensus": 7.55,
+    "full6_consensus": 9.11,
+    "full6_mfc": 0.512,
+    "full6_agree": 0.814,
+    "full6_composite": 9.57,
+    "gate_pass": true
+  },
+  "conclusion": "Adding P1/P6 to the fuse cam set lifts kit hold consensus past 9 when kit centroids are tune-fit then frozen. Match4 product still needs Catch to batch those cams; do not retune quad-only merge further.",
+  "product_action": "none_until_catch_match4_p1_p6",
+  "eng_loop": "unchanged_all_10"
+}

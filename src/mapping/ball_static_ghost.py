@@ -24,6 +24,12 @@ STATIC_SOLO_FRAMES = 12
 DWELL_HALF_LIFE_FR = 6.0
 # Never drive conf to 0 (debug / ranking); floor stays below EMIT_CONF so product drops.
 DWELL_CONF_FLOOR = 0.40
+# Only fade/lock solos from these cams (P7 ballcaps). Other cams keep moving/edge
+# solos — A/B 2026-09-04: all-cam ghost killed strip clear_R (P10 1.0→0.60, P8 1.0→0.17).
+GHOST_STRICT_CAMS = frozenset({"P7"})
+# Ballcaps scrape hull support ~0.43; real P7 balls sit ≥0.50. Kickoff autopsy
+# 2026-09-04: ghosting high-support static P7 solos killed ball_frac (0.90 misses).
+GHOST_MAX_SUPPORT = 0.50
 
 
 def _xy(emit: dict) -> tuple[float, float] | None:
@@ -150,6 +156,24 @@ def apply_static_solo_ghost(
         st["solo_last_fr"] = None
         return emit, st
 
+    cam = str(emit.get("cam") or "")
+    # Non-strict cams (e.g. P8/P10 edge solos): never fade or lock.
+    if GHOST_STRICT_CAMS and cam not in GHOST_STRICT_CAMS:
+        st["solo_xy"] = None
+        st["solo_cam"] = None
+        st["solo_start_fr"] = None
+        st["solo_last_fr"] = None
+        return emit, st
+
+    # High-hull P7 solos are real balls (often slow/static at kickoff) — never fade.
+    support = emit.get("support")
+    if support is not None and float(support) >= float(GHOST_MAX_SUPPORT):
+        st["solo_xy"] = None
+        st["solo_cam"] = None
+        st["solo_start_fr"] = None
+        st["solo_last_fr"] = None
+        return emit, st
+
     # Already locked ghost zone (incl. hold revival).
     if is_static_ghost_xy(st, xy, static_m):
         return None, st
@@ -164,7 +188,7 @@ def apply_static_solo_ghost(
         anchor = prev_xy
         st["solo_last_fr"] = fr
         st["solo_xy"] = anchor
-        st["solo_cam"] = str(emit.get("cam") or st.get("solo_cam") or "")
+        st["solo_cam"] = cam or str(st.get("solo_cam") or "")
         st["solo_start_fr"] = start
         span = fr - start
         return _gate_solo_dwell(
@@ -173,7 +197,7 @@ def apply_static_solo_ghost(
 
     # Far from dwell: real motion (or new false positive elsewhere).
     st["solo_xy"] = xy
-    st["solo_cam"] = str(emit.get("cam") or "")
+    st["solo_cam"] = cam
     st["solo_start_fr"] = fr
     st["solo_last_fr"] = fr
     # span 0 — full conf on first sighting of a new cell

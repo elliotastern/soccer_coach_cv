@@ -13,12 +13,12 @@ from src.mapping.fuse_product import fuse_ball_product
 from src.mapping.match3_xy import EMIT_CONF
 
 
-def _solo(xy=(5.0, 5.0), conf=0.95, cam="P10"):
+def _solo(xy=(5.0, 5.0), conf=0.95, cam="P7", support=0.43):
     return {
         "xy": xy,
         "conf": conf,
-        "weight": conf,
-        "support": conf,
+        "weight": conf * support,
+        "support": support,
         "cam": cam,
         "agree": False,
     }
@@ -111,15 +111,102 @@ def test_fuse_product_prefers_agree_over_static_solo():
 
 
 def test_fuse_product_ghosts_static_solo_sequence():
+    """Low-support P7 ballcap hold revival still fades/locks (solo cascade skips fresh)."""
     cfg = {"mode": "pitch_merge"}
-    row = [{"xy": (3.0, 4.0), "conf": 0.95, "weight": 0.95, "support": 0.95, "cam": "P10"}]
-    prev = None
-    gap = 0
+    row = [{"xy": (3.0, 4.0), "conf": 0.95, "weight": 0.40, "support": 0.43, "cam": "P7"}]
+    prev = {
+        "xy": (3.0, 4.0),
+        "conf": 0.95,
+        "cam": "P7",
+        "n": 1,
+        "agree": False,
+        "support": 0.43,
+    }
+    gap = 1
     st = None
     last = None
     for fr in range(STATIC_SOLO_FRAMES + 3):
         last, prev, gap, _, st = fuse_ball_product(
             row, prev, gap, cfg=cfg, frame_id=fr, static_state=st
         )
-    assert last is None, "static high-conf solo must drop after streak"
+    assert last is None, "static P7 ballcap hold must drop after streak"
     assert st and st.get("ghosts")
+
+
+def test_fuse_product_does_not_ghost_high_support_p7_static():
+    """Real P7 balls (hull support ≥0.50) keep emitting when static — kickoff fix."""
+    cfg = {"mode": "pitch_merge"}
+    row = [{"xy": (3.0, 4.0), "conf": 0.95, "weight": 0.95, "support": 1.0, "cam": "P7"}]
+    prev = None
+    gap = 0
+    st = None
+    last = None
+    for fr in range(STATIC_SOLO_FRAMES + 5):
+        last, prev, gap, _, st = fuse_ball_product(
+            row, prev, gap, cfg=cfg, frame_id=fr, static_state=st
+        )
+        assert last is not None
+        assert float(last["conf"]) >= EMIT_CONF
+    assert not (st or {}).get("ghosts")
+
+
+def test_fuse_product_clears_ghosted_prev_for_recovery():
+    """Ghost-killed hold must clear prev so a soft other-cam map can soft-renew later."""
+    cfg = {"mode": "pitch_merge"}
+    st = new_static_ghost_state()
+    st["ghosts"] = [{"xy": (-20.1, -16.2), "cam": "P7"}]
+    prev = {
+        "xy": (-20.1, -16.2),
+        "conf": 0.92,
+        "cam": "P7",
+        "n": 1,
+        "agree": False,
+        "support": 0.43,
+    }
+    # Soft P10 near a different place — no fresh emit, hold gated → prev cleared.
+    rows = [
+        {"xy": (1.5, 5.8), "conf": 0.70, "weight": 0.55, "support": 0.78, "cam": "P10"},
+    ]
+    emit, prev_out, gap, _, st2 = fuse_ball_product(
+        rows, prev, 5, cfg=cfg, frame_id=100, static_state=st
+    )
+    assert emit is None
+    assert prev_out is None, "ghosted prev must clear"
+    assert gap == 6
+
+
+def test_fuse_product_does_not_ghost_p10_static_solo():
+    """Non-P7 solos keep emitting (strip clear_R regression fix)."""
+    cfg = {"mode": "pitch_merge"}
+    row = [{"xy": (3.0, 4.0), "conf": 0.95, "weight": 0.95, "support": 0.95, "cam": "P10"}]
+    prev = None
+    gap = 0
+    st = None
+    last = None
+    for fr in range(STATIC_SOLO_FRAMES + 5):
+        last, prev, gap, _, st = fuse_ball_product(
+            row, prev, gap, cfg=cfg, frame_id=fr, static_state=st
+        )
+        assert last is not None
+        assert float(last["conf"]) >= EMIT_CONF
+    assert not (st or {}).get("ghosts")
+
+
+def test_fuse_product_filters_locked_ghost_maps():
+    """Locked ghost zone must not seed fuse when a real ball is also mapped."""
+    from src.mapping.ball_static_ghost import filter_maps_not_static_ghost
+
+    cfg = {"mode": "pitch_merge"}
+    st = new_static_ghost_state()
+    st["ghosts"] = [{"xy": (-20.1, -16.2), "cam": "P7"}]
+    rows = [
+        {"xy": (-20.1, -16.2), "conf": 0.92, "weight": 0.4, "support": 0.43, "cam": "P7"},
+        {"xy": (-10.0, 10.0), "conf": 0.88, "weight": 0.88, "support": 1.0, "cam": "P10"},
+    ]
+    kept = filter_maps_not_static_ghost(rows, st)
+    assert [r["cam"] for r in kept] == ["P10"]
+    emit, _, _, _, _ = fuse_ball_product(
+        rows, None, 0, cfg=cfg, frame_id=0, static_state=st
+    )
+    assert emit is not None
+    assert emit.get("cam") == "P10"

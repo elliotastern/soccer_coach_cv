@@ -1,0 +1,10 @@
+{
+  "n_sample_frames": 30,
+  "n_frames_with_same_team_near_miss": 10,
+  "same_team_near_miss_n": 15,
+  "same_team_gap_median": 2.5493765521150187,
+  "diff_team_near_miss_n": 8,
+  "gray_near_miss_n": 0,
+  "same_vs_diff_ratio": 1.875,
+  "why": "If same-team near-misses dominate (2.2,3.2], color-gated soft merge is low-overfit; if diff-team dominate, soft merge still risky."
+}

@@ -96,11 +96,12 @@ STRATEGIES: dict[str, TeamStrategy] = {
         id="S11",
         name="auto_traj_no_gray",
         use_jersey_pixels=True,
-        use_rebalance=True,
+        use_rebalance=False,
         use_skew_cap=False,
         no_gray=True,
         use_traj_vote=True,
         soft_pixel_nudge=True,
+        sticky_flip_conf=0.92,
     ),
     "auto_v3_pixels": TeamStrategy(
         id="S06",

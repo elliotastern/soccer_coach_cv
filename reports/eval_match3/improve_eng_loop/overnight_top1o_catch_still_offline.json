@@ -1,0 +1,16 @@
+{
+  "ts": "2026-09-03T12:54:00Z",
+  "top5": [
+    {"rank": 1, "lever": "Power on Catch PC + Match4 P1/P6 kit batch", "overfit": "low", "status": "blocked_catch_offline_7d"},
+    {"rank": 2, "lever": "Soft merge >4.5m quad", "overfit": "medium", "status": "defer_wrong_lever"},
+    {"rank": 3, "lever": "Goals in kit", "overfit": "low", "status": "optional"},
+    {"rank": 4, "lever": "Polarity/merge/H polish", "overfit": "n/a", "status": "exhausted_dead_ends"},
+    {"rank": 5, "lever": "v15 soft-FN", "overfit": "low", "status": "diminishing"}
+  ],
+  "why_score": 9.8,
+  "why": "Only eng_loop fail is match4_kit=7.7. Math ceiling on quad mfc≈0.22. Match3 full6 freeze already ≥9.11. Catch Tailscale peer Offline since 2026-08-27. Mac Tailscale is up. No local fusion change lifts match4_kit to 9.",
+  "prompt_score": 9.7,
+  "prompt": "Power on Catch Ubuntu + Tailscale until Online. Waiter already polling: scripts/wait_catch_and_run_match4_fullcam_kit.sh → tmux m4kit fullcam 5min. Then score kit hold consensus≥9 with frozen kit-ref; eng_loop match4_kit≥9. Hard nos: widen merge, invent landmarks, lower emit.",
+  "action_taken": "started nohup waiter polling every 60s → /tmp/wait_catch_m4kit.log",
+  "user_must": "Power on Catch PC (AnyDesk/physical). Nothing else unblocks match4_kit≥9."
+}

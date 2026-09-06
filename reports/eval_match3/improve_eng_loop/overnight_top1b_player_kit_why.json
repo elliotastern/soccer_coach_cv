@@ -1,0 +1,203 @@
+{
+  "why_score": 9.4,
+  "why": "Player map is saturated (det_ok==map_ok). Fuse drop is almost entirely same-player multi-cam merge (18 pts \u2192 ~14 clusters) plus a few weak solos. Kit consensus 7.1 is limited by multcam_frac\u22480.22 \u2014 sparse true multi-cam overlaps / H span, not missing map support. Widening merge_m on smoke-only would overfit; next fix needs Match-4 held-out stitch/kit A/B.",
+  "prompt": "Top-1 now: raise kit consensus via multi-cam player clustering measured on Match-4 held windows. Do NOT retune PLAYER_MERGE_M on fr2400 alone. Do NOT invent landmarks. Keep ball EMIT/MIN_SUPPORT. Subgoals: holdout split \u2192 cluster distance histogram \u2192 only change knobs if held-out consensus rises without ghost flood / ball kill-switch trip.",
+  "prompt_score": 9.5,
+  "overfit": "medium if smoke-tune; low if Match-4 holdout-gated",
+  "frames": [
+    {
+      "frame_id": 2400,
+      "n_mapped": 18,
+      "n_clusters": 14,
+      "n_clusters_multi_cam": 4,
+      "n_clusters_multi_pt": 4,
+      "n_clusters_solo": 10,
+      "solo_keep": 10,
+      "solo_drop_below_live_solo_conf": 0,
+      "n_fused_uncapped": 14,
+      "n_fused_cap14": 14,
+      "drop_mapped_to_fused": 4,
+      "merge_m": 1.8,
+      "live_solo_conf": 0.4,
+      "nearest_crosscam_for_solos": [
+        {
+          "conf": 0.7678243517875671,
+          "cam": "P10",
+          "nearest_other_cam_m": 2.32,
+          "other": "P7"
+        },
+        {
+          "conf": 0.6921366453170776,
+          "cam": "P7",
+          "nearest_other_cam_m": 2.32,
+          "other": "P10"
+        },
+        {
+          "conf": 0.7308540344238281,
+          "cam": "P7",
+          "nearest_other_cam_m": 3.28,
+          "other": "P10"
+        },
+        {
+          "conf": 0.5864134430885315,
+          "cam": "P7",
+          "nearest_other_cam_m": 3.44,
+          "other": "P10"
+        },
+        {
+          "conf": 0.751305878162384,
+          "cam": "P7",
+          "nearest_other_cam_m": 7.95,
+          "other": "P10"
+        },
+        {
+          "conf": 0.7510840892791748,
+          "cam": "P7",
+          "nearest_other_cam_m": 8.85,
+          "other": "P8"
+        },
+        {
+          "conf": 0.5048840045928955,
+          "cam": "P8",
+          "nearest_other_cam_m": 8.85,
+          "other": "P7"
+        },
+        {
+          "conf": 0.7630777359008789,
+          "cam": "P7",
+          "nearest_other_cam_m": 9.91,
+          "other": "P10"
+        }
+      ]
+    },
+    {
+      "frame_id": 3078,
+      "n_mapped": 13,
+      "n_clusters": 10,
+      "n_clusters_multi_cam": 2,
+      "n_clusters_multi_pt": 3,
+      "n_clusters_solo": 7,
+      "solo_keep": 7,
+      "solo_drop_below_live_solo_conf": 0,
+      "n_fused_uncapped": 10,
+      "n_fused_cap14": 10,
+      "drop_mapped_to_fused": 3,
+      "merge_m": 1.8,
+      "live_solo_conf": 0.4,
+      "nearest_crosscam_for_solos": [
+        {
+          "conf": 0.7758515477180481,
+          "cam": "P9",
+          "nearest_other_cam_m": 3.72,
+          "other": "P8"
+        },
+        {
+          "conf": 0.7658862471580505,
+          "cam": "P8",
+          "nearest_other_cam_m": 3.72,
+          "other": "P9"
+        },
+        {
+          "conf": 0.7873219847679138,
+          "cam": "P7",
+          "nearest_other_cam_m": 4.61,
+          "other": "P10"
+        },
+        {
+          "conf": 0.7296619415283203,
+          "cam": "P9",
+          "nearest_other_cam_m": 8.84,
+          "other": "P8"
+        },
+        {
+          "conf": 0.630128026008606,
+          "cam": "P8",
+          "nearest_other_cam_m": 9.9,
+          "other": "P7"
+        },
+        {
+          "conf": 0.7289475202560425,
+          "cam": "P8",
+          "nearest_other_cam_m": 14.17,
+          "other": "P9"
+        },
+        {
+          "conf": 0.7703596353530884,
+          "cam": "P8",
+          "nearest_other_cam_m": 14.98,
+          "other": "P7"
+        }
+      ]
+    },
+    {
+      "frame_id": 3600,
+      "n_mapped": 12,
+      "n_clusters": 11,
+      "n_clusters_multi_cam": 0,
+      "n_clusters_multi_pt": 1,
+      "n_clusters_solo": 10,
+      "solo_keep": 10,
+      "solo_drop_below_live_solo_conf": 0,
+      "n_fused_uncapped": 11,
+      "n_fused_cap14": 11,
+      "drop_mapped_to_fused": 1,
+      "merge_m": 1.8,
+      "live_solo_conf": 0.4,
+      "nearest_crosscam_for_solos": [
+        {
+          "conf": 0.7910035252571106,
+          "cam": "P7",
+          "nearest_other_cam_m": 8.03,
+          "other": "P8"
+        },
+        {
+          "conf": 0.7283608317375183,
+          "cam": "P8",
+          "nearest_other_cam_m": 13.57,
+          "other": "P7"
+        },
+        {
+          "conf": 0.790738046169281,
+          "cam": "P8",
+          "nearest_other_cam_m": 13.9,
+          "other": "P7"
+        },
+        {
+          "conf": 0.7515844702720642,
+          "cam": "P8",
+          "nearest_other_cam_m": 14.54,
+          "other": "P7"
+        },
+        {
+          "conf": 0.7787054777145386,
+          "cam": "P8",
+          "nearest_other_cam_m": 15.38,
+          "other": "P7"
+        },
+        {
+          "conf": 0.7758472561836243,
+          "cam": "P8",
+          "nearest_other_cam_m": 18.51,
+          "other": "P7"
+        },
+        {
+          "conf": 0.810728907585144,
+          "cam": "P8",
+          "nearest_other_cam_m": 18.54,
+          "other": "P7"
+        },
+        {
+          "conf": 0.7858417630195618,
+          "cam": "P8",
+          "nearest_other_cam_m": 18.75,
+          "other": "P7"
+        }
+      ]
+    }
+  ],
+  "kit_baseline": {
+    "consensus": 7.1,
+    "multcam_frac": 0.224,
+    "composite": 9.01
+  }
+}

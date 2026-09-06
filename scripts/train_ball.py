@@ -28,6 +28,10 @@ except ImportError:
     print("Warning: MLflow not available. Install with: pip install mlflow")
 
 try:
+    # Avoid peft→tensorflow hang on macOS (same stub as rfdetr_local).
+    from src.perception.rfdetr_local import _patch_rfdetr_imports
+
+    _patch_rfdetr_imports()
     from rfdetr import RFDETRBase
     RFDETR_AVAILABLE = True
 except ImportError:

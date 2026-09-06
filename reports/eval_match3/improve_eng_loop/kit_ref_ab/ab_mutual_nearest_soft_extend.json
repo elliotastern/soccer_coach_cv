@@ -1,0 +1,99 @@
+{
+  "ts": "2026-09-03T12:21:21.959502+00:00",
+  "rows": [
+    {
+      "variant": "product_soft_3.2",
+      "soft_m": 3.2,
+      "mutual": false,
+      "tune_consensus": 7.61,
+      "hold_consensus": 7.01,
+      "tune_multcam": 0.1897810218978102,
+      "hold_multcam": 0.16600088770528185,
+      "hold_agree": 0.7566844919786097,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 8.99,
+      "hold_mean_players": 14.016666666666667
+    },
+    {
+      "variant": "mutual_3.2",
+      "soft_m": 3.2,
+      "mutual": true,
+      "tune_consensus": 7.61,
+      "hold_consensus": 7.0,
+      "tune_multcam": 0.18896925858951175,
+      "hold_multcam": 0.16497125165855817,
+      "hold_agree": 0.7560321715817694,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 8.99,
+      "hold_mean_players": 14.088888888888889
+    },
+    {
+      "variant": "mutual_3.6",
+      "soft_m": 3.6,
+      "mutual": true,
+      "tune_consensus": 7.73,
+      "hold_consensus": 7.17,
+      "tune_multcam": 0.20283234353586113,
+      "hold_multcam": 0.17935024477080552,
+      "hold_agree": 0.7741935483870968,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 9.04,
+      "hold_mean_players": 13.983333333333333
+    },
+    {
+      "variant": "mutual_4.0",
+      "soft_m": 4.0,
+      "mutual": true,
+      "tune_consensus": 7.83,
+      "hold_consensus": 7.26,
+      "tune_multcam": 0.2152073732718894,
+      "hold_multcam": 0.1866904868244752,
+      "hold_agree": 0.7822966507177034,
+      "hold_collapse": 0.10555555555555556,
+      "hold_composite": 9.06,
+      "hold_mean_players": 13.95
+    },
+    {
+      "variant": "mutual_4.5",
+      "soft_m": 4.5,
+      "mutual": true,
+      "tune_consensus": 7.97,
+      "hold_consensus": 7.42,
+      "tune_multcam": 0.2336448598130841,
+      "hold_multcam": 0.2025259359494813,
+      "hold_agree": 0.7973273942093542,
+      "hold_collapse": 0.1111111111111111,
+      "hold_composite": 9.11,
+      "hold_mean_players": 13.894444444444444
+    }
+  ],
+  "base": {
+    "variant": "product_soft_3.2",
+    "soft_m": 3.2,
+    "mutual": false,
+    "tune_consensus": 7.61,
+    "hold_consensus": 7.01,
+    "tune_multcam": 0.1897810218978102,
+    "hold_multcam": 0.16600088770528185,
+    "hold_agree": 0.7566844919786097,
+    "hold_collapse": 0.10555555555555556,
+    "hold_composite": 8.99,
+    "hold_mean_players": 14.016666666666667
+  },
+  "best": {
+    "variant": "mutual_4.5",
+    "soft_m": 4.5,
+    "mutual": true,
+    "tune_consensus": 7.97,
+    "hold_consensus": 7.42,
+    "tune_multcam": 0.2336448598130841,
+    "hold_multcam": 0.2025259359494813,
+    "hold_agree": 0.7973273942093542,
+    "hold_collapse": 0.1111111111111111,
+    "hold_composite": 9.11,
+    "hold_mean_players": 13.894444444444444
+  },
+  "hold_lift": 0.41,
+  "decision": "promote",
+  "promote_rule": "hold consensus +\u22650.3 vs product_soft_3.2; mfc not down; health"
+}

@@ -446,9 +446,10 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             '/match3-m1-p7-blur',
         ):
             self.send_response(302)
+            # Post-v25 flat: label P7_1162 streak morphology first.
             self.send_header(
                 'Location',
-                '/data/processed/gold_sets/match3_blur_p1_1300/review/index.html',
+                '/data/processed/gold_sets/match3_blur_p7_1162/review/index.html',
             )
             self.end_headers()
             return

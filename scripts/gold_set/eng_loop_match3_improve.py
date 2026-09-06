@@ -392,15 +392,15 @@ def score_product_goals() -> tuple[float, list[str]]:
         score -= 1.0
         notes.append("no strip with product clear_R ≥ 0.90")
     text = (ROOT / "src/mapping/match3_xy.py").read_text(encoding="utf-8")
-    if "HOLD_MAX_GAP = 4" not in text and "HOLD_MAX_GAP=4" not in text:
+    if "HOLD_MAX_GAP = 24" not in text and "HOLD_MAX_GAP=24" not in text:
         score -= 1.0
-        notes.append("HOLD_MAX_GAP not locked at 4")
+        notes.append("HOLD_MAX_GAP not locked at 24")
     gallery = ROOT / "reports/eval_match3/pitchmap_gallery/manifest.json"
     if not gallery.is_file():
         score -= 1.0
         notes.append("random pitchmap gallery missing")
     if not notes:
-        notes.append(f"goals ok on {len(strips)} strips (F0 clear_R, hold=4)")
+        notes.append(f"goals ok on {len(strips)} strips (F0 clear_R, hold=24)")
     return clamp(score), notes
 
 

@@ -1,0 +1,20 @@
+{
+  "top1": "match3_fullcam_kit_consensus",
+  "overfit": "low — held time split; no Match4 hyperparam retune; cams are real FOV not invented",
+  "why_score": 9.5,
+  "why": "Fusion eng-loop is all 10. Kit consensus 7.73 on Match4 quad has mfc≈0.22 → math ceiling ~8.6 even at perfect agree; need mfc≥0.30 for consensus≥9. Catch is down so Match4 cannot add P1/P6. Match3 raw videos with P1/P6/P7–P10 exist on Mac. The m4_90s kit cache is actually Match3 quad-only. Therefore Top-1 is: build short Match3 multi-cam player cache including end cams, A/B quad vs full-cam kit consensus on a held time split.",
+  "prompt_score": 9.5,
+  "prompt": "Build Match3 player det cache (plain RF-DETR people) for cams P1,P6,P7,P8,P9,P10 over ~60 frames. Score kit with product fuse (mutual soft 4.5) + auto_traj_no_gray online fit. A/B: same frames with quad-only cams vs full six cams. Success: full-cam hold consensus ≥9.0 OR hold mfc ≥0.30 with consensus ≥8.5. Do not retune merge_m. Do not invent landmarks. Match4 product kit still waits on Catch for P1/P6 batch.",
+  "subgoals": [
+    "ceiling math locked (mfc≥0.30)",
+    "Match3 vids present for P1/P6",
+    "build short full-cam det cache",
+    "why: quad vs full on same frames",
+    "score quad-only hold",
+    "score full-cam hold",
+    "mfc lift evidence",
+    "consensus ≥9 gate",
+    "document product implication",
+    "eng_loop still all ≥9"
+  ]
+}

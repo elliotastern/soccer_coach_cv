@@ -1,0 +1,8 @@
+{
+  "clip": "ali_handover_15s_best_ball_v16",
+  "kit": "hard_center_50 + dual_to_white",
+  "path": "reports/eval_match3/improve_eng_loop/ali15s_best_ball_ckpt_ab/coach_best_ball_ali15s_v16_kit_center_dual.mp4",
+  "compare_to": "reports/eval_match3/improve_eng_loop/ali15s_best_ball_ckpt_ab/coach_best_ball_ali15s_v16.mp4",
+  "ball_frame_frac": 1.0,
+  "n_emits": 3
+}

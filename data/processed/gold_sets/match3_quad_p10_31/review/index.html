@@ -32,6 +32,8 @@ label{display:block;margin:.4rem 0 .2rem;color:var(--muted);font-size:.85rem}
       <button id="prev">Prev</button>
       <button id="next">Next</button>
       <button id="clearOnly">Next clear</button>
+      <button id="softOnly">Next soft</button>
+      <button id="streakOnly">Next streak</button>
     </div>
     <div class="row">
       <button id="clearBox" class="danger">Clear box</button>
@@ -137,6 +139,20 @@ document.getElementById('clearOnly').onclick=()=>{
     if(s.clear){show(k);return;}
   }
   setStatus('no later clear frame','warn');
+};
+document.getElementById('softOnly').onclick=()=>{
+  for(let k=i+1;k<labels.frames.length;k++){
+    const s=(labels.frames[k].cams||{})[FOCUS]||{};
+    if(s.soft_seed || (s.gt_balls&&s.gt_balls.length && !s.clear)){show(k);return;}
+  }
+  setStatus('no later soft frame','warn');
+};
+document.getElementById('streakOnly').onclick=()=>{
+  for(let k=i+1;k<labels.frames.length;k++){
+    const s=(labels.frames[k].cams||{})[FOCUS]||{};
+    if(s.streaky || s.blur_priority){show(k);return;}
+  }
+  setStatus('no later streak frame','warn');
 };
 document.getElementById('save').onclick=async ()=>{
   setStatus('saving…');
